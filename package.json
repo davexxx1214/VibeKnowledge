@@ -1,0 +1,504 @@
+{
+  "name": "vibe-knowledge",
+  "displayName": "Vibe Knowledge",
+  "description": "将工作区转化为智能知识网络的 VS Code 插件",
+  "version": "0.1.0",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "knowledge.createEntity",
+        "title": "Knowledge: Create Entity from Selection"
+      },
+      {
+        "command": "knowledge.linkToEntity",
+        "title": "Knowledge: Link Selection to Entity..."
+      },
+      {
+        "command": "knowledge.addObservation",
+        "title": "Knowledge: Add Observation to Entity..."
+      },
+      {
+        "command": "knowledge.editObservation",
+        "title": "Knowledge: Edit Observation"
+      },
+      {
+        "command": "knowledge.addRelation",
+        "title": "Knowledge: Add Relation"
+      },
+      {
+        "command": "knowledge.viewEntityDetails",
+        "title": "Knowledge: View Entity Details"
+      },
+      {
+        "command": "knowledge.searchGraph",
+        "title": "Knowledge: Search Graph"
+      },
+      {
+        "command": "knowledge.visualizeGraph",
+        "title": "Knowledge: Visualize Graph",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "knowledge.exportGraph",
+        "title": "Knowledge: Export Graph",
+        "icon": "$(save-as)"
+      },
+      {
+        "command": "knowledge.importGraph",
+        "title": "Knowledge: Import Graph"
+      },
+      {
+        "command": "knowledge.clearGraph",
+        "title": "Knowledge: Clear Graph"
+      },
+      {
+        "command": "knowledge.settings",
+        "title": "Knowledge: Settings"
+      },
+      {
+        "command": "knowledge.deleteEntity",
+        "title": "Knowledge: Delete Entity"
+      },
+      {
+        "command": "knowledge.deleteRelation",
+        "title": "Knowledge: Delete Relation"
+      },
+      {
+        "command": "knowledge.deleteObservation",
+        "title": "Knowledge: Delete Observation"
+      },
+      {
+        "command": "knowledge.deleteRelationFromTree",
+        "title": "Delete Relation"
+      },
+      {
+        "command": "knowledge.refresh",
+        "title": "Knowledge: Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "knowledge.generateCursorRules",
+        "title": "Knowledge: Generate Cursor Rules",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "knowledge.generateCopilotInstructions",
+        "title": "Knowledge: Generate Copilot Instructions",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "knowledge.generateAllAIConfigs",
+        "title": "Knowledge: Generate All AI Configs",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "knowledge.switchAIScenario",
+        "title": "Knowledge: Switch AI Scenario",
+        "icon": "$(notebook-template)"
+      },
+      {
+        "command": "knowledge.showCurrentScenario",
+        "title": "Knowledge: Show Current AI Scenario",
+        "icon": "$(info)"
+      },
+      {
+        "command": "knowledge.copyEntityContext",
+        "title": "Knowledge: Copy Entity Context to Clipboard",
+        "icon": "$(clippy)"
+      },
+      {
+        "command": "knowledge.exportCurrentFileContext",
+        "title": "Knowledge: Export Current File Context",
+        "icon": "$(file-text)"
+      },
+      {
+        "command": "knowledge.generateAISummary",
+        "title": "Knowledge: Generate AI Summary",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "knowledge.rag.askQuestion",
+        "title": "Knowledge: Ask Question",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "knowledge.rag.viewIndexedDocuments",
+        "title": "Knowledge: View Indexed Documents",
+        "icon": "$(list-unordered)"
+      },
+      {
+        "command": "knowledge.rag.testConnection",
+        "title": "Knowledge: Test Gemini API Connection",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "knowledge.rag.diagnose",
+        "title": "Knowledge: Diagnose RAG Status",
+        "icon": "$(debug-console)"
+      },
+      {
+        "command": "knowledge.rag.openDocument",
+        "title": "Open Document"
+      },
+      {
+        "command": "knowledge.rag.refresh",
+        "title": "Knowledge: Rebuild RAG Index",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "knowledge.rag.viewStoreInfo",
+        "title": "Knowledge: View RAG Store Info",
+        "icon": "$(info)"
+      },
+      {
+        "command": "knowledge.switchLanguage",
+        "title": "Knowledge: Switch Language",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "knowledge.expandAll",
+        "title": "Knowledge: Expand All",
+        "icon": "$(expand-all)"
+      },
+      {
+        "command": "knowledge.autoGraph.analyzeWorkspace",
+        "title": "Knowledge: Analyze Workspace (Auto Graph)",
+        "icon": "$(symbol-namespace)"
+      },
+      {
+        "command": "knowledge.autoGraph.analyzeCurrentFile",
+        "title": "Knowledge: Analyze Current File (Auto Graph)",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "knowledge.autoGraph.clear",
+        "title": "Knowledge: Clear Auto Graph",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "knowledge.autoGraph.viewStats",
+        "title": "Knowledge: View Auto Graph Statistics",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "knowledge.autoGraph.addObservation",
+        "title": "Knowledge: Add Observation (Auto Graph)",
+        "icon": "$(note)"
+      },
+      {
+        "command": "knowledge.autoGraph.editObservation",
+        "title": "Knowledge: Edit Observation (Auto Graph)",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "knowledge.autoGraph.deleteObservation",
+        "title": "Knowledge: Delete Observation (Auto Graph)",
+        "icon": "$(trash)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "knowledge.createEntity",
+          "group": "knowledge@1"
+        },
+        {
+          "command": "knowledge.linkToEntity",
+          "group": "knowledge@2"
+        },
+        {
+          "command": "knowledge.addObservation",
+          "group": "knowledge@3"
+        },
+        {
+          "command": "knowledge.viewEntityDetails",
+          "group": "knowledge@4"
+        },
+        {
+          "command": "knowledge.copyEntityContext",
+          "group": "knowledge@5"
+        },
+        {
+          "command": "knowledge.exportCurrentFileContext",
+          "group": "knowledge@6"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "knowledge.createEntity",
+          "group": "knowledge@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "knowledge.editObservation",
+          "when": "view == knowledgeGraphExplorer && viewItem == entity",
+          "group": "knowledge@0.9"
+        },
+        {
+          "command": "knowledge.deleteEntity",
+          "when": "view == knowledgeGraphExplorer && viewItem == entity",
+          "group": "knowledge@1"
+        },
+        {
+          "command": "knowledge.deleteRelationFromTree",
+          "when": "view == knowledgeGraphExplorer && viewItem == relation",
+          "group": "knowledge@1"
+        },
+        {
+          "command": "knowledge.autoGraph.addObservation",
+          "when": "view == knowledgeGraphExplorer && viewItem == autoEntity",
+          "group": "knowledge@0.8"
+        },
+        {
+          "command": "knowledge.autoGraph.editObservation",
+          "when": "view == knowledgeGraphExplorer && viewItem == autoObservation",
+          "group": "knowledge@0.9"
+        },
+        {
+          "command": "knowledge.autoGraph.deleteObservation",
+          "when": "view == knowledgeGraphExplorer && viewItem == autoObservation",
+          "group": "knowledge@1"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "knowledge.expandAll",
+          "when": "view == knowledgeGraphExplorer",
+          "group": "navigation@0"
+        },
+        {
+          "command": "knowledge.exportGraph",
+          "when": "view == knowledgeGraphExplorer",
+          "group": "navigation@1"
+        },
+        {
+          "command": "knowledge.visualizeGraph",
+          "when": "view == knowledgeGraphExplorer",
+          "group": "navigation@2"
+        },
+        {
+          "command": "knowledge.refresh",
+          "when": "view == knowledgeGraphExplorer",
+          "group": "navigation@3"
+        },
+        {
+          "command": "knowledge.switchLanguage",
+          "when": "view == knowledgeGraphExplorer",
+          "group": "navigation@4"
+        },
+        {
+          "command": "knowledge.expandAll",
+          "when": "view == knowledgeRAGExplorer",
+          "group": "navigation@0"
+        },
+        {
+          "command": "knowledge.rag.askQuestion",
+          "when": "view == knowledgeRAGExplorer",
+          "group": "navigation@1"
+        },
+        {
+          "command": "knowledge.rag.viewStoreInfo",
+          "when": "view == knowledgeRAGExplorer",
+          "group": "navigation@2"
+        },
+        {
+          "command": "knowledge.rag.refresh",
+          "when": "view == knowledgeRAGExplorer",
+          "group": "navigation@3"
+        },
+        {
+          "command": "knowledge.switchLanguage",
+          "when": "view == knowledgeRAGExplorer",
+          "group": "navigation@4"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Knowledge Graph",
+      "properties": {
+        "knowledgeGraph.gemini.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Google Gemini API Key（用于 RAG 功能）。获取地址：https://makersuite.google.com/app/apikey",
+          "order": 1
+        },
+        "knowledgeGraph.gemini.model": {
+          "type": "string",
+          "default": "gemini-2.5-flash",
+          "enum": [
+            "gemini-2.5-flash",
+            "gemini-2.0-flash-exp",
+            "gemini-1.5-pro",
+            "gemini-1.5-flash"
+          ],
+          "description": "Gemini 模型选择（推荐使用 gemini-2.5-flash）",
+          "order": 2
+        },
+        "knowledgeGraph.rag.mode": {
+          "type": "string",
+          "default": "cloud",
+          "enum": [
+            "cloud",
+            "local"
+          ],
+          "enumDescriptions": [
+            "Cloud RAG (Gemini File Search)",
+            "Local RAG (OpenAI Compatible)"
+          ],
+          "description": "RAG 模式：使用云端 Gemini 或本地 OpenAI 兼容服务",
+          "order": 3
+        },
+        "knowledgeGraph.rag.local.apiBase": {
+          "type": "string",
+          "default": "http://localhost:8000/v1",
+          "description": "Local RAG: OpenAI 兼容 API 地址 (e.g. http://localhost:11434/v1 for Ollama)",
+          "order": 3.1
+        },
+        "knowledgeGraph.rag.local.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Local RAG: API Key (如果需要)",
+          "order": 3.2
+        },
+        "knowledgeGraph.rag.local.embeddingModel": {
+          "type": "string",
+          "default": "text-embedding-3-small",
+          "description": "Local RAG: 嵌入模型名称",
+          "order": 3.3
+        },
+        "knowledgeGraph.rag.local.inferenceModel": {
+          "type": "string",
+          "default": "gpt-4.1",
+          "description": "Local RAG: 推理模型名称",
+          "order": 3.4
+        },
+        "knowledgeGraph.rag.autoIndex": {
+          "type": "boolean",
+          "default": true,
+          "description": "自动索引 Knowledge/ 文件夹中的新文件",
+          "order": 3
+        },
+        "knowledgeGraph.language": {
+          "type": "string",
+          "default": "zh",
+          "enum": [
+            "zh",
+            "en"
+          ],
+          "enumDescriptions": [
+            "中文 (Chinese)",
+            "English"
+          ],
+          "description": "界面语言 / Display language",
+          "order": 4
+        },
+        "knowledgeGraph.autoAnalyze.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "启用自动代码分析 / Enable automatic code analysis",
+          "order": 5
+        },
+        "knowledgeGraph.autoAnalyze.onSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "保存文件时自动分析 / Analyze file on save",
+          "order": 5.1
+        },
+        "knowledgeGraph.autoAnalyze.include": {
+          "type": "array",
+          "default": [
+            "**/*.ts",
+            "**/*.tsx",
+            "**/*.js",
+            "**/*.jsx"
+          ],
+          "description": "包含的文件模式 / Include file patterns",
+          "order": 5.2
+        },
+        "knowledgeGraph.autoAnalyze.exclude": {
+          "type": "array",
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/*.d.ts",
+            "**/*.test.ts",
+            "**/*.spec.ts"
+          ],
+          "description": "排除的文件模式 / Exclude file patterns",
+          "order": 5.3
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "knowledge-graph",
+          "title": "Knowledge Graph",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "knowledge-graph": [
+        {
+          "id": "knowledgeGraphExplorer",
+          "name": "Explorer"
+        },
+        {
+          "id": "knowledgeRAGExplorer",
+          "name": "Documents (RAG)"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "knowledgeGraphExplorer",
+        "contents": "暂无知识图谱数据。\n\n[创建实体](command:knowledge.createEntity)\n\n从选中的代码创建第一个实体。"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "lint": "eslint src --ext ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/node": "^20.0.0",
+    "@types/pdf-parse": "^1.1.5",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "esbuild": "^0.19.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.2.0",
+    "vitest": "^2.0.0"
+  },
+  "dependencies": {
+    "@google/genai": "^1.29.1",
+    "mammoth": "^1.11.0",
+    "mime-types": "^3.0.2",
+    "pdf-parse": "^1.1.1",
+    "sql.js": "^1.13.0",
+    "vis-network": "^10.0.2",
+    "word-extractor": "^1.0.4"
+  }
+}

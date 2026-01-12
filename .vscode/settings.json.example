@@ -1,0 +1,14 @@
+{
+  // VibeCoding 插件配置示例
+  
+  // Gemini API Key（用于 RAG 功能）
+  // 获取地址：https://makersuite.google.com/app/apikey
+  "knowledgeGraph.gemini.apiKey": "YOUR_API_KEY_HERE",
+  
+  // Gemini 模型选择（推荐使用 gemini-2.5-flash）
+  "knowledgeGraph.gemini.model": "gemini-2.5-flash",
+  
+  // 自动索引 Knowledge/ 文件夹中的新文件
+  "knowledgeGraph.rag.autoIndex": true
+}
+
