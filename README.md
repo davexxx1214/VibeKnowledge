@@ -6,9 +6,9 @@
 
 ## 🎬 产品演示
 
-[![产品演示视频](presentation/blue/1.png)](https://github.com/davexxx1214/VibeKnowledge/raw/main/presentation/presentation-compressed.mp4)
+https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 
-> 👆 点击封面图观看完整演示视频（45秒）| 原视频大小 31MB → 压缩后仅 3.9MB
+> 👆 完整产品演示视频（45秒）
 
 | 产品速览 | 功能亮点 |
 | --- | --- |
