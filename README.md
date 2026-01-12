@@ -4,6 +4,12 @@
 
 一个基于知识图谱和 SQLite 的 VS Code 插件，帮助开发者理解和管理代码库中的复杂关系，同时为 AI 编程提供持久化的项目上下文。
 
+## 🎬 产品演示
+
+[![产品演示视频](presentation/blue/1.png)](presentation/presentation.mp4)
+
+> 👆 点击上方封面图查看完整产品演示视频（45秒）
+
 | 产品速览 | 功能亮点 |
 | --- | --- |
 | ![封面：将代码库转化为智能知识网络](presentation/blue/1.png) | ![特性概览：知识图谱 + AI 协作 + RAG 知识库](presentation/blue/2.png) |
