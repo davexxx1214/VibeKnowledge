@@ -10,10 +10,16 @@ https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 
 > 👆 完整产品演示视频（45秒）
 
-| 产品速览 | 功能亮点 |
+
+### 📸 功能截图
+
+| 侧边栏视图 | AI 场景切换 |
 | --- | --- |
-| ![封面：将代码库转化为智能知识网络](presentation/blue/1.png) | ![特性概览：知识图谱 + AI 协作 + RAG 知识库](presentation/blue/2.png) |
-| ![命令面板与 VS Code 深度集成](presentation/blue/10.png) | ![MCP Service：独立部署 + 协议 + 数据复用](presentation/blue/11.png) |
+| ![侧边栏：手动图谱、自动图谱、RAG 文档](presentation/snap1.png) | ![AI 场景切换：8种内置模板](presentation/snap2.png) |
+
+| 自动图谱可视化 | 手动图谱可视化 |
+| --- | --- |
+| ![自动图谱：静态分析生成的依赖关系](presentation/snap3.png) | ![手动图谱：节点详情与关系连线](presentation/snap4.png) |
 
 ## 📋 目录
 
