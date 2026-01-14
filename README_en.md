@@ -439,6 +439,7 @@ async function bootstrap() {
 | `knowledgeGraph.autoAnalyze.onSave` | Auto analyze on save | `false` |
 | `knowledgeGraph.autoAnalyze.include` | Include file patterns | `["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]` |
 | `knowledgeGraph.autoAnalyze.exclude` | Exclude file patterns | `["**/node_modules/**", "**/dist/**", "**/*.d.ts", "**/*.test.ts"]` |
+| `knowledgeGraph.aiConfig.maxRelationsDisplay` | Max relations to display in AI config files | `50` |
 
 #### Manual vs Auto Graph Comparison
 
@@ -468,6 +469,10 @@ async function bootstrap() {
   - 📝 **Manual Graph**: Design decisions, observations, manually maintained relations
   - ⚡ **Auto Graph**: Static analysis generated code structure and dependencies
   - 🔗 **Merged Graph**: Manual + Auto, most complete context
+- ✅ **Entity Relationship Graph** 🆕: Generated AI configs include complete entity relationship info
+  - Relationship type distribution (uses, calls, extends, implements, etc.)
+  - Dependency details (source entity → target entity)
+  - Hierarchy analysis (Entry Layer Controllers / Foundation Layer Entities)
 - ✅ **Tech Stack Detection**: Automatically extract dependency info
   - JavaScript/TypeScript projects (`package.json`)
   - Java Maven projects (`pom.xml`)
