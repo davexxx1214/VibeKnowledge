@@ -148,6 +148,9 @@ export class AIIntegrationService {
       content += `\n`;
     }
 
+    // 实体关系图谱
+    content += this.buildEntityRelationsCN(entities, relations);
+
     // 关键组件（依赖最多的）
     if (stats.topDependencies.length > 0) {
       content += `## 🏗️ 关键组件 (Top ${Math.min(10, stats.topDependencies.length)})\n\n`;
@@ -289,6 +292,9 @@ export class AIIntegrationService {
       }
       content += `\n`;
     }
+
+    // Entity Relationship Graph
+    content += this.buildEntityRelationsEN(entities, relations);
 
     // Key Components (Most Dependencies)
     if (stats.topDependencies.length > 0) {
@@ -434,6 +440,9 @@ export class AIIntegrationService {
       content += `\n`;
     }
 
+    // Entity Relationship Graph
+    content += this.buildEntityRelationsEN(entities, relations);
+
     // Key Components
     if (stats.topDependencies.length > 0) {
       content += `## Key Components\n\n`;
@@ -551,6 +560,234 @@ export class AIIntegrationService {
   }
 
   /**
+   * 构建实体关系图谱内容（中文）
+   * 展示实体之间的依赖关系和层次结构
+   */
+  private buildEntityRelationsCN(entities: Entity[], relations: Relation[]): string {
+    if (relations.length === 0) {
+      return '';
+    }
+
+    // 创建实体 ID 到名称的映射
+    const entityMap = new Map<string, Entity>();
+    for (const entity of entities) {
+      entityMap.set(entity.id, entity);
+    }
+
+    let content = `## 🔗 实体关系图谱\n\n`;
+    content += `以下展示了代码实体之间的依赖和调用关系：\n\n`;
+
+    // 按关系类型分组
+    const relationsByType = new Map<string, Relation[]>();
+    for (const relation of relations) {
+      const type = relation.verb;
+      if (!relationsByType.has(type)) {
+        relationsByType.set(type, []);
+      }
+      relationsByType.get(type)!.push(relation);
+    }
+
+    // 显示关系类型说明
+    content += `### 关系类型说明\n\n`;
+    const relationTypeDescCN: Record<string, string> = {
+      'uses': '使用/依赖',
+      'calls': '调用',
+      'implements': '实现',
+      'extends': '继承',
+      'references': '引用',
+      'contains': '包含',
+      'creates': '创建',
+      'imports': '导入'
+    };
+
+    for (const [type, rels] of relationsByType.entries()) {
+      const desc = relationTypeDescCN[type] || type;
+      content += `- **${type}** (${desc}): ${rels.length} 个关系\n`;
+    }
+    content += `\n`;
+
+    // 显示依赖关系列表
+    content += `### 依赖关系详情\n\n`;
+    content += `\`\`\`\n`;
+    
+    const maxRelations = this.getMaxRelationsDisplay();
+    for (const relation of relations.slice(0, maxRelations)) {
+      const sourceEntity = entityMap.get(relation.sourceEntityId);
+      const targetEntity = entityMap.get(relation.targetEntityId);
+      
+      if (sourceEntity && targetEntity) {
+        content += `${sourceEntity.name} --[${relation.verb}]--> ${targetEntity.name}\n`;
+      }
+    }
+    
+    if (relations.length > maxRelations) {
+      content += `\n... 还有 ${relations.length - maxRelations} 个关系\n`;
+    }
+    
+    content += `\`\`\`\n\n`;
+
+    // 构建层次结构（入度为0的实体是顶层）
+    const inDegree = new Map<string, number>();
+    const outDegree = new Map<string, number>();
+    
+    for (const entity of entities) {
+      inDegree.set(entity.id, 0);
+      outDegree.set(entity.id, 0);
+    }
+    
+    for (const relation of relations) {
+      inDegree.set(relation.targetEntityId, (inDegree.get(relation.targetEntityId) || 0) + 1);
+      outDegree.set(relation.sourceEntityId, (outDegree.get(relation.sourceEntityId) || 0) + 1);
+    }
+
+    // 找出顶层实体（调用其他实体但不被调用的）
+    const topLevel = entities.filter(e => 
+      (inDegree.get(e.id) || 0) === 0 && (outDegree.get(e.id) || 0) > 0
+    );
+
+    // 找出底层实体（被调用但不调用其他的）
+    const bottomLevel = entities.filter(e => 
+      (outDegree.get(e.id) || 0) === 0 && (inDegree.get(e.id) || 0) > 0
+    );
+
+    if (topLevel.length > 0 || bottomLevel.length > 0) {
+      content += `### 层次结构分析\n\n`;
+      
+      if (topLevel.length > 0) {
+        content += `**入口层（Controllers/入口点）：**\n`;
+        for (const entity of topLevel.slice(0, 10)) {
+          content += `- \`${entity.name}\` (${entity.type}) - 调用 ${outDegree.get(entity.id)} 个实体\n`;
+        }
+        content += `\n`;
+      }
+
+      if (bottomLevel.length > 0) {
+        content += `**基础层（Entities/基础组件）：**\n`;
+        for (const entity of bottomLevel.slice(0, 10)) {
+          content += `- \`${entity.name}\` (${entity.type}) - 被 ${inDegree.get(entity.id)} 个实体依赖\n`;
+        }
+        content += `\n`;
+      }
+    }
+
+    return content;
+  }
+
+  /**
+   * 构建实体关系图谱内容（英文）
+   * 展示实体之间的依赖关系和层次结构
+   */
+  private buildEntityRelationsEN(entities: Entity[], relations: Relation[]): string {
+    if (relations.length === 0) {
+      return '';
+    }
+
+    // 创建实体 ID 到名称的映射
+    const entityMap = new Map<string, Entity>();
+    for (const entity of entities) {
+      entityMap.set(entity.id, entity);
+    }
+
+    let content = `## 🔗 Entity Relationship Graph\n\n`;
+    content += `The following shows the dependency and call relationships between code entities:\n\n`;
+
+    // 按关系类型分组
+    const relationsByType = new Map<string, Relation[]>();
+    for (const relation of relations) {
+      const type = relation.verb;
+      if (!relationsByType.has(type)) {
+        relationsByType.set(type, []);
+      }
+      relationsByType.get(type)!.push(relation);
+    }
+
+    // 显示关系类型说明
+    content += `### Relationship Types\n\n`;
+    const relationTypeDescEN: Record<string, string> = {
+      'uses': 'Uses/Depends on',
+      'calls': 'Calls',
+      'implements': 'Implements',
+      'extends': 'Extends',
+      'references': 'References',
+      'contains': 'Contains',
+      'creates': 'Creates',
+      'imports': 'Imports'
+    };
+
+    for (const [type, rels] of relationsByType.entries()) {
+      const desc = relationTypeDescEN[type] || type;
+      content += `- **${type}** (${desc}): ${rels.length} relations\n`;
+    }
+    content += `\n`;
+
+    // 显示依赖关系列表
+    content += `### Dependency Details\n\n`;
+    content += `\`\`\`\n`;
+    
+    const maxRelations = this.getMaxRelationsDisplay();
+    for (const relation of relations.slice(0, maxRelations)) {
+      const sourceEntity = entityMap.get(relation.sourceEntityId);
+      const targetEntity = entityMap.get(relation.targetEntityId);
+      
+      if (sourceEntity && targetEntity) {
+        content += `${sourceEntity.name} --[${relation.verb}]--> ${targetEntity.name}\n`;
+      }
+    }
+    
+    if (relations.length > maxRelations) {
+      content += `\n... and ${relations.length - maxRelations} more relations\n`;
+    }
+    
+    content += `\`\`\`\n\n`;
+
+    // 构建层次结构（入度为0的实体是顶层）
+    const inDegree = new Map<string, number>();
+    const outDegree = new Map<string, number>();
+    
+    for (const entity of entities) {
+      inDegree.set(entity.id, 0);
+      outDegree.set(entity.id, 0);
+    }
+    
+    for (const relation of relations) {
+      inDegree.set(relation.targetEntityId, (inDegree.get(relation.targetEntityId) || 0) + 1);
+      outDegree.set(relation.sourceEntityId, (outDegree.get(relation.sourceEntityId) || 0) + 1);
+    }
+
+    // 找出顶层实体（调用其他实体但不被调用的）
+    const topLevel = entities.filter(e => 
+      (inDegree.get(e.id) || 0) === 0 && (outDegree.get(e.id) || 0) > 0
+    );
+
+    // 找出底层实体（被调用但不调用其他的）
+    const bottomLevel = entities.filter(e => 
+      (outDegree.get(e.id) || 0) === 0 && (inDegree.get(e.id) || 0) > 0
+    );
+
+    if (topLevel.length > 0 || bottomLevel.length > 0) {
+      content += `### Hierarchy Analysis\n\n`;
+      
+      if (topLevel.length > 0) {
+        content += `**Entry Layer (Controllers/Entry Points):**\n`;
+        for (const entity of topLevel.slice(0, 10)) {
+          content += `- \`${entity.name}\` (${entity.type}) - calls ${outDegree.get(entity.id)} entities\n`;
+        }
+        content += `\n`;
+      }
+
+      if (bottomLevel.length > 0) {
+        content += `**Foundation Layer (Entities/Base Components):**\n`;
+        for (const entity of bottomLevel.slice(0, 10)) {
+          content += `- \`${entity.name}\` (${entity.type}) - depended by ${inDegree.get(entity.id)} entities\n`;
+        }
+        content += `\n`;
+      }
+    }
+
+    return content;
+  }
+
+  /**
    * 读取 AI 场景模板
    * 使用 ScenarioManager 获取当前场景的模板内容
    */
@@ -576,6 +813,14 @@ export class AIIntegrationService {
       console.error('❌ Failed to read scenario template:', error);
       return null;
     }
+  }
+
+  /**
+   * 获取配置中的最大关系显示数量
+   */
+  private getMaxRelationsDisplay(): number {
+    const config = vscode.workspace.getConfiguration('knowledgeGraph');
+    return config.get<number>('aiConfig.maxRelationsDisplay', 50);
   }
 
   /**

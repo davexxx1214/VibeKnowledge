@@ -439,6 +439,14 @@
           ],
           "description": "排除的文件模式 / Exclude file patterns",
           "order": 5.3
+        },
+        "knowledgeGraph.aiConfig.maxRelationsDisplay": {
+          "type": "number",
+          "default": 50,
+          "minimum": 10,
+          "maximum": 500,
+          "description": "AI 配置文件中显示的最大关系数量 / Maximum number of relations to display in AI config files",
+          "order": 6
         }
       }
     },
