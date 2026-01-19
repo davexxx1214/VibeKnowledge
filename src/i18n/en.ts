@@ -541,7 +541,16 @@ export const en = {
       noObservations: 'No observations yet',
       more: '+{count} more'
     },
-    cyclicDependency: 'Cyclic Dependency'
+    cyclicDependency: 'Cyclic Dependency',
+    music: {
+      play: 'Play Code Music',
+      stop: 'Stop Playing',
+      copyCode: 'Copy Strudel Code',
+      openRepl: 'Open in Strudel REPL',
+      generating: 'Generating music...',
+      noData: 'No data to play',
+      codeCopied: '✅ Strudel code copied to clipboard'
+    }
   },
 
   autoGraph: {

@@ -540,7 +540,16 @@ export const zh = {
       noObservations: '暂无观察记录',
       more: '还有 {count} 条'
     },
-    cyclicDependency: '循环依赖'
+    cyclicDependency: '循环依赖',
+    music: {
+      play: '播放代码音乐',
+      stop: '停止播放',
+      copyCode: '复制 Strudel 代码',
+      openRepl: '在 Strudel REPL 中打开',
+      generating: '正在生成音乐...',
+      noData: '没有数据可播放',
+      codeCopied: '✅ Strudel 代码已复制到剪贴板'
+    }
   },
 
   autoGraph: {

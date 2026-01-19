@@ -3,6 +3,8 @@ import { EntityService } from '../../services/entityService';
 import { RelationService } from '../../services/relationService';
 import { ObservationService } from '../../services/observationService';
 import { AutoGraphService } from '../../services/autoGraph';
+import { MusicGeneratorService } from '../../services/musicGenerator';
+import { StrudelView } from './strudelView';
 import { t } from '../../i18n/i18nService';
 
 /**
@@ -22,8 +24,10 @@ export class GraphView {
     private readonly _entityService: EntityService;
     private readonly _relationService: RelationService;
     private readonly _observationService: ObservationService;
+    private readonly _musicGenerator: MusicGeneratorService;
     private _disposables: vscode.Disposable[] = [];
     private _currentMode: GraphViewMode = 'manual';
+    private _cachedMusicCode: string = '';
 
     /**
      * 设置自动图谱服务（用于 merged/auto 视图）
@@ -44,6 +48,7 @@ export class GraphView {
         this._entityService = entityService;
         this._relationService = relationService;
         this._observationService = observationService;
+        this._musicGenerator = new MusicGeneratorService({ ambientStyle: true });
 
         // 设置初始内容
         this._update();
@@ -131,6 +136,24 @@ export class GraphView {
                 // 切换视图模式
                 this._currentMode = message.mode as GraphViewMode;
                 this._sendGraphData();
+                break;
+            case 'requestMusicCode':
+                // 请求生成音乐代码
+                this._sendMusicCode();
+                break;
+            case 'copyMusicCode':
+                // 复制音乐代码到剪贴板
+                if (this._cachedMusicCode) {
+                    vscode.env.clipboard.writeText(this._cachedMusicCode);
+                    vscode.window.showInformationMessage(t().graphView?.music?.codeCopied || 'Music code copied to clipboard');
+                }
+                break;
+            case 'openStrudelRepl':
+            case 'openStrudelUrl':
+                // 在新的 VS Code tab 中打开 Strudel 播放器
+                if (this._cachedMusicCode) {
+                    StrudelView.createOrShow(this._extensionUri, this._cachedMusicCode);
+                }
                 break;
         }
     }
@@ -223,6 +246,77 @@ export class GraphView {
         });
     }
 
+    /**
+     * 生成并发送音乐代码
+     */
+    private _sendMusicCode() {
+        let entities: any[] = [];
+        let relations: any[] = [];
+
+        // 根据当前模式获取数据
+        if (this._currentMode === 'manual' || this._currentMode === 'merged') {
+            const manualEntities = this._entityService.listEntities();
+            for (const entity of manualEntities) {
+                const observations = this._observationService.getObservations(entity.id);
+                entities.push({
+                    id: entity.id,
+                    name: entity.name,
+                    type: entity.type,
+                    filePath: entity.filePath,
+                    startLine: entity.startLine,
+                    endLine: entity.endLine,
+                    observationCount: observations.length,
+                });
+
+                const rels = this._relationService.getRelations(entity.id, 'outgoing');
+                relations.push(...rels.map(r => ({
+                    id: r.id,
+                    sourceId: r.sourceEntityId,
+                    targetId: r.targetEntityId,
+                    verb: r.verb,
+                })));
+            }
+        }
+
+        if ((this._currentMode === 'auto' || this._currentMode === 'merged') && GraphView._autoGraphService) {
+            const autoEntities = GraphView._autoGraphService.listEntities();
+            for (const entity of autoEntities) {
+                const autoObservations = GraphView._autoGraphService.getObservationsByEntity(entity.id);
+                entities.push({
+                    id: entity.id,
+                    name: entity.name,
+                    type: entity.type,
+                    filePath: entity.filePath,
+                    startLine: entity.startLine,
+                    endLine: entity.endLine,
+                    observationCount: autoObservations.length,
+                });
+            }
+
+            const autoRelations = GraphView._autoGraphService.listRelations();
+            relations.push(...autoRelations.map(r => ({
+                id: r.id,
+                sourceId: r.sourceEntityId,
+                targetId: r.targetEntityId,
+                verb: r.verb,
+            })));
+        }
+
+        // 生成音乐代码
+        const music = this._musicGenerator.generateMusic(entities, relations, this._currentMode);
+        this._cachedMusicCode = music.code;
+
+        // 发送到 webview
+        this._panel.webview.postMessage({
+            type: 'musicCode',
+            data: {
+                code: music.code,
+                stats: music.stats,
+                bpm: music.bpm,
+            },
+        });
+    }
+
     private async _jumpToEntity(entityId: string, isAuto: boolean = false) {
         let entity;
         if (isAuto && GraphView._autoGraphService) {
@@ -276,6 +370,14 @@ export class GraphView {
             autoGraph: 'Auto Graph',
             mergedView: 'Merged View'
         };
+        const musicTranslations = (t().graphView as any)?.music || {
+            play: 'Play Code Music',
+            stop: 'Stop',
+            copyCode: 'Copy Strudel Code',
+            openRepl: 'Open in Strudel REPL',
+            generating: 'Generating...',
+            noData: 'No data to play'
+        };
 
         return `<!DOCTYPE html>
 <html lang="en">
@@ -284,6 +386,7 @@ export class GraphView {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${translations.title}</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Strudel will be loaded via iframe -->
     <style>
         body {
             margin: 0;
@@ -505,6 +608,47 @@ export class GraphView {
             opacity: 0.1;
             transition: opacity 0.3s;
         }
+        
+        /* Music player styles */
+        #playBtn.playing {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+        }
+        
+        #music-status {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            z-index: 1000;
+            display: none;
+            background-color: rgba(30, 30, 30, 0.9);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--vscode-panel-border);
+            font-size: 12px;
+        }
+        
+        #music-status.visible {
+            display: block;
+        }
+        
+        #music-status .status-icon {
+            margin-right: 6px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .music-playing {
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        /* Sync particles with beat */
+        .beat-sync {
+            animation-duration: 1s !important;
+        }
     </style>
 </head>
 <body>
@@ -515,6 +659,7 @@ export class GraphView {
     </div>
     
     <div id="toolbar">
+        <button id="playBtn" onclick="toggleMusic()" title="${musicTranslations.openRepl}">🎵</button>
         <button onclick="fitGraph()" title="${translations.toolbar.fit}">⛶</button>
         <button onclick="refreshGraph()" title="${translations.toolbar.refresh}">↻</button>
     </div>
@@ -532,11 +677,29 @@ export class GraphView {
     
     <div id="graph-container"></div>
     <div id="tooltip" class="tooltip"></div>
+    <div id="music-status">
+        <span class="status-icon">🎵</span>
+        <span id="music-status-text">Ready</span>
+    </div>
 
     <script>
         const vscode = acquireVsCodeApi();
         let simulation, svg, g, zoom;
         let width, height;
+        
+        // Music state
+        let isPlaying = false;
+        let strudelApi = null;
+        let currentMusicCode = '';
+        let strudelInitialized = false;
+        
+        // Music i18n
+        const musicI18n = {
+            play: '${musicTranslations.play}',
+            stop: '${musicTranslations.stop}',
+            generating: '${musicTranslations.generating}',
+            noData: '${musicTranslations.noData}'
+        };
         
         const i18n = {
             tooltip: {
@@ -587,6 +750,9 @@ export class GraphView {
             switch (message.type) {
                 case 'graphData':
                     renderGraph(message.data);
+                    break;
+                case 'musicCode':
+                    handleMusicCode(message.data);
                     break;
             }
         });
@@ -1158,9 +1324,92 @@ export class GraphView {
             // 显示加载状态
             document.getElementById('loading').classList.remove('hidden');
             
+            // 停止当前播放的音乐
+            if (isPlaying) {
+                stopMusic();
+            }
+            
             // 通知后端切换模式
             vscode.postMessage({ type: 'switchMode', mode: mode });
         }
+        
+        // ============================================================
+        // Music Control Functions
+        // ============================================================
+        
+        async function toggleMusic() {
+            // Always open in browser (no toggle needed)
+            await playMusic();
+        }
+        
+        async function playMusic() {
+            const playBtn = document.getElementById('playBtn');
+            const statusEl = document.getElementById('music-status');
+            const statusText = document.getElementById('music-status-text');
+            
+            // Show generating status
+            statusEl.classList.add('visible');
+            statusText.textContent = musicI18n.generating;
+            
+            // Request music code from backend
+            vscode.postMessage({ type: 'requestMusicCode' });
+        }
+        
+        function stopMusic() {
+            // Music plays in external browser, nothing to stop here
+            isPlaying = false;
+            document.getElementById('music-status').classList.remove('visible');
+            
+            // Remove beat sync class
+            document.querySelectorAll('.particle').forEach(p => {
+                p.classList.remove('beat-sync');
+            });
+        }
+        
+        // Handle music code from backend
+        async function handleMusicCode(data) {
+            const { code, stats, bpm } = data;
+            currentMusicCode = code;
+            
+            const playBtn = document.getElementById('playBtn');
+            const statusEl = document.getElementById('music-status');
+            const statusText = document.getElementById('music-status-text');
+            
+            if (!code || stats.totalEntities === 0) {
+                statusText.textContent = musicI18n.noData;
+                setTimeout(() => statusEl.classList.remove('visible'), 2000);
+                return;
+            }
+            
+            try {
+                statusText.textContent = musicI18n.opening || 'Opening Strudel...';
+                
+                // Send message to open Strudel in a new VS Code tab
+                vscode.postMessage({ type: 'openStrudelUrl' });
+                
+                strudelInitialized = true;
+                
+                // Update status
+                statusText.textContent = \`Opened: \${stats.totalEntities} entities, \${stats.totalRelations} relations\`;
+                statusEl.classList.add('visible');
+                
+                // Auto-hide status after 3 seconds
+                setTimeout(() => {
+                    statusEl.classList.remove('visible');
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Strudel error:', error);
+                statusText.textContent = 'Error: ' + error.message;
+                setTimeout(() => statusEl.classList.remove('visible'), 3000);
+            }
+        }
+        
+        // Expose functions to global scope for onclick handlers
+        window.toggleMusic = toggleMusic;
+        window.fitGraph = fitGraph;
+        window.refreshGraph = refreshGraph;
+        window.switchMode = switchMode;
     </script>
 </body>
 </html>`;
