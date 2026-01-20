@@ -221,19 +221,91 @@ export function calculateRoom(observationCount: number): number {
 
 /**
  * 根据实体数量生成音符序列
+ * 更多实体 = 更复杂的音乐模式
  */
 export function generateNoteSequence(count: number, baseNote: Note): string {
   const scale = C_MAJOR_SCALE;
   const notes: string[] = [];
+  const baseOctave = baseNote.octave;
   
-  // 基于实体数量生成不同长度的音符序列
-  const sequenceLength = Math.min(Math.max(count, 2), 8);
+  // 基础序列长度（2-8个音符）
+  const baseLength = Math.min(Math.max(count, 2), 8);
   
-  for (let i = 0; i < sequenceLength; i++) {
+  // 复杂度等级（基于实体数量）
+  const complexity = Math.min(Math.floor(count / 5), 4); // 0-4级复杂度
+  
+  // 生成基础音符
+  for (let i = 0; i < baseLength; i++) {
     const scaleIndex = i % scale.length;
     const octaveOffset = Math.floor(i / scale.length);
-    const octave = Math.min(Math.max(baseNote.octave + octaveOffset, 1), 7);
+    const octave = Math.min(Math.max(baseOctave + octaveOffset, 1), 7);
     notes.push(`${scale[scaleIndex]}${octave}`);
+  }
+  
+  // 复杂度等级1: 添加和声（5度）
+  if (complexity >= 1 && count > 5) {
+    const harmonyNotes = notes.slice(0, Math.min(4, notes.length)).map(n => {
+      const match = n.match(/([a-g])(\d)/);
+      if (match) {
+        const noteIndex = scale.indexOf(match[1]);
+        const fifthIndex = (noteIndex + 4) % scale.length; // 五度音
+        const octave = parseInt(match[2]);
+        return `[${n} ${scale[fifthIndex]}${octave}]`; // 和弦
+      }
+      return n;
+    });
+    // 替换部分音符为和弦
+    for (let i = 0; i < harmonyNotes.length && i < notes.length; i += 2) {
+      notes[i] = harmonyNotes[i];
+    }
+  }
+  
+  // 复杂度等级2: 添加节奏变化
+  if (complexity >= 2 && count > 10) {
+    // 添加休止符和重音
+    const rhythmPattern = notes.map((n, i) => {
+      if (i % 4 === 3) return `${n}*2`; // 每4个音符加重音
+      if (i % 8 === 7) return `~ ${n}`; // 每8个音符前加休止
+      return n;
+    });
+    return rhythmPattern.join(' ');
+  }
+  
+  // 复杂度等级3: 添加八度跳跃
+  if (complexity >= 3 && count > 15) {
+    const octaveJumps: string[] = [];
+    notes.forEach((n, i) => {
+      octaveJumps.push(n);
+      if (i % 3 === 2) {
+        // 每3个音符添加八度跳跃
+        const match = n.match(/([a-g])(\d)/);
+        if (match) {
+          const highOctave = Math.min(parseInt(match[2]) + 1, 6);
+          octaveJumps.push(`${match[1]}${highOctave}`);
+        }
+      }
+    });
+    return octaveJumps.join(' ');
+  }
+  
+  // 复杂度等级4: 添加琶音和装饰音
+  if (complexity >= 4 && count > 20) {
+    const decorated: string[] = [];
+    notes.forEach((n, i) => {
+      const match = n.match(/([a-g])(\d)/);
+      if (match && i % 2 === 0) {
+        const noteIndex = scale.indexOf(match[1]);
+        const octave = parseInt(match[2]);
+        // 创建快速琶音
+        const arp1 = `${scale[noteIndex]}${octave}`;
+        const arp2 = `${scale[(noteIndex + 2) % 7]}${octave}`;
+        const arp3 = `${scale[(noteIndex + 4) % 7]}${octave}`;
+        decorated.push(`<${arp1} ${arp2} ${arp3}>`); // 琶音模式
+      } else {
+        decorated.push(n);
+      }
+    });
+    return decorated.join(' ');
   }
   
   return notes.join(' ');
