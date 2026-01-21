@@ -141,10 +141,6 @@ export class GraphView {
                 // 请求生成音乐代码
                 this._sendMusicCode();
                 break;
-            case 'requestFilteredMusicCode':
-                // 请求生成过滤后的音乐代码（仅包含指定节点）
-                this._sendFilteredMusicCode(message.nodeIds);
-                break;
             case 'copyMusicCode':
                 // 复制音乐代码到剪贴板
                 if (this._cachedMusicCode) {
@@ -319,85 +315,6 @@ export class GraphView {
                 bpm: music.bpm,
             },
         });
-    }
-
-    /**
-     * 发送过滤后的音乐代码（仅包含指定节点）
-     */
-    private _sendFilteredMusicCode(nodeIds: string[]) {
-        if (!nodeIds || nodeIds.length === 0) {
-            return;
-        }
-
-        const nodeIdSet = new Set(nodeIds);
-        let entities: any[] = [];
-        let relations: any[] = [];
-
-        // 根据当前模式获取数据，并过滤
-        if (this._currentMode === 'manual' || this._currentMode === 'merged') {
-            const manualEntities = this._entityService.listEntities();
-            for (const entity of manualEntities) {
-                if (!nodeIdSet.has(entity.id)) continue; // 过滤
-                
-                const observations = this._observationService.getObservations(entity.id);
-                entities.push({
-                    id: entity.id,
-                    name: entity.name,
-                    type: entity.type,
-                    filePath: entity.filePath,
-                    startLine: entity.startLine,
-                    endLine: entity.endLine,
-                    observationCount: observations.length,
-                });
-
-                const rels = this._relationService.getRelations(entity.id, 'outgoing');
-                relations.push(...rels.filter(r => nodeIdSet.has(r.targetEntityId)).map(r => ({
-                    id: r.id,
-                    sourceId: r.sourceEntityId,
-                    targetId: r.targetEntityId,
-                    verb: r.verb,
-                })));
-            }
-        }
-
-        if ((this._currentMode === 'auto' || this._currentMode === 'merged') && GraphView._autoGraphService) {
-            const autoEntities = GraphView._autoGraphService.listEntities();
-            for (const entity of autoEntities) {
-                if (!nodeIdSet.has(entity.id)) continue; // 过滤
-                
-                const autoObservations = GraphView._autoGraphService.getObservationsByEntity(entity.id);
-                entities.push({
-                    id: entity.id,
-                    name: entity.name,
-                    type: entity.type,
-                    filePath: entity.filePath,
-                    startLine: entity.startLine,
-                    endLine: entity.endLine,
-                    observationCount: autoObservations.length,
-                });
-            }
-
-            const autoRelations = GraphView._autoGraphService.listRelations();
-            relations.push(...autoRelations.filter(r => 
-                nodeIdSet.has(r.sourceEntityId) && nodeIdSet.has(r.targetEntityId)
-            ).map(r => ({
-                id: r.id,
-                sourceId: r.sourceEntityId,
-                targetId: r.targetEntityId,
-                verb: r.verb,
-            })));
-        }
-
-        if (entities.length === 0) {
-            return;
-        }
-
-        // 生成音乐代码
-        const music = this._musicGenerator.generateMusic(entities, relations, this._currentMode);
-        this._cachedMusicCode = music.code;
-
-        // 打开 Strudel 播放器显示过滤后的音乐
-        StrudelView.createOrShow(this._extensionUri, this._cachedMusicCode);
     }
 
     private async _jumpToEntity(entityId: string, isAuto: boolean = false) {
@@ -775,9 +692,6 @@ export class GraphView {
         let strudelApi = null;
         let currentMusicCode = '';
         let strudelInitialized = false;
-        let highlightedNodes = null; // 当前高亮的节点集合
-        let allGraphEntities = []; // 所有图谱实体
-        let allGraphRelations = []; // 所有图谱关系
         
         // Music i18n
         const musicI18n = {
@@ -1095,29 +1009,6 @@ export class GraphView {
                 .attr('stroke-width', 1.5)
                 .style('filter', 'url(#glow)')
                 .style('cursor', 'pointer')
-                .on('click', function(event, d) {
-                    // 点击节点时，生成并打开仅包含相关节点的音乐
-                    const connectedNodeIds = new Set();
-                    connectedNodeIds.add(d.id);
-                    
-                    links.forEach(l => {
-                        if (l.sourceId === d.id || l.targetId === d.id) {
-                            connectedNodeIds.add(l.sourceId);
-                            connectedNodeIds.add(l.targetId);
-                        }
-                    });
-                    
-                    // 请求生成相关节点的音乐
-                    vscode.postMessage({ 
-                        type: 'requestFilteredMusicCode',
-                        nodeIds: Array.from(connectedNodeIds)
-                    });
-                    
-                    // 视觉反馈
-                    d3.select(this)
-                        .transition().duration(100).attr('r', 30)
-                        .transition().duration(200).attr('r', 20);
-                })
                 .on('mouseover', function(event, d) {
                     d3.select(this).transition().duration(200).attr('r', 25);
                     showTooltip(event, d);
