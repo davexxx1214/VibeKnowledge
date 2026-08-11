@@ -4,7 +4,7 @@
 
 VibeKnowledge 是一个 VS Code 插件，用来维护与代码一起演进的项目知识图谱。它把代码实体、关系和维护笔记存进工作区内的 SQLite 数据库，再通过 VS Code、AI 配置文件和可选的 MCP Server 提供给开发者与 AI 工具。
 
-仓库当前版本是 `0.1.0`，已经支持源码开发、自动检查和可重复的 VSIX 打包。首次发布到 Marketplace 前，请创建或确认配置中的 `davexxx1214` publisher 账号。
+VibeKnowledge 以源码形式提供。你可以 Fork 本仓库进行定制、本地运行，或自行打包 VSIX 使用。
 
 ## 演示
 

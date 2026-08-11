@@ -4,7 +4,7 @@
 
 VibeKnowledge is a VS Code extension for building a project knowledge graph alongside the code it describes. It stores code entities, relationships, and maintainer notes in a workspace-local SQLite database, then exposes that context through VS Code, AI configuration files, and an optional MCP server.
 
-The repository is at version `0.1.0` and supports development from source, automated checks, and repeatable VSIX packaging. Before the first Marketplace release, create or verify the configured `davexxx1214` publisher account.
+VibeKnowledge is distributed as source code. Fork the repository to customize it, run it locally, or package your own VSIX.
 
 ## Demo
 
