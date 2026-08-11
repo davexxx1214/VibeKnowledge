@@ -29,8 +29,8 @@ export class DatabaseService {
       // 需要指定 WASM 文件的位置
       const SQL = await initSqlJs({
         locateFile: (file) => {
-          // WASM 文件在 node_modules 中
-          return require.resolve(`sql.js/dist/${file}`);
+          // esbuild copies the runtime next to the bundled extension.
+          return path.join(__dirname, file);
         }
       });
 

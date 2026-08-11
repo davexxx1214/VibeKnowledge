@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { getLocale, currentLang } from '../i18n';
+import { currentLang } from '../i18n';
 
 /**
  * 场景定义

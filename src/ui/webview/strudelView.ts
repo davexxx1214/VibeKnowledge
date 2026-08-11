@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { buildStrudelWebviewHtml } from './strudelWebviewHtml';
 
 /**
  * Strudel 音乐播放器 Webview
@@ -13,7 +14,10 @@ export class StrudelView {
         this._panel = panel;
 
         // 设置 HTML 内容
-        this._panel.webview.html = this._getHtmlForWebview(code);
+        this._panel.webview.html = buildStrudelWebviewHtml(
+            code,
+            this._panel.webview.cspSource
+        );
 
         // 监听面板关闭
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
@@ -50,61 +54,10 @@ export class StrudelView {
      * 更新代码
      */
     private _updateCode(code: string) {
-        this._panel.webview.html = this._getHtmlForWebview(code);
-    }
-
-    /**
-     * 生成 Webview HTML
-     */
-    private _getHtmlForWebview(code: string): string {
-        // Base64 编码代码用于 URL
-        const encodedCode = Buffer.from(code).toString('base64');
-        const strudelUrl = `https://strudel.cc/#${encodedCode}`;
-
-        return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strudel Player</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #1a1a2e;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #888;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-    <div class="loading" id="loading">Loading Strudel...</div>
-    <iframe 
-        id="strudel-frame"
-        src="${strudelUrl}"
-        allow="autoplay; microphone"
-        onload="document.getElementById('loading').style.display='none';"
-    ></iframe>
-</body>
-</html>`;
+        this._panel.webview.html = buildStrudelWebviewHtml(
+            code,
+            this._panel.webview.cspSource
+        );
     }
 
     /**

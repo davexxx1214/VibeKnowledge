@@ -1,0 +1,42 @@
+name: Bug report
+description: Report reproducible incorrect behavior in VibeKnowledge.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for helping improve VibeKnowledge. Remove secrets and private source code before submitting.
+  - type: input
+    id: version
+    attributes:
+      label: VibeKnowledge version
+      placeholder: 0.1.0 or commit SHA
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: VS Code version, operating system, Node.js version if relevant
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: Provide the smallest reproducible sequence.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and logs
+      description: Redact API keys, tokens, private code, and personal data.
+    validations:
+      required: true

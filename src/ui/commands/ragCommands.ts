@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
-import { RAGService, SearchResult, QuestionAnswerResult, StoreInfo } from '../../services/ragService';
+import * as fs from 'fs';
+import * as path from 'path';
+import { RAGService, QuestionAnswerResult } from '../../services/ragService';
 import { GeminiClient } from '../../services/geminiClient';
 import { t, getLocale } from '../../i18n/i18nService';
 
@@ -173,11 +175,10 @@ export class RAGCommands {
     });
 
     if (saveUri) {
-      const fs = require('fs');
       fs.writeFileSync(saveUri.fsPath, markdown, 'utf-8');
 
       const openAction = await vscode.window.showInformationMessage(
-        translations.saved(require('path').basename(saveUri.fsPath)),
+        translations.saved(path.basename(saveUri.fsPath)),
         common.openFile
       );
 

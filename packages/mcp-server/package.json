@@ -3,6 +3,19 @@
   "version": "0.1.0",
   "description": "Standalone MCP server that exposes VibeKnowledge graph.sqlite and RAG data.",
   "license": "MIT",
+  "author": "davexxx",
+  "homepage": "https://github.com/davexxx1214/VibeKnowledge#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davexxx1214/VibeKnowledge.git",
+    "directory": "packages/mcp-server"
+  },
+  "bugs": {
+    "url": "https://github.com/davexxx1214/VibeKnowledge/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,7 +39,6 @@
     "cursor",
     "copilot"
   ],
-  "author": "",
   "dependencies": {
     "@google/genai": "^1.29.1",
     "@modelcontextprotocol/sdk": "^1.22.0",
@@ -37,9 +49,9 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.8",
     "@types/node": "^20.11.30",
-    "@vitest/coverage-v8": "^2.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.0",
-    "vitest": "^2.0.0"
+    "vitest": "^4.1.10"
   }
 }

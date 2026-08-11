@@ -27,11 +27,6 @@ export class AutoGraphCommands {
     );
 
     if (result.errors.length > 0) {
-      const errorMessages = result.errors
-        .slice(0, 5)
-        .map((e) => `${e.filePath}: ${e.message}`)
-        .join('\n');
-      
       vscode.window.showWarningMessage(
         t().autoGraph.commands.analyzeWorkspace.completedWithErrors(
           result.entities.length,
@@ -238,7 +233,6 @@ export class AutoGraphCommands {
     }
 
     // 使用多行编辑面板输入观察内容
-    const translations = t().autoGraph.commands.editObservation;
     const content = await this.openObservationEditorPanel('', entity.name);
 
     if (!content) {
@@ -326,7 +320,7 @@ export class AutoGraphCommands {
       }
     );
 
-    panel.webview.html = this.getObservationEditorHtml(panel.webview, initialContent, entityName);
+    panel.webview.html = this.getObservationEditorHtml(panel.webview, initialContent);
 
     return new Promise<string | undefined>((resolve) => {
       let resolved = false;
@@ -359,8 +353,7 @@ export class AutoGraphCommands {
    */
   private getObservationEditorHtml(
     webview: vscode.Webview,
-    initialContent: string,
-    entityName: string
+    initialContent: string
   ): string {
     const nonce = this.getNonce();
     const translations = t().autoGraph.commands.editObservation;

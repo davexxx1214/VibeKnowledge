@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as crypto from 'crypto';
 import { EntityService } from '../../services/entityService';
 import { RelationService } from '../../services/relationService';
 import { ObservationService } from '../../services/observationService';
@@ -159,8 +160,8 @@ export class GraphView {
     }
 
     private _sendGraphData() {
-        let entities: any[] = [];
-        let allRelations: any[] = [];
+        const entities: any[] = [];
+        const allRelations: any[] = [];
 
         // 根据模式获取数据
         if (this._currentMode === 'manual' || this._currentMode === 'merged') {
@@ -250,8 +251,8 @@ export class GraphView {
      * 生成并发送音乐代码
      */
     private _sendMusicCode() {
-        let entities: any[] = [];
-        let relations: any[] = [];
+        const entities: any[] = [];
+        const relations: any[] = [];
 
         // 根据当前模式获取数据
         if (this._currentMode === 'manual' || this._currentMode === 'merged') {
@@ -364,6 +365,10 @@ export class GraphView {
     }
 
     private _getHtmlForWebview(webview: vscode.Webview) {
+        const nonce = crypto.randomBytes(16).toString('base64');
+        const d3Uri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this._extensionUri, 'dist', 'd3.min.js')
+        );
         const translations = t().graphView;
         const autoGraphTranslations = t().autoGraph?.graphView || {
             manualGraph: 'Manual Graph',
@@ -383,10 +388,10 @@ export class GraphView {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src ${webview.cspSource} 'nonce-${nonce}'; style-src ${webview.cspSource} 'unsafe-inline';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${translations.title}</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!-- Strudel will be loaded via iframe -->
+    <script nonce="${nonce}" src="${d3Uri}"></script>
     <style>
         body {
             margin: 0;
@@ -682,7 +687,7 @@ export class GraphView {
         <span id="music-status-text">Ready</span>
     </div>
 
-    <script>
+    <script nonce="${nonce}">
         const vscode = acquireVsCodeApi();
         let simulation, svg, g, zoom;
         let width, height;

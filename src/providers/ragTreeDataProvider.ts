@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { RAGService } from '../services/ragService';
 import { t, getLocale } from '../i18n/i18nService';
 

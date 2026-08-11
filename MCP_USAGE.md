@@ -1,6 +1,6 @@
 # VibeKnowledge MCP 使用指南
 
-本指南记录了当前阶段（默认目录：`D:/workspace/vibecoding`）如何启动 VibeKnowledge MCP Server，并将其接入 Cursor 与 GitHub Copilot。随着功能迭代，文档会持续更新。
+本指南记录了当前阶段（示例目录：`D:/workspace/VibeKnowledge`）如何启动 VibeKnowledge MCP Server，并将其接入 Cursor 与 GitHub Copilot。随着功能迭代，文档会持续更新。
 
 ---
 
@@ -8,7 +8,7 @@
 
 1. 进入仓库根目录：
    ```bash
-   cd D:/workspace/vibecoding
+   cd D:/workspace/VibeKnowledge
    ```
 2. 先构建一次（如尚未构建）：
    ```bash
@@ -70,7 +70,7 @@
      "vibeknowledge": {
        "command": "node",
        "args": [
-         "D:/workspace/vibecoding/packages/mcp-server/dist/index.js",
+         "D:/workspace/VibeKnowledge/packages/mcp-server/dist/index.js",
          "--workspace",
          "D:/workspace/nestjs-realworld-example-app"
        ]
@@ -101,7 +101,7 @@
      "vibeknowledge": {
        "command": "node",
        "args": [
-         "D:/workspace/vibecoding/packages/mcp-server/dist/index.js",
+         "D:/workspace/VibeKnowledge/packages/mcp-server/dist/index.js",
          "--workspace",
          "D:/workspace/nestjs-realworld-example-app"
        ]

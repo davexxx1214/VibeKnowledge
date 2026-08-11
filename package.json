@@ -1,13 +1,33 @@
 {
   "name": "vibe-knowledge",
   "displayName": "Vibe Knowledge",
-  "description": "将工作区转化为智能知识网络的 VS Code 插件",
+  "description": "Turn a VS Code workspace into a searchable knowledge graph with RAG and MCP access.",
   "version": "0.1.0",
-  "publisher": "your-publisher-name",
+  "publisher": "davexxx1214",
+  "icon": "resources/icon.png",
+  "author": "davexxx",
+  "license": "MIT",
+  "homepage": "https://github.com/davexxx1214/VibeKnowledge#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davexxx1214/VibeKnowledge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/davexxx1214/VibeKnowledge/issues"
+  },
+  "keywords": [
+    "knowledge-graph",
+    "rag",
+    "mcp",
+    "ai",
+    "codebase",
+    "developer-tools"
+  ],
   "engines": {
     "vscode": "^1.80.0"
   },
   "categories": [
+    "Visualization",
     "Other"
   ],
   "activationEvents": [
@@ -479,10 +499,12 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run compile -- --production",
     "compile": "node esbuild.js",
     "watch": "node esbuild.js --watch",
     "lint": "eslint src --ext ts",
+    "check": "npm run compile && npm run lint && npm test",
+    "package": "vsce package",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
@@ -491,14 +513,16 @@
     "@types/better-sqlite3": "^7.6.8",
     "@types/node": "^20.0.0",
     "@types/pdf-parse": "^1.1.5",
-    "@types/vscode": "^1.80.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "@vitest/coverage-v8": "^2.0.0",
-    "esbuild": "^0.19.0",
+    "@types/vscode": "1.80.0",
+    "@vscode/vsce": "^3.9.2",
+    "@typescript-eslint/eslint-plugin": "^8.67.0",
+    "@typescript-eslint/parser": "^8.67.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "d3": "^7.9.0",
+    "esbuild": "^0.28.2",
     "eslint": "^8.0.0",
     "typescript": "^5.2.0",
-    "vitest": "^2.0.0"
+    "vitest": "^4.1.10"
   },
   "dependencies": {
     "@google/genai": "^1.29.1",

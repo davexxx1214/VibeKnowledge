@@ -110,8 +110,8 @@ export const zh = {
       confirm: (name: string) => `确定要删除实体 "${name}" 吗?`,
       willAlsoDelete: (obsCount: number, relCount: number) => {
         let msg = '这将同时删除:\n';
-        if (obsCount > 0) msg += `- ${obsCount} 个观察记录\n`;
-        if (relCount > 0) msg += `- ${relCount} 个关系\n`;
+        if (obsCount > 0) {msg += `- ${obsCount} 个观察记录\n`;}
+        if (relCount > 0) {msg += `- ${relCount} 个关系\n`;}
         msg += '\n继续吗?';
         return msg;
       },

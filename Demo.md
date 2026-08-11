@@ -138,7 +138,7 @@ code .
 
 ### 步骤 3：启动 VibeKnowledge 插件
 
-1. 在你的 `vibecoding` 项目中按 `F5` 启动插件调试
+1. 在 `VibeKnowledge` 项目中按 `F5` 启动插件调试
 2. 在新打开的 Extension Development Host 窗口中打开 `nestjs-realworld-example-app` 项目
 
 ### 步骤 4：设置语言（可选）🌐
@@ -1090,7 +1090,7 @@ _💡 点击文件名可以直接跳转查看原文档_
 # RAG Store 信息
 
 **项目名称**：nestjs-realworld-example-app
-**Store 名称**：`fileSearchStores/vibecodingnestjsrealworldex-xxx`
+**Store 名称**：`fileSearchStores/vibeknowledgenestjsrealworldex-xxx`
 **工作区路径**：`d:\workspace\nestjs-realworld-example-app`
 
 ## 📊 文档统计（云端实时数据）
@@ -1208,7 +1208,7 @@ _💡 点击文件名可以直接跳转查看原文档_
 ### 📖 进一步学习
 
 完整功能请查看：
-- 📄 README.md - 完整功能说明
+- 📄 README_ZH.md - 完整功能说明
 - 📚 docs/ - 详细文档
 
 ---
@@ -1336,7 +1336,7 @@ _💡 点击文件名可以直接跳转查看原文档_
 
 ---
 
-**更多问题？** 查看 README.md 或提交 Issue！
+**更多问题？** 查看 README_ZH.md 或提交 Issue！
 
 ---
 

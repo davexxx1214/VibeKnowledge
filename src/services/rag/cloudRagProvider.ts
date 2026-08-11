@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { GoogleGenAI } from '@google/genai';
 import { GeminiClient } from '../geminiClient';
 import { DatabaseService } from '../database';
 import { lookup as lookupMimeType } from 'mime-types';
@@ -278,7 +277,9 @@ export class CloudRAGProvider implements IRAGProvider {
                 db.run(`DROP TABLE IF EXISTS indexed_files`);
             }
         }
-    } catch (e) {}
+    } catch (error) {
+      console.warn('Failed to inspect the existing RAG schema:', error);
+    }
 
     db.run(`
       CREATE TABLE IF NOT EXISTS rag_store_info (
@@ -297,7 +298,7 @@ export class CloudRAGProvider implements IRAGProvider {
 
   private async initializeStore(): Promise<void> {
     const client = this.geminiClient.getClient();
-    if (!client) return;
+    if (!client) {return;}
 
     this.storeId = this.generateProjectHash(this.workspaceRoot);
     const db = this.dbService.getDatabase();
@@ -309,11 +310,11 @@ export class CloudRAGProvider implements IRAGProvider {
       this.storeName = row[2] as string;
     } else {
       const fileSearchStore = await client.fileSearchStores.create({
-        config: { displayName: `vibecoding_${this.projectName}_${this.storeId}` }
+        config: { displayName: `vibeknowledge_${this.projectName}_${this.storeId}` }
       });
 
       this.storeName = fileSearchStore.name || '';
-      if (!this.storeName) throw new Error('Store name is empty');
+      if (!this.storeName) {throw new Error('Store name is empty');}
 
       const now = Date.now();
       db.run(
@@ -351,11 +352,11 @@ export class CloudRAGProvider implements IRAGProvider {
 
   public async indexFile(filePath: string, workspaceRoot: string): Promise<void> {
     const client = this.geminiClient.getClient();
-    if (!client) return;
+    if (!client) {return;}
 
-    if (!fs.existsSync(filePath)) return;
+    if (!fs.existsSync(filePath)) {return;}
     const stats = fs.statSync(filePath);
-    if (!stats.isFile()) return;
+    if (!stats.isFile()) {return;}
 
     const relativePath = path.relative(workspaceRoot, filePath).replace(/\\/g, '/');
     const fileName = path.basename(filePath);
@@ -498,7 +499,7 @@ export class CloudRAGProvider implements IRAGProvider {
 
   private async deleteCloudFile(geminiFileUri?: string, relativePath?: string, fileName?: string): Promise<void> {
     const client = this.geminiClient.getClient();
-    if (!client || !this.storeName) return;
+    if (!client || !this.storeName) {return;}
 
     let targetDocumentName = geminiFileUri;
 
@@ -528,12 +529,12 @@ export class CloudRAGProvider implements IRAGProvider {
 
   private async findDocumentName(relativePath?: string, fileName?: string): Promise<string | null> {
     const client = this.geminiClient.getClient();
-    if (!client || !this.storeName) return null;
+    if (!client || !this.storeName) {return null;}
 
     try {
       const pager = await client.fileSearchStores.documents.list({ parent: this.storeName });
       for await (const document of pager) {
-        if (!document?.name) continue;
+        if (!document?.name) {continue;}
 
         const metadataMatch = relativePath && document.customMetadata?.some(
           meta => meta.key === 'relativePath' && meta.stringValue === relativePath
@@ -556,14 +557,14 @@ export class CloudRAGProvider implements IRAGProvider {
 
   private getSupportedMimeType(filePath: string): string | null {
     const mime = lookupMimeType(filePath);
-    if (!mime) return null;
+    if (!mime) {return null;}
     const normalized = mime.toLowerCase();
     return CLOUD_SUPPORTED_MIME_TYPES.has(normalized) ? normalized : null;
   }
 
   public async searchDocuments(query: string): Promise<SearchResult[]> {
     const client = this.geminiClient.getClient();
-    if (!client || !this.storeName) throw new Error('Not initialized');
+    if (!client || !this.storeName) {throw new Error('Not initialized');}
 
     const response = await client.models.generateContent({
       model: this.geminiClient.getConfiguredModel(),
@@ -602,7 +603,7 @@ export class CloudRAGProvider implements IRAGProvider {
 
   public async askQuestion(question: string): Promise<QuestionAnswerResult> {
     const client = this.geminiClient.getClient();
-    if (!client || !this.storeName) throw new Error('Not initialized');
+    if (!client || !this.storeName) {throw new Error('Not initialized');}
 
     const response = await client.models.generateContent({
       model: this.geminiClient.getConfiguredModel(),
@@ -634,10 +635,14 @@ export class CloudRAGProvider implements IRAGProvider {
 
   public async reindexAll(): Promise<void> {
      const client = this.geminiClient.getClient();
-     if (!client) return;
+     if (!client) {return;}
      
      if (this.storeName) {
-         try { await client.fileSearchStores.delete({ name: this.storeName }); } catch(e) {}
+         try {
+           await client.fileSearchStores.delete({ name: this.storeName });
+         } catch (error) {
+           console.warn('Failed to delete the previous File Search store:', error);
+         }
      }
      
      const db = this.dbService.getDatabase();
@@ -654,7 +659,7 @@ export class CloudRAGProvider implements IRAGProvider {
   public getStoreInfo(): StoreInfo | null {
     const db = this.dbService.getDatabase();
     const result = db.exec(`SELECT * FROM rag_store_info WHERE store_id = ?`, [this.storeId]);
-    if (result.length === 0 || result[0].values.length === 0) return null;
+    if (result.length === 0 || result[0].values.length === 0) {return null;}
     
     const row = result[0].values[0];
     return {
@@ -675,7 +680,7 @@ export class CloudRAGProvider implements IRAGProvider {
   
   public async getStoreInfoFromCloud(): Promise<{ storeName: string; displayName: string | undefined; activeDocumentsCount: number; pendingDocumentsCount: number; failedDocumentsCount: number; } | null> {
       const client = this.geminiClient.getClient();
-      if (!client || !this.storeName) return null;
+      if (!client || !this.storeName) {return null;}
       try {
         // 1. Get Cloud Store Info
         const store = await client.fileSearchStores.get({ name: this.storeName });
@@ -692,7 +697,7 @@ export class CloudRAGProvider implements IRAGProvider {
           pendingDocumentsCount: typeof store.pendingDocumentsCount === 'number' ? store.pendingDocumentsCount : parseInt(store.pendingDocumentsCount || '0'),
           failedDocumentsCount: typeof store.failedDocumentsCount === 'number' ? store.failedDocumentsCount : parseInt(store.failedDocumentsCount || '0'),
         };
-      } catch (e) { 
+      } catch (e) {
           console.error('[CloudRAG] Failed to get store info from cloud:', e);
           return null; 
       }
@@ -701,7 +706,7 @@ export class CloudRAGProvider implements IRAGProvider {
   public async testConnection(): Promise<boolean> {
     try {
         return await this.geminiClient.testConnection();
-    } catch (e) {
+    } catch (_error) {
         return false;
     }
   }

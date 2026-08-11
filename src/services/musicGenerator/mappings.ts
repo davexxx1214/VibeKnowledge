@@ -4,7 +4,7 @@
  */
 
 import { EntityType, RelationVerb } from '../../utils/types';
-import { EntityMusicMapping, RelationMusicMapping, SoundType, Note } from './types';
+import { EntityMusicMapping, RelationMusicMapping, Note } from './types';
 
 /**
  * 实体类型 → 音乐元素映射
@@ -190,10 +190,10 @@ export const A_MINOR_SCALE = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
  */
 export function calculatePitchOffset(name: string): number {
   const length = name.length;
-  if (length <= 4) return 2;      // 短名 +2 八度
-  if (length <= 8) return 1;      // 中等 +1 八度
-  if (length <= 16) return 0;     // 标准 0
-  if (length <= 24) return -1;    // 较长 -1 八度
+  if (length <= 4) {return 2;}      // 短名 +2 八度
+  if (length <= 8) {return 1;}      // 中等 +1 八度
+  if (length <= 16) {return 0;}     // 标准 0
+  if (length <= 24) {return -1;}    // 较长 -1 八度
   return -2;                       // 很长 -2 八度
 }
 
@@ -202,10 +202,10 @@ export function calculatePitchOffset(name: string): number {
  * 更多行数 → 更长的音
  */
 export function calculateDuration(lineCount: number): number {
-  if (lineCount <= 5) return 1;
-  if (lineCount <= 20) return 2;
-  if (lineCount <= 50) return 4;
-  if (lineCount <= 100) return 8;
+  if (lineCount <= 5) {return 1;}
+  if (lineCount <= 20) {return 2;}
+  if (lineCount <= 50) {return 4;}
+  if (lineCount <= 100) {return 8;}
   return 16;
 }
 
@@ -264,8 +264,8 @@ export function generateNoteSequence(count: number, baseNote: Note): string {
   if (complexity >= 2 && count > 10) {
     // 添加休止符和重音
     const rhythmPattern = notes.map((n, i) => {
-      if (i % 4 === 3) return `${n}*2`; // 每4个音符加重音
-      if (i % 8 === 7) return `~ ${n}`; // 每8个音符前加休止
+      if (i % 4 === 3) {return `${n}*2`;} // 每4个音符加重音
+      if (i % 8 === 7) {return `~ ${n}`;} // 每8个音符前加休止
       return n;
     });
     return rhythmPattern.join(' ');

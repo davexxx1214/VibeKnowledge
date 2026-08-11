@@ -18,7 +18,7 @@ export class KnowledgeHoverProvider implements vscode.HoverProvider {
   public provideHover(
     document: vscode.TextDocument,
     position: vscode.Position,
-    token: vscode.CancellationToken
+    _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Hover> {
     // 查找当前位置的实体
     const relativePath = this.getRelativePath(document);

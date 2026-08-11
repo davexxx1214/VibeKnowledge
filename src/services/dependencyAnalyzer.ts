@@ -236,8 +236,6 @@ export class DependencyAnalyzer {
    */
   public getGlobalDependencyStats(): DependencyStats {
     const allEntities = this.entityService.listEntities({});
-    const allRelations = this.relationService.getAllRelations();
-
     let totalDependencies = 0;
     let maxDepth = 0;
     const dependencyCounts = new Map<string, number>();

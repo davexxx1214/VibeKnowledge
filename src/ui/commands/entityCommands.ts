@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import * as path from 'path';
 import { EntityService } from '../../services/entityService';
 import { RelationService } from '../../services/relationService';
@@ -280,7 +281,7 @@ export class EntityCommands {
     }
 
     // 选择实体类型
-    const typeOptions: vscode.QuickPickItem[] = Object.entries(t().entityTypes).map(([key, value]) => ({
+    const typeOptions: vscode.QuickPickItem[] = Object.entries(t().entityTypes).map(([, value]) => ({
       label: value.label,
       description: value.description
     }));
@@ -1593,7 +1594,6 @@ export class EntityCommands {
         });
 
         if (saveUri) {
-          const fs = require('fs');
           fs.writeFileSync(saveUri.fsPath, context, 'utf-8');
           
           const openAction = await vscode.window.showInformationMessage(
@@ -1655,7 +1655,7 @@ export class EntityCommands {
           vscode.window.showInformationMessage('✅ AI 摘要已复制到剪贴板');
           break;
 
-        case 'preview':
+        case 'preview': {
           // 在新标签页中预览
           const doc = await vscode.workspace.openTextDocument({
             content: summary,
@@ -1663,8 +1663,9 @@ export class EntityCommands {
           });
           await vscode.window.showTextDocument(doc, { preview: false });
           break;
+        }
 
-        case 'save':
+        case 'save': {
           // 保存到文件
           const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
           if (!workspaceFolder) {
@@ -1683,7 +1684,6 @@ export class EntityCommands {
           });
 
           if (saveUri) {
-            const fs = require('fs');
             fs.writeFileSync(saveUri.fsPath, summary, 'utf-8');
             
             const openAction = await vscode.window.showInformationMessage(
@@ -1697,6 +1697,7 @@ export class EntityCommands {
             }
           }
           break;
+        }
       }
     } catch (error) {
       vscode.window.showErrorMessage(`生成 AI 摘要失败: ${error}`);

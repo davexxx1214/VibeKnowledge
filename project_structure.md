@@ -7,7 +7,7 @@
 ## 📁 项目结构
 
 ```
-vibecoding/
+VibeKnowledge/
 │
 ├── 📄 package.json                  # 插件清单和依赖配置
 ├── 📄 package-lock.json             # 依赖锁定文件
@@ -93,11 +93,11 @@ vibecoding/
 │       │   ├── 📂 tools/            # Tool 注册（search_entities 等）
 │       │   ├── 📂 prompts/          # Prompt 注册（get_observations）
 │       │   └── 📂 rag/              # RAG Engine（cloud/local）
-│       └── 📄 README.md             # MCP Server 文档
 │
 └── 📄 文档文件
-    ├── 📄 README.md                 # 📖 完整项目文档（中文）
-    ├── 📄 README_EN.md              # 📖 完整项目文档（英文）
+    ├── 📄 README.md                 # 📖 项目说明（英文）
+    ├── 📄 README_ZH.md              # 📖 项目说明（中文）
+    ├── 📄 README_en.md              # 旧英文文档兼容跳转
     ├── 📄 Demo.md                   # 🎬 演示指南（中文）
     ├── 📄 Demo_en.md                # 🎬 演示指南（英文）
     ├── 📄 project_structure.md      # 📁 中文项目结构（本文件）

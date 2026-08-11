@@ -134,7 +134,7 @@ code .
 
 ### Step 3: Start VibeKnowledge Extension
 
-1. Press `F5` in your `vibecoding` project to start extension debugging
+1. Press `F5` in the `VibeKnowledge` project to start extension debugging
 2. Open `nestjs-realworld-example-app` project in the newly opened Extension Development Host window
 
 ### Step 4: Set Language (Optional) 🌐
@@ -999,7 +999,7 @@ Opens a new Markdown document showing:
 # RAG Store Information
 
 **Project Name**: nestjs-realworld-example-app
-**Store Name**: `fileSearchStores/vibecodingnestjsrealworldex-xxx`
+**Store Name**: `fileSearchStores/vibeknowledgenestjsrealworldex-xxx`
 **Workspace Path**: `d:\workspace\nestjs-realworld-example-app`
 
 ## 📊 Document Statistics (Cloud Real-time Data)
@@ -1109,7 +1109,7 @@ If local and cloud are out of sync (e.g., deleted local file), can:
 ### 📖 Further Learning
 
 For complete features see:
-- 📄 README_EN.md - Complete feature documentation
+- 📄 README.md - Complete feature documentation
 - 📚 docs/ - Detailed documentation
 
 ---
@@ -1233,7 +1233,7 @@ Now you can:
 
 ---
 
-**More Questions?** Check README_EN.md or submit an Issue!
+**More Questions?** Check README.md or submit an Issue!
 
 ---
 

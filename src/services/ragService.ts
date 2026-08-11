@@ -155,7 +155,7 @@ export class RAGService {
     const files: string[] = [];
 
     const scan = (dir: string) => {
-      if (!fs.existsSync(dir)) return;
+      if (!fs.existsSync(dir)) {return;}
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       
       for (const entry of entries) {
@@ -181,7 +181,7 @@ export class RAGService {
   }
 
   public async askQuestion(question: string): Promise<QuestionAnswerResult> {
-    if (!this.provider) throw new Error('RAG Service not initialized');
+    if (!this.provider) {throw new Error('RAG Service not initialized');}
     return this.provider.askQuestion(question);
   }
 
@@ -203,7 +203,7 @@ export class RAGService {
   }
 
   public async reindexAll(): Promise<void> {
-    if (!this.provider) return;
+    if (!this.provider) {return;}
     await this.provider.reindexAll();
     await this.initialScan(this.workspaceRoot);
   }

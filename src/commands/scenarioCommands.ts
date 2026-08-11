@@ -2,6 +2,10 @@ import * as vscode from 'vscode';
 import { ScenarioManager } from '../services/scenarioManager';
 import { currentLang } from '../i18n';
 
+interface ScenarioQuickPickItem extends vscode.QuickPickItem {
+  scenarioId: string;
+}
+
 /**
  * 切换 AI 场景命令
  */
@@ -12,7 +16,7 @@ export async function switchAIScenarioCommand(): Promise<void> {
   const locale = currentLang();
 
   // 构建 QuickPick 选项
-  const items: vscode.QuickPickItem[] = scenarios.map(scenario => {
+  const items: ScenarioQuickPickItem[] = scenarios.map(scenario => {
     const isCurrent = scenario.id === currentScenario;
     const label = locale === 'zh'
       ? `${scenario.icon} ${scenario.name}`
@@ -27,8 +31,6 @@ export async function switchAIScenarioCommand(): Promise<void> {
       description,
       detail,
       picked: isCurrent,
-      // 使用 iconPath 字段存储场景ID，便于后续识别
-      // @ts-ignore - 使用自定义字段
       scenarioId: scenario.id
     };
   });
@@ -46,8 +48,7 @@ export async function switchAIScenarioCommand(): Promise<void> {
   });
 
   if (selected) {
-    // @ts-ignore
-    const scenarioId = selected.scenarioId as string;
+    const scenarioId = selected.scenarioId;
 
     // 如果选择的是当前场景，不需要切换
     if (scenarioId === currentScenario) {
@@ -98,16 +99,12 @@ export async function showCurrentScenarioCommand(): Promise<void> {
   const name = locale === 'zh' ? scenario.name : scenario.nameEn;
   const description = locale === 'zh' ? scenario.description : scenario.descriptionEn;
 
-  // 读取模板内容预览
+  // 读取模板内容
   const template = manager.getScenarioTemplate(scenarioId);
-  const preview = template ? template.substring(0, 500) + '...' :
-    (locale === 'zh' ? '(模板内容未找到)' : '(Template not found)');
 
   const title = locale === 'zh'
     ? `当前 AI 场景: ${scenario.icon} ${name}`
     : `Current AI Scenario: ${scenario.icon} ${name}`;
-
-  const message = `${title}\n\n${description}\n\n---\n\n${preview}`;
 
   // 创建输出通道显示完整内容
   const outputChannel = vscode.window.createOutputChannel('AI Scenario');

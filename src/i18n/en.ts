@@ -111,8 +111,8 @@ export const en = {
       confirm: (name: string) => `Are you sure you want to delete entity "${name}"?`,
       willAlsoDelete: (obsCount: number, relCount: number) => {
         let msg = 'This will also delete:\n';
-        if (obsCount > 0) msg += `- ${obsCount} observation(s)\n`;
-        if (relCount > 0) msg += `- ${relCount} relation(s)\n`;
+        if (obsCount > 0) {msg += `- ${obsCount} observation(s)\n`;}
+        if (relCount > 0) {msg += `- ${relCount} relation(s)\n`;}
         msg += '\nContinue?';
         return msg;
       },

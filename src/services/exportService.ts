@@ -169,7 +169,7 @@ export class ExportService {
   /**
    * 生成关系部分
    */
-  private generateRelationSection(relations: Relation[], entities: Entity[]): string {
+  private generateRelationSection(relations: Relation[], _entities: Entity[]): string {
     const translations = t().export.relationGraph;
     let section = `## ${translations.title}\n\n`;
     

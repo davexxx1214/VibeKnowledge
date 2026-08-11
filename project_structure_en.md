@@ -7,7 +7,7 @@
 ## 📁 Project Layout
 
 ```
-vibecoding/
+VibeKnowledge/
 │
 ├── 📄 package.json                  # Extension manifest & dependencies
 ├── 📄 package-lock.json             # Dependency lock
@@ -88,10 +88,11 @@ vibecoding/
 │       │   ├── 📂 tools/            # search_entities / ask_question ...
 │       │   ├── 📂 prompts/          # get_observations prompt
 │       │   └── 📂 rag/              # Cloud & local RAG engines
-│       └── 📄 README.md
 │
 └── 📄 Docs
-    ├── 📄 README.md / README_EN.md
+    ├── 📄 README.md                 # English project overview
+    ├── 📄 README_ZH.md              # Chinese project overview
+    ├── 📄 README_en.md              # Compatibility redirect
     ├── 📄 Demo.md / Demo_en.md
     ├── 📄 project_structure.md      # Chinese version
     └── 📄 project_structure_en.md   # This document

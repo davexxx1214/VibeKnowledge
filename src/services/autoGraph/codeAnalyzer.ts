@@ -3,11 +3,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
 import { AutoGraphService } from './autoGraphService';
-import { EntityType, RelationVerb } from '../../utils/types';
 import {
   AnalysisResult,
-  AnalysisError,
-  AnalysisProgress,
   ExtractedSymbol,
   ExtractedRelation,
   FileAnalysisResult,
@@ -308,7 +305,7 @@ export class CodeAnalyzer {
     let content: string;
     try {
       content = fs.readFileSync(filePath, 'utf-8');
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
 
@@ -352,7 +349,6 @@ export class CodeAnalyzer {
    * 提取 import 语句
    */
   private extractImports(lines: string[], imports: ImportInfo[]): void {
-    const importRegex = /^import\s+(?:(?:(\*\s+as\s+\w+)|(\{[^}]+\})|(\w+))(?:\s*,\s*(?:(\{[^}]+\})|(\w+)))?\s+from\s+)?['"]([^'"]+)['"];?/;
     const defaultImportRegex = /^import\s+(\w+)\s+from\s+['"]([^'"]+)['"];?/;
     const namedImportRegex = /^import\s+\{([^}]+)\}\s+from\s+['"]([^'"]+)['"];?/;
     const namespaceImportRegex = /^import\s+\*\s+as\s+(\w+)\s+from\s+['"]([^'"]+)['"];?/;
@@ -601,7 +597,7 @@ export class CodeAnalyzer {
     
     for (const line of classContent) {
       // 跳过构造函数行（已经处理过）
-      if (line.includes('constructor')) continue;
+      if (line.includes('constructor')) {continue;}
       
       // 检查带修饰符的成员变量类型
       const memberWithModMatch = line.match(memberWithModifierRegex);
@@ -671,8 +667,6 @@ export class CodeAnalyzer {
   ): void {
     const functionRegex = /^(?:export\s+)?(?:async\s+)?function\s+(\w+)/;
     const arrowFunctionRegex = /^(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\([^)]*\)\s*(?::\s*[^=]+)?\s*=>/;
-    const methodRegex = /^\s*(?:public|private|protected|static|async|\s)*(\w+)\s*\([^)]*\)\s*(?::\s*[^{]+)?\s*\{/;
-
     let braceCount = 0;
     let currentFunction: { name: string; startLine: number; content: string[] } | null = null;
     let inClass = false;
@@ -790,7 +784,7 @@ export class CodeAnalyzer {
     for (const line of functionContent) {
       // 跳过注释
       const trimmed = line.trim();
-      if (trimmed.startsWith('//') || trimmed.startsWith('*')) continue;
+      if (trimmed.startsWith('//') || trimmed.startsWith('*')) {continue;}
       
       // 检查函数调用中的类参数
       let match;
@@ -988,7 +982,7 @@ export class CodeAnalyzer {
    */
   private resolveImportPath(fromFile: string, importPath: string): string {
     const dir = path.dirname(fromFile);
-    let resolved = path.join(dir, importPath);
+    const resolved = path.join(dir, importPath);
 
     // 尝试添加扩展名
     const extensions = ['.ts', '.tsx', '.js', '.jsx', '/index.ts', '/index.tsx'];

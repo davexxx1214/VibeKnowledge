@@ -16,7 +16,7 @@ import { AutoGraphCommands } from './ui/commands/autoGraphCommands';
 import { registerScenarioCommands } from './commands/scenarioCommands';
 import { ScenarioManager } from './services/scenarioManager';
 import { GraphView } from './ui/webview/graphView';
-import { I18nService, currentLang } from './i18n/i18nService';
+import { I18nService } from './i18n/i18nService';
 import { Language } from './i18n/types';
 import { t } from './i18n/i18nService';
 
@@ -62,7 +62,6 @@ export async function activate(context: vscode.ExtensionContext) {
     const ragService = new RAGService(dbService, geminiClient);
 
     // 尝试初始化 Gemini 客户端和 RAG 服务（可选功能）
-    let ragInitialized = false;
     try {
       // 先尝试初始化 Gemini，无论是否使用
       const geminiInitialized = await geminiClient.initialize(true);
@@ -99,8 +98,6 @@ export async function activate(context: vscode.ExtensionContext) {
       if (shouldInitRAG) {
         await ragService.initialize(workspaceRoot);
         console.log('✅ RAG Service initialized successfully');
-        ragInitialized = true;
-
         // 显示初始化成功的弹窗
         vscode.window.showInformationMessage(
           t().extension.rag.enabled,
@@ -779,10 +776,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // 场景切换命令
     registerScenarioCommands(context);
-
-    // 创建状态栏显示当前场景
-    const scenarioStatusBar = vscode.window.createStatusBarItem(
-    );
 
     // 切换语言命令
     context.subscriptions.push(

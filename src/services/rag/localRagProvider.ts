@@ -211,7 +211,7 @@ export class LocalRAGProvider implements IRAGProvider {
             console.log(`[LocalRAG] Unsupported file type, skipping: ${filePath}`);
             return;
         }
-        if (!fs.existsSync(filePath)) return;
+        if (!fs.existsSync(filePath)) {return;}
         const fileName = path.basename(filePath);
         const ext = path.extname(filePath).toLowerCase();
         let rawContent: string;
@@ -516,7 +516,7 @@ export class LocalRAGProvider implements IRAGProvider {
     public getStoreInfo(): StoreInfo | null {
         const db = this.dbService.getDatabase();
         const result = db.exec(`SELECT * FROM rag_store_info WHERE store_id = ?`, [this.storeId]);
-        if (result.length === 0 || result[0].values.length === 0) return null;
+        if (result.length === 0 || result[0].values.length === 0) {return null;}
         
         const row = result[0].values[0];
         return {
