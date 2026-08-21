@@ -206,6 +206,16 @@ export const zh = {
       success: '知识图谱已刷新'
     },
 
+    installDependencyGraphSkill: {
+      title: '知识图谱: 安装依赖图谱 Agent Skill',
+      alreadyInstalled: '项目中已存在 VibeKnowledge 依赖图谱 Skill。是否用扩展内置版本更新它？',
+      update: '更新 Skill',
+      cancel: '取消',
+      success: '✅ Skill 已安装到 .agents/skills。请让 Agent 生成或更新项目依赖图谱；已有会话可能需要重新加载 Skills。',
+      openSkill: '打开 Skill',
+      error: (error: string) => `安装依赖图谱 Skill 失败: ${error}`
+    },
+
     generateCursorRules: {
       title: '知识图谱: 生成 Cursor 规则',
       success: (fileName: string) => `✅ Cursor 规则已生成: ${fileName}`,
@@ -221,13 +231,13 @@ export const zh = {
         label: '📝 手动图谱',
         description: '设计决策、观察记录、手动维护的关系'
       },
-      auto: {
-        label: '⚡ 自动图谱',
-        description: '静态分析生成的代码结构和依赖关系'
+      agent: {
+        label: '🤖 Agent 图谱',
+        description: 'Agent 阅读代码并基于证据生成的依赖关系'
       },
       merged: {
         label: '🔗 合并图谱',
-        description: '手动 + 自动，最完整的上下文'
+        description: '人工维护 + Agent 生成，最完整的上下文'
       }
     },
 
@@ -552,69 +562,23 @@ export const zh = {
     }
   },
 
-  autoGraph: {
-    title: '自动依赖图谱',
-    commands: {
-      analyzeWorkspace: {
-        title: '分析工作区',
-        completed: (entities: number, relations: number, files: number) =>
-          `✅ 分析完成: ${entities} 个实体, ${relations} 个关系, ${files} 个文件`,
-        completedWithErrors: (entities: number, relations: number, errors: number) =>
-          `⚠️ 分析完成 (有错误): ${entities} 个实体, ${relations} 个关系, ${errors} 个错误`,
-        viewErrors: '查看错误'
-      },
-      analyzeFile: {
-        title: (fileName: string) => `分析文件: ${fileName}`,
-        noActiveFile: '请先打开一个文件',
-        unsupportedType: (fileName: string) => `不支持的文件类型: ${fileName}`,
-        unchanged: (fileName: string) => `文件未改变: ${fileName}`,
-        completed: (fileName: string, entities: number, relations: number) =>
-          `✅ ${fileName}: ${entities} 个实体, ${relations} 个关系`,
-        error: (fileName: string, message: string) => `分析失败 ${fileName}: ${message}`
-      },
-      clear: {
-        confirm: '确定要清空自动图谱吗？这将删除所有自动生成的实体和关系。',
-        yes: '确定',
-        no: '取消',
-        completed: '✅ 自动图谱已清空'
-      },
-      viewStats: {
-        title: '查看自动图谱统计'
-      },
-      addObservation: {
-        noEntities: '自动图谱中没有实体，请先运行分析',
-        selectEntity: '选择要添加观察记录的实体',
-        entityNotFound: '实体不存在',
-        prompt: (entityName: string) => `为 "${entityName}" 添加观察记录`,
-        placeholder: '输入观察记录内容...',
-        validateEmpty: '观察记录不能为空',
-        success: (entityName: string) => `✅ 已为 "${entityName}" 添加观察记录`,
-        error: '添加观察记录失败',
-        errorDetail: (message: string) => `添加观察记录失败: ${message}`
-      },
-      editObservation: {
-        notFound: '观察记录不存在',
-        prompt: '编辑观察记录',
-        success: '✅ 观察记录已更新',
-        error: (message: string) => `更新观察记录失败: ${message}`
-      },
-      deleteObservation: {
-        confirm: '确定要删除这条观察记录吗？',
-        yes: '确定',
-        no: '取消',
-        success: '✅ 观察记录已删除'
-      }
-    },
+  agentGraph: {
     treeView: {
-      manualGraph: '手动图谱',
-      autoGraph: '自动图谱',
+      manualGraph: '人工维护图谱',
+      agentGraph: 'Agent 图谱',
       entities: '实体',
-      relations: '关系'
+      relations: '关系',
+      evidence: '证据',
+      invalidManifest: 'Agent 图谱清单无效'
     },
     graphView: {
-      manualGraph: '手动图谱',
-      autoGraph: '自动图谱',
-      mergedView: '合并视图'
+      manualGraph: '人工维护图谱',
+      agentGraph: 'Agent 图谱',
+      mergedView: '合并视图',
+      source: '来源',
+      humanSource: '人工维护',
+      agentSource: 'Agent',
+      evidence: '证据'
     }
   },
 

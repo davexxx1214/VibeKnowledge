@@ -6,12 +6,12 @@ import { RelationService } from '../../services/relationService';
 import { ObservationService } from '../../services/observationService';
 import { ExportService } from '../../services/exportService';
 import { AIIntegrationService, GraphData } from '../../services/aiIntegrationService';
-import { AutoGraphService } from '../../services/autoGraph';
+import { AgentGraphService } from '../../services/agentGraph';
 import { Entity, EntityType, Observation, Relation } from '../../utils/types';
 import { t } from '../../i18n/i18nService';
 
 /** 图谱数据源类型 */
-export type GraphSourceType = 'manual' | 'auto' | 'merged';
+export type GraphSourceType = 'manual' | 'agent' | 'merged';
 
 /**
  * 实体相关的命令处理器
@@ -19,15 +19,15 @@ export type GraphSourceType = 'manual' | 'auto' | 'merged';
 export class EntityCommands {
   private exportService: ExportService;
   private aiIntegrationService: AIIntegrationService;
-  private autoGraphService?: AutoGraphService;
+  private agentGraphService: AgentGraphService;
 
   constructor(
     private entityService: EntityService,
     private relationService: RelationService,
     private observationService: ObservationService,
-    autoGraphService?: AutoGraphService
+    agentGraphService: AgentGraphService
   ) {
-    this.autoGraphService = autoGraphService;
+    this.agentGraphService = agentGraphService;
     this.exportService = new ExportService(
       entityService,
       relationService,
@@ -53,9 +53,9 @@ export class EntityCommands {
         value: 'manual'
       },
       {
-        label: translations.auto.label,
-        description: translations.auto.description,
-        value: 'auto'
+        label: translations.agent.label,
+        description: translations.agent.description,
+        value: 'agent'
       },
       {
         label: translations.merged.label,
@@ -75,146 +75,10 @@ export class EntityCommands {
    * 根据选择的数据源获取图谱数据
    */
   private getGraphData(sourceType: GraphSourceType): GraphData {
-    if (sourceType === 'manual') {
-      // 手动图谱数据
-      const entities = this.entityService.listEntities({});
-      const relations = this.relationService.getAllRelations();
-      const observations: Array<{ entityId: string; entityName: string; content: string }> = [];
-      
-      for (const entity of entities) {
-        const entityObservations = this.observationService.getObservations(entity.id);
-        for (const obs of entityObservations) {
-          observations.push({
-            entityId: entity.id,
-            entityName: entity.name,
-            content: obs.content
-          });
-        }
-      }
-      
-      return { entities, relations, observations, sourceType: 'manual' };
-    } else if (sourceType === 'auto' && this.autoGraphService) {
-      // 自动图谱数据
-      const autoEntities = this.autoGraphService.listEntities();
-      const autoRelations = this.autoGraphService.listRelations();
-      
-      // 转换为通用格式
-      const entities: Entity[] = autoEntities.map(e => ({
-        id: e.id,
-        name: e.name,
-        type: e.type,
-        filePath: e.filePath,
-        startLine: e.startLine,
-        endLine: e.endLine,
-        description: e.description,
-        createdAt: e.createdAt,
-        updatedAt: e.updatedAt
-      }));
-      
-      const relations: Relation[] = autoRelations.map(r => ({
-        id: r.id,
-        sourceEntityId: r.sourceEntityId,
-        targetEntityId: r.targetEntityId,
-        verb: r.verb,
-        createdAt: r.createdAt
-      }));
-      
-      // 获取自动图谱的观察记录
-      const observations: Array<{ entityId: string; entityName: string; content: string }> = [];
-      for (const entity of autoEntities) {
-        const entityObservations = this.autoGraphService.getObservationsByEntity(entity.id);
-        for (const obs of entityObservations) {
-          observations.push({
-            entityId: entity.id,
-            entityName: entity.name,
-            content: obs.content
-          });
-        }
-      }
-      
-      return { entities, relations, observations, sourceType: 'auto' };
-    } else if (sourceType === 'merged' && this.autoGraphService) {
-      // 合并图谱数据
-      const manualEntities = this.entityService.listEntities({});
-      const manualRelations = this.relationService.getAllRelations();
-      const autoEntities = this.autoGraphService.listEntities();
-      const autoRelations = this.autoGraphService.listRelations();
-      
-      // 合并实体（按名称去重，手动优先）
-      const entityMap = new Map<string, Entity>();
-      
-      // 先添加自动实体
-      for (const e of autoEntities) {
-        const key = `${e.name}::${e.filePath}`;
-        entityMap.set(key, {
-          id: e.id,
-          name: e.name,
-          type: e.type,
-          filePath: e.filePath,
-          startLine: e.startLine,
-          endLine: e.endLine,
-          description: e.description,
-          createdAt: e.createdAt,
-          updatedAt: e.updatedAt
-        });
-      }
-      
-      // 再添加手动实体（覆盖同名自动实体）
-      for (const e of manualEntities) {
-        const key = `${e.name}::${e.filePath}`;
-        entityMap.set(key, e);
-      }
-      
-      const entities = Array.from(entityMap.values());
-      
-      // 合并关系（需要映射 ID）
-      const relations: Relation[] = [
-        ...manualRelations,
-        ...autoRelations.map(r => ({
-          id: r.id,
-          sourceEntityId: r.sourceEntityId,
-          targetEntityId: r.targetEntityId,
-          verb: r.verb,
-          createdAt: r.createdAt
-        }))
-      ];
-      
-      // 合并观察记录
-      const observations: Array<{ entityId: string; entityName: string; content: string }> = [];
-      
-      // 手动图谱的观察记录
-      for (const entity of manualEntities) {
-        const entityObservations = this.observationService.getObservations(entity.id);
-        for (const obs of entityObservations) {
-          observations.push({
-            entityId: entity.id,
-            entityName: entity.name,
-            content: obs.content
-          });
-        }
-      }
-      
-      // 自动图谱的观察记录
-      for (const entity of autoEntities) {
-        const entityObservations = this.autoGraphService.getObservationsByEntity(entity.id);
-        for (const obs of entityObservations) {
-          observations.push({
-            entityId: entity.id,
-            entityName: entity.name,
-            content: obs.content
-          });
-        }
-      }
-      
-      return { entities, relations, observations, sourceType: 'merged' };
-    }
-    
-    // 默认返回手动图谱
-    const entities = this.entityService.listEntities({});
-    const relations = this.relationService.getAllRelations();
+    const manualEntities = this.entityService.listEntities({});
+    const manualRelations = this.relationService.getAllRelations();
     const observations: Array<{ entityId: string; entityName: string; content: string }> = [];
-    
-    for (const entity of entities) {
+    for (const entity of manualEntities) {
       const entityObservations = this.observationService.getObservations(entity.id);
       for (const obs of entityObservations) {
         observations.push({
@@ -224,8 +88,79 @@ export class EntityCommands {
         });
       }
     }
-    
-    return { entities, relations, observations, sourceType: 'manual' };
+
+    if (sourceType === 'manual') {
+      return {
+        entities: manualEntities,
+        relations: manualRelations,
+        observations,
+        sourceType: 'manual'
+      };
+    }
+
+    const agentEntities = this.agentGraphService.listEntities();
+    const agentRelations = this.agentGraphService.listRelations();
+    if (sourceType === 'agent') {
+      return {
+        entities: agentEntities,
+        relations: agentRelations,
+        observations: [],
+        sourceType: 'agent'
+      };
+    }
+
+    // 合并时人工实体优先，并把 Agent 关系端点映射到最终实体 ID。
+    const entityMap = new Map<string, Entity>();
+    const agentIdToIdentity = new Map<string, string>();
+    for (const entity of agentEntities) {
+      const identity = this.getEntityIdentity(entity);
+      entityMap.set(identity, entity);
+      agentIdToIdentity.set(entity.id, identity);
+    }
+    for (const entity of manualEntities) {
+      entityMap.set(this.getEntityIdentity(entity), entity);
+    }
+
+    const entities = Array.from(entityMap.values());
+    const finalIdByIdentity = new Map(
+      Array.from(entityMap.entries()).map(([identity, entity]) => [identity, entity.id])
+    );
+    const relations: Relation[] = [...manualRelations];
+    const relationKeys = new Set(
+      manualRelations.map(
+        (relation) =>
+          `${relation.sourceEntityId}\u0000${relation.targetEntityId}\u0000${relation.verb}`
+      )
+    );
+
+    for (const relation of agentRelations) {
+      const sourceIdentity = agentIdToIdentity.get(relation.sourceEntityId);
+      const targetIdentity = agentIdToIdentity.get(relation.targetEntityId);
+      if (!sourceIdentity || !targetIdentity) {
+        continue;
+      }
+      const sourceEntityId = finalIdByIdentity.get(sourceIdentity);
+      const targetEntityId = finalIdByIdentity.get(targetIdentity);
+      if (!sourceEntityId || !targetEntityId || sourceEntityId === targetEntityId) {
+        continue;
+      }
+      const relationKey = `${sourceEntityId}\u0000${targetEntityId}\u0000${relation.verb}`;
+      if (relationKeys.has(relationKey)) {
+        continue;
+      }
+      relationKeys.add(relationKey);
+      relations.push({ ...relation, sourceEntityId, targetEntityId });
+    }
+
+    return { entities, relations, observations, sourceType: 'merged' };
+  }
+
+  private getEntityIdentity(entity: Entity): string {
+    const normalizedPath = entity.filePath
+      .replace(/\\/g, '/')
+      .replace(/^\.\//, '')
+      .toLocaleLowerCase();
+    return `${normalizedPath}\u0000${entity.name.toLocaleLowerCase()}`;
   }
 
   /**
@@ -463,12 +398,23 @@ export class EntityCommands {
    * 跳转到实体位置
    */
   public async jumpToEntity(entity: Entity): Promise<void> {
+    if (entity.type === 'external') {
+      vscode.window.showInformationMessage(
+        `"${entity.name}" is an external dependency without a workspace source file.`
+      );
+      return;
+    }
+
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders) {
       return;
     }
 
     const uri = vscode.Uri.joinPath(workspaceFolders[0].uri, entity.filePath);
+    if (entity.type === 'directory') {
+      await vscode.commands.executeCommand('revealInExplorer', uri);
+      return;
+    }
     
     try {
       const document = await vscode.workspace.openTextDocument(uri);
@@ -502,7 +448,17 @@ export class EntityCommands {
       return;
     }
 
-    const entities = this.entityService.listEntities({ name: query });
+    const manualEntities = this.entityService.listEntities({ name: query });
+    const manualIdentities = new Set(
+      manualEntities.map((entity) => this.getEntityIdentity(entity))
+    );
+    const agentEntities = this.agentGraphService
+      .listEntities({ name: query })
+      .filter((entity) => !manualIdentities.has(this.getEntityIdentity(entity)));
+    const entities = [
+      ...manualEntities.map((entity) => ({ entity, isAgent: false })),
+      ...agentEntities.map((entity) => ({ entity, isAgent: true })),
+    ];
 
     if (entities.length === 0) {
       vscode.window.showInformationMessage('No entities found');
@@ -510,10 +466,12 @@ export class EntityCommands {
     }
 
     // 显示搜索结果
-    const items: vscode.QuickPickItem[] = entities.map(entity => ({
+    const sourceTranslations = t().agentGraph.graphView;
+    const items: Array<vscode.QuickPickItem & { entity: Entity }> = entities.map(({ entity, isAgent }) => ({
       label: entity.name,
-      description: `${entity.type} - ${entity.filePath}:${entity.startLine}`,
+      description: `[${isAgent ? sourceTranslations.agentSource : sourceTranslations.humanSource}] ${entity.type} - ${entity.filePath}:${entity.startLine}`,
       detail: entity.description,
+      entity,
     }));
 
     const selected = await vscode.window.showQuickPick(items, {
@@ -521,10 +479,7 @@ export class EntityCommands {
     });
 
     if (selected) {
-      const entity = entities.find(e => e.name === selected.label);
-      if (entity) {
-        await this.jumpToEntity(entity);
-      }
+      await this.jumpToEntity(selected.entity);
     }
   }
 

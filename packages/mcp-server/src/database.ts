@@ -210,18 +210,31 @@ export class GraphDatabase {
       )
       .all(...values, safeLimit) as EntityRow[];
 
-    return rows.map((row) => ({
-      id: row.id,
-      name: row.name,
-      type: row.type,
-      filePath: row.file_path,
-      startLine: row.start_line,
-      endLine: row.end_line,
-      description: row.description,
-      metadata: row.metadata ? this.safeParseJson(row.metadata) : null,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at
-    }));
+    return this.mapEntityRows(rows);
+  }
+
+  listAllEntities(): EntityRecord[] {
+    const rows = this.ensureDb()
+      .prepare(
+        `
+        SELECT
+          id,
+          name,
+          type,
+          file_path,
+          start_line,
+          end_line,
+          description,
+          metadata,
+          created_at,
+          updated_at
+        FROM entities
+        ORDER BY updated_at DESC
+      `
+      )
+      .all() as EntityRow[];
+
+    return this.mapEntityRows(rows);
   }
 
   searchObservations(
@@ -331,6 +344,52 @@ export class GraphDatabase {
       )
       .all(...values, safeLimit) as RelationRow[];
 
+    return this.mapRelationRows(rows);
+  }
+
+  listAllRelations(): RelationRecord[] {
+    const rows = this.ensureDb()
+      .prepare(
+        `
+        SELECT
+          r.id,
+          r.source_entity_id,
+          r.target_entity_id,
+          r.verb,
+          r.created_at,
+          s.name AS source_name,
+          s.type AS source_type,
+          s.file_path AS source_file_path,
+          t.name AS target_name,
+          t.type AS target_type,
+          t.file_path AS target_file_path
+        FROM relations r
+        INNER JOIN entities s ON s.id = r.source_entity_id
+        INNER JOIN entities t ON t.id = r.target_entity_id
+        ORDER BY r.created_at DESC
+      `
+      )
+      .all() as RelationRow[];
+
+    return this.mapRelationRows(rows);
+  }
+
+  private mapEntityRows(rows: EntityRow[]): EntityRecord[] {
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      type: row.type,
+      filePath: row.file_path,
+      startLine: row.start_line,
+      endLine: row.end_line,
+      description: row.description,
+      metadata: row.metadata ? this.safeParseJson(row.metadata) : null,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+  }
+
+  private mapRelationRows(rows: RelationRow[]): RelationRecord[] {
     return rows.map((row) => ({
       id: row.id,
       verb: row.verb,

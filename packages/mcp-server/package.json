@@ -1,7 +1,7 @@
 {
   "name": "@vibeknowledge/mcp-server",
   "version": "0.1.0",
-  "description": "Standalone MCP server that exposes VibeKnowledge graph.sqlite and RAG data.",
+  "description": "Standalone MCP server for VibeKnowledge human and Agent graphs plus RAG data.",
   "license": "MIT",
   "author": "davexxx",
   "homepage": "https://github.com/davexxx1214/VibeKnowledge#readme",

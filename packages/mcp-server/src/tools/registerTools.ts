@@ -4,10 +4,17 @@ import type { RagEngine, RagAnswer } from '../rag/ragEngine.js';
 import type { Logger } from '../server.js';
 import type {
   GraphDatabase,
-  EntityRecord,
-  ObservationRecord,
-  RelationRecord
+  ObservationRecord
 } from '../database.js';
+import type { AgentGraphStore } from '../agentGraphStore.js';
+import type {
+  MergedEntityRecord,
+  MergedRelationRecord
+} from '../mergedGraph.js';
+import {
+  searchMergedEntities,
+  searchMergedRelations
+} from '../mergedGraph.js';
 
 const DEFAULT_LIMIT = 20;
 
@@ -15,11 +22,12 @@ export function registerTools(
   server: McpServer,
   db: GraphDatabase,
   ragEngine: RagEngine | null,
-  logger: Logger
+  logger: Logger,
+  agentGraph?: AgentGraphStore
 ): void {
-  registerSearchEntitiesTool(server, db, logger);
+  registerSearchEntitiesTool(server, db, logger, agentGraph);
   registerSearchObservationsTool(server, db, logger);
-  registerRelationsTool(server, db, logger);
+  registerRelationsTool(server, db, logger, agentGraph);
 
   if (ragEngine) {
     registerAskQuestionTool(server, ragEngine, logger);
@@ -29,7 +37,8 @@ export function registerTools(
 function registerSearchEntitiesTool(
   server: McpServer,
   db: GraphDatabase,
-  logger: Logger
+  logger: Logger,
+  agentGraph?: AgentGraphStore
 ): void {
   const inputSchema = z.object({
     query: z
@@ -55,7 +64,7 @@ function registerSearchEntitiesTool(
     {
       title: 'Search Entities',
       description:
-        '基于 knowledge graph 查询实体，支持按名称、类型、文件路径模糊匹配。',
+        '合并查询手动 knowledge graph 与 Agent 生成图谱中的实体，支持按名称、类型、文件路径模糊匹配。',
       inputSchema
     },
     async ({ query = '', type, filePath, limit = DEFAULT_LIMIT }) => {
@@ -63,12 +72,12 @@ function registerSearchEntitiesTool(
         logger.debug?.(
           `[search_entities] query="${query}", type=${type ?? 'all'}, file=${filePath ?? 'any'}, limit=${limit}`
         );
-        const results = db.searchEntities({
-          query,
-          type,
-          filePath,
-          limit
-        });
+        const params = { query, type, filePath, limit };
+        const results = agentGraph
+          ? searchMergedEntities(db, agentGraph, params)
+          : db
+              .searchEntities(params)
+              .map((entity) => ({ ...entity, source: 'manual' as const }));
         return {
           content: [
             {
@@ -164,7 +173,8 @@ function registerSearchObservationsTool(
 function registerRelationsTool(
   server: McpServer,
   db: GraphDatabase,
-  logger: Logger
+  logger: Logger,
+  agentGraph?: AgentGraphStore
 ): void {
   const inputSchema = z.object({
     verb: z.string().describe('关系动词（如 uses/depends_on）').optional(),
@@ -184,7 +194,7 @@ function registerRelationsTool(
     {
       title: 'List Relations',
       description:
-        '列出知识图谱中的关系记录，可按动词、源实体、目标实体筛选。',
+        '合并列出手动 knowledge graph 与 Agent 生成图谱中的关系，可按动词、源实体、目标实体筛选。',
       inputSchema
     },
     async ({ verb, source, target, limit = DEFAULT_LIMIT }) => {
@@ -192,12 +202,12 @@ function registerRelationsTool(
         logger.debug?.(
           `[knowledge://relations] verb=${verb ?? 'all'}, source=${source ?? 'any'}, target=${target ?? 'any'}, limit=${limit}`
         );
-        const results = db.searchRelations({
-          verb,
-          source,
-          target,
-          limit
-        });
+        const params = { verb, source, target, limit };
+        const results = agentGraph
+          ? searchMergedRelations(db, agentGraph, params)
+          : db
+              .searchRelations(params)
+              .map((relation) => ({ ...relation, source: 'manual' as const }));
         return {
           content: [
             {
@@ -281,7 +291,7 @@ function registerAskQuestionTool(
   );
 }
 
-function formatEntityResults(results: EntityRecord[]): string {
+export function formatEntityResults(results: MergedEntityRecord[]): string {
   if (results.length === 0) {
     return '未找到匹配的实体。';
   }
@@ -293,7 +303,11 @@ function formatEntityResults(results: EntityRecord[]): string {
       const description = entity.description
         ? `\n    描述：${entity.description}`
         : '';
-      return `${index + 1}. [${entity.type}] ${entity.name}\n    位置：${location}\n    更新时间：${updatedAt}${description}`;
+      const source =
+        entity.source === 'manual'
+          ? 'manual (graph.sqlite)'
+          : 'agent (.vscode/.knowledge/agent-graph.json)';
+      return `${index + 1}. [${entity.type}] ${entity.name}\n    位置：${location}\n    来源：${source}\n    更新时间：${updatedAt}${description}`;
     })
     .join('\n\n');
 }
@@ -311,7 +325,7 @@ function formatObservationResults(results: ObservationRecord[]): string {
     .join('\n\n');
 }
 
-function formatRelationResults(results: RelationRecord[]): string {
+export function formatRelationResults(results: MergedRelationRecord[]): string {
   if (results.length === 0) {
     return '未找到匹配的关系记录。';
   }
@@ -319,9 +333,31 @@ function formatRelationResults(results: RelationRecord[]): string {
   return results
     .map((relation, index) => {
       const createdAt = new Date(relation.createdAt).toISOString();
-      return `${index + 1}. ${relation.sourceName} [${relation.sourceType}] --${relation.verb}--> ${relation.targetName} [${relation.targetType}]\n    Source: ${relation.sourceFilePath}\n    Target: ${relation.targetFilePath}\n    Created At: ${createdAt}`;
+      const source =
+        relation.source === 'manual'
+          ? 'manual (graph.sqlite)'
+          : 'agent (.vscode/.knowledge/agent-graph.json)';
+      const description =
+        relation.source === 'agent' && relation.description
+          ? `\n    Description: ${relation.description}`
+          : '';
+      const evidence =
+        relation.source === 'agent' && relation.evidence.length > 0
+          ? `\n    Evidence: ${relation.evidence
+              .map(formatEvidence)
+              .join('; ')}`
+          : '';
+      return `${index + 1}. ${relation.sourceName} [${relation.sourceType}] --${relation.verb}--> ${relation.targetName} [${relation.targetType}]\n    Source: ${relation.sourceFilePath}\n    Target: ${relation.targetFilePath}\n    Data Source: ${source}\n    Created At: ${createdAt}${description}${evidence}`;
     })
     .join('\n\n');
+}
+
+function formatEvidence(
+  evidence: Extract<MergedRelationRecord, { source: 'agent' }>['evidence'][number]
+): string {
+  const endLine = evidence.endLine ?? evidence.startLine;
+  const detail = evidence.detail ? ` (${evidence.detail})` : '';
+  return `${evidence.filePath}:${evidence.startLine}-${endLine}${detail}`;
 }
 
 function formatAnswer(result: RagAnswer): string {

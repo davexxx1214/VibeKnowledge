@@ -8,7 +8,7 @@ describe('MusicGeneratorService', () => {
     expect(result.stats).toMatchObject({
       totalEntities: 0,
       totalRelations: 0,
-      mode: 'auto',
+      mode: 'agent',
     });
     expect(result.layers).toEqual([]);
     expect(result.code).toContain('setcps(');

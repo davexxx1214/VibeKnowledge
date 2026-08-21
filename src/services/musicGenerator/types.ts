@@ -102,7 +102,7 @@ export interface MusicStats {
   totalRelations: number;
   entitiesByType: Record<string, number>;
   relationsByVerb: Record<string, number>;
-  mode: 'manual' | 'auto' | 'merged';
+  mode: 'manual' | 'agent' | 'merged';
 }
 
 /**

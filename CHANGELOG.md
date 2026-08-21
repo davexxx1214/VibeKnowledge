@@ -6,6 +6,8 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 ### Added
 
+- A bundled Agent Skill that generates an evidence-backed dependency graph in `.vscode/.knowledge/agent-graph.json`.
+- Agent Graph and merged Human + Agent views in the extension and MCP server.
 - Root tests for graph sonification and Strudel Webview security behavior.
 - GitHub Actions checks for the extension and standalone MCP server.
 - Contribution, security, issue, and pull-request guidance.
@@ -14,6 +16,7 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 ### Changed
 
+- Replaced the regex-based automatic dependency analyzer with Agent-driven semantic analysis; human-maintained graph data remains isolated.
 - Made English the default README and moved the Chinese documentation to `README_ZH.md`.
 - Updated compatible dependencies and development tooling.
 - Removed generated coverage reports from version control.

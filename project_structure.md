@@ -22,7 +22,8 @@ VibeKnowledge/
 │   └── 📄 tasks.json                # 任务配置
 │
 ├── 📂 resources/                    # 资源文件
-│   └── 📄 icon.svg                  # 插件图标
+│   ├── 📄 icon.svg                  # 插件图标
+│   └── 📂 skills/                   # 可安装的 Agent Skills
 │
 ├── 📂 src/                          # ⭐ 源代码目录
 │   │
@@ -39,6 +40,8 @@ VibeKnowledge/
 │   │   ├── 📄 geminiClient.ts       # Gemini API 客户端
 │   │   ├── 📄 ragService.ts         # RAG 知识库服务
 │   │   ├── 📄 scenarioManager.ts    # 场景管理器
+│   │   ├── 📄 agentSkillService.ts  # 项目级 Skill 安装服务
+│   │   ├── 📂 agentGraph/           # Agent Graph 清单读取、校验与类型
 │   │   └── 📂 rag/                  # RAG 具体实现
 │   │       ├── 📄 cloudRagProvider.ts # 云端 RAG 提供者
 │   │       ├── 📄 localRagProvider.ts # 本地 RAG 提供者
@@ -89,6 +92,8 @@ VibeKnowledge/
 │       │   ├── 📄 server.ts         # MCP 服务器初始化
 │       │   ├── 📄 config.ts         # 配置解析
 │       │   ├── 📄 database.ts       # 读取 graph.sqlite
+│       │   ├── 📄 agentGraphStore.ts # 读取 Agent Graph sidecar
+│       │   ├── 📄 mergedGraph.ts    # 合并人工与 Agent 图谱查询
 │       │   ├── 📂 resources/        # Resource 注册（knowledge://overview）
 │       │   ├── 📂 tools/            # Tool 注册（search_entities 等）
 │       │   ├── 📂 prompts/          # Prompt 注册（get_observations）
@@ -129,7 +134,8 @@ VibeKnowledge/
 
 ```
 <工作区>/.vscode/.knowledge/
-└── graph.sqlite              # SQLite 数据库（包含知识图谱和 RAG 索引）
+├── graph.sqlite              # SQLite 数据库（人工图谱与 RAG 索引）
+└── agent-graph.json          # Agent Skill 生成的依赖图谱
 
 <工作区>/Knowledge/           # RAG 文档知识库
 ├── *.md                      # Markdown 文档

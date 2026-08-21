@@ -18,10 +18,10 @@
     - [建立关系](#14-建立关系3-分钟)
     - [树视图](#15-在树视图中查看1-分钟)
     - [**可视化图谱** 🌟](#16-可视化知识图谱10-分钟-核心功能)
-  - [第二部分：自动图谱生成](#第二部分自动图谱生成3-分钟) 🆕
-    - [分析工作区](#21-分析整个工作区1-分钟)
-    - [切换视图](#22-切换到自动图谱视图1-分钟)
-    - [查看统计](#23-查看自动图谱统计1-分钟)
+  - [第二部分：Agent 依赖图谱](#第二部分agent-依赖图谱3-分钟) 🆕
+    - [安装 Skill](#21-安装依赖图谱-skill1-分钟)
+    - [让 Agent 生成依赖关系](#22-让-agent-生成依赖关系1-分钟)
+    - [查看和审查图谱](#23-查看和审查-agent-图谱1-分钟)
   - [第三部分：RAG 持久知识库](#第三部分rag-持久知识库5-分钟) 🆕
     - [配置 API Key](#31-配置-gemini-api-key1-分钟)
     - [添加文档](#32-添加文档到-knowledge-文件夹1-分钟)
@@ -265,7 +265,7 @@ VibeKnowledge 支持中英文双语界面：
 
 ### VibeKnowledge 完整功能演示（约 28 分钟）
 
-本演示包含三大核心功能：**知识图谱可视化**、**自动图谱生成** 和 **RAG 智能问答**！
+本演示包含三大核心功能：**知识图谱可视化**、**Agent 依赖图谱** 和 **RAG 智能问答**！
 
 #### 1.1 创建第一个实体（2 分钟）
 
@@ -886,90 +886,60 @@ ArticleService ────⚠️ uses────⤴
 
 ---
 
-### 第二部分：自动图谱生成（3 分钟）🆕
+### 第二部分：Agent 依赖图谱（3 分钟）🆕
 
-> 无需手动创建实体和关系，插件自动分析代码依赖！
+> 由代码 Agent 理解实现语义、筛选高价值关系，并为每条关系记录代码证据。
 
-#### 2.1 分析整个工作区（1 分钟）
+#### 2.1 安装依赖图谱 Skill（1 分钟）
 
 **操作**：
 ```
 1. 命令面板（Ctrl+Shift+P）
-2. 输入 "Analyze Workspace"
-3. 选择 "Knowledge: Analyze Workspace (Auto Graph)"
-4. 等待分析完成（会显示进度）
+2. 选择 "Knowledge: Install Dependency Graph Agent Skill"
+3. 确认项目中出现 .agents/skills/vibeknowledge-dependency-graph/
 ```
 
-**预期效果**：
-- ✅ 进度条显示分析状态
-- ✅ 自动提取所有类、接口、函数
-- ✅ 自动识别 extends、implements、uses 关系
-- ✅ 完成后显示统计信息
-
-**注意**：每次分析会自动清除旧数据，确保结果最新
+该命令把 VibeKnowledge 随扩展发布的 Skill 安装到当前工作区。它不会修改已有的手工知识图谱。
 
 ---
 
-#### 2.2 切换到自动图谱视图（1 分钟）
+#### 2.2 让 Agent 生成依赖关系（1 分钟）
+
+在支持项目 Skill 的代码 Agent 中输入：
+
+```
+$vibeknowledge-dependency-graph 为当前项目生成依赖关系知识图谱
+```
+
+Agent 会阅读代码、判断直接依赖关系，并生成：
+
+```
+.vscode/.knowledge/agent-graph.json
+```
+
+**预期效果**：
+- ✅ 每个实体都有稳定 key 和源码位置
+- ✅ 每条关系都有 `source`、`target`、`verb`
+- ✅ 每条关系至少包含一处可核查的代码证据
+- ✅ 重新运行时完整更新 Agent 图谱，不影响手工实体、关系和观察记录
+- ✅ 生成后自动运行严格 schema 校验
+
+---
+
+#### 2.3 查看和审查 Agent 图谱（1 分钟）
 
 **操作**：
 ```
 1. 命令面板 → "Knowledge: Visualize Graph"
-2. 点击顶部 "⚡ 自动图谱" 按钮
+2. 点击顶部 "Agent 图谱"，或选择 "合并图谱"
+3. 双击节点跳转到代码，并依据 evidence 审查关系
 ```
 
-**预期效果**：
-```
-┌─────────────────────────────────────────────────┐
-│ 📝 手动图谱  | ⚡ 自动图谱 | 🔗 合并视图      │
-├─────────────────────────────────────────────────┤
-│                                                 │
-│    UserController ──extends──→ BaseController   │
-│         │                                       │
-│        uses                                     │
-│         ↓                                       │
-│    UserService ────uses────→ UserEntity        │
-│         ↑                                       │
-│        uses                                     │
-│         │                                       │
-│    ArticleService ──uses──→ ArticleEntity      │
-│                                                 │
-└─────────────────────────────────────────────────┘
-```
+**支持的关系类型**：`uses`、`calls`、`extends`、`implements`、`depends_on`、`contains`、`references`、`imports`、`exports`。
 
-**自动检测的关系类型**：
-- `extends` - 类继承（如 `UserController extends BaseController`）
-- `implements` - 接口实现
-- `uses` - 依赖使用（构造函数注入、成员变量、返回类型、@Module 装饰器等）
-
----
-
-#### 2.3 查看自动图谱统计（1 分钟）
-
-**操作**：
-```
-1. 命令面板 → "Knowledge: View Auto Graph Statistics"
-```
-
-**预期效果**：
-```
-📊 自动图谱统计
-
-实体数量：45
-  - class: 20
-  - interface: 15
-  - function: 8
-  - variable: 2
-
-关系数量：62
-  - uses: 50
-  - extends: 5
-  - implements: 7
-```
-
-💡 **与手动图谱的区别**：
-- 自动图谱：快速理解代码依赖，每次分析自动重建
-- 手动图谱：记录设计决策、重构笔记，支持观察记录
+💡 **与手工图谱的区别**：
+- Agent 图谱：Agent 基于代码证据生成，可重复执行和整体更新
+- 手工图谱：记录设计决策、重构笔记和观察记录
 
 ---
 
@@ -1180,7 +1150,7 @@ _💡 点击文件名可以直接跳转查看原文档_
 3. 建立关系（Link to Entity）
 4. 树视图查看
 5. **可视化图谱** 🌟
-6. **自动图谱生成** 🆕
+6. **Agent 依赖图谱** 🆕
 7. **RAG 智能问答** 🆕
 
 ### 🌟 核心功能价值
@@ -1191,12 +1161,12 @@ _💡 点击文件名可以直接跳转查看原文档_
 - 🔍 快速影响分析
 - 🐛 自动检测循环依赖
 
-**自动图谱生成** 🆕：
-- 📊 静态分析自动提取实体和关系
-- 🔗 支持 extends、implements、uses 等关系
-- 🎯 NestJS @Module 装饰器分析
-- 🏗️ TypeORM 实体关系检测
-- 🔄 每次分析自动清理重建
+**Agent 依赖图谱** 🆕：
+- 🤖 Agent 理解代码语义后筛选高价值依赖
+- 🔗 支持 calls、extends、implements、depends_on 等关系
+- 🔎 每条关系都带有可核查的代码证据
+- 🧭 独立于手工图谱，可单独查看或合并展示
+- 🔄 重复执行会完整更新 Agent 图谱
 
 **RAG 智能问答**：
 - ☁️ 云端托管的语义搜索
@@ -1226,7 +1196,7 @@ _💡 点击文件名可以直接跳转查看原文档_
 
 2. **重构前**
    ```
-   运行自动图谱分析 → 切换到自动图谱视图 → 查看完整依赖关系
+   让 Agent 运行依赖图谱 Skill → 切换到 Agent 图谱 → 查看并核查依赖关系
    或：打开手动图谱 → 查看标注的关键依赖 → 评估影响范围
    ```
 
@@ -1307,9 +1277,7 @@ _💡 点击文件名可以直接跳转查看原文档_
 | Visualize Graph | Ctrl+Shift+P | 可视化图谱 |
 | View Entity Details | 右键菜单 | 查看实体详情 |
 | **Switch Language** 🌐 | 侧边栏 (🌐) / Ctrl+Shift+P | 切换中英文界面 |
-| **Analyze Workspace** 🆕 | Ctrl+Shift+P | 自动分析工作区 |
-| **View Auto Graph Stats** 🆕 | Ctrl+Shift+P | 查看自动图谱统计 |
-| **Clear Auto Graph** 🆕 | Ctrl+Shift+P | 清空自动图谱 |
+| **Install Dependency Graph Agent Skill** 🆕 | Ctrl+Shift+P | 将依赖图谱 Skill 安装到当前项目 |
 | **Ask Question** 🆕 | 侧边栏 (?) | RAG 智能问答 |
 | **View Store Info** 🆕 | 侧边栏 (ℹ️) | 查看 RAG Store 信息 |
 | **Rebuild RAG Index** 🆕 | 侧边栏 (🔄) | 重建云端索引 |

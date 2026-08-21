@@ -132,6 +132,14 @@ export interface LanguagePack {
     refresh: CommandTranslations & {
       success: string;
     };
+    installDependencyGraphSkill: CommandTranslations & {
+      alreadyInstalled: string;
+      update: string;
+      cancel: string;
+      success: string;
+      openSkill: string;
+      error: (error: string) => string;
+    };
     generateCursorRules: CommandTranslations & {
       success: (fileName: string) => string;
       error: (error: string) => string;
@@ -145,7 +153,7 @@ export interface LanguagePack {
         label: string;
         description: string;
       };
-      auto: {
+      agent: {
         label: string;
         description: string;
       };
@@ -350,6 +358,26 @@ export interface LanguagePack {
       more: string;
     };
     cyclicDependency: string;
+  };
+
+  agentGraph: {
+    treeView: {
+      manualGraph: string;
+      agentGraph: string;
+      entities: string;
+      relations: string;
+      evidence: string;
+      invalidManifest: string;
+    };
+    graphView: {
+      manualGraph: string;
+      agentGraph: string;
+      mergedView: string;
+      source: string;
+      humanSource: string;
+      agentSource: string;
+      evidence: string;
+    };
   };
 
   export: {

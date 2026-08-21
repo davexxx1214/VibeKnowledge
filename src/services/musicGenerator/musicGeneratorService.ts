@@ -20,7 +20,7 @@ import {
 } from './mappings';
 
 /**
- * 图谱实体接口 (兼容手动和自动图谱)
+ * 图谱实体接口（兼容人工维护图谱和 Agent 图谱）
  */
 interface GraphEntity {
   id: string;
@@ -63,7 +63,7 @@ export class MusicGeneratorService {
   public generateMusic(
     entities: GraphEntity[],
     relations: GraphRelation[],
-    mode: 'manual' | 'auto' | 'merged' = 'auto'
+    mode: 'manual' | 'agent' | 'merged' = 'agent'
   ): GeneratedMusic {
     // 统计信息
     const stats = this.calculateStats(entities, relations, mode);
@@ -96,7 +96,7 @@ export class MusicGeneratorService {
   private calculateStats(
     entities: GraphEntity[],
     relations: GraphRelation[],
-    mode: 'manual' | 'auto' | 'merged'
+    mode: 'manual' | 'agent' | 'merged'
   ): MusicStats {
     const entitiesByType: Record<string, number> = {};
     const relationsByVerb: Record<string, number> = {};

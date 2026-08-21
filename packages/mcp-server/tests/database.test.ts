@@ -162,6 +162,10 @@ describe('GraphDatabase', () => {
       expect(results.length).toBe(3);
     });
 
+    it('应该为合并总览返回不受搜索 limit 影响的完整实体集', () => {
+      expect(db.listAllEntities()).toHaveLength(3);
+    });
+
     it('应该按名称搜索', () => {
       const results = db.searchEntities({ query: 'User' });
       expect(results.length).toBe(1);
@@ -247,6 +251,10 @@ describe('GraphDatabase', () => {
     it('应该返回所有关系当没有过滤条件', () => {
       const results = db.searchRelations();
       expect(results.length).toBe(2);
+    });
+
+    it('应该为合并总览返回不受搜索 limit 影响的完整关系集', () => {
+      expect(db.listAllRelations()).toHaveLength(2);
     });
 
     it('应该按动词过滤', () => {

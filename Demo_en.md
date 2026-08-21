@@ -18,13 +18,17 @@
     - [Create Relations](#14-create-relations-3-minutes)
     - [Tree View](#15-view-in-tree-view-1-minute)
     - [**Visualize Graph** 🌟](#16-visualize-knowledge-graph-10-minutes-core-feature)
-  - [Part 2: RAG Persistent Knowledge Base](#part-2-rag-persistent-knowledge-base-5-minutes) 🆕
-    - [Configure API Key](#21-configure-gemini-api-key-1-minute)
-    - [Add Documents](#22-add-documents-to-knowledge-folder-1-minute)
-    - [Intelligent Q&A](#23-use-ask-question-for-intelligent-qa-2-minutes)
-    - [View Store Info](#24-view-rag-store-info-1-minute)
-    - [Switch to Local RAG (Optional)](#25-switch-to-local-rag-optional)
-    - [Local Q&A and Debugging](#26-local-qa-and-debugging-optional)
+  - [Part 2: Agent Dependency Graph](#part-2-agent-dependency-graph-3-minutes) 🆕
+    - [Install the Skill](#21-install-the-dependency-graph-skill-1-minute)
+    - [Ask an Agent to Generate Relations](#22-ask-an-agent-to-generate-relations-1-minute)
+    - [Review the Agent Graph](#23-review-the-agent-graph-1-minute)
+  - [Part 3: RAG Persistent Knowledge Base](#part-3-rag-persistent-knowledge-base-5-minutes) 🆕
+    - [Configure API Key](#31-configure-gemini-api-key-1-minute)
+    - [Add Documents](#32-add-documents-to-knowledge-folder-1-minute)
+    - [Intelligent Q&A](#33-use-ask-question-for-intelligent-qa-2-minutes)
+    - [View Store Info](#34-view-rag-store-info-1-minute)
+    - [Switch to Local RAG (Optional)](#35-switch-to-local-rag-optional)
+    - [Local Q&A and Debugging](#36-local-qa-and-debugging-optional)
 - [Best Practices](#-best-practices)
 - [Appendix](#-appendix)
 
@@ -259,9 +263,9 @@ Click the 🌐 icon in Knowledge Graph view title bar
 
 ## 📖 Complete Demo Script
 
-### VibeKnowledge Complete Features Demo (About 25 minutes)
+### VibeKnowledge Complete Features Demo (About 28 minutes)
 
-This demo includes two core features: **Knowledge Graph Visualization** and **RAG Intelligent Q&A**!
+This demo includes three core features: **Knowledge Graph Visualization**, **Agent Dependency Graph**, and **RAG Intelligent Q&A**!
 
 #### 1.1 Create First Entity (2 minutes)
 
@@ -882,9 +886,45 @@ ArticleService ────⚠️ uses────⤴
 
 ---
 
-### Part 2: RAG Persistent Knowledge Base (5 minutes) 🆕
+### Part 2: Agent Dependency Graph (3 minutes) 🆕
 
-#### 2.1 Configure Gemini API Key (1 minute)
+> Let a coding Agent understand implementation semantics, select high-value direct dependencies, and cite precise code evidence.
+
+#### 2.1 Install the Dependency Graph Skill (1 minute)
+
+```text
+1. Open the Command Palette (Ctrl+Shift+P)
+2. Run "Knowledge: Install Dependency Graph Agent Skill"
+3. Confirm .agents/skills/vibeknowledge-dependency-graph/ exists
+```
+
+The command installs the Skill bundled with VibeKnowledge. It does not modify the human-maintained graph.
+
+#### 2.2 Ask an Agent to Generate Relations (1 minute)
+
+In an Agent Skills-compatible coding agent, ask:
+
+```text
+$vibeknowledge-dependency-graph generate the dependency knowledge graph for this project
+```
+
+The Agent reads the code and writes `.vscode/.knowledge/agent-graph.json`. Every relation must have a supported direction, verb, and at least one source-file evidence location. The bundled validator also rejects missing files and out-of-range evidence lines.
+
+#### 2.3 Review the Agent Graph (1 minute)
+
+```text
+1. Run "Knowledge: Visualize Graph"
+2. Select "Agent Graph" or "Merged View"
+3. Hover Agent edges to inspect descriptions and evidence; double-click nodes to open source
+```
+
+Rerunning the Skill replaces only the Agent graph, removing stale Agent relationships while preserving all human entities, relations, and observations.
+
+---
+
+### Part 3: RAG Persistent Knowledge Base (5 minutes) 🆕
+
+#### 3.1 Configure Gemini API Key (1 minute)
 
 **Operations**:
 ```
@@ -907,7 +947,7 @@ ArticleService ────⚠️ uses────⤴
 
 ---
 
-#### 2.2 Add Documents to Knowledge Folder (1 minute)
+#### 3.2 Add Documents to Knowledge Folder (1 minute)
 
 **Operations**:
 ```
@@ -929,7 +969,7 @@ ArticleService ────⚠️ uses────⤴
 
 ---
 
-#### 2.3 Use Ask Question for Intelligent Q&A (2 minutes)
+#### 3.3 Use Ask Question for Intelligent Q&A (2 minutes)
 
 **Operations**:
 ```
@@ -983,7 +1023,7 @@ _💡 Click filename to jump directly to original document_
 
 ---
 
-#### 2.4 View RAG Store Info (1 minute)
+#### 3.4 View RAG Store Info (1 minute)
 
 **Operations**:
 ```
@@ -1026,7 +1066,7 @@ Each project has a unique **File Search Store** to ensure documents are not conf
 
 ---
 
-#### 2.5 Switch to Local RAG (Optional)
+#### 3.5 Switch to Local RAG (Optional)
 
 When documents are confidential or you need an offline demo, switch to the built-in local RAG mode (SQLite persistence + in-memory vectors).
 
@@ -1047,7 +1087,7 @@ When documents are confidential or you need an offline demo, switch to the built
 - Extension loads vectors into memory on startup and uses cosine similarity for retrieval
 - Local mode uses the same UI buttons (Ask Question / View Store Info / Rebuild Index)
 
-#### 2.6 Local Q&A and Debugging (Optional)
+#### 3.6 Local Q&A and Debugging (Optional)
 
 **Demo Suggestions**:
 1. Run Ask Question in local mode and highlight that references still point to files (e.g., `test1.txt`)
@@ -1057,7 +1097,7 @@ When documents are confidential or you need an offline demo, switch to the built
 
 ---
 
-#### 2.7 Incremental Indexing and Index Rebuild (Further Reading)
+#### 3.7 Incremental Indexing and Index Rebuild (Further Reading)
 
 **Incremental Indexing**:
 - ✅ Already indexed documents won't be re-uploaded
@@ -1089,7 +1129,8 @@ If local and cloud are out of sync (e.g., deleted local file), can:
 3. Link to Entity
 4. Tree View
 5. **Visualize Graph** 🌟
-6. **RAG Intelligent Q&A** 🆕
+6. **Agent Dependency Graph** 🆕
+7. **RAG Intelligent Q&A** 🆕
 
 ### 🌟 Core Feature Value
 
@@ -1098,6 +1139,12 @@ If local and cloud are out of sync (e.g., deleted local file), can:
 - ⚡ Double-click node to jump to code
 - 🔍 Quick impact analysis
 - 🐛 Auto-detect circular dependencies
+
+**Agent Dependency Graph**:
+- 🤖 Uses Agent code understanding instead of regex-only extraction
+- 🔎 Gives every relation auditable file-and-line evidence
+- 🧭 Keeps Agent and human knowledge separate or displays them together
+- 🔄 Full refresh removes stale Agent relationships
 
 **RAG Intelligent Q&A**:
 - ☁️ Cloud-hosted semantic search
@@ -1127,7 +1174,7 @@ For complete features see:
 
 2. **Before Refactoring**
    ```
-   Open visualization graph → View dependencies → Assess impact scope
+   Run the dependency graph Skill → Open Agent or merged graph → Assess impact scope
    ```
 
 3. **During Code Review**
@@ -1186,10 +1233,11 @@ Now you can:
 1. Use VibeKnowledge in your projects
 2. Mark core entities and relations
 3. Use visualization graph to understand project architecture
-4. Configure Gemini API Key to enable RAG features
-5. Add project documents to Knowledge/ folder
-6. Use Ask Question for intelligent Q&A
-7. Let knowledge evolve with code
+4. Install the dependency graph Skill and ask an Agent to refresh relationships
+5. Configure Gemini API Key to enable RAG features
+6. Add project documents to Knowledge/ folder
+7. Use Ask Question for intelligent Q&A
+8. Let knowledge evolve with code
 
 **Happy Coding!** 🎉
 
@@ -1207,6 +1255,7 @@ Now you can:
 | Visualize Graph | Ctrl+Shift+P | Visualize graph |
 | View Entity Details | Right-click menu | View entity details |
 | **Switch Language** 🌐 | Sidebar (🌐) / Ctrl+Shift+P | Switch Chinese/English interface |
+| **Install Dependency Graph Agent Skill** 🆕 | Ctrl+Shift+P | Install the project Skill used to generate dependencies |
 | **Ask Question** 🆕 | Sidebar (?) | RAG intelligent Q&A |
 | **View Store Info** 🆕 | Sidebar (ℹ️) | View RAG Store info |
 | **Rebuild RAG Index** 🆕 | Sidebar (🔄) | Rebuild cloud index |

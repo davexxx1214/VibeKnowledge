@@ -207,6 +207,16 @@ export const en = {
       success: 'Knowledge Graph refreshed'
     },
 
+    installDependencyGraphSkill: {
+      title: 'Knowledge: Install Dependency Graph Agent Skill',
+      alreadyInstalled: 'This project already contains the VibeKnowledge dependency graph skill. Update it with the bundled version?',
+      update: 'Update Skill',
+      cancel: 'Cancel',
+      success: '✅ Skill installed under .agents/skills. Ask your Agent to generate or update the project dependency graph; an existing session may need to reload skills.',
+      openSkill: 'Open Skill',
+      error: (error: string) => `Failed to install dependency graph skill: ${error}`
+    },
+
     generateCursorRules: {
       title: 'Knowledge: Generate Cursor Rules',
       success: (fileName: string) => `✅ Cursor Rules generated: ${fileName}`,
@@ -222,13 +232,13 @@ export const en = {
         label: '📝 Manual Graph',
         description: 'Design decisions, observations, manually maintained relations'
       },
-      auto: {
-        label: '⚡ Auto Graph',
-        description: 'Code structure and dependencies from static analysis'
+      agent: {
+        label: '🤖 Agent Graph',
+        description: 'Evidence-backed dependencies generated after an Agent reads the code'
       },
       merged: {
         label: '🔗 Merged Graph',
-        description: 'Manual + Auto, most complete context'
+        description: 'Human-maintained + Agent-generated, the most complete context'
       }
     },
 
@@ -553,69 +563,23 @@ export const en = {
     }
   },
 
-  autoGraph: {
-    title: 'Auto Dependency Graph',
-    commands: {
-      analyzeWorkspace: {
-        title: 'Analyzing workspace',
-        completed: (entities: number, relations: number, files: number) =>
-          `✅ Analysis complete: ${entities} entities, ${relations} relations, ${files} files`,
-        completedWithErrors: (entities: number, relations: number, errors: number) =>
-          `⚠️ Analysis complete (with errors): ${entities} entities, ${relations} relations, ${errors} errors`,
-        viewErrors: 'View Errors'
-      },
-      analyzeFile: {
-        title: (fileName: string) => `Analyzing file: ${fileName}`,
-        noActiveFile: 'Please open a file first',
-        unsupportedType: (fileName: string) => `Unsupported file type: ${fileName}`,
-        unchanged: (fileName: string) => `File unchanged: ${fileName}`,
-        completed: (fileName: string, entities: number, relations: number) =>
-          `✅ ${fileName}: ${entities} entities, ${relations} relations`,
-        error: (fileName: string, message: string) => `Analysis failed ${fileName}: ${message}`
-      },
-      clear: {
-        confirm: 'Are you sure you want to clear the auto graph? This will delete all auto-generated entities and relations.',
-        yes: 'Yes',
-        no: 'No',
-        completed: '✅ Auto graph cleared'
-      },
-      viewStats: {
-        title: 'View Auto Graph Stats'
-      },
-      addObservation: {
-        noEntities: 'No entities in auto graph, please run analysis first',
-        selectEntity: 'Select entity to add observation',
-        entityNotFound: 'Entity not found',
-        prompt: (entityName: string) => `Add observation for "${entityName}"`,
-        placeholder: 'Enter observation content...',
-        validateEmpty: 'Observation cannot be empty',
-        success: (entityName: string) => `✅ Observation added for "${entityName}"`,
-        error: 'Failed to add observation',
-        errorDetail: (message: string) => `Failed to add observation: ${message}`
-      },
-      editObservation: {
-        notFound: 'Observation not found',
-        prompt: 'Edit observation',
-        success: '✅ Observation updated',
-        error: (message: string) => `Failed to update observation: ${message}`
-      },
-      deleteObservation: {
-        confirm: 'Are you sure you want to delete this observation?',
-        yes: 'Yes',
-        no: 'No',
-        success: '✅ Observation deleted'
-      }
-    },
+  agentGraph: {
     treeView: {
-      manualGraph: 'Manual Graph',
-      autoGraph: 'Auto Graph',
+      manualGraph: 'Human-maintained Graph',
+      agentGraph: 'Agent Graph',
       entities: 'Entities',
-      relations: 'Relations'
+      relations: 'Relations',
+      evidence: 'Evidence',
+      invalidManifest: 'Invalid Agent Graph manifest'
     },
     graphView: {
-      manualGraph: 'Manual Graph',
-      autoGraph: 'Auto Graph',
-      mergedView: 'Merged View'
+      manualGraph: 'Human-maintained Graph',
+      agentGraph: 'Agent Graph',
+      mergedView: 'Merged View',
+      source: 'Source',
+      humanSource: 'Human-maintained',
+      agentSource: 'Agent',
+      evidence: 'Evidence'
     }
   },
 

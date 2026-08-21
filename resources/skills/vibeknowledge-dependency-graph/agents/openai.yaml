@@ -1,0 +1,4 @@
+interface:
+  display_name: "VibeKnowledge Dependency Graph"
+  short_description: "Build evidence-backed dependency graphs"
+  default_prompt: "Use $vibeknowledge-dependency-graph to analyze this workspace and refresh its dependency graph."

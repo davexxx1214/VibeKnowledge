@@ -7,6 +7,7 @@ import { registerPrompts } from './prompts/registerPrompts.js';
 import { createRagEngine } from './rag/ragEngineFactory.js';
 import type { RagEngine } from './rag/ragEngine.js';
 import { registerBaseResources } from './resources/registerResources.js';
+import { AgentGraphStore } from './agentGraphStore.js';
 
 export type Logger = {
   debug: (...args: unknown[]) => void;
@@ -24,15 +25,16 @@ export async function startMcpServer(
     name: 'VibeKnowledge MCP',
     version: config.serverVersion
   });
+  const agentGraph = new AgentGraphStore(config.workspaceRoot);
 
-  registerBaseResources(server, db);
+  registerBaseResources(server, db, agentGraph);
 
   const ragEngine: RagEngine | null = await createRagEngine(
     config,
     db,
     logger
   );
-  registerTools(server, db, ragEngine, logger);
+  registerTools(server, db, ragEngine, logger, agentGraph);
   registerPrompts(server);
 
   const transport = new StdioServerTransport();

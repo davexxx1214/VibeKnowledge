@@ -12,7 +12,7 @@ import { getLocale } from '../i18n/i18nService';
 /**
  * 图谱数据源类型
  */
-export type GraphSourceType = 'manual' | 'auto' | 'merged';
+export type GraphSourceType = 'manual' | 'agent' | 'merged';
 
 /**
  * 图谱数据
@@ -828,12 +828,12 @@ export class AIIntegrationService {
    */
   private getSourceLabel(sourceType: GraphSourceType | undefined, locale: 'zh' | 'en'): string {
     if (!sourceType) {
-      return locale === 'zh' ? '手动图谱（默认）' : 'Manual Graph (default)';
+      return locale === 'zh' ? '人工维护图谱（默认）' : 'Human-maintained Graph (default)';
     }
     
     const labels = {
-      manual: { zh: '📝 手动图谱', en: '📝 Manual Graph' },
-      auto: { zh: '⚡ 自动图谱', en: '⚡ Auto Graph' },
+      manual: { zh: '📝 人工维护图谱', en: '📝 Human-maintained Graph' },
+      agent: { zh: '🤖 Agent 图谱', en: '🤖 Agent Graph' },
       merged: { zh: '🔗 合并图谱', en: '🔗 Merged Graph' }
     };
     
@@ -855,7 +855,7 @@ export class AIIntegrationService {
       return this.dependencyAnalyzer.getGlobalDependencyStats();
     }
 
-    // 对于自动图谱或合并图谱，根据传入的数据计算统计
+    // 对于 Agent 图谱或合并图谱，根据传入的数据计算统计
     const { entities, relations } = graphData;
     
     // 计算每个实体的依赖数（出边数量）

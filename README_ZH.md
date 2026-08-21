@@ -10,33 +10,30 @@ VibeKnowledge 以源码形式提供。你可以 Fork 本仓库进行定制、本
 
 https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 
-| 侧边栏与 RAG 文档 | AI 场景选择 |
+| 人工维护图谱 | AI 场景选择 |
 | --- | --- |
-| ![VibeKnowledge 侧边栏，包含手动图谱、自动图谱和 RAG 文档](presentation/snap1.png) | ![AI 场景选择](presentation/snap2.png) |
-
-| 自动图谱 | 手动图谱 |
-| --- | --- |
-| ![自动生成的依赖图谱](presentation/snap3.png) | ![手动维护的知识图谱](presentation/snap4.png) |
+| ![手动维护的知识图谱](presentation/snap4.png) | ![AI 场景选择](presentation/snap2.png) |
 
 ## 主要功能
 
 | 模块 | 当前能力 |
 | --- | --- |
 | 手动知识图谱 | 从选中的代码创建实体，维护关系，并记录设计决策、重构备注等观察记录。 |
-| 自动图谱 | 分析 TypeScript 和 JavaScript 文件，提取类、接口、函数、变量、导入、继承和部分依赖关系。 |
-| 图谱可视化 | 在 `vis-network` Webview 中查看手动、自动或合并图谱，并跳回源码位置。 |
+| Agent 图谱 | 安装项目级 Agent Skill，让 Agent 语义阅读代码并生成带来源证据的实体和依赖关系。 |
+| 图谱可视化 | 在 `vis-network` Webview 中查看人工维护、Agent 生成或合并图谱，并跳回源码位置。 |
 | AI 上下文 | 导出 Markdown 或 JSON，生成 Cursor 规则和 GitHub Copilot 指令，并切换内置任务场景。 |
 | RAG | 通过 Gemini File Search 或 OpenAI 兼容接口索引文档，在 VS Code 侧边栏中提问。 |
-| MCP Server | 让 Cursor、GitHub Copilot 或其他 MCP 客户端读取同一份图谱数据库。 |
+| MCP Server | 让 Cursor、GitHub Copilot 或其他 MCP 客户端合并查询人工图谱与 Agent sidecar。 |
 | 图谱音乐 | 根据图谱结构生成 Strudel 乐谱，并在内嵌播放器中打开。这个功能仍在实验阶段。 |
 
 项目数据保存在：
 
 ```text
 <workspace>/.vscode/.knowledge/graph.sqlite
+<workspace>/.vscode/.knowledge/agent-graph.json
 ```
 
-自动分析目前支持 `.ts`、`.tsx`、`.js` 和 `.jsx` 文件。它采用静态模式分析，并不等同于完整的 TypeScript 编译器语义模型。自动图谱适合当作起点，重要的设计信息更适合写进手动观察记录。
+`graph.sqlite` 保存人工维护的实体、关系和观察记录；`agent-graph.json` 是 Agent Skill 生成的独立声明式图谱。两者不会互相覆盖，合并视图可同时展示。
 
 ## 从源码运行
 
@@ -55,7 +52,7 @@ npm run compile
 code .
 ```
 
-在 VS Code 中按 `F5`，选择 **Run Extension**。Extension Development Host 启动后，打开一个 TypeScript 或 JavaScript 项目，在命令面板中运行 **Knowledge: Analyze Workspace (Auto Graph)**。
+在 VS Code 中按 `F5`，选择 **Run Extension**。Extension Development Host 启动后打开目标项目，在命令面板中运行 **Knowledge: Install Dependency Graph Agent Skill**。
 
 开发时可以持续构建：
 
@@ -74,16 +71,14 @@ npm run watch
 
 手动观察记录适合保存静态分析拿不到的信息，比如架构决策、已知风险、迁移说明和重构约束。
 
-### 生成自动图谱
+### 让 Agent 生成依赖图谱
 
-命令面板提供以下命令：
+1. 运行 **Knowledge: Install Dependency Graph Agent Skill**。扩展会把 Skill 安装到项目的 `.agents/skills/vibeknowledge-dependency-graph/`。
+2. 在支持 Agent Skills 的编码 Agent 中提出“生成/更新项目依赖图谱”，或显式调用 `$vibeknowledge-dependency-graph`。
+3. Agent 会阅读代码，以稳定实体键、明确关系方向和文件行号证据生成 `.vscode/.knowledge/agent-graph.json`，并运行 Skill 自带的校验器。
+4. 扩展监听该文件；保存后侧边栏与已打开的图谱视图会自动刷新。
 
-- `Knowledge: Analyze Workspace (Auto Graph)`
-- `Knowledge: Analyze Current File (Auto Graph)`
-- `Knowledge: View Auto Graph Statistics`
-- `Knowledge: Clear Auto Graph`
-
-自动分析默认关闭。需要自动处理匹配文件时，可以启用 `knowledgeGraph.autoAnalyze.enabled`，再通过 `include` 和 `exclude` 设置控制扫描范围。
+Agent Graph 使用完整替换语义，因此再次运行 Skill 会清理已经不存在的 Agent 关系。它不会修改 `graph.sqlite` 中的人工实体、关系或观察记录。清单格式见 [Agent Graph schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md)。
 
 ### 使用 RAG
 
@@ -142,10 +137,11 @@ src/
   commands/              AI 场景命令
   i18n/                  中英文界面文本
   providers/             VS Code 树视图、悬浮提示和 CodeLens
-  services/              图谱、RAG、导出和分析服务
+  services/              人工图谱、Agent 图谱、RAG 和导出服务
   ui/                    命令处理与 Webview
 packages/mcp-server/     独立 MCP Server
 resources/scenarios/     内置 AI 任务模板
+resources/skills/        可安装的项目级 Agent Skills
 presentation/            演示素材
 ```
 

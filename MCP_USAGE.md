@@ -81,9 +81,9 @@
 5. 保存后，Cursor 会自动以子进程方式启动该 server，并在日志面板提示连接结果。
 6. 测试：
    - 项目概览：`@mcp vibeknowledge resource knowledge://overview`
-   - 查询实体：`@mcp vibeknowledge tool search_entities {"query": "UserService"}`
+   - 查询实体：`@mcp vibeknowledge tool search_entities {"query": "UserService"}`（合并人工图谱与 Agent 图谱）
    - 查询观察记录：`@mcp vibeknowledge tool search_observations {"limit": 5}`
-   - 查询关系：`@mcp vibeknowledge tool knowledge://relations {"verb": "uses", "limit": 5}`
+   - 查询关系：`@mcp vibeknowledge tool knowledge://relations {"verb": "uses", "limit": 5}`（返回数据来源与 Agent 证据）
    - RAG 问答：`@mcp vibeknowledge tool ask_question {"question": "项目的数据库连接数是多少？"}`
 
 ---
@@ -130,12 +130,14 @@
 
 | 类型 | 名称 | 说明 |
 |------|------|------|
-| Resource | `knowledge://overview` | 返回实体/关系/观察记录统计及最后更新时间 |
-| Tool | `search_entities` | 根据名称、类型、文件路径模糊搜索实体 |
+| Resource | `knowledge://overview` | 返回去重后的合并实体/关系统计、人工/Agent 原始分项及最后更新时间 |
+| Tool | `search_entities` | 合并人工图谱与 Agent 图谱，根据名称、类型、文件路径模糊搜索实体 |
 | Tool | `search_observations` | 检索观察记录，可按关键字或实体 ID 过滤 |
-| Tool | `knowledge://relations` | 列出实体之间的关系，可按动词、源/目标实体筛选 |
+| Tool | `knowledge://relations` | 合并列出人工与 Agent 关系，可按动词、源/目标实体筛选；Agent 关系附带代码证据 |
 | Prompt | `get_observations` | 引导 AI 调用 `search_observations` 工具 |
 | Tool | `ask_question` | 自动根据 `rag.mode` 调用本地或云端 RAG，并附带引用文件 |
+
+Agent 图谱来自目标工作区的 `.vscode/.knowledge/agent-graph.json`。可以先在 VS Code 中运行 **Knowledge: Install Dependency Graph Agent Skill**，再让支持 Agent Skills 的编码 Agent 生成或更新该文件。MCP Server 对 SQLite 保持只读，并以只读方式合并 sidecar，因此不会与扩展的 SQL.js 保存流程争抢数据库写入。
 
 ### `ask_question` 使用示例
 

@@ -192,39 +192,9 @@
         "icon": "$(expand-all)"
       },
       {
-        "command": "knowledge.autoGraph.analyzeWorkspace",
-        "title": "Knowledge: Analyze Workspace (Auto Graph)",
-        "icon": "$(symbol-namespace)"
-      },
-      {
-        "command": "knowledge.autoGraph.analyzeCurrentFile",
-        "title": "Knowledge: Analyze Current File (Auto Graph)",
-        "icon": "$(file-code)"
-      },
-      {
-        "command": "knowledge.autoGraph.clear",
-        "title": "Knowledge: Clear Auto Graph",
-        "icon": "$(trash)"
-      },
-      {
-        "command": "knowledge.autoGraph.viewStats",
-        "title": "Knowledge: View Auto Graph Statistics",
-        "icon": "$(graph)"
-      },
-      {
-        "command": "knowledge.autoGraph.addObservation",
-        "title": "Knowledge: Add Observation (Auto Graph)",
-        "icon": "$(note)"
-      },
-      {
-        "command": "knowledge.autoGraph.editObservation",
-        "title": "Knowledge: Edit Observation (Auto Graph)",
-        "icon": "$(edit)"
-      },
-      {
-        "command": "knowledge.autoGraph.deleteObservation",
-        "title": "Knowledge: Delete Observation (Auto Graph)",
-        "icon": "$(trash)"
+        "command": "knowledge.installDependencyGraphSkill",
+        "title": "Knowledge: Install Dependency Graph Agent Skill",
+        "icon": "$(sparkle)"
       }
     ],
     "menus": {
@@ -275,21 +245,6 @@
           "command": "knowledge.deleteRelationFromTree",
           "when": "view == knowledgeGraphExplorer && viewItem == relation",
           "group": "knowledge@1"
-        },
-        {
-          "command": "knowledge.autoGraph.addObservation",
-          "when": "view == knowledgeGraphExplorer && viewItem == autoEntity",
-          "group": "knowledge@0.8"
-        },
-        {
-          "command": "knowledge.autoGraph.editObservation",
-          "when": "view == knowledgeGraphExplorer && viewItem == autoObservation",
-          "group": "knowledge@0.9"
-        },
-        {
-          "command": "knowledge.autoGraph.deleteObservation",
-          "when": "view == knowledgeGraphExplorer && viewItem == autoObservation",
-          "group": "knowledge@1"
         }
       ],
       "view/title": [
@@ -297,6 +252,11 @@
           "command": "knowledge.expandAll",
           "when": "view == knowledgeGraphExplorer",
           "group": "navigation@0"
+        },
+        {
+          "command": "knowledge.installDependencyGraphSkill",
+          "when": "view == knowledgeGraphExplorer",
+          "group": "navigation@0.5"
         },
         {
           "command": "knowledge.exportGraph",
@@ -424,49 +384,13 @@
           "description": "界面语言 / Display language",
           "order": 4
         },
-        "knowledgeGraph.autoAnalyze.enabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "启用自动代码分析 / Enable automatic code analysis",
-          "order": 5
-        },
-        "knowledgeGraph.autoAnalyze.onSave": {
-          "type": "boolean",
-          "default": false,
-          "description": "保存文件时自动分析 / Analyze file on save",
-          "order": 5.1
-        },
-        "knowledgeGraph.autoAnalyze.include": {
-          "type": "array",
-          "default": [
-            "**/*.ts",
-            "**/*.tsx",
-            "**/*.js",
-            "**/*.jsx"
-          ],
-          "description": "包含的文件模式 / Include file patterns",
-          "order": 5.2
-        },
-        "knowledgeGraph.autoAnalyze.exclude": {
-          "type": "array",
-          "default": [
-            "**/node_modules/**",
-            "**/dist/**",
-            "**/build/**",
-            "**/*.d.ts",
-            "**/*.test.ts",
-            "**/*.spec.ts"
-          ],
-          "description": "排除的文件模式 / Exclude file patterns",
-          "order": 5.3
-        },
         "knowledgeGraph.aiConfig.maxRelationsDisplay": {
           "type": "number",
           "default": 50,
           "minimum": 10,
           "maximum": 500,
           "description": "AI 配置文件中显示的最大关系数量 / Maximum number of relations to display in AI config files",
-          "order": 6
+          "order": 5
         }
       }
     },

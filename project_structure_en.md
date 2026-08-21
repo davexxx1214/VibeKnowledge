@@ -21,7 +21,8 @@ VibeKnowledge/
 │   └── 📄 tasks.json                # Task runner definitions
 │
 ├── 📂 resources/                    # Static assets
-│   └── 📄 icon.svg                  # Extension icon
+│   ├── 📄 icon.svg                  # Extension icon
+│   └── 📂 skills/                   # Installable Agent Skills
 │
 ├── 📂 src/                          # ⭐ Extension source
 │   │
@@ -38,6 +39,8 @@ VibeKnowledge/
 │   │   ├── 📄 geminiClient.ts       # Google Gemini SDK wrapper
 │   │   ├── 📄 ragService.ts         # RAG store orchestration
 │   │   ├── 📄 scenarioManager.ts    # AI scenario presets
+│   │   ├── 📄 agentSkillService.ts  # Project skill installer
+│   │   ├── 📂 agentGraph/           # Agent Graph manifest reader and validation
 │   │   └── 📂 rag/                  # RAG provider implementations
 │   │       ├── 📄 cloudRagProvider.ts
 │   │       ├── 📄 localRagProvider.ts
@@ -84,6 +87,8 @@ VibeKnowledge/
 │       │   ├── 📄 server.ts         # MCP bootstrap
 │       │   ├── 📄 config.ts         # Config loader
 │       │   ├── 📄 database.ts       # graph.sqlite reader
+│       │   ├── 📄 agentGraphStore.ts # Agent Graph sidecar reader
+│       │   ├── 📄 mergedGraph.ts    # Human + Agent merged queries
 │       │   ├── 📂 resources/        # `knowledge://overview`
 │       │   ├── 📂 tools/            # search_entities / ask_question ...
 │       │   ├── 📂 prompts/          # get_observations prompt
@@ -121,7 +126,8 @@ Legend:
 
 ```
 <workspace>/.vscode/.knowledge/
-└── graph.sqlite          # Knowledge graph + local RAG index
+├── graph.sqlite          # Human-maintained graph + local RAG index
+└── agent-graph.json      # Agent Skill dependency graph
 
 <workspace>/Knowledge/    # RAG document corpus
 ├── *.md / *.pdf / *.txt  # 100+ supported formats
@@ -190,7 +196,7 @@ Legend:
 1. Do not commit `node_modules/` or `dist/`
 2. User data (`.vscode/.knowledge/` and `Knowledge/`) should stay in `.gitignore`
 3. Keep TypeScript strict and run `npm run lint` before commits
-4. MCP Server consumes `.vscode/.knowledge/graph.sqlite`; ensure the VS Code extension has generated it
+4. MCP Server reads `.vscode/.knowledge/graph.sqlite` and merges the optional `agent-graph.json` sidecar
 
 ---
 
