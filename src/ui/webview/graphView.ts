@@ -1,9 +1,50 @@
 import * as vscode from 'vscode';
 import * as crypto from 'crypto';
 import { KnowledgeGraphService } from '../../services/knowledgeGraphService';
+import type { AgentGraphEvidence } from '../../services/agentGraph';
 import { MusicGeneratorService } from '../../services/musicGenerator';
+import type { EntityType, RelationVerb } from '../../utils/types';
 import { StrudelView } from './strudelView';
 import { t } from '../../i18n/i18nService';
+
+interface GraphViewEntity {
+    id: string;
+    name: string;
+    type: EntityType;
+    filePath: string;
+    startLine: number;
+    endLine: number;
+    description?: string;
+    isAgent: boolean;
+    observations: Array<{
+        id: string;
+        content: string;
+        createdAt: number;
+        updatedAt: number;
+    }>;
+    observationCount: number;
+}
+
+interface GraphViewRelation {
+    id: string;
+    sourceId: string;
+    targetId: string;
+    verb: RelationVerb;
+    isAgent: boolean;
+    description?: string;
+    evidence: AgentGraphEvidence[];
+}
+
+interface GraphViewGroup {
+    key: string;
+    name: string;
+    kind: 'framework' | 'module' | 'feature';
+    order: number;
+    description?: string;
+    scope?: string;
+    entities: GraphViewEntity[];
+    relations: GraphViewRelation[];
+}
 
 /**
  * 图谱可视化 Webview
@@ -111,7 +152,7 @@ export class GraphView {
                 break;
             case 'requestMusicCode':
                 // 请求生成音乐代码
-                this._sendMusicCode();
+                this._sendMusicCode(message.groupKey);
                 break;
             case 'copyMusicCode':
                 // 复制音乐代码到剪贴板
@@ -131,14 +172,13 @@ export class GraphView {
     }
 
     private _sendGraphData() {
-        const { entities, relations } = this._collectGraphData();
+        const groups = this._collectGraphGroups();
 
         // 发送数据到 webview
         this._panel.webview.postMessage({
             type: 'graphData',
             data: {
-                entities,
-                relations,
+                groups,
                 mode: 'knowledge',
             },
         });
@@ -147,8 +187,11 @@ export class GraphView {
     /**
      * 生成并发送音乐代码
      */
-    private _sendMusicCode() {
-        const { entities, relations } = this._collectGraphData();
+    private _sendMusicCode(groupKey?: string) {
+        const groups = this._collectGraphGroups();
+        const group = groups.find(candidate => candidate.key === groupKey) || groups[0];
+        const entities = group?.entities || [];
+        const relations = group?.relations || [];
 
         // 生成音乐代码
         const music = this._musicGenerator.generateMusic(entities, relations, 'merged');
@@ -165,15 +208,20 @@ export class GraphView {
         });
     }
 
-    /** Build one consistent view model for visualization and sonification. */
-    private _collectGraphData(): { entities: any[]; relations: any[] } {
+    /** Build independent view models so the Webview renders only one group. */
+    private _collectGraphGroups(): GraphViewGroup[] {
         const graphService = GraphView._knowledgeGraphService;
         if (!graphService) {
-            return { entities: [], relations: [] };
+            return [];
         }
-        const snapshot = graphService.getSnapshot();
-        return {
-            entities: snapshot.entities.map((entity) => {
+        return graphService.getGroups().map(group => ({
+            key: group.key,
+            name: group.name,
+            kind: group.kind,
+            order: group.order,
+            description: group.description,
+            scope: group.scope,
+            entities: group.entities.map((entity) => {
                 const observations = graphService.getObservations(entity.id);
                 return {
                     id: entity.id,
@@ -193,16 +241,20 @@ export class GraphView {
                     observationCount: observations.length,
                 };
             }),
-            relations: snapshot.relations.map((relation) => ({
+            relations: group.relations.map((relation) => ({
                 id: relation.id,
                 sourceId: relation.sourceEntityId,
                 targetId: relation.targetEntityId,
                 verb: relation.verb,
                 isAgent: relation.origin === 'agent',
-                description: relation.metadata?.description,
-                evidence: relation.metadata?.evidence || [],
+                description: typeof relation.metadata?.description === 'string'
+                    ? relation.metadata.description
+                    : undefined,
+                evidence: Array.isArray(relation.metadata?.evidence)
+                    ? relation.metadata.evidence as AgentGraphEvidence[]
+                    : [],
             })),
-        };
+        }));
     }
 
     private async _jumpToEntity(entityId: string) {
@@ -256,6 +308,12 @@ export class GraphView {
             vscode.Uri.joinPath(this._extensionUri, 'dist', 'd3.min.js')
         );
         const translations = t().graphView;
+        const groupTranslations = translations.groups || {
+            title: 'Graphs',
+            framework: 'Framework',
+            module: 'Module',
+            feature: 'Feature'
+        };
         const agentGraphTranslations = t().agentGraph?.graphView || {
             source: 'Provenance',
             humanSource: 'Human-authored',
@@ -290,6 +348,70 @@ export class GraphView {
             width: 100vw;
             height: 100vh;
         }
+
+        #group-sidebar {
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 220px;
+            box-sizing: border-box;
+            border-right: 1px solid var(--vscode-panel-border);
+            background: var(--vscode-sideBar-background, rgba(25, 25, 25, 0.96));
+            display: flex;
+            flex-direction: column;
+            z-index: 900;
+        }
+
+        #group-sidebar-title {
+            padding: 16px 14px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.72;
+        }
+
+        #group-list {
+            overflow-y: auto;
+            padding: 0 8px 12px;
+        }
+
+        .group-button {
+            width: 100%;
+            height: auto;
+            min-height: 54px;
+            margin: 0 0 7px;
+            padding: 8px 10px;
+            box-sizing: border-box;
+            justify-content: flex-start;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 3px;
+            font-size: 13px;
+            text-align: left;
+            background: transparent;
+        }
+
+        .group-button:hover {
+            transform: none;
+        }
+
+        .group-button.active {
+            color: var(--vscode-list-activeSelectionForeground);
+            background: var(--vscode-list-activeSelectionBackground);
+            border-color: var(--vscode-focusBorder);
+        }
+
+        .group-name {
+            width: 100%;
+            font-weight: 600;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .group-meta {
+            font-size: 11px;
+            opacity: 0.72;
+        }
         
         #toolbar {
             position: absolute;
@@ -322,8 +444,8 @@ export class GraphView {
         }
         
         #graph-container {
-            width: 100%;
-            height: 100%;
+            position: absolute;
+            inset: 0 0 0 220px;
             cursor: grab;
         }
 
@@ -334,7 +456,7 @@ export class GraphView {
         #loading {
             position: absolute;
             top: 50%;
-            left: 50%;
+            left: calc(50% + 110px);
             transform: translate(-50%, -50%);
             text-align: center;
             z-index: 999;
@@ -363,7 +485,7 @@ export class GraphView {
         #empty-state {
             position: absolute;
             top: 50%;
-            left: 50%;
+            left: calc(50% + 110px);
             transform: translate(-50%, -50%);
             text-align: center;
             z-index: 999;
@@ -372,6 +494,12 @@ export class GraphView {
         
         #empty-state.hidden {
             display: none;
+        }
+
+        @media (max-width: 700px) {
+            #group-sidebar { width: 180px; }
+            #graph-container { left: 180px; }
+            #loading, #empty-state { left: calc(50% + 90px); }
         }
         
         /* Tooltip */
@@ -496,10 +624,14 @@ export class GraphView {
     </style>
 </head>
 <body>
+    <aside id="group-sidebar">
+        <div id="group-sidebar-title">${groupTranslations.title}</div>
+        <div id="group-list"></div>
+    </aside>
     <div id="toolbar">
-        <button id="playBtn" onclick="toggleMusic()" title="${musicTranslations.openRepl}">🎵</button>
-        <button onclick="fitGraph()" title="${translations.toolbar.fit}">⛶</button>
-        <button onclick="refreshGraph()" title="${translations.toolbar.refresh}">↻</button>
+        <button id="playBtn" type="button" title="${musicTranslations.openRepl}">🎵</button>
+        <button id="fitBtn" type="button" title="${translations.toolbar.fit}">⛶</button>
+        <button id="refreshBtn" type="button" title="${translations.toolbar.refresh}">↻</button>
     </div>
     
     <div id="loading">
@@ -524,6 +656,12 @@ export class GraphView {
         const vscode = acquireVsCodeApi();
         let simulation, svg, g, zoom;
         let width, height;
+        let graphGroups = [];
+        let selectedGroupKey = vscode.getState()?.selectedGroupKey || null;
+        let particleAnimationFrame = 0;
+        let resumeParticleAnimation = null;
+        let resizeTimer = 0;
+        const particleFrameInterval = 1000 / 30;
         
         // Music state
         let isPlaying = false;
@@ -540,6 +678,11 @@ export class GraphView {
         };
         
         const i18n = {
+            groups: {
+                framework: '${groupTranslations.framework}',
+                module: '${groupTranslations.module}',
+                feature: '${groupTranslations.feature}'
+            },
             tooltip: {
                 type: '${translations.tooltip.type}',
                 file: '${translations.tooltip.file}',
@@ -569,29 +712,68 @@ export class GraphView {
         };
 
         window.addEventListener('load', () => {
-            vscode.postMessage({ type: 'ready' });
             initGraph();
+            vscode.postMessage({ type: 'ready' });
         });
 
         window.addEventListener('resize', () => {
+            window.clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(resizeGraph, 120);
+        });
+
+        function resizeGraph() {
             if (svg) {
-                width = window.innerWidth;
-                height = window.innerHeight;
+                const container = document.getElementById('graph-container');
+                width = container.clientWidth;
+                height = container.clientHeight;
                 svg.attr('width', width).attr('height', height)
                    .attr('viewBox', [0, 0, width, height]);
                 
                 if (simulation) {
                     simulation.force('center', d3.forceCenter(width / 2, height / 2));
-                    simulation.alpha(0.3).restart();
+                    simulation.alpha(0.15).restart();
                 }
             }
+        }
+
+        function stopParticleAnimation(clearResume = true) {
+            if (particleAnimationFrame) {
+                cancelAnimationFrame(particleAnimationFrame);
+                particleAnimationFrame = 0;
+            }
+            if (clearResume) {
+                resumeParticleAnimation = null;
+            }
+        }
+
+        function startParticleAnimation(callback) {
+            stopParticleAnimation();
+            resumeParticleAnimation = () => {
+                if (!particleAnimationFrame && !document.hidden) {
+                    particleAnimationFrame = requestAnimationFrame(callback);
+                }
+            };
+            resumeParticleAnimation();
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopParticleAnimation(false);
+            } else {
+                resumeParticleAnimation?.();
+            }
+        });
+
+        window.addEventListener('beforeunload', () => {
+            stopParticleAnimation();
+            simulation?.stop();
         });
         
         window.addEventListener('message', event => {
             const message = event.data;
             switch (message.type) {
                 case 'graphData':
-                    renderGraph(message.data);
+                    setGraphGroups(message.data.groups || []);
                     break;
                 case 'musicCode':
                     handleMusicCode(message.data);
@@ -600,10 +782,10 @@ export class GraphView {
         });
 
         function initGraph() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            
             const container = d3.select('#graph-container');
+            const containerNode = container.node();
+            width = containerNode.clientWidth;
+            height = containerNode.clientHeight;
             container.selectAll('*').remove();
             
             svg = container.append('svg')
@@ -664,8 +846,70 @@ export class GraphView {
             svg.call(zoom).on('dblclick.zoom', null);
         }
 
+        function setGraphGroups(groups) {
+            graphGroups = [...groups].sort((left, right) =>
+                left.order - right.order || left.name.localeCompare(right.name)
+            );
+            renderGroupList();
+
+            if (graphGroups.length === 0) {
+                selectedGroupKey = null;
+                stopParticleAnimation();
+                simulation?.stop();
+                g?.selectAll('*').remove();
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('empty-state').classList.remove('hidden');
+                return;
+            }
+
+            const selected = graphGroups.find(group => group.key === selectedGroupKey)
+                || graphGroups[0];
+            selectGraphGroup(selected.key);
+        }
+
+        function renderGroupList() {
+            const list = document.getElementById('group-list');
+            list.replaceChildren();
+
+            graphGroups.forEach(group => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'group-button';
+                button.dataset.groupKey = group.key;
+                button.title = group.description || group.name;
+                button.addEventListener('click', () => selectGraphGroup(group.key));
+
+                const name = document.createElement('span');
+                name.className = 'group-name';
+                name.textContent = group.name;
+
+                const meta = document.createElement('span');
+                meta.className = 'group-meta';
+                const kind = i18n.groups[group.kind] || group.kind;
+                meta.textContent = kind + ' · ' + group.entities.length + ' / ' + group.relations.length;
+
+                button.append(name, meta);
+                list.append(button);
+            });
+        }
+
+        function selectGraphGroup(groupKey) {
+            const group = graphGroups.find(candidate => candidate.key === groupKey);
+            if (!group) return;
+
+            selectedGroupKey = group.key;
+            vscode.setState({ selectedGroupKey });
+            document.querySelectorAll('.group-button').forEach(button => {
+                button.classList.toggle('active', button.dataset.groupKey === group.key);
+            });
+            renderGraph(group);
+        }
+
         function renderGraph(data) {
             document.getElementById('loading').classList.add('hidden');
+            stopParticleAnimation();
+            simulation?.stop();
+            g.selectAll('*').remove();
             
             const { entities, relations } = data;
             
@@ -676,10 +920,13 @@ export class GraphView {
                 document.getElementById('empty-state').classList.add('hidden');
             }
 
+            const entityById = new Map(entities.map(entity => [entity.id, entity]));
+
             // Prepare links (D3 requires object references or IDs)
             const links = relations.map(r => ({
                 source: r.sourceId,
                 target: r.targetId,
+                sourceColor: typeColors[entityById.get(r.sourceId)?.type] || typeColors['other'],
                 ...r
             }));
             
@@ -726,17 +973,11 @@ export class GraphView {
             }));
 
             // Simulation
-            if (simulation) {
-                simulation.stop();
-            }
-            
             simulation = d3.forceSimulation(nodes)
                 .force('link', d3.forceLink(links).id(d => d.id).distance(200)) // Increased distance
                 .force('charge', d3.forceManyBody().strength(-500))
                 .force('center', d3.forceCenter(width / 2, height / 2))
                 .force('collide', d3.forceCollide().radius(50));
-
-            g.selectAll('*').remove();
 
             // Links (Paths instead of Lines)
             const linkGroup = g.append('g')
@@ -747,19 +988,14 @@ export class GraphView {
                 .join('path')
                 .attr('id', d => 'link-' + d.id) // Add ID for textPath
                 .attr('fill', 'none')
-                .attr('stroke', d => {
-                    // Link color same as source node, but darker/transparent
-                    const color = typeColors[entities.find(e => e.id === d.sourceId)?.type] || typeColors['other'];
-                    return color;
-                })
+                .attr('stroke', d => d.sourceColor)
                 .attr('stroke-opacity', d => d.isAgent ? 0.75 : 0.4)
                 .attr('stroke-width', d => d.isAgent ? 2.5 : 1.5)
                 .attr('stroke-dasharray', d => d.isAgent ? '4, 4' : null)
-                .attr('class', 'link-flow')       
-                .attr('marker-end', d => {
-                    const type = entities.find(e => e.id === d.sourceId)?.type || 'other';
-                    return 'url(#arrow-' + type + ')';
-                });
+                .attr('class', d => d.isAgent ? 'link-flow' : null)
+                .attr('marker-end', d =>
+                    'url(#arrow-' + (entityById.get(d.sourceId)?.type || 'other') + ')'
+                );
 
             link.append('title').text(formatRelationTooltip);
 
@@ -774,28 +1010,40 @@ export class GraphView {
                 .attr('r', 2)
                 .attr('class', 'particle');
 
-            // Animation loop for particles
-            function animateParticles() {
+            const pathById = new Map();
+            const settledLengthById = new Map();
+            link.each(function(d) {
+                pathById.set(d.id, this);
+            });
+
+            // Keep one throttled particle loop for the currently selected group.
+            let lastParticleFrame = 0;
+            function animateParticles(timestamp) {
+                particleAnimationFrame = 0;
+                if (document.hidden) return;
+                if (timestamp - lastParticleFrame < particleFrameInterval) {
+                    resumeParticleAnimation?.();
+                    return;
+                }
+                lastParticleFrame = timestamp;
+                const progress = (timestamp % 2000) / 2000;
                 particles.each(function(d) {
-                    const path = document.getElementById('link-' + d.id);
+                    const path = pathById.get(d.id);
                     if (!path) return;
                     
-                    // Get path length
-                    const len = path.getTotalLength();
+                    const len = settledLengthById.get(d.id) ?? path.getTotalLength();
                     if (!len) return;
-                    
-                    // Calculate position based on time
-                    const t = (Date.now() % 2000) / 2000; // 2s cycle
-                    const p = path.getPointAtLength(t * len);
-                    
-                    d3.select(this)
-                        .attr('cx', p.x)
-                        .attr('cy', p.y)
-                        .attr('fill', typeColors[entities.find(e => e.id === d.sourceId)?.type] || '#fff');
+
+                    const point = path.getPointAtLength(progress * len);
+                    this.setAttribute('cx', point.x);
+                    this.setAttribute('cy', point.y);
+                    this.setAttribute('fill', d.sourceColor);
                 });
-                requestAnimationFrame(animateParticles);
+                resumeParticleAnimation?.();
             }
-            animateParticles();
+            if (links.length > 0) {
+                startParticleAnimation(animateParticles);
+            }
 
             // Link Labels
             const linkLabelGroup = g.append('g')
@@ -920,6 +1168,7 @@ export class GraphView {
                 .style('pointer-events', 'none');
 
             simulation.on('tick', () => {
+                settledLengthById.clear();
                 link.attr('d', d => {
                     const x1 = d.source.x;
                     const y1 = d.source.y;
@@ -1012,6 +1261,12 @@ export class GraphView {
 
                 node
                     .attr('transform', d => \`translate(\${d.x},\${d.y})\`);
+            });
+
+            simulation.on('end', () => {
+                pathById.forEach((path, id) => {
+                    settledLengthById.set(id, path.getTotalLength());
+                });
             });
             
             // Initial fit
@@ -1194,7 +1449,10 @@ export class GraphView {
             statusText.textContent = musicI18n.generating;
             
             // Request music code from backend
-            vscode.postMessage({ type: 'requestMusicCode' });
+            vscode.postMessage({
+                type: 'requestMusicCode',
+                groupKey: selectedGroupKey
+            });
         }
         
         function stopMusic() {
@@ -1247,10 +1505,9 @@ export class GraphView {
             }
         }
         
-        // Expose functions to global scope for onclick handlers
-        window.toggleMusic = toggleMusic;
-        window.fitGraph = fitGraph;
-        window.refreshGraph = refreshGraph;
+        document.getElementById('playBtn').addEventListener('click', toggleMusic);
+        document.getElementById('fitBtn').addEventListener('click', fitGraph);
+        document.getElementById('refreshBtn').addEventListener('click', refreshGraph);
     </script>
 </body>
 </html>`;

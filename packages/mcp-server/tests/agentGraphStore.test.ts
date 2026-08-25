@@ -25,10 +25,12 @@ describe('AgentGraphStore', () => {
 
   it('treats a missing sidecar as an empty graph', () => {
     expect(store.getOverview()).toEqual({
+      groupCount: 0,
       entityCount: 0,
       relationCount: 0,
       generatedAt: null,
-      scope: null
+      scope: null,
+      groups: []
     });
     expect(store.searchEntities()).toEqual([]);
     expect(store.searchRelations()).toEqual([]);
@@ -41,16 +43,32 @@ describe('AgentGraphStore', () => {
     const firstRelations = store.searchRelations({ limit: 100 });
 
     expect(store.getOverview()).toEqual({
+      groupCount: 1,
       entityCount: 3,
       relationCount: 2,
       generatedAt: '2026-08-21T01:02:03.000Z',
-      scope: 'packages/core'
+      scope: 'packages/core',
+      groups: [
+        {
+          key: 'framework',
+          name: 'Framework',
+          kind: 'framework',
+          order: 0,
+          entityCount: 3,
+          relationCount: 2
+        }
+      ]
     });
     expect(firstEntities.map((entity) => entity.key)).toEqual([
       'core:user-service',
       'core:auth-service',
       'core:logger'
     ]);
+    expect(firstEntities[0]).toMatchObject({
+      groupKey: 'framework',
+      groupKind: 'framework',
+      groupOrder: 0
+    });
     expect(firstRelations[0].evidence).toEqual([
       {
         filePath: 'src/user.ts',
@@ -72,6 +90,42 @@ describe('AgentGraphStore', () => {
     expect(store.searchRelations({ limit: 100 }).map(({ id }) => id)).toEqual(
       firstRelations.map(({ id }) => id)
     );
+  });
+
+  it('reads v2 groups and preserves repeated symbols as separate occurrences', () => {
+    writeGraph(store.filePath, validGroupedGraph());
+
+    const entities = store.searchEntities({ query: 'UserService', limit: 100 });
+    const relations = store.searchRelations({ limit: 100 });
+
+    expect(store.getOverview()).toMatchObject({
+      groupCount: 2,
+      entityCount: 4,
+      relationCount: 2,
+      groups: [
+        { key: 'framework', kind: 'framework', order: 0, entityCount: 2 },
+        { key: 'checkout', kind: 'feature', order: 1, entityCount: 2 }
+      ]
+    });
+    expect(entities).toHaveLength(2);
+    expect(entities.map((entity) => entity.groupKey)).toEqual([
+      'framework',
+      'checkout'
+    ]);
+    expect(entities[0].id).not.toBe(entities[1].id);
+    expect(relations.map((relation) => relation.groupKey)).toEqual([
+      'framework',
+      'checkout'
+    ]);
+
+    const overridden = store.searchEntities(
+      { query: 'UserService', limit: 100 },
+      new Map([['core:user-service', 'Human description']])
+    );
+    expect(overridden.map((entity) => entity.description)).toEqual([
+      'Human description',
+      'Human description'
+    ]);
   });
 
   it('applies entity and relation filters and limits', () => {
@@ -200,10 +254,12 @@ describe('AgentGraphStore', () => {
     writeGraph(store.filePath, makeGraph());
 
     expect(store.getOverview()).toEqual({
+      groupCount: 0,
       entityCount: 0,
       relationCount: 0,
       generatedAt: null,
-      scope: null
+      scope: null,
+      groups: []
     });
     expect(store.searchEntities()).toEqual([]);
     expect(store.searchRelations()).toEqual([]);
@@ -275,6 +331,40 @@ function validGraph(): Record<string, any> {
             filePath: 'src/auth.ts',
             startLine: 20,
             detail: 'AuthService logs failed attempts'
+          }
+        ]
+      }
+    ]
+  };
+}
+
+function validGroupedGraph(): Record<string, any> {
+  const legacy = validGraph();
+  return {
+    version: 2,
+    generatedAt: legacy.generatedAt,
+    scope: legacy.scope,
+    groups: [
+      {
+        key: 'framework',
+        name: 'Framework',
+        kind: 'framework',
+        order: 0,
+        entities: legacy.entities.slice(0, 2),
+        relations: legacy.relations.slice(0, 1)
+      },
+      {
+        key: 'checkout',
+        name: 'Checkout',
+        kind: 'feature',
+        order: 1,
+        entities: [legacy.entities[0], legacy.entities[2]],
+        relations: [
+          {
+            source: 'core:user-service',
+            target: 'core:logger',
+            verb: 'calls',
+            evidence: [{ filePath: 'src/user.ts', startLine: 30 }]
           }
         ]
       }

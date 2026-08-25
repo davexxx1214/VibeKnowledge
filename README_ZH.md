@@ -2,7 +2,7 @@
 
 [English](./README.md) | 简体中文
 
-VibeKnowledge 是一个 VS Code 插件，用来维护与代码一起演进的项目知识图谱。它把代码实体、关系和维护笔记存进工作区内的 SQLite 数据库，再通过 VS Code、AI 配置文件和可选的 MCP Server 提供给开发者与 AI 工具。
+VibeKnowledge 是一个 VS Code 插件，用来维护与代码一起演进、由 Agent 生成的项目知识图谱。Agent Skill 负责生成带证据的框架、模块和功能图谱，人工只需补充或修改实体描述。
 
 VibeKnowledge 以源码形式提供。你可以 Fork 本仓库进行定制、本地运行，或自行打包 VSIX 使用。
 
@@ -12,16 +12,16 @@ https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 
 | 知识图谱 | AI 场景选择 |
 | --- | --- |
-| ![手动维护的知识图谱](presentation/snap4.png) | ![AI 场景选择](presentation/snap2.png) |
+| ![知识图谱](presentation/snap4.png) | ![AI 场景选择](presentation/snap2.png) |
 
 ## 主要功能
 
 | 模块 | 当前能力 |
 | --- | --- |
-| 知识图谱 | 在同一张图谱中查看和编辑人工数据与 Agent 生成的实体、依赖关系和证据。 |
-| Agent 生成 | 安装项目级 Agent Skill，让 Agent 先语义阅读代码并生成图谱；人工随后可以补充实体、关系、观察记录和描述。 |
-| 图谱可视化 | 在统一的 `vis-network` Webview 中查看完整图谱，并跳回源码位置。 |
-| AI 上下文 | 导出 Markdown 或 JSON，生成 Cursor 规则和 GitHub Copilot 指令，并切换内置任务场景。 |
+| 知识图谱 | Agent 负责实体与关系结构，人工只编辑描述。 |
+| 分组生成 | 先生成聚焦系统边界的框架图，再按需增量添加平行的模块或功能图谱。 |
+| 图谱可视化 | 从左侧竖向列表切换分组，只渲染当前选中的 D3/SVG 图谱，并可跳回源码。 |
+| AI 上下文 | 保留完整人工审计报告，让 Coding Agent 按需加载紧凑的分组视图。 |
 | RAG | 通过 Gemini File Search 或 OpenAI 兼容接口索引文档，在 VS Code 侧边栏中提问。 |
 | MCP Server | 让 Cursor、GitHub Copilot 或其他 MCP 客户端查询同一份统一知识图谱。 |
 | 图谱音乐 | 根据图谱结构生成 Strudel 乐谱，并在内嵌播放器中打开。这个功能仍在实验阶段。 |
@@ -31,9 +31,12 @@ https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 ```text
 <workspace>/.vscode/.knowledge/graph.sqlite
 <workspace>/.vscode/.knowledge/agent-graph.json
+<workspace>/.vscode/.knowledge/knowledge-graph.md
+<workspace>/.vscode/.knowledge/agent-context/index.md
+<workspace>/.vscode/.knowledge/agent-context/<group-key>.md
 ```
 
-`agent-graph.json` 是可重复生成的结构层；`graph.sqlite` 保存人工实体、关系、观察记录，以及 Agent 实体的人工描述覆盖。扩展把它们读取成同一张知识图谱。人工描述始终优先，因此 Agent 再次生成时不会覆盖已经编辑的描述。
+`agent-graph.json` 是包含独立分组的 v2 结构源，`knowledge-graph.md` 是完整的人工审计报告，`agent-context/` 则提供仅包含实体、路径和关系的紧凑视图，供 Agent 按需导航。`graph.sqlite` 保存人工描述覆盖与 RAG 数据，不再作为第二份结构图谱。人工描述始终优先，因此 Agent 再次生成时不会覆盖已经编辑的描述。
 
 ## 从源码运行
 
@@ -62,25 +65,17 @@ npm run watch
 
 ## 常用工作流
 
-### 编辑知识图谱
-
-1. 在编辑器中选中一段代码。
-2. 从右键菜单或命令面板运行 **Knowledge: Create Entity from Selection**。
-3. 在 VibeKnowledge 侧边栏中添加关系和观察记录，或右键实体选择 **Knowledge: Edit Entity Description** 编辑描述。
-4. 运行 **Knowledge: Visualize Graph** 查看图谱。
-
-手动观察记录适合保存静态分析拿不到的信息，比如架构决策、已知风险、迁移说明和重构约束。
-
-### 让 Agent 生成依赖图谱
+### 生成并维护知识图谱
 
 1. 运行 **Knowledge: Install Dependency Graph Agent Skill**。扩展会把 Skill 安装到项目的 `.agents/skills/vibeknowledge-dependency-graph/`。
-2. 在支持 Agent Skills 的编码 Agent 中提出“生成/更新项目依赖图谱”，或显式调用 `$vibeknowledge-dependency-graph`。
-3. Agent 会阅读代码，以稳定实体键、明确关系方向和文件行号证据生成 `.vscode/.knowledge/agent-graph.json`，并运行 Skill 自带的校验器。
-4. 扩展监听该文件；保存后侧边栏、编辑器中的 `🧠 KG` 提示与已打开的图谱视图都会自动刷新。
+2. 第一次让支持 Agent Skills 的编码 Agent “生成项目知识图谱”，或显式调用 `$vibeknowledge-dependency-graph`。没有指定范围时，Skill 会先生成聚焦系统边界的 `framework` 框架图。
+3. 后续点名某个模块或功能。Agent 会自动生成名称，新增或刷新这个平行分组，并完整保留其他分组。同一个稳定实体 key 可以正常出现在多个分组中。
+4. Agent 校验 `.vscode/.knowledge/agent-graph.json` 后，会重新生成完整的 `.vscode/.knowledge/knowledge-graph.md` 审计报告，以及 `.vscode/.knowledge/agent-context/` 下的紧凑分组视图。
+5. 运行 **Knowledge: Visualize Graph**，从左侧选择分组；界面只模拟和渲染当前分组。
 
-Agent 生成层使用完整替换语义，因此再次运行 Skill 会清理已经不存在的生成关系。它不会修改 `graph.sqlite`；人工实体、关系、观察记录和描述覆盖都会保留。实体的稳定 `key` 用于重新关联人工描述。清单格式见 [生成层 schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md)。
+Agent 每次只替换目标分组的生成内容，并且绝不修改 `graph.sqlite`。稳定实体 `key` 会让人工描述在每次生成后重新关联到该实体的所有分组实例。旧版 v1 清单仍可读取，并会被视为一个框架层分组。格式见 [分组 schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md)。
 
-具有源码位置的 Agent 实体会在对应代码上方显示当前描述，例如 `🧠 KG: 负责用户认证……`。点击提示即可人工编辑；Agent 后续运行 Skill 时也可以更新生成描述。一旦人工编辑，人工覆盖优先，直到在实体菜单中执行 **Knowledge: Restore Agent Description** 恢复使用 Agent 描述。
+具有源码位置的实体会在对应代码上方显示当前描述，例如 `🧠 KG: 负责用户认证……`。点击提示即可人工编辑；Agent 后续运行 Skill 时也可以更新生成描述。一旦人工编辑，这份覆盖会在所有分组中优先，直到执行 **Knowledge: Restore Agent Description**。
 
 ### 使用 RAG
 
@@ -107,7 +102,7 @@ npm run build
 node dist/index.js --workspace /path/to/your/project
 ```
 
-目标工作区中需要已有 VibeKnowledge 数据库。先在该工作区运行一次 VS Code 插件，再启动 Server。运行 `node dist/index.js --help` 可以查看数据库路径和 RAG 参数，Cursor 与 GitHub Copilot 的配置示例见 [MCP 使用指南](./MCP_USAGE.md)。
+目标工作区应已有生成清单；若要使用人工描述覆盖或 RAG，还需要 VibeKnowledge 数据库。先在该工作区运行扩展并安装 Skill，再启动 Server。运行 `node dist/index.js --help` 可以查看数据库路径和 RAG 参数，Cursor 与 GitHub Copilot 的配置示例见 [MCP 使用指南](./MCP_USAGE.md)。
 
 ## 开发
 

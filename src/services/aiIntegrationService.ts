@@ -68,14 +68,14 @@ export class AIIntegrationService {
    * @param workspaceRoot 工作区根目录
    * @param graphData 可选的图谱数据，如果不提供则使用默认服务获取
    */
-  public async generateCopilotInstructions(workspaceRoot: string, graphData?: GraphData): Promise<string> {
+  public async generateCopilotInstructions(workspaceRoot: string, _graphData?: GraphData): Promise<string> {
     const githubDir = path.join(workspaceRoot, '.github');
     if (!fs.existsSync(githubDir)) {
       fs.mkdirSync(githubDir, { recursive: true });
     }
 
     const filePath = path.join(githubDir, 'copilot-instructions.md');
-    const content = this.buildCopilotInstructionsContent(graphData);
+    const content = this.buildCopilotInstructionsContent();
     
     fs.writeFileSync(filePath, content, 'utf-8');
     return filePath;
@@ -396,154 +396,22 @@ export class AIIntegrationService {
   /**
    * 构建 Copilot Instructions 内容
    */
-  private buildCopilotInstructionsContent(graphData?: GraphData): string {
-    const workspaceName = vscode.workspace.workspaceFolders?.[0]?.name || 'Project';
-    const entities = graphData?.entities || this.entityService.listEntities({});
-    const relations = graphData?.relations || this.relationService.getAllRelations();
-    const stats = this.calculateStatsFromGraphData(graphData);
-    const techStack = this.extractTechStack();
-    const sourceLabel = this.getSourceLabel(graphData?.sourceType, 'en');
-
-    let content = `# GitHub Copilot Instructions for ${workspaceName}\n\n`;
-    content += `> Auto-generated: ${new Date().toISOString()}\n`;
-    content += `> Source: Knowledge Graph Extension\n`;
-    content += `> Data Source: ${sourceLabel}\n\n`;
-    content += `---\n\n`;
-
-    // Tech Stack
-    content += this.formatTechStackEN(techStack);
-
-    // Project Context
-    content += `## Project Context\n\n`;
-    content += `This project uses a **Knowledge Graph** to track code entities, relationships, and observations.\n\n`;
-    content += `**Statistics:**\n`;
-    content += `- Total Entities: ${entities.length}\n`;
-    content += `- Total Relations: ${relations.length}\n`;
-    content += `- Entities with Dependencies: ${stats.entitiesWithDependencies}\n`;
-    content += `- Average Dependencies: ${stats.averageDependencies}\n`;
-    content += `- Max Dependency Depth: ${stats.maxDependencyDepth}\n`;
-    if (stats.circularDependencyCount > 0) {
-      content += `- ⚠️ Circular Dependencies: ${stats.circularDependencyCount}\n`;
-    }
-    content += `\n`;
-
-    // Architecture Overview
-    content += `## Architecture Overview\n\n`;
-    const typeCount = this.getEntityTypeDistribution(entities);
-    if (Object.keys(typeCount).length > 0) {
-      content += `**Entity Distribution:**\n\n`;
-      for (const [type, count] of Object.entries(typeCount)) {
-        content += `- ${type}: ${count}\n`;
-      }
-      content += `\n`;
-    }
-
-    // Entity Relationship Graph
-    content += this.buildEntityRelationsEN(entities, relations);
-
-    // Key Components
-    if (stats.topDependencies.length > 0) {
-      content += `## Key Components\n\n`;
-      content += `These are the most important components in the codebase (by dependency count):\n\n`;
-      for (let i = 0; i < Math.min(5, stats.topDependencies.length); i++) {
-        const item = stats.topDependencies[i];
-        content += `### ${i + 1}. ${item.entity.name}\n\n`;
-        content += `- **Type:** \`${item.entity.type}\`\n`;
-        content += `- **Location:** \`${item.entity.filePath}:${item.entity.startLine}\`\n`;
-        content += `- **Dependencies:** ${item.dependencyCount}\n`;
-        if (item.entity.description) {
-          content += `- **Description:** ${item.entity.description}\n`;
-        }
-        content += `\n`;
-      }
-    }
-
-    // Important Notes
-    const observations = this.categorizeObservations(graphData);
-    const hasNotes = observations.warnings.length > 0 || 
-                     observations.todos.length > 0 || 
-                     observations.bugs.length > 0 ||
-                     observations.others.length > 0;
-
-    if (hasNotes) {
-      content += `## Important Notes\n\n`;
-
-      if (observations.warnings.length > 0) {
-        content += `### ⚠️ Warnings (${observations.warnings.length})\n\n`;
-        for (const obs of observations.warnings.slice(0, 5)) {
-          content += `- **[${obs.entity.name}]** ${obs.content}\n`;
-        }
-        if (observations.warnings.length > 5) {
-          content += `\n_... and ${observations.warnings.length - 5} more warnings_\n`;
-        }
-        content += `\n`;
-      }
-
-      if (observations.bugs.length > 0) {
-        content += `### 🐛 Known Issues (${observations.bugs.length})\n\n`;
-        for (const obs of observations.bugs.slice(0, 5)) {
-          content += `- **[${obs.entity.name}]** ${obs.content}\n`;
-        }
-        if (observations.bugs.length > 5) {
-          content += `\n_... and ${observations.bugs.length - 5} more issues_\n`;
-        }
-        content += `\n`;
-      }
-
-      if (observations.todos.length > 0) {
-        content += `### 📝 TODOs (${observations.todos.length})\n\n`;
-        for (const obs of observations.todos.slice(0, 5)) {
-          content += `- **[${obs.entity.name}]** ${obs.content}\n`;
-        }
-        if (observations.todos.length > 5) {
-          content += `\n_... and ${observations.todos.length - 5} more todos_\n`;
-        }
-        content += `\n`;
-      }
-
-      if (observations.others.length > 0) {
-        content += `### 📌 Other Notes (${observations.others.length})\n\n`;
-        for (const obs of observations.others.slice(0, 5)) {
-          content += `- **[${obs.entity.name}]** ${obs.content}\n`;
-        }
-        if (observations.others.length > 5) {
-          content += `\n_... and ${observations.others.length - 5} more notes_\n`;
-        }
-        content += `\n`;
-      }
-    }
-
-    // Custom AI Template (if exists)
-    console.log('📋 Checking for custom AI template (Copilot)...');
-    const customTemplate = this.readCustomAITemplate();
-    if (customTemplate) {
-      console.log('✅ Adding custom template to Copilot Instructions');
-      content += customTemplate;
-      content += `\n\n`;
-    } else {
-      console.log('ℹ️ No custom template found, skipping (Copilot)');
-    }
-
-    // Common Patterns
-    content += `## Common Patterns\n\n`;
-    content += `**Entity Types in this project:**\n\n`;
-    for (const [type, count] of Object.entries(typeCount)) {
-      content += `- \`${type}\`: ${count} entities\n`;
-    }
-    content += `\n`;
-
-    // Additional Context
-    content += `## Additional Context\n\n`;
-    content += `- This project uses **Knowledge Graph Extension** to manage code knowledge\n`;
-    content += `- Entities, relationships, and observations are stored in \`.vscode/.knowledge/graph.sqlite\`\n`;
-    content += `- Run \`Knowledge: Export Graph\` command to see the full knowledge graph\n`;
-    content += `- Observations contain important notes, warnings, and TODOs about each entity\n\n`;
-
-    content += `---\n\n`;
-    content += `_This file is auto-generated by Knowledge Graph Extension._\n`;
-    content += `_Run \`Knowledge: Generate Copilot Instructions\` to update._\n`;
-
-    return content;
+  private buildCopilotInstructionsContent(): string {
+    return [
+      '# VibeKnowledge Agent Instructions',
+      '',
+      'Use the generated Knowledge Graph only as an on-demand dependency navigator.',
+      '',
+      '- Do not load `.vscode/.knowledge/knowledge-graph.md` by default; it is the complete human audit report.',
+      '- For architecture, unfamiliar, cross-file, or impact-analysis tasks, first read `.vscode/.knowledge/agent-context/index.md`.',
+      '- From that index, load only the single framework, module, or feature view that best matches the task.',
+      '- Skip the Knowledge Graph for a small task when the target files are already known.',
+      '- Compact views contain entities, source paths, and direct relations only. Verify current behavior in the referenced source files before editing or testing.',
+      '- Never edit `.vscode/.knowledge/graph.sqlite`. Refresh generated graph artifacts through the VibeKnowledge workflow.',
+      '',
+      '_Generated by VibeKnowledge._',
+      '',
+    ].join('\n');
   }
 
   /**
@@ -1014,12 +882,13 @@ export class AIIntegrationService {
         techStack.language = 'JavaScript';
       }
 
-      // 检测运行时
-      if (packageJson.engines?.node) {
-        techStack.runtime = `Node.js ${packageJson.engines.node}`;
-      } else if (allDeps['@types/node']) {
-        const version = this.extractVersion(allDeps['@types/node']);
-        techStack.runtime = `Node.js ${version}`;
+      // 只接受明确的运行时声明；@types/node 是类型定义版本，不代表 Node.js 运行时。
+      const nodeRuntimeVersion = this.detectNodeRuntimeVersion(
+        packageJson,
+        path.dirname(packageJsonPath)
+      );
+      if (nodeRuntimeVersion) {
+        techStack.runtime = `Node.js ${nodeRuntimeVersion}`;
       }
 
       // 检测前端框架
@@ -1367,6 +1236,43 @@ export class AIIntegrationService {
   private extractVersion(versionString: string): string {
     // 移除 ^, ~, >= 等前缀
     return versionString.replace(/^[\^~>=<]+/, '').split('.').slice(0, 2).join('.');
+  }
+
+  /**
+   * 从显式项目配置中检测 Node.js 运行时版本。
+   * 不使用 @types/node，因为它描述类型兼容性而不是实际运行时。
+   */
+  private detectNodeRuntimeVersion(
+    packageJson: {
+      engines?: { node?: unknown };
+      volta?: { node?: unknown };
+      [key: string]: unknown;
+    },
+    workspaceRoot: string
+  ): string | undefined {
+    const declaredVersions = [
+      packageJson.engines?.node,
+      packageJson.volta?.node,
+    ];
+
+    for (const declaredVersion of declaredVersions) {
+      if (typeof declaredVersion === 'string' && declaredVersion.trim()) {
+        return declaredVersion.trim();
+      }
+    }
+
+    for (const fileName of ['.nvmrc', '.node-version']) {
+      const versionFile = path.join(workspaceRoot, fileName);
+      if (!fs.existsSync(versionFile)) {
+        continue;
+      }
+      const version = fs.readFileSync(versionFile, 'utf-8').trim();
+      if (version) {
+        return version.replace(/^v(?=\d)/, '');
+      }
+    }
+
+    return undefined;
   }
 
   /**

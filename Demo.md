@@ -2,6 +2,8 @@
 
 > 基于 [NestJS RealWorld Example App](https://github.com/lujakob/nestjs-realworld-example-app) 的完整演示
 
+> 当前版本的实体与关系结构只由 Agent Skill 生成，人工只编辑描述。本文第一部分保留的是旧版人工建图演示，请以第二部分的分组 Agent 工作流为准。
+
 ---
 
 ## 📋 目录
@@ -886,7 +888,7 @@ ArticleService ────⚠️ uses────⤴
 
 ---
 
-### 第二部分：Agent 先生成、人工再编辑（3 分钟）🆕
+### 第二部分：Agent 分组生成、人工编辑描述（3 分钟）🆕
 
 > 由代码 Agent 理解实现语义、筛选高价值关系，并为每条关系记录代码证据。
 
@@ -899,7 +901,7 @@ ArticleService ────⚠️ uses────⤴
 3. 确认项目中出现 .agents/skills/vibeknowledge-dependency-graph/
 ```
 
-该命令把 VibeKnowledge 随扩展发布的 Skill 安装到当前工作区。它只负责生成结构层，不会修改已有的人工数据。
+该命令把 VibeKnowledge 随扩展发布的 Skill 安装到当前工作区。Skill 负责全部实体与关系结构，不会修改 SQLite 中的人工描述覆盖。
 
 ---
 
@@ -908,21 +910,30 @@ ArticleService ────⚠️ uses────⤴
 在支持项目 Skill 的代码 Agent 中输入：
 
 ```
-$vibeknowledge-dependency-graph 为当前项目生成依赖关系知识图谱
+$vibeknowledge-dependency-graph 为当前项目生成知识图谱
 ```
 
-Agent 会阅读代码、判断直接依赖关系，并生成：
+第一次没有指定范围时，Agent 会先生成 `framework` 框架层调用图谱。随后可以继续提出：
+
+```
+$vibeknowledge-dependency-graph 为“用户认证”功能生成知识图谱
+```
+
+Agent 会自动命名平行的模块/功能分组，并生成：
 
 ```
 .vscode/.knowledge/agent-graph.json
+.vscode/.knowledge/knowledge-graph.md
 ```
 
 **预期效果**：
 - ✅ 每个实体都有稳定 key 和源码位置
+- ✅ 框架层固定为第一个分组，模块/功能分组按顺序追加
+- ✅ 同一个实体可以正常出现在多个分组中
 - ✅ 每条关系都有 `source`、`target`、`verb`
 - ✅ 每条关系至少包含一处可核查的代码证据
-- ✅ 重新运行时完整更新生成层，不影响人工实体、关系、观察记录和描述
-- ✅ 生成后自动运行严格 schema 校验
+- ✅ 再次运行只更新目标分组，完整保留其他分组
+- ✅ 校验 JSON 后自动生成包含所有分组的 Markdown 汇总
 
 ---
 
@@ -931,15 +942,16 @@ Agent 会阅读代码、判断直接依赖关系，并生成：
 **操作**：
 ```
 1. 命令面板 → "Knowledge: Visualize Graph"
-2. 直接查看统一的知识图谱
-3. 双击节点跳转到代码，并依据 evidence 审查关系
-4. Agent 实体会在源码上方显示 `🧠 KG` 描述；点击提示即可人工编辑
-5. 也可以在侧边栏右键实体 → "Knowledge: Edit Entity Description" 补充人工描述
+2. 在左侧竖向分组列表中选择框架、模块或功能
+3. 画布只渲染当前分组，切换时停止上一组动画与布局
+4. 双击节点跳转到代码，并依据 evidence 审查关系
+5. 实体会在源码上方显示 `🧠 KG` 描述；点击提示即可人工编辑
+6. 也可以在侧边栏右键实体 → "Knowledge: Edit Entity Description" 补充人工描述
 ```
 
 **支持的关系类型**：`uses`、`calls`、`extends`、`implements`、`depends_on`、`contains`、`references`、`imports`、`exports`。
 
-💡 **协作方式**：Agent 基于代码证据生成结构；人工在同一张图谱中补充描述、设计决策、重构笔记和观察记录。Agent 再次运行时，人工描述始终优先。
+💡 **协作方式**：Agent 基于代码证据生成或修改结构与生成描述；人工只维护描述覆盖。Agent 再次运行时，人工描述始终优先，并应用到该实体在所有分组中的实例。
 
 ---
 

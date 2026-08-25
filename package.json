@@ -37,32 +37,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "knowledge.createEntity",
-        "title": "Knowledge: Create Entity from Selection"
-      },
-      {
-        "command": "knowledge.linkToEntity",
-        "title": "Knowledge: Link Selection to Entity..."
-      },
-      {
-        "command": "knowledge.addObservation",
-        "title": "Knowledge: Add Observation to Entity..."
-      },
-      {
-        "command": "knowledge.editObservation",
-        "title": "Knowledge: Edit Observation"
-      },
-      {
         "command": "knowledge.editEntityDescription",
         "title": "Knowledge: Edit Entity Description"
       },
       {
         "command": "knowledge.resetEntityDescription",
         "title": "Knowledge: Restore Agent Description"
-      },
-      {
-        "command": "knowledge.addRelation",
-        "title": "Knowledge: Add Relation"
       },
       {
         "command": "knowledge.viewEntityDetails",
@@ -93,22 +73,6 @@
       {
         "command": "knowledge.settings",
         "title": "Knowledge: Settings"
-      },
-      {
-        "command": "knowledge.deleteEntity",
-        "title": "Knowledge: Delete Entity"
-      },
-      {
-        "command": "knowledge.deleteRelation",
-        "title": "Knowledge: Delete Relation"
-      },
-      {
-        "command": "knowledge.deleteObservation",
-        "title": "Knowledge: Delete Observation"
-      },
-      {
-        "command": "knowledge.deleteRelationFromTree",
-        "title": "Delete Relation"
       },
       {
         "command": "knowledge.refresh",
@@ -208,34 +172,16 @@
     "menus": {
       "editor/context": [
         {
-          "command": "knowledge.createEntity",
-          "group": "knowledge@1"
-        },
-        {
-          "command": "knowledge.linkToEntity",
-          "group": "knowledge@2"
-        },
-        {
-          "command": "knowledge.addObservation",
-          "group": "knowledge@3"
-        },
-        {
           "command": "knowledge.viewEntityDetails",
-          "group": "knowledge@4"
+          "group": "knowledge@1"
         },
         {
           "command": "knowledge.copyEntityContext",
-          "group": "knowledge@5"
+          "group": "knowledge@2"
         },
         {
           "command": "knowledge.exportCurrentFileContext",
-          "group": "knowledge@6"
-        }
-      ],
-      "explorer/context": [
-        {
-          "command": "knowledge.createEntity",
-          "group": "knowledge@1"
+          "group": "knowledge@3"
         }
       ],
       "view/item/context": [
@@ -248,21 +194,6 @@
           "command": "knowledge.resetEntityDescription",
           "when": "view == knowledgeGraphExplorer && viewItem == agentEntity",
           "group": "knowledge@0.6"
-        },
-        {
-          "command": "knowledge.editObservation",
-          "when": "view == knowledgeGraphExplorer && viewItem == entity",
-          "group": "knowledge@0.9"
-        },
-        {
-          "command": "knowledge.deleteEntity",
-          "when": "view == knowledgeGraphExplorer && viewItem == entity",
-          "group": "knowledge@1"
-        },
-        {
-          "command": "knowledge.deleteRelationFromTree",
-          "when": "view == knowledgeGraphExplorer && viewItem == relation",
-          "group": "knowledge@1"
         }
       ],
       "view/title": [
@@ -436,7 +367,7 @@
     "viewsWelcome": [
       {
         "view": "knowledgeGraphExplorer",
-        "contents": "暂无知识图谱数据。\n\n[创建实体](command:knowledge.createEntity)\n\n从选中的代码创建第一个实体。"
+        "contents": "暂无知识图谱数据。\n\n[安装知识图谱 Agent Skill](command:knowledge.installDependencyGraphSkill)\n\n请让 Agent 先生成框架层图谱，再按模块或功能继续生成。"
       }
     ]
   },
@@ -456,10 +387,10 @@
     "@types/node": "^20.0.0",
     "@types/pdf-parse": "^1.1.5",
     "@types/vscode": "1.80.0",
-    "@vscode/vsce": "^3.9.2",
     "@typescript-eslint/eslint-plugin": "^8.67.0",
     "@typescript-eslint/parser": "^8.67.0",
     "@vitest/coverage-v8": "^4.1.10",
+    "@vscode/vsce": "^3.9.2",
     "d3": "^7.9.0",
     "esbuild": "^0.28.2",
     "eslint": "^8.0.0",
@@ -472,7 +403,6 @@
     "mime-types": "^3.0.2",
     "pdf-parse": "^1.1.1",
     "sql.js": "^1.13.0",
-    "vis-network": "^10.0.2",
     "word-extractor": "^1.0.4"
   }
 }

@@ -1,4 +1,4 @@
-# Generated Knowledge Graph manifest schema
+# Grouped Knowledge Graph manifest schema
 
 Write UTF-8 JSON to `<workspace>/.vscode/.knowledge/agent-graph.json`.
 
@@ -6,23 +6,53 @@ Write UTF-8 JSON to `<workspace>/.vscode/.knowledge/agent-graph.json`.
 
 ```json
 {
-  "version": 1,
-  "generatedAt": "2026-08-21T12:00:00.000Z",
+  "version": 2,
+  "generatedAt": "2026-08-25T12:00:00.000Z",
   "scope": ".",
+  "groups": []
+}
+```
+
+- `version` must be `2`.
+- `generatedAt` must be an ISO-8601 timestamp.
+- `scope` is optional. Use `.` for the whole workspace or a normalized workspace-relative path for a narrower aggregate.
+- `groups` must be a non-empty array.
+- Rewriting this document replaces only Agent-generated structure. Human description overrides live outside it and win at read time.
+
+## Groups
+
+```json
+{
+  "key": "authentication",
+  "name": "Authentication",
+  "kind": "feature",
+  "order": 1,
+  "description": "Credential validation and session issuance.",
+  "scope": "src/auth",
   "entities": [],
   "relations": []
 }
 ```
 
-- `version` must be `1`.
-- `generatedAt` must be an ISO-8601 timestamp.
-- `scope` is optional. Use `.` for the whole workspace or a normalized workspace-relative path for a narrower graph.
-- Rewriting the document replaces only the generated layer. VibeKnowledge presents it together with human-authored data as one Knowledge Graph.
-- Human description overrides live outside this document and win at read time. Preserve each entity's `key` across runs so those edits remain attached.
+- `key` is required, unique across groups, and lowercase kebab-case.
+- `name` is a concise human-readable module or feature name.
+- `kind` is exactly one of `framework`, `module`, or `feature`.
+- `order` is a unique non-negative integer used by the left-side group list.
+- `description` and `scope` are optional. A scope is `.` or a normalized workspace-relative path.
+- There must be exactly one `framework` group. It must use key `framework`, order `0`, and be first when groups are sorted by order.
+- All other groups are parallel peers. Their order controls display only; it does not imply a dependency between groups.
+- A symbol may appear in multiple groups. Use the same stable entity key in every occurrence. Keys need to be unique only inside one group.
+- A relation may connect only entities declared in its own group.
+
+### Framework group semantics
+
+The `framework` group is a boundary graph, not an aggregate call graph. Model startup, root composition, one stable node per top-level package or business module, direct dependencies between those boundaries, shared runtime infrastructure, and important external systems.
+
+Keep controllers, services, repositories, entities, DTOs, interfaces, tests, and feature-internal data flow in module or feature groups. A lower-level symbol belongs in `framework` only when it has a genuine cross-cutting responsibility needed to explain multiple top-level boundaries. Boundary and shared-infrastructure nodes may repeat in detailed groups with the same stable keys.
+
+For an ordinary application, 8–15 framework entities and 10–20 framework relations are useful readability targets, not schema limits. Larger systems should collapse at stable package or module boundaries rather than truncate important architecture.
 
 ## Entities
-
-Each entity has this shape:
 
 ```json
 {
@@ -36,41 +66,39 @@ Each entity has this shape:
 }
 ```
 
-Required fields are `key`, `name`, `type`, `filePath`, `startLine`, and `endLine`. `description` remains optional for schema compatibility, but file-backed entities should include it because VibeKnowledge displays it in the editor's `🧠 KG` hint.
+Required fields are `key`, `name`, `type`, `filePath`, `startLine`, and `endLine`. `description` is schema-optional, but every file-backed entity should include concise responsibility prose for the editor's `🧠 KG` hint.
 
-- `key` must be unique and stable across runs. Prefer `<workspace-relative-path>#<symbol>`; use just the path for file, directory, database, or configuration nodes.
-- `filePath` must use `/`, be relative to the workspace, and must not contain `.` or `..` path segments.
+- Prefer key `<workspace-relative-path>#<symbol>`; use the path alone for file, directory, database, or configuration nodes.
+- `filePath` uses `/`, is workspace-relative, and contains no empty, `.` or `..` segments.
 - Lines are one-based positive integers and `endLine >= startLine`.
-- Keep `description` concise and responsibility-focused. The Agent may refresh it when code changes; a human override is stored separately and remains authoritative until the user restores the Agent description.
-- `type` must be one of: `function`, `class`, `interface`, `variable`, `file`, `directory`, `api`, `config`, `database`, `service`, `component`, `external`, `other`.
-- For a genuinely external entity, use a portable virtual path under `external/`, such as `external/postgresql`.
+- Agent prose may change on refresh. VibeKnowledge reapplies a human override by entity key to every group occurrence.
+- `type` is one of `function`, `class`, `interface`, `variable`, `file`, `directory`, `api`, `config`, `database`, `service`, `component`, `external`, `other`.
+- For a genuinely external entity, use a portable virtual path such as `external/postgresql`.
 
 ## Relations
-
-Each relation has this shape:
 
 ```json
 {
   "source": "src/auth/auth-service.ts#AuthService",
   "target": "src/users/user-repository.ts#UserRepository",
   "verb": "depends_on",
-  "description": "Authentication loads the user record before checking credentials.",
+  "description": "Authentication loads a user before checking credentials.",
   "evidence": [
     {
       "filePath": "src/auth/auth-service.ts",
       "startLine": 31,
       "endLine": 34,
-      "detail": "Constructor injection and the login call both reference UserRepository."
+      "detail": "login() queries UserRepository before password validation."
     }
   ]
 }
 ```
 
-- `source` and `target` must reference entity keys in the same document and must differ.
-- The tuple `(source, target, verb)` must be unique.
-- `evidence` is required and must contain at least one item.
-- Evidence paths and lines follow the entity path and line rules. They must resolve to an existing workspace file, and the cited line range must be inside that file. `endLine` and `detail` are optional.
-- `verb` must be one of:
+- `source` and `target` reference entity keys in the same group and must differ.
+- `(source, target, verb)` is unique within the group. The same tuple may occur in another group.
+- `evidence` contains at least one item.
+- Evidence paths and lines follow the entity rules, resolve to an existing workspace file, and stay inside that file. `endLine` and `detail` are optional.
+- `verb` is one of:
   - `calls`: source directly invokes target.
   - `extends`: source inherits from target.
   - `implements`: source implements target.
@@ -79,47 +107,99 @@ Each relation has this shape:
   - `contains`: source structurally owns target.
   - `references`: source directly references target without a stronger verb.
   - `uses`: source uses target in a broader runtime interaction.
-  - `depends_on`: source cannot fulfill its responsibility without target; use when no more specific verb captures the architectural dependency.
+  - `depends_on`: source cannot fulfill its responsibility without target and no more specific verb applies.
 
 ## Complete example
 
 ```json
 {
-  "version": 1,
-  "generatedAt": "2026-08-21T12:00:00.000Z",
+  "version": 2,
+  "generatedAt": "2026-08-25T12:00:00.000Z",
   "scope": "src",
-  "entities": [
+  "groups": [
     {
-      "key": "src/auth/auth-service.ts#AuthService",
-      "name": "AuthService",
-      "type": "service",
-      "filePath": "src/auth/auth-service.ts",
-      "startLine": 12,
-      "endLine": 94,
-      "description": "Authenticates credentials and issues sessions."
+      "key": "framework",
+      "name": "Framework",
+      "kind": "framework",
+      "order": 0,
+      "description": "Application bootstrapping and top-level module boundaries.",
+      "entities": [
+        {
+          "key": "src/app.ts#Application",
+          "name": "Application",
+          "type": "component",
+          "filePath": "src/app.ts",
+          "startLine": 1,
+          "endLine": 45,
+          "description": "Bootstraps the runtime and registers top-level modules."
+        },
+        {
+          "key": "src/auth/auth-module.ts#AuthModule",
+          "name": "AuthModule",
+          "type": "component",
+          "filePath": "src/auth/auth-module.ts",
+          "startLine": 1,
+          "endLine": 28,
+          "description": "Defines the top-level authentication boundary."
+        }
+      ],
+      "relations": [
+        {
+          "source": "src/app.ts#Application",
+          "target": "src/auth/auth-module.ts#AuthModule",
+          "verb": "imports",
+          "description": "The application assembles the authentication boundary.",
+          "evidence": [
+            {
+              "filePath": "src/app.ts",
+              "startLine": 18,
+              "endLine": 22,
+              "detail": "Application composition imports AuthModule."
+            }
+          ]
+        }
+      ]
     },
     {
-      "key": "src/users/user-repository.ts#UserRepository",
-      "name": "UserRepository",
-      "type": "service",
-      "filePath": "src/users/user-repository.ts",
-      "startLine": 8,
-      "endLine": 70,
-      "description": "Loads and stores user records."
-    }
-  ],
-  "relations": [
-    {
-      "source": "src/auth/auth-service.ts#AuthService",
-      "target": "src/users/user-repository.ts#UserRepository",
-      "verb": "depends_on",
-      "description": "Authentication requires persisted user records.",
-      "evidence": [
+      "key": "authentication",
+      "name": "Authentication",
+      "kind": "feature",
+      "order": 1,
+      "scope": "src/auth",
+      "entities": [
         {
+          "key": "src/auth/auth-service.ts#AuthService",
+          "name": "AuthService",
+          "type": "service",
           "filePath": "src/auth/auth-service.ts",
-          "startLine": 18,
-          "endLine": 34,
-          "detail": "UserRepository is injected and queried by login()."
+          "startLine": 12,
+          "endLine": 94,
+          "description": "Authenticates credentials and issues sessions."
+        },
+        {
+          "key": "src/users/user-repository.ts#UserRepository",
+          "name": "UserRepository",
+          "type": "service",
+          "filePath": "src/users/user-repository.ts",
+          "startLine": 8,
+          "endLine": 70,
+          "description": "Loads and stores user records."
+        }
+      ],
+      "relations": [
+        {
+          "source": "src/auth/auth-service.ts#AuthService",
+          "target": "src/users/user-repository.ts#UserRepository",
+          "verb": "depends_on",
+          "description": "Authentication requires persisted user records.",
+          "evidence": [
+            {
+              "filePath": "src/auth/auth-service.ts",
+              "startLine": 18,
+              "endLine": 34,
+              "detail": "UserRepository is injected and queried by login()."
+            }
+          ]
         }
       ]
     }

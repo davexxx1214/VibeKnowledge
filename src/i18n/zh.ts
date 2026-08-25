@@ -55,6 +55,7 @@ export const zh = {
   },
 
   commands: {
+    agentManagedStructure: '知识图谱结构由 Agent Skill 生成；你可以在这里编辑实体描述。',
     createEntity: {
       title: '知识图谱: 从选择创建实体',
       prompt: '输入实体名称',
@@ -530,11 +531,17 @@ export const zh = {
       fit: '适应窗口',
       refresh: '刷新'
     },
+    groups: {
+      title: '图谱分组',
+      framework: '框架',
+      module: '模块',
+      feature: '功能'
+    },
     loading: '加载知识图谱中...',
     emptyState: {
       title: '📊 知识图谱为空',
-      description: '请先创建实体和关系',
-      hint: '使用右键菜单 "Knowledge: Create Entity" 开始'
+      description: '请先让 Agent 生成框架层图谱',
+      hint: '安装并运行 VibeKnowledge 依赖图谱 Skill'
     },
     tooltip: {
       type: '类型',

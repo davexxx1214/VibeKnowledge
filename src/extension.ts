@@ -172,8 +172,6 @@ export async function activate(context: vscode.ExtensionContext) {
     );
     const knowledgeGraphService = new KnowledgeGraphService(
       entityService,
-      relationService,
-      observationService,
       agentGraphService
     );
     const agentSkillService = new AgentSkillService(context.extensionPath);
@@ -186,6 +184,8 @@ export async function activate(context: vscode.ExtensionContext) {
       observationService,
       knowledgeGraphService
     );
+    const showAgentManagedGraphNotice = () =>
+      vscode.window.showInformationMessage(t().commands.agentManagedStructure);
 
     const ragCommands = new RAGCommands(ragService, geminiClient);
 
@@ -244,7 +244,7 @@ export async function activate(context: vscode.ExtensionContext) {
         async () => {
           try {
             console.log('Executing: knowledge.createEntity');
-            await entityCommands.createEntityFromSelection();
+            await showAgentManagedGraphNotice();
             // 刷新树视图和 CodeLens
             treeDataProvider.refresh();
             codeLensProvider.refresh();
@@ -259,10 +259,10 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'knowledge.addObservation',
-        async (entityId?: string) => {
+        async () => {
           try {
             console.log('Executing: knowledge.addObservation');
-            await entityCommands.addObservationToEntity(entityId);
+            await showAgentManagedGraphNotice();
             // 刷新 CodeLens 显示更新的统计
             codeLensProvider.refresh();
           } catch (error) {
@@ -276,10 +276,10 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'knowledge.editObservation',
-        async (treeItem) => {
+        async () => {
           try {
             console.log('Executing: knowledge.editObservation');
-            await entityCommands.editObservation(treeItem);
+            await showAgentManagedGraphNotice();
             codeLensProvider.refresh();
           } catch (error) {
             console.error('Error in editObservation:', error);
@@ -326,7 +326,7 @@ export async function activate(context: vscode.ExtensionContext) {
         async () => {
           try {
             console.log('Executing: knowledge.addRelation');
-            await entityCommands.addRelation();
+            await showAgentManagedGraphNotice();
             // 刷新树视图和 CodeLens 显示新的关系
             treeDataProvider.refresh();
             codeLensProvider.refresh();
@@ -386,10 +386,10 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'knowledge.deleteEntity',
-        async (treeItem) => {
+        async () => {
           try {
             console.log('Executing: knowledge.deleteEntity');
-            await entityCommands.deleteEntity(treeItem);
+            await showAgentManagedGraphNotice();
             // 刷新树视图和 CodeLens
             treeDataProvider.refresh();
             codeLensProvider.refresh();
@@ -407,7 +407,7 @@ export async function activate(context: vscode.ExtensionContext) {
         async () => {
           try {
             console.log('Executing: knowledge.deleteRelation');
-            await entityCommands.deleteRelation();
+            await showAgentManagedGraphNotice();
             // 刷新树视图和 CodeLens
             treeDataProvider.refresh();
             codeLensProvider.refresh();
@@ -422,10 +422,10 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'knowledge.deleteRelationFromTree',
-        async (treeItem) => {
+        async () => {
           try {
             console.log('Executing: knowledge.deleteRelationFromTree');
-            await entityCommands.deleteRelationFromTree(treeItem);
+            await showAgentManagedGraphNotice();
             // 刷新树视图和 CodeLens
             treeDataProvider.refresh();
             codeLensProvider.refresh();
@@ -443,7 +443,7 @@ export async function activate(context: vscode.ExtensionContext) {
         async () => {
           try {
             console.log('Executing: knowledge.deleteObservation');
-            await entityCommands.deleteObservation();
+            await showAgentManagedGraphNotice();
             // 刷新树视图和 CodeLens
             treeDataProvider.refresh();
             codeLensProvider.refresh();
@@ -461,7 +461,7 @@ export async function activate(context: vscode.ExtensionContext) {
         async () => {
           try {
             console.log('Executing: knowledge.linkToEntity');
-            await entityCommands.linkToEntity();
+            await showAgentManagedGraphNotice();
             // 刷新树视图和 CodeLens 显示新的关系
             treeDataProvider.refresh();
             codeLensProvider.refresh();

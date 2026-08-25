@@ -80,17 +80,20 @@ describe('merged graph queries', () => {
     rmSync(workspaceRoot, { recursive: true, force: true });
   });
 
-  it('merges entities with manual records taking precedence', () => {
+  it('returns Agent entities and applies human description overrides', () => {
     const db = createDbStub();
     const results = searchMergedEntities(db, agentGraph, { limit: 100 });
 
     expect(results.map(({ name }) => name)).toEqual([
       'UserService',
-      'ManualOnly',
       'AuthService',
       'Logger'
     ]);
-    expect(results[0].source).toBe('manual');
+    expect(results[0]).toMatchObject({
+      source: 'agent',
+      description: 'manual description wins',
+      metadata: { descriptionSource: 'manual' }
+    });
     expect(results.filter(({ name }) => name === 'UserService')).toHaveLength(1);
     expect(results.find(({ name }) => name === 'AuthService')).toMatchObject({
       description: 'Human-authored Auth description',
@@ -104,18 +107,24 @@ describe('merged graph queries', () => {
         .filter(({ source }) => source === 'agent')
         .map(({ name }) => name)
     ).toEqual(['AuthService']);
+    expect(
+      searchMergedEntities(db, agentGraph, {
+        query: 'manual description wins',
+        limit: 100
+      }).map(({ name }) => name)
+    ).toEqual(['UserService']);
   });
 
-  it('merges relations with manual records taking precedence', () => {
+  it('returns only Agent-authored relations', () => {
     const db = createDbStub();
     const results = searchMergedRelations(db, agentGraph, { limit: 100 });
 
     expect(results).toHaveLength(2);
-    expect(results[0]).toMatchObject({ verb: 'uses', source: 'manual' });
+    expect(results[0]).toMatchObject({ verb: 'uses', source: 'agent' });
     expect(results[1]).toMatchObject({ verb: 'calls', source: 'agent' });
   });
 
-  it('reserves room for Agent matches in bounded merged queries', () => {
+  it('ignores legacy manual structure in graph queries', () => {
     const db = createDbStub();
     const manualResults = Array.from({ length: 25 }, (_, index) => ({
       id: `manual-${index}`,
@@ -133,41 +142,47 @@ describe('merged graph queries', () => {
 
     const results = searchMergedEntities(db, agentGraph, { limit: 20 });
 
-    expect(results).toHaveLength(20);
-    expect(results.some(({ source }) => source === 'manual')).toBe(true);
-    expect(results.some(({ source }) => source === 'agent')).toBe(true);
+    expect(results).toHaveLength(3);
+    expect(results.every(({ source }) => source === 'agent')).toBe(true);
   });
 
-  it('labels manual and Agent sources in formatted MCP output', () => {
+  it('labels Agent sources in formatted MCP output', () => {
     const db = createDbStub();
     const entities = searchMergedEntities(db, agentGraph, { limit: 100 });
     const relations = searchMergedRelations(db, agentGraph, { limit: 100 });
 
-    expect(formatEntityResults(entities)).toContain(
-      '来源：manual (graph.sqlite)'
-    );
+    expect(formatEntityResults(entities)).not.toContain('来源：manual');
     expect(formatEntityResults(entities)).toContain(
       '来源：agent (.vscode/.knowledge/agent-graph.json)'
     );
-    expect(formatRelationResults(relations)).toContain(
-      'Data Source: manual (graph.sqlite)'
-    );
+    expect(formatRelationResults(relations)).not.toContain('Data Source: manual');
     expect(formatRelationResults(relations)).toContain(
       'Data Source: agent (.vscode/.knowledge/agent-graph.json)'
     );
   });
 
-  it('reports one de-duplicated Knowledge Graph overview', () => {
+  it('reports one de-duplicated Agent Knowledge Graph overview', () => {
     const overview = getMergedOverview(createDbStub(), agentGraph);
 
     expect(overview).toMatchObject({
-      entityCount: 4,
+      entityCount: 3,
       relationCount: 2,
-      observationCount: 4,
+      observationCount: 0,
       lastUpdatedAt: '2026-08-21T01:02:03.000Z',
       generation: {
         generatedAt: '2026-08-21T01:02:03.000Z',
-        scope: null
+        scope: null,
+        groupCount: 1,
+        groups: [
+          {
+            key: 'framework',
+            name: 'Framework',
+            kind: 'framework',
+            order: 0,
+            entityCount: 3,
+            relationCount: 2
+          }
+        ]
       }
     });
   });

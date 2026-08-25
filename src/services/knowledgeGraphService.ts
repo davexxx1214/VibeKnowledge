@@ -1,7 +1,9 @@
-import type { AgentGraphService } from './agentGraph';
+import type {
+  AgentEntity,
+  AgentGraphGroupKind,
+  AgentGraphService,
+} from './agentGraph';
 import type { EntityService } from './entityService';
-import type { ObservationService } from './observationService';
-import type { RelationService } from './relationService';
 import type {
   Entity,
   EntityFilters,
@@ -32,19 +34,28 @@ export interface KnowledgeGraphSnapshot {
   relations: KnowledgeRelation[];
 }
 
+export type KnowledgeGraphGroupKind = AgentGraphGroupKind;
+
+export interface KnowledgeGraphGroup extends KnowledgeGraphSnapshot {
+  key: string;
+  name: string;
+  kind: KnowledgeGraphGroupKind;
+  order: number;
+  description?: string;
+  scope?: string;
+}
+
 /**
  * The single product-level Knowledge Graph.
  *
- * Agent output supplies refreshable structure. SQLite records and description
- * overrides supply human-authored knowledge. When both describe the same
- * symbol, the human record and its description win, while Agent-only edges are
- * remapped to the surviving entity.
+ * Agent output is the only structural source. SQLite stores human description
+ * overrides, which AgentGraphService reapplies by stable symbol key. The
+ * aggregate snapshot de-duplicates symbols repeated across independent groups;
+ * getGroups() intentionally retains those occurrences for visualization.
  */
 export class KnowledgeGraphService {
   constructor(
     private readonly entityService: EntityService,
-    private readonly relationService: RelationService,
-    private readonly observationService: ObservationService,
     private readonly agentGraphService: AgentGraphService
   ) {}
 
@@ -57,87 +68,30 @@ export class KnowledgeGraphService {
   }
 
   public getSnapshot(): KnowledgeGraphSnapshot {
-    const manualEntities = this.entityService.listEntities();
     const agentEntities = this.agentGraphService.listEntities();
-    const agentByIdentity = new Map(
-      agentEntities.map((entity) => [entityIdentity(entity), entity])
-    );
-    const finalIdByIdentity = new Map<string, string>();
-    const agentIdToIdentity = new Map<string, string>();
+    const legacyDescriptions = this.getLegacyDescriptions();
+    const finalEntityByKey = new Map<string, KnowledgeEntity>();
+    const finalIdByAgentId = new Map<string, string>();
     const entities: KnowledgeEntity[] = [];
 
     for (const agentEntity of agentEntities) {
-      agentIdToIdentity.set(agentEntity.id, entityIdentity(agentEntity));
-    }
-
-    // Human records appear first and remain authoritative for duplicate symbols.
-    for (const manualEntity of manualEntities) {
-      const identity = entityIdentity(manualEntity);
-      const matchingAgent = agentByIdentity.get(identity);
-      const hasManualDescription = typeof manualEntity.description === 'string';
-      const entity: KnowledgeEntity = {
-        ...manualEntity,
-        description: hasManualDescription
-          ? manualEntity.description
-          : matchingAgent?.description,
-        metadata: {
-          ...(matchingAgent?.metadata || {}),
-          ...(manualEntity.metadata || {}),
-          knowledgeOrigin: 'manual',
-          ...(matchingAgent ? { agentKey: matchingAgent.key } : {}),
-        },
-        origin: 'manual',
-        agentKey: matchingAgent?.key,
-      };
-      entities.push(entity);
-      finalIdByIdentity.set(identity, entity.id);
-    }
-
-    for (const agentEntity of agentEntities) {
-      const identity = entityIdentity(agentEntity);
-      if (finalIdByIdentity.has(identity)) {
+      const existing = finalEntityByKey.get(agentEntity.key);
+      if (existing) {
+        finalIdByAgentId.set(agentEntity.id, existing.id);
         continue;
       }
-      const entity: KnowledgeEntity = {
-        ...agentEntity,
-        metadata: {
-          ...(agentEntity.metadata || {}),
-          knowledgeOrigin: 'agent',
-        },
-        origin: 'agent',
-        agentKey: agentEntity.key,
-      };
+      const entity = this.toKnowledgeEntity(agentEntity, legacyDescriptions);
       entities.push(entity);
-      finalIdByIdentity.set(identity, entity.id);
+      finalEntityByKey.set(agentEntity.key, entity);
+      finalIdByAgentId.set(agentEntity.id, entity.id);
     }
 
-    const entityIds = new Set(entities.map((entity) => entity.id));
-    const relations: KnowledgeRelation[] = this.relationService
-      .getAllRelations()
-      .filter(
-        (relation) =>
-          entityIds.has(relation.sourceEntityId) &&
-          entityIds.has(relation.targetEntityId)
-      )
-      .map((relation) => ({
-        ...relation,
-        metadata: {
-          ...(relation.metadata || {}),
-          knowledgeOrigin: 'manual',
-        },
-        origin: 'manual',
-      }));
-    const relationKeys = new Set(relations.map(relationIdentity));
+    const relations: KnowledgeRelation[] = [];
+    const relationKeys = new Set<string>();
 
     for (const relation of this.agentGraphService.listRelations()) {
-      const sourceIdentity = agentIdToIdentity.get(relation.sourceEntityId);
-      const targetIdentity = agentIdToIdentity.get(relation.targetEntityId);
-      const sourceEntityId = sourceIdentity
-        ? finalIdByIdentity.get(sourceIdentity)
-        : undefined;
-      const targetEntityId = targetIdentity
-        ? finalIdByIdentity.get(targetIdentity)
-        : undefined;
+      const sourceEntityId = finalIdByAgentId.get(relation.sourceEntityId);
+      const targetEntityId = finalIdByAgentId.get(relation.targetEntityId);
       if (
         !sourceEntityId ||
         !targetEntityId ||
@@ -193,6 +147,35 @@ export class KnowledgeGraphService {
     return this.listEntities({ filePath });
   }
 
+  /**
+   * Return independent graphs for visualization. Agent groups intentionally
+   * retain duplicate symbols across modules/features; the aggregate snapshot
+   * continues to de-duplicate them for search, CodeLens, and exports.
+   */
+  public getGroups(): KnowledgeGraphGroup[] {
+    const agentGroups = this.agentGraphService.listGroups();
+    const legacyDescriptions = this.getLegacyDescriptions();
+    return agentGroups.map((group) => ({
+      key: group.key,
+      name: group.name,
+      kind: group.kind,
+      order: group.order,
+      description: group.description,
+      scope: group.scope,
+      entities: group.entities.map((agentEntity) =>
+        this.toKnowledgeEntity(agentEntity, legacyDescriptions)
+      ),
+      relations: group.relations.map((relation) => ({
+        ...relation,
+        metadata: {
+          ...(relation.metadata || {}),
+          knowledgeOrigin: 'agent',
+        },
+        origin: 'agent' as const,
+      })),
+    }));
+  }
+
   public findEntityAtLocation(
     filePath: string,
     line: number
@@ -211,9 +194,19 @@ export class KnowledgeGraphService {
   }
 
   public getEntity(entityId: string): KnowledgeEntity | null {
-    return (
-      this.getSnapshot().entities.find((entity) => entity.id === entityId) || null
+    const aggregateEntity = this.getSnapshot().entities.find(
+      (entity) => entity.id === entityId
     );
+    if (aggregateEntity) {
+      return aggregateEntity;
+    }
+    for (const group of this.getGroups()) {
+      const entity = group.entities.find((candidate) => candidate.id === entityId);
+      if (entity) {
+        return entity;
+      }
+    }
+    return null;
   }
 
   public listRelations(filters?: {
@@ -265,9 +258,8 @@ export class KnowledgeGraphService {
   }
 
   public getObservations(entityId: string): Observation[] {
-    return this.entityService.getEntity(entityId)
-      ? this.observationService.getObservations(entityId)
-      : [];
+    void entityId;
+    return [];
   }
 
   public updateDescription(
@@ -279,14 +271,8 @@ export class KnowledgeGraphService {
       return null;
     }
 
-    if (entity.origin === 'manual') {
-      if (!this.entityService.updateEntity(entity.id, { description })) {
-        return null;
-      }
-    } else {
-      if (!this.agentGraphService.setManualDescription(entity.id, description)) {
-        return null;
-      }
+    if (!this.agentGraphService.setManualDescription(entity.id, description)) {
+      return null;
     }
     return this.getEntity(entityId);
   }
@@ -299,7 +285,56 @@ export class KnowledgeGraphService {
     if (!this.agentGraphService.resetManualDescription(entity.id)) {
       return null;
     }
+    const identity = entityIdentity(entity);
+    for (const legacyEntity of this.entityService.listEntities()) {
+      if (
+        typeof legacyEntity.description === 'string' &&
+        entityIdentity(legacyEntity) === identity
+      ) {
+        this.entityService.updateEntity(legacyEntity.id, {
+          description: undefined,
+        });
+      }
+    }
     return this.getEntity(entityId);
+  }
+
+  /** Treat legacy manual entities as prose only, never as graph structure. */
+  private getLegacyDescriptions(): Map<string, string> {
+    const descriptions = new Map<string, string>();
+    for (const entity of this.entityService.listEntities()) {
+      if (typeof entity.description === 'string') {
+        descriptions.set(entityIdentity(entity), entity.description);
+      }
+    }
+    return descriptions;
+  }
+
+  private toKnowledgeEntity(
+    agentEntity: AgentEntity,
+    legacyDescriptions: ReadonlyMap<string, string>
+  ): KnowledgeEntity {
+    const hasStableKeyOverride =
+      agentEntity.metadata?.descriptionSource === 'manual';
+    const legacyDescription = hasStableKeyOverride
+      ? undefined
+      : legacyDescriptions.get(entityIdentity(agentEntity));
+    return {
+      ...agentEntity,
+      description: legacyDescription ?? agentEntity.description,
+      metadata: {
+        ...(agentEntity.metadata || {}),
+        knowledgeOrigin: 'agent',
+        ...(legacyDescription !== undefined
+          ? {
+              descriptionSource: 'manual',
+              legacyDescriptionOverride: true,
+            }
+          : {}),
+      },
+      origin: 'agent',
+      agentKey: agentEntity.key,
+    };
   }
 }
 

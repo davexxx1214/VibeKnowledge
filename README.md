@@ -2,7 +2,7 @@
 
 [English](./README.md) | [简体中文](./README_ZH.md)
 
-VibeKnowledge is a VS Code extension for building a project knowledge graph alongside the code it describes. It stores code entities, relationships, and maintainer notes in a workspace-local SQLite database, then exposes that context through VS Code, AI configuration files, and an optional MCP server.
+VibeKnowledge is a VS Code extension for maintaining an Agent-generated project knowledge graph alongside the code it describes. An Agent Skill creates evidence-backed framework, module, and feature graphs; maintainers can refine entity descriptions without manually rebuilding graph structure.
 
 VibeKnowledge is distributed as source code. Fork the repository to customize it, run it locally, or package your own VSIX.
 
@@ -12,16 +12,16 @@ https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 
 | Knowledge Graph | AI scenario selection |
 | --- | --- |
-| ![Manually maintained knowledge graph](presentation/snap4.png) | ![AI scenario selection](presentation/snap2.png) |
+| ![Knowledge graph](presentation/snap4.png) | ![AI scenario selection](presentation/snap2.png) |
 
 ## What it does
 
 | Area | Current capabilities |
 | --- | --- |
-| Knowledge Graph | Explore and edit human-authored and Agent-generated entities, relationships, and evidence in one graph. |
-| Agent generation | Install a project Agent Skill so an Agent can generate the graph first; maintainers can then add entities, relations, observations, and descriptions. |
-| Visualization | Explore the complete graph in one `vis-network` webview and jump back to source locations. |
-| AI context | Export graph data as Markdown or JSON, generate Cursor rules and GitHub Copilot instructions, and switch between built-in task scenarios. |
+| Knowledge Graph | Let the Agent own entity and relation structure while maintainers edit descriptions. |
+| Grouped generation | Generate a boundary-focused framework graph first, then add parallel module or feature groups incrementally. |
+| Visualization | Switch groups from a vertical list and render only the selected D3/SVG graph, then jump back to source locations. |
+| AI context | Keep the full audit report for humans and route Coding Agents to compact, on-demand group views. |
 | RAG | Index documents with Gemini File Search or a configurable OpenAI-compatible endpoint, then ask questions from the VS Code sidebar. |
 | MCP server | Query the same unified Knowledge Graph from Cursor, GitHub Copilot, or another MCP client. |
 | Graph sonification | Generate a Strudel pattern from graph structure and open it in an embedded Strudel player. This feature is experimental. |
@@ -31,9 +31,12 @@ VibeKnowledge stores its project data in:
 ```text
 <workspace>/.vscode/.knowledge/graph.sqlite
 <workspace>/.vscode/.knowledge/agent-graph.json
+<workspace>/.vscode/.knowledge/knowledge-graph.md
+<workspace>/.vscode/.knowledge/agent-context/index.md
+<workspace>/.vscode/.knowledge/agent-context/<group-key>.md
 ```
 
-`agent-graph.json` is the refreshable generated structure. `graph.sqlite` stores human entities, relations, observations, and human description overrides for Agent entities. The extension reads them as one Knowledge Graph. Human descriptions always win, so rerunning the Agent cannot overwrite edited prose.
+`agent-graph.json` is the version-2 generated source containing independent groups. `knowledge-graph.md` is the complete human audit report, while `agent-context/` contains compact entity/path/relation views for on-demand Agent navigation. `graph.sqlite` stores human description overrides and RAG data; it is not a second structural graph. Human descriptions always win, so rerunning the Agent cannot overwrite edited prose.
 
 ## Run from source
 
@@ -62,25 +65,17 @@ npm run watch
 
 ## Main workflows
 
-### Edit the Knowledge Graph
-
-1. Select code in the editor.
-2. Run **Knowledge: Create Entity from Selection** from the context menu or Command Palette.
-3. Add relationships and observations from the VibeKnowledge explorer, or right-click an entity and choose **Knowledge: Edit Entity Description**.
-4. Run **Knowledge: Visualize Graph** to inspect the graph.
-
-Manual observations work well for information that static analysis cannot recover, including architectural decisions, known risks, migration notes, and refactoring constraints.
-
-### Let an Agent generate the dependency graph
+### Generate and refine the Knowledge Graph
 
 1. Run **Knowledge: Install Dependency Graph Agent Skill**. The extension installs the skill under `.agents/skills/vibeknowledge-dependency-graph/` in the project.
-2. Ask an Agent Skills-compatible coding agent to generate or refresh the project dependency graph, or invoke `$vibeknowledge-dependency-graph` explicitly.
-3. The Agent reads the code and writes `.vscode/.knowledge/agent-graph.json` with stable entity keys, explicit relation direction, and file/line evidence, then runs the bundled validator.
-4. The extension watches that file and refreshes the explorer, editor `🧠 KG` hints, and any open graph view after it is saved.
+2. First ask an Agent Skills-compatible coding agent to generate the project Knowledge Graph, or invoke `$vibeknowledge-dependency-graph` explicitly. With no narrower request, the Skill creates the boundary-focused `framework` graph.
+3. Ask for a specific module or feature later. The Agent automatically names it, appends or refreshes that parallel group, and preserves every unrelated group. The same stable entity key may intentionally occur in several groups.
+4. The Agent validates `.vscode/.knowledge/agent-graph.json`, then regenerates the complete `.vscode/.knowledge/knowledge-graph.md` audit report and compact views under `.vscode/.knowledge/agent-context/`.
+5. Run **Knowledge: Visualize Graph**. Select a group on the left; only that group is simulated and rendered.
 
-The generated layer uses full-replacement semantics, so rerunning the skill removes stale generated relationships. It never edits `graph.sqlite`; human entities, relations, observations, and description overrides remain intact. Stable entity keys reconnect those descriptions after every run. See the [generated-layer schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md).
+The Agent replaces only the requested group's generated contents and never edits `graph.sqlite`. Stable entity keys reconnect human descriptions to every occurrence after each run. Legacy version-1 manifests remain readable and are treated as one framework group. See the [grouped schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md).
 
-File-backed Agent entities display their current description in a `🧠 KG` CodeLens above the source location. Click the hint to edit the description manually. The Agent can update its generated description on later Skill runs; once a human edits it, the human override wins until **Knowledge: Restore Agent Description** is used from the entity menu.
+File-backed entities display their current description in a `🧠 KG` CodeLens above the source location. Click the hint to edit it manually. The Agent can update generated prose on later Skill runs; once a human edits it, that override wins in every group until **Knowledge: Restore Agent Description** is used.
 
 ### Use RAG
 
@@ -107,7 +102,7 @@ npm run build
 node dist/index.js --workspace /path/to/your/project
 ```
 
-The target workspace must already contain a VibeKnowledge database. Run the VS Code extension in that workspace before starting the server. Use `node dist/index.js --help` for the available database and RAG options. The existing [MCP guide](./MCP_USAGE.md) contains Cursor and GitHub Copilot configuration examples in Chinese.
+The target workspace should contain the generated manifest and a VibeKnowledge database for description overrides or RAG. Run the VS Code extension and install the Skill in that workspace first. Use `node dist/index.js --help` for the available database and RAG options. The [MCP guide](./MCP_USAGE.md) contains Cursor and GitHub Copilot configuration examples in Chinese.
 
 ## Development
 

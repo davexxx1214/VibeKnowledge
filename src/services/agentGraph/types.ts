@@ -25,33 +25,74 @@ export interface AgentGraphRelationInput {
   evidence: AgentGraphEvidence[];
 }
 
-export interface AgentGraphDocument {
-  version: 1;
-  generatedAt: string;
+export type AgentGraphGroupKind = 'framework' | 'module' | 'feature';
+
+export interface AgentGraphGroupInput {
+  key: string;
+  name: string;
+  kind: AgentGraphGroupKind;
+  order: number;
+  description?: string;
   scope?: string;
   entities: AgentGraphEntityInput[];
   relations: AgentGraphRelationInput[];
 }
 
+export interface AgentGraphDocument {
+  version: 2;
+  generatedAt: string;
+  scope?: string;
+  groups: AgentGraphGroupInput[];
+}
+
 export interface AgentEntity extends Entity {
   key: string;
+  groupKey: string;
+  groupName: string;
+  groupKind: AgentGraphGroupKind;
+  groupOrder: number;
 }
 
 export interface AgentRelation extends Relation {
   sourceKey: string;
   targetKey: string;
+  groupKey: string;
+  groupName: string;
+  groupKind: AgentGraphGroupKind;
+  groupOrder: number;
 }
 
-export interface AgentGraphSnapshot {
-  generatedAt?: string;
+export interface AgentGraphGroupSnapshot {
+  key: string;
+  name: string;
+  kind: AgentGraphGroupKind;
+  order: number;
+  description?: string;
   scope?: string;
   entities: AgentEntity[];
   relations: AgentRelation[];
 }
 
+export interface AgentGraphSnapshot {
+  generatedAt?: string;
+  scope?: string;
+  groups: AgentGraphGroupSnapshot[];
+  entities: AgentEntity[];
+  relations: AgentRelation[];
+}
+
 export interface AgentGraphStats {
+  groupCount: number;
   entityCount: number;
   relationCount: number;
   generatedAt?: string;
   scope?: string;
+  groups: Array<{
+    key: string;
+    name: string;
+    kind: AgentGraphGroupKind;
+    order: number;
+    entityCount: number;
+    relationCount: number;
+  }>;
 }

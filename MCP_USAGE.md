@@ -130,14 +130,14 @@
 
 | 类型 | 名称 | 说明 |
 |------|------|------|
-| Resource | `knowledge://overview` | 返回统一知识图谱去重后的实体/关系统计、生成时间及最后更新时间 |
+| Resource | `knowledge://overview` | 返回知识图谱去重后的实体/关系统计、生成时间，以及框架/模块/功能分组摘要 |
 | Tool | `search_entities` | 根据名称、类型、文件路径或描述搜索统一知识图谱中的实体 |
 | Tool | `search_observations` | 检索观察记录，可按关键字或实体 ID 过滤 |
 | Tool | `knowledge://relations` | 列出统一知识图谱关系，可按动词、源/目标实体筛选；Agent 生成关系附带代码证据 |
 | Prompt | `get_observations` | 引导 AI 调用 `search_observations` 工具 |
 | Tool | `ask_question` | 自动根据 `rag.mode` 调用本地或云端 RAG，并附带引用文件 |
 
-Agent 生成层来自目标工作区的 `.vscode/.knowledge/agent-graph.json`。可以先在 VS Code 中运行 **Knowledge: Install Dependency Graph Agent Skill**，再让支持 Agent Skills 的编码 Agent 生成或更新该文件。扩展把生成层与 SQLite 中的人工数据呈现为一张知识图谱；人工描述覆盖保存在 SQLite 中，并在 MCP 查询时优先。MCP Server 全程只读，因此不会与扩展的 SQL.js 保存流程争抢数据库写入。
+知识图谱结构来自目标工作区的 `.vscode/.knowledge/agent-graph.json`。可以先在 VS Code 中运行 **Knowledge: Install Dependency Graph Agent Skill**，让 Agent 先生成框架层，再按模块或功能追加平行分组；Skill 同时生成 `.vscode/.knowledge/knowledge-graph.md` 汇总文档。同一实体可以出现在多个分组中，MCP 搜索结果会标明所属分组，而总览统计会按稳定实体去重。SQLite 只提供人工描述覆盖和 RAG 数据，不再提供实体或关系结构；人工描述在 MCP 查询时始终优先。MCP Server 全程只读，因此不会与扩展的 SQL.js 保存流程争抢数据库写入。
 
 ### `ask_question` 使用示例
 

@@ -64,7 +64,7 @@ VibeKnowledge/
 │   │   │   └── 📄 ragCommands.ts    # RAG 相关命令
 │   │   │
 │   │   └── 📂 webview/              # Webview 组件
-│   │       ├── 📄 graphVisualization.ts # 图谱可视化（vis-network）
+│   │       ├── 📄 graphView.ts          # 分组图谱可视化（D3/SVG）
 │   │       └── 📂 components/       # Webview 组件
 │   │
 │   ├── 📂 i18n/                     # 🌐 国际化
@@ -135,8 +135,9 @@ VibeKnowledge/
 
 ```
 <工作区>/.vscode/.knowledge/
-├── graph.sqlite              # 人工数据、描述覆盖与 RAG 索引
-└── agent-graph.json          # Agent Skill 生成的可刷新结构层
+├── graph.sqlite              # 人工描述覆盖与 RAG 索引
+├── agent-graph.json          # Agent Skill 生成的 v2 分组结构
+└── knowledge-graph.md        # 所有分组的生成式汇总文档
 
 <工作区>/Knowledge/           # RAG 文档知识库
 ├── *.md                      # Markdown 文档
@@ -174,7 +175,7 @@ VibeKnowledge/
 - **`ragCommands.ts`** - RAG 问答、索引管理
 
 ### 可视化层
-- **`graphVisualization.ts`** - 交互式图谱可视化（vis-network）
+- **`graphView.ts`** - 左侧分组切换、单分组 D3/SVG 可视化与跳转
 
 ### 国际化层
 - **`i18nService.ts`** - 国际化服务（中英文切换）
@@ -191,16 +192,16 @@ VibeKnowledge/
 - **`dist/extension.js`** - 打包后的插件代码（esbuild 打包，所有模块合并）
 - **`dist/extension.js.map`** - Source Map（用于调试）
 
-**打包体积**：约 2MB（包含 vis-network 和依赖）
+**打包体积**：由当前 D3、SQLite 与扩展运行时依赖决定
 
 ---
 
 ## ✨ 核心功能模块
 
 ### 1️⃣ 知识图谱管理
-- ✅ 实体、关系、观察记录的完整 CRUD
+- ✅ Agent 负责实体与关系结构，人工维护描述覆盖
 - ✅ SQLite 本地持久化存储
-- ✅ 交互式可视化图谱（vis-network）
+- ✅ 按框架/模块/功能切换的 D3/SVG 单分组图谱
 - ✅ 完整的 VS Code UI 集成
 
 ### 2️⃣ AI 协同功能
@@ -242,7 +243,7 @@ VibeKnowledge/
 | **VS Code Extension API** | 插件框架 |
 | **TypeScript (Strict)** | 开发语言 |
 | **sql.js (SQLite)** | 本地数据库 |
-| **vis-network** | 图谱可视化 |
+| **D3** | 分组图谱布局与 SVG 可视化 |
 | **@google/genai** | Gemini API |
 | **esbuild** | 快速构建 |
 
@@ -263,7 +264,7 @@ VibeKnowledge/
 ### 生产依赖
 - **`@google/genai`** - Gemini API SDK
 - **`sql.js`** - SQLite WebAssembly
-- **`vis-network`** - 图谱可视化
+- **`d3`** - 图谱布局与 SVG 可视化
 
 ### 开发依赖
 - **`typescript`** - TypeScript 编译器

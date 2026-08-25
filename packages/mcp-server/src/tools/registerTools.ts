@@ -307,7 +307,11 @@ export function formatEntityResults(results: MergedEntityRecord[]): string {
         entity.source === 'manual'
           ? 'manual (graph.sqlite)'
           : 'agent (.vscode/.knowledge/agent-graph.json)';
-      return `${index + 1}. [${entity.type}] ${entity.name}\n    位置：${location}\n    来源：${source}\n    更新时间：${updatedAt}${description}`;
+      const group =
+        entity.source === 'agent'
+          ? `\n    分组：${entity.groupName} (${entity.groupKind}, ${entity.groupKey})`
+          : '';
+      return `${index + 1}. [${entity.type}] ${entity.name}\n    位置：${location}\n    来源：${source}${group}\n    更新时间：${updatedAt}${description}`;
     })
     .join('\n\n');
 }
@@ -347,7 +351,11 @@ export function formatRelationResults(results: MergedRelationRecord[]): string {
               .map(formatEvidence)
               .join('; ')}`
           : '';
-      return `${index + 1}. ${relation.sourceName} [${relation.sourceType}] --${relation.verb}--> ${relation.targetName} [${relation.targetType}]\n    Source: ${relation.sourceFilePath}\n    Target: ${relation.targetFilePath}\n    Data Source: ${source}\n    Created At: ${createdAt}${description}${evidence}`;
+      const group =
+        relation.source === 'agent'
+          ? `\n    Group: ${relation.groupName} (${relation.groupKind}, ${relation.groupKey})`
+          : '';
+      return `${index + 1}. ${relation.sourceName} [${relation.sourceType}] --${relation.verb}--> ${relation.targetName} [${relation.targetType}]\n    Source: ${relation.sourceFilePath}\n    Target: ${relation.targetFilePath}\n    Data Source: ${source}${group}\n    Created At: ${createdAt}${description}${evidence}`;
     })
     .join('\n\n');
 }

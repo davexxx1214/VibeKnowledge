@@ -1,128 +1,318 @@
 import { describe, expect, it, vi } from 'vitest';
 import { KnowledgeGraphService } from './knowledgeGraphService';
-import type { Entity, Relation } from '../utils/types';
-import type { AgentEntity, AgentRelation } from './agentGraph';
+import type { EntityService } from './entityService';
+import type { Entity } from '../utils/types';
+import type {
+  AgentEntity,
+  AgentGraphGroupSnapshot,
+  AgentGraphService,
+  AgentRelation,
+} from './agentGraph';
 
 describe('KnowledgeGraphService', () => {
-  it('returns one de-duplicated graph and remaps Agent relations', () => {
-    const manualEntities: Entity[] = [entity('manual-a', 'A', 'src/a.ts', undefined)];
-    const agentEntities: AgentEntity[] = [
-      agentEntity('agent-a', 'key-a', 'A', 'src/a.ts', 'Agent A'),
-      agentEntity('agent-b', 'key-b', 'B', 'src/b.ts', 'Agent B'),
+  it('builds an Agent-only aggregate and de-duplicates repeated group symbols', () => {
+    const frameworkA = agentEntity('framework-a', 'key-a', 'A', 'src/a.ts');
+    const frameworkB = agentEntity('framework-b', 'key-b', 'B', 'src/b.ts');
+    const checkoutA = agentEntity(
+      'checkout-a',
+      'key-a',
+      'A',
+      'src/a.ts',
+      checkoutGroup
+    );
+    const checkoutB = agentEntity(
+      'checkout-b',
+      'key-b',
+      'B',
+      'src/b.ts',
+      checkoutGroup
+    );
+    const relations = [
+      agentRelation('framework-relation', frameworkA, frameworkB),
+      agentRelation('checkout-relation', checkoutA, checkoutB, checkoutGroup),
     ];
-    const agentRelations: AgentRelation[] = [
-      {
-        id: 'agent-relation',
-        sourceKey: 'key-a',
-        targetKey: 'key-b',
-        sourceEntityId: 'agent-a',
-        targetEntityId: 'agent-b',
-        verb: 'depends_on',
-        createdAt: 1,
-      },
+    const groups = [
+      group(frameworkGroup, [frameworkA, frameworkB], [relations[0]]),
+      group(checkoutGroup, [checkoutA, checkoutB], [relations[1]]),
     ];
-    const service = createService(manualEntities, [], agentEntities, agentRelations);
-
-    const snapshot = service.getSnapshot();
-    expect(snapshot.entities).toHaveLength(2);
-    expect(snapshot.entities[0]).toMatchObject({
-      id: 'manual-a',
-      description: 'Agent A',
-      origin: 'manual',
-    });
-    expect(snapshot.relations[0]).toMatchObject({
-      sourceEntityId: 'manual-a',
-      targetEntityId: 'agent-b',
-      origin: 'agent',
-    });
-  });
-
-  it('keeps a human description over regenerated Agent prose', () => {
-    const manual = entity('manual-a', 'A', 'src/a.ts', 'Human A');
-    const updateEntity = vi.fn((_id: string, updates: Partial<Entity>) => {
-      Object.assign(manual, updates);
-      return manual;
-    });
     const service = createService(
-      [manual],
-      [],
-      [agentEntity('agent-a', 'key-a', 'A', 'src/a.ts', 'Agent A v2')],
-      [],
-      updateEntity
+      [frameworkA, frameworkB, checkoutA, checkoutB],
+      relations,
+      groups
     );
 
-    expect(service.getEntity('manual-a')?.description).toBe('Human A');
-    expect(service.updateDescription('manual-a', 'Human A v2')?.description)
-      .toBe('Human A v2');
-    expect(updateEntity).toHaveBeenCalledWith('manual-a', {
-      description: 'Human A v2',
-    });
+    const snapshot = service.getSnapshot();
+    expect(snapshot.entities.map((entity) => entity.id)).toEqual([
+      'framework-a',
+      'framework-b',
+    ]);
+    expect(snapshot.entities.every((entity) => entity.origin === 'agent')).toBe(
+      true
+    );
+    expect(snapshot.relations).toEqual([
+      expect.objectContaining({
+        id: 'framework-relation',
+        sourceEntityId: 'framework-a',
+        targetEntityId: 'framework-b',
+        origin: 'agent',
+      }),
+    ]);
   });
 
-  it('finds Agent entities and relations from an editor location', () => {
-    const agentEntities: AgentEntity[] = [
-      agentEntity('agent-a', 'key-a', 'A', 'src/a.ts', 'Agent A'),
-      agentEntity('agent-b', 'key-b', 'B', 'src/b.ts', 'Agent B'),
+  it('keeps repeated symbols in independent visualization groups', () => {
+    const frameworkA = agentEntity('framework-a', 'key-a', 'A', 'src/a.ts');
+    const checkoutA = agentEntity(
+      'checkout-a',
+      'key-a',
+      'A',
+      'src/a.ts',
+      checkoutGroup
+    );
+    const checkout = agentEntity(
+      'checkout',
+      'key-checkout',
+      'Checkout',
+      'src/checkout.ts',
+      checkoutGroup
+    );
+    const groups = [
+      group(frameworkGroup, [frameworkA], []),
+      group(checkoutGroup, [checkoutA, checkout], []),
     ];
-    const agentRelations: AgentRelation[] = [
+    const service = createService(
+      [frameworkA, checkoutA, checkout],
+      [],
+      groups
+    );
+
+    expect(service.getGroups()).toMatchObject([
       {
-        id: 'agent-relation',
-        sourceKey: 'key-a',
-        targetKey: 'key-b',
-        sourceEntityId: 'agent-a',
-        targetEntityId: 'agent-b',
-        verb: 'calls',
-        createdAt: 1,
+        key: 'framework',
+        entities: [{ id: 'framework-a', origin: 'agent' }],
       },
-    ];
-    const service = createService([], [], agentEntities, agentRelations);
+      {
+        key: 'checkout',
+        entities: [
+          { id: 'checkout-a', origin: 'agent' },
+          { id: 'checkout', origin: 'agent' },
+        ],
+      },
+    ]);
+    expect(service.getEntity('checkout-a')?.name).toBe('A');
+  });
+
+  it('edits and resets descriptions through the Agent override store', () => {
+    const entity = agentEntity('framework-a', 'key-a', 'A', 'src/a.ts');
+    entity.description = 'Agent description';
+    const entities = [entity];
+    const groups = [group(frameworkGroup, entities, [])];
+    const setManualDescription = vi.fn((entityId: string, description: string) => {
+      const target = entities.find((candidate) => candidate.id === entityId);
+      if (!target) {
+        return null;
+      }
+      target.description = description;
+      return target;
+    });
+    const resetManualDescription = vi.fn((entityId: string) => {
+      const target = entities.find((candidate) => candidate.id === entityId);
+      if (!target) {
+        return null;
+      }
+      target.description = 'Agent description v2';
+      return target;
+    });
+    const service = createService(entities, [], groups, {
+      setManualDescription,
+      resetManualDescription,
+    });
+
+    expect(service.updateDescription('framework-a', 'Human description'))
+      .toMatchObject({ description: 'Human description', origin: 'agent' });
+    expect(setManualDescription).toHaveBeenCalledWith(
+      'framework-a',
+      'Human description'
+    );
+    expect(service.resetGeneratedDescription('framework-a')).toMatchObject({
+      description: 'Agent description v2',
+    });
+    expect(resetManualDescription).toHaveBeenCalledWith('framework-a');
+  });
+
+  it('uses legacy manual entities as descriptions without adding their structure', () => {
+    const agent = agentEntity('framework-a', 'key-a', 'A', 'src/a.ts');
+    const legacyA = legacyEntity('legacy-a', 'A', 'src/a.ts', 'Legacy prose');
+    const legacyOnly = legacyEntity(
+      'legacy-only',
+      'LegacyOnly',
+      'src/legacy.ts',
+      'Must not become a node'
+    );
+    const resetManualDescription = vi.fn(() => {
+      agent.description = 'Agent prose';
+      return agent;
+    });
+    const service = createService(
+      [agent],
+      [],
+      [group(frameworkGroup, [agent], [])],
+      {
+        legacyEntities: [legacyA, legacyOnly],
+        resetManualDescription,
+      }
+    );
+
+    expect(service.getSnapshot().entities).toEqual([
+      expect.objectContaining({
+        id: 'framework-a',
+        description: 'Legacy prose',
+        metadata: expect.objectContaining({
+          legacyDescriptionOverride: true,
+        }),
+      }),
+    ]);
+
+    expect(service.resetGeneratedDescription('framework-a')).toMatchObject({
+      description: 'Agent prose',
+    });
+    expect(legacyA.description).toBeUndefined();
+    expect(legacyOnly.description).toBe('Must not become a node');
+  });
+
+  it('finds Agent entities and related entities from an editor location', () => {
+    const a = agentEntity('framework-a', 'key-a', 'A', 'src/a.ts');
+    const b = agentEntity('framework-b', 'key-b', 'B', 'src/b.ts');
+    const relation = agentRelation('framework-relation', a, b);
+    const service = createService(
+      [a, b],
+      [relation],
+      [group(frameworkGroup, [a, b], [relation])]
+    );
 
     expect(service.getEntitiesByFile('SRC\\A.TS')).toMatchObject([
-      { id: 'agent-a', description: 'Agent A', origin: 'agent' },
+      { id: 'framework-a', origin: 'agent' },
     ]);
-    expect(service.findEntityAtLocation('./src/a.ts', 5)?.id).toBe('agent-a');
-    expect(service.getRelatedEntities('agent-a')).toMatchObject([
+    expect(service.findEntityAtLocation('./src/a.ts', 5)?.id).toBe(
+      'framework-a'
+    );
+    expect(service.getRelatedEntities('framework-a')).toMatchObject([
       {
         direction: 'outgoing',
-        entity: { id: 'agent-b' },
-        relation: { id: 'agent-relation', origin: 'agent' },
+        entity: { id: 'framework-b' },
+        relation: { id: 'framework-relation', origin: 'agent' },
       },
     ]);
+    expect(service.getObservations('framework-a')).toEqual([]);
   });
 });
 
+const frameworkGroup = {
+  key: 'framework',
+  name: 'Framework',
+  kind: 'framework' as const,
+  order: 0,
+};
+
+const checkoutGroup = {
+  key: 'checkout',
+  name: 'Checkout',
+  kind: 'feature' as const,
+  order: 1,
+};
+
 function createService(
-  manualEntities: Entity[],
-  manualRelations: Relation[],
-  agentEntities: AgentEntity[],
-  agentRelations: AgentRelation[],
-  updateEntity = vi.fn()
+  entities: AgentEntity[],
+  relations: AgentRelation[],
+  groups: AgentGraphGroupSnapshot[],
+  methods: {
+    setManualDescription?: ReturnType<typeof vi.fn>;
+    resetManualDescription?: ReturnType<typeof vi.fn>;
+    legacyEntities?: Entity[];
+  } = {}
 ): KnowledgeGraphService {
-  return new KnowledgeGraphService(
-    {
-      listEntities: vi.fn(() => manualEntities),
-      updateEntity,
-      getEntity: vi.fn(
-        (entityId: string) =>
-          manualEntities.find((entity) => entity.id === entityId) || null
-      ),
-    } as any,
-    { getAllRelations: vi.fn(() => manualRelations) } as any,
-    { getObservations: vi.fn(() => []) } as any,
-    {
-      listEntities: vi.fn(() => agentEntities),
-      listRelations: vi.fn(() => agentRelations),
-      setManualDescription: vi.fn(),
-      resetManualDescription: vi.fn(),
-    } as any
-  );
+  const legacyEntities = methods.legacyEntities || [];
+  const entityService = {
+    listEntities: vi.fn(() => legacyEntities),
+    updateEntity: vi.fn((entityId: string, updates: Partial<Entity>) => {
+      const target = legacyEntities.find((entity) => entity.id === entityId);
+      if (!target) {
+        return null;
+      }
+      Object.assign(target, updates);
+      return target;
+    }),
+  } as unknown as EntityService;
+  const agentGraphService = {
+    refresh: vi.fn(),
+    getLastError: vi.fn(),
+    listGroups: vi.fn(() => groups),
+    listEntities: vi.fn(() => entities),
+    listRelations: vi.fn(() => relations),
+    setManualDescription: methods.setManualDescription || vi.fn(),
+    resetManualDescription: methods.resetManualDescription || vi.fn(),
+  } as unknown as AgentGraphService;
+  return new KnowledgeGraphService(entityService, agentGraphService);
 }
 
-function entity(
+function group(
+  metadata: typeof frameworkGroup | typeof checkoutGroup,
+  entities: AgentEntity[],
+  relations: AgentRelation[]
+): AgentGraphGroupSnapshot {
+  return { ...metadata, entities, relations };
+}
+
+function agentEntity(
+  id: string,
+  key: string,
+  name: string,
+  filePath: string,
+  metadata: typeof frameworkGroup | typeof checkoutGroup = frameworkGroup
+): AgentEntity {
+  return {
+    id,
+    key,
+    groupKey: metadata.key,
+    groupName: metadata.name,
+    groupKind: metadata.kind,
+    groupOrder: metadata.order,
+    name,
+    filePath,
+    description: `${name} description`,
+    type: 'service',
+    startLine: 1,
+    endLine: 10,
+    createdAt: 1,
+    updatedAt: 1,
+  };
+}
+
+function agentRelation(
+  id: string,
+  source: AgentEntity,
+  target: AgentEntity,
+  metadata: typeof frameworkGroup | typeof checkoutGroup = frameworkGroup
+): AgentRelation {
+  return {
+    id,
+    sourceKey: source.key,
+    targetKey: target.key,
+    groupKey: metadata.key,
+    groupName: metadata.name,
+    groupKind: metadata.kind,
+    groupOrder: metadata.order,
+    sourceEntityId: source.id,
+    targetEntityId: target.id,
+    verb: 'depends_on',
+    createdAt: 1,
+  };
+}
+
+function legacyEntity(
   id: string,
   name: string,
   filePath: string,
-  description: string | undefined
+  description: string
 ): Entity {
   return {
     id,
@@ -135,14 +325,4 @@ function entity(
     createdAt: 1,
     updatedAt: 1,
   };
-}
-
-function agentEntity(
-  id: string,
-  key: string,
-  name: string,
-  filePath: string,
-  description: string
-): AgentEntity {
-  return { ...entity(id, name, filePath, description), key };
 }

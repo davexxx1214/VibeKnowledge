@@ -14,55 +14,90 @@ function createWorkspace(): string {
   return workspace;
 }
 
-function validDocument() {
+function entity(
+  key: string,
+  name: string,
+  filePath: string,
+  description?: string
+) {
   return {
-    version: 1,
-    generatedAt: '2026-08-21T12:00:00.000Z',
-    scope: 'src',
-    entities: [
+    key,
+    name,
+    type: 'service',
+    filePath,
+    startLine: 1,
+    endLine: 20,
+    ...(description ? { description } : {}),
+  };
+}
+
+function relation(source: string, target: string, filePath: string) {
+  return {
+    source,
+    target,
+    verb: 'depends_on',
+    description: `${source} needs ${target}`,
+    evidence: [
       {
-        key: 'src/a.ts#A',
-        name: 'A',
-        type: 'service',
-        filePath: 'src/a.ts',
-        startLine: 1,
-        endLine: 20,
-      },
-      {
-        key: 'src/b.ts#B',
-        name: 'B',
-        type: 'service',
-        filePath: 'src/b.ts',
-        startLine: 2,
-        endLine: 10,
+        filePath,
+        startLine: 5,
+        detail: 'Dependency is used here',
       },
     ],
-    relations: [
+  };
+}
+
+function validDocument() {
+  return {
+    version: 2,
+    generatedAt: '2026-08-21T12:00:00.000Z',
+    scope: 'src',
+    groups: [
       {
-        source: 'src/a.ts#A',
-        target: 'src/b.ts#B',
-        verb: 'depends_on',
-        description: 'A needs B',
-        evidence: [
-          {
-            filePath: 'src/a.ts',
-            startLine: 5,
-            detail: 'B is injected here',
-          },
+        key: 'framework',
+        name: 'Framework',
+        kind: 'framework',
+        order: 0,
+        description: 'Top-level application wiring',
+        entities: [
+          entity('src/a.ts#A', 'A', 'src/a.ts', 'Framework A'),
+          entity('src/b.ts#B', 'B', 'src/b.ts', 'Framework B'),
+        ],
+        relations: [relation('src/a.ts#A', 'src/b.ts#B', 'src/a.ts')],
+      },
+      {
+        key: 'checkout',
+        name: 'Checkout',
+        kind: 'feature',
+        order: 1,
+        scope: 'src/checkout',
+        entities: [
+          entity('src/a.ts#A', 'A', 'src/a.ts', 'Checkout A'),
+          entity('src/checkout.ts#Checkout', 'Checkout', 'src/checkout.ts'),
+        ],
+        relations: [
+          relation('src/checkout.ts#Checkout', 'src/a.ts#A', 'src/checkout.ts'),
         ],
       },
     ],
   };
 }
 
-function documentWithDescription(description: string) {
+function legacyDocument() {
   const document = validDocument();
   return {
-    ...document,
-    entities: document.entities.map((entity, index) =>
-      index === 0 ? { ...entity, description } : entity
-    ),
+    version: 1,
+    generatedAt: document.generatedAt,
+    scope: document.scope,
+    entities: document.groups[0].entities,
+    relations: document.groups[0].relations,
   };
+}
+
+function cloneDocument(): ReturnType<typeof validDocument> {
+  return JSON.parse(JSON.stringify(validDocument())) as ReturnType<
+    typeof validDocument
+  >;
 }
 
 afterEach(() => {
@@ -72,95 +107,193 @@ afterEach(() => {
 });
 
 describe('parseAgentGraphDocument', () => {
-  it('accepts a valid evidence-backed graph', () => {
+  it('accepts independent groups and allows the same entity key across groups', () => {
     const graph = parseAgentGraphDocument(validDocument());
-    expect(graph.entities).toHaveLength(2);
-    expect(graph.relations).toHaveLength(1);
+
+    expect(graph.groups).toHaveLength(2);
+    expect(graph.groups.map((group) => group.key)).toEqual([
+      'framework',
+      'checkout',
+    ]);
+    expect(graph.groups[0].entities).toHaveLength(2);
+    expect(graph.groups[1].entities).toContainEqual(
+      expect.objectContaining({ key: 'src/a.ts#A' })
+    );
+  });
+
+  it('normalizes a legacy v1 graph into the framework group', () => {
+    const graph = parseAgentGraphDocument(legacyDocument());
+
+    expect(graph.version).toBe(2);
+    expect(graph.groups).toEqual([
+      expect.objectContaining({
+        key: 'framework',
+        name: 'Framework',
+        kind: 'framework',
+        order: 0,
+      }),
+    ]);
   });
 
   it.each([
-    ['an unsupported verb', () => ({ ...validDocument(), relations: [{ ...validDocument().relations[0], verb: 'guesses' }] })],
-    ['a dangling endpoint', () => ({ ...validDocument(), relations: [{ ...validDocument().relations[0], target: 'missing' }] })],
-    ['a self relation', () => ({ ...validDocument(), relations: [{ ...validDocument().relations[0], target: 'src/a.ts#A' }] })],
-    ['missing evidence', () => ({ ...validDocument(), relations: [{ ...validDocument().relations[0], evidence: [] }] })],
-    ['a parent path', () => ({ ...validDocument(), entities: [{ ...validDocument().entities[0], filePath: '../a.ts' }] })],
-    ['a non-ISO timestamp', () => ({ ...validDocument(), generatedAt: '1' })],
+    [
+      'an unsupported verb',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].relations[0].verb = 'guesses';
+        return document;
+      },
+    ],
+    [
+      'a dangling endpoint',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].relations[0].target = 'missing';
+        return document;
+      },
+    ],
+    [
+      'a self relation',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].relations[0].target = 'src/a.ts#A';
+        return document;
+      },
+    ],
+    [
+      'missing evidence',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].relations[0].evidence = [];
+        return document;
+      },
+    ],
+    [
+      'a parent path',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].entities[0].filePath = '../a.ts';
+        return document;
+      },
+    ],
+    [
+      'a non-ISO timestamp',
+      () => ({ ...cloneDocument(), generatedAt: '1' }),
+    ],
+    [
+      'a graph without a framework group',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].kind = 'module';
+        return document;
+      },
+    ],
+    [
+      'a framework group that is not first',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].order = 2;
+        return document;
+      },
+    ],
+    [
+      'duplicate keys inside one group',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].entities[1].key = document.groups[0].entities[0].key;
+        return document;
+      },
+    ],
   ])('rejects %s', (_label, makeDocument) => {
     expect(() => parseAgentGraphDocument(makeDocument())).toThrow();
   });
 });
 
 describe('AgentGraphService', () => {
-  it('returns an empty graph when the manifest is absent', () => {
+  it('returns an empty grouped graph when the manifest is absent', () => {
     const service = new AgentGraphService(createWorkspace());
     expect(service.getStats()).toEqual({
+      groupCount: 0,
       entityCount: 0,
       relationCount: 0,
       generatedAt: undefined,
       scope: undefined,
+      groups: [],
     });
   });
 
-  it('loads stable entities, relations, metadata, and filters', () => {
+  it('loads ordered groups with stable, group-specific IDs and metadata', () => {
     const workspace = createWorkspace();
     const graphPath = join(workspace, '.vscode', '.knowledge', 'agent-graph.json');
     writeFileSync(graphPath, JSON.stringify(validDocument()), 'utf8');
 
     const first = new AgentGraphService(workspace);
     const second = new AgentGraphService(workspace);
-    const entity = first.listEntities({ name: 'a' })[0];
+    const duplicateEntities = first.listEntities({ name: 'A' });
     const relation = first.listRelations({ verb: 'depends_on' })[0];
 
-    expect(entity.id).toBe(second.listEntities({ name: 'A' })[0].id);
-    expect(relation.sourceEntityId).toBe(entity.id);
+    expect(first.listGroups().map((group) => group.key)).toEqual([
+      'framework',
+      'checkout',
+    ]);
+    expect(duplicateEntities).toHaveLength(2);
+    expect(duplicateEntities[0].id).not.toBe(duplicateEntities[1].id);
+    expect(duplicateEntities[0].id).toBe(
+      second.listEntities({ name: 'A' })[0].id
+    );
+    expect(relation.sourceEntityId).toBe(duplicateEntities[0].id);
     expect(relation.metadata?.evidence).toHaveLength(1);
-    expect(first.getRelationsByEntity(entity.id, 'outgoing')).toHaveLength(1);
+    expect(first.getRelationsByEntity(duplicateEntities[0].id, 'outgoing'))
+      .toHaveLength(1);
     expect(first.getStats()).toMatchObject({
-      entityCount: 2,
-      relationCount: 1,
+      groupCount: 2,
+      entityCount: 4,
+      relationCount: 2,
       scope: 'src',
+      groups: [
+        { key: 'framework', order: 0, entityCount: 2, relationCount: 1 },
+        { key: 'checkout', order: 1, entityCount: 2, relationCount: 1 },
+      ],
     });
   });
 
   it('does not expose a partially invalid graph', () => {
     const workspace = createWorkspace();
     const graphPath = join(workspace, '.vscode', '.knowledge', 'agent-graph.json');
-    const invalid = validDocument();
-    invalid.relations[0].target = 'missing';
+    const invalid = cloneDocument();
+    invalid.groups[0].relations[0].target = 'missing';
     writeFileSync(graphPath, JSON.stringify(invalid), 'utf8');
 
     const service = new AgentGraphService(workspace);
+    expect(service.listGroups()).toEqual([]);
     expect(service.listEntities()).toEqual([]);
     expect(service.listRelations()).toEqual([]);
     expect(service.getLastError()).toBeDefined();
   });
 
-  it('uses a refreshed Agent description when there is no human override', () => {
+  it('uses refreshed Agent descriptions when there is no human override', () => {
     const workspace = createWorkspace();
     const graphPath = join(workspace, '.vscode', '.knowledge', 'agent-graph.json');
-    const firstDocument = documentWithDescription('Agent description v1');
-    writeFileSync(graphPath, JSON.stringify(firstDocument), 'utf8');
+    writeFileSync(graphPath, JSON.stringify(validDocument()), 'utf8');
 
     const service = new AgentGraphService(workspace);
-    const entityId = service.listEntities({ name: 'A' })[0].id;
-
-    const refreshedDocument = {
-      ...documentWithDescription('Agent description v2'),
-      generatedAt: '2026-08-22T12:00:00.000Z',
-    };
-    writeFileSync(graphPath, JSON.stringify(refreshedDocument), 'utf8');
+    const entityId = service.listGroups()[0].entities[0].id;
+    const refreshed = cloneDocument();
+    refreshed.generatedAt = '2026-08-22T12:00:00.000Z';
+    refreshed.groups[0].entities[0].description = 'Framework A v2';
+    writeFileSync(graphPath, JSON.stringify(refreshed), 'utf8');
     service.refresh();
 
     expect(service.getEntity(entityId)).toMatchObject({
-      description: 'Agent description v2',
+      description: 'Framework A v2',
       metadata: {
-        generatedDescription: 'Agent description v2',
+        generatedDescription: 'Framework A v2',
         descriptionSource: 'agent',
       },
     });
   });
 
-  it('keeps a human description when the Agent regenerates the entity', () => {
+  it('applies one human description to every occurrence after regeneration', () => {
     const workspace = createWorkspace();
     const graphPath = join(workspace, '.vscode', '.knowledge', 'agent-graph.json');
     const descriptions = new Map<string, string>();
@@ -169,29 +302,34 @@ describe('AgentGraphService', () => {
       setDescription: (key, description) => descriptions.set(key, description),
       deleteDescription: (key) => descriptions.delete(key),
     };
-    const firstDocument = documentWithDescription('Agent description v1');
-    writeFileSync(graphPath, JSON.stringify(firstDocument), 'utf8');
+    writeFileSync(graphPath, JSON.stringify(validDocument()), 'utf8');
 
     const service = new AgentGraphService(workspace, overrides);
-    const entityId = service.listEntities({ name: 'A' })[0].id;
+    const entityId = service.listGroups()[0].entities[0].id;
     expect(service.setManualDescription(entityId, 'Human description')?.description)
       .toBe('Human description');
 
-    const regenerated = {
-      ...documentWithDescription('Agent description v2'),
-      generatedAt: '2026-08-22T12:00:00.000Z',
-    };
+    const regenerated = cloneDocument();
+    regenerated.generatedAt = '2026-08-22T12:00:00.000Z';
+    regenerated.groups[0].entities[0].description = 'Framework A v2';
+    regenerated.groups[1].entities[0].description = 'Checkout A v2';
     writeFileSync(graphPath, JSON.stringify(regenerated), 'utf8');
     service.refresh();
 
-    expect(service.getEntity(entityId)).toMatchObject({
-      description: 'Human description',
-      metadata: {
-        generatedDescription: 'Agent description v2',
-        descriptionSource: 'manual',
-      },
-    });
+    expect(service.listEntities({ name: 'A' })).toEqual([
+      expect.objectContaining({
+        description: 'Human description',
+        metadata: expect.objectContaining({ descriptionSource: 'manual' }),
+      }),
+      expect.objectContaining({
+        description: 'Human description',
+        metadata: expect.objectContaining({ descriptionSource: 'manual' }),
+      }),
+    ]);
+
     expect(service.resetManualDescription(entityId)?.description)
-      .toBe('Agent description v2');
+      .toBe('Framework A v2');
+    expect(service.listEntities({ name: 'A' }).map((item) => item.description))
+      .toEqual(['Framework A v2', 'Checkout A v2']);
   });
 });

@@ -36,6 +36,7 @@ export interface LanguagePack {
   };
 
   commands: {
+    agentManagedStructure: string;
     createEntity: CommandTranslations & {
       success: (name: string) => string;
       error: (error: string) => string;
@@ -336,6 +337,12 @@ export interface LanguagePack {
     toolbar: {
       fit: string;
       refresh: string;
+    };
+    groups: {
+      title: string;
+      framework: string;
+      module: string;
+      feature: string;
     };
     loading: string;
     emptyState: {

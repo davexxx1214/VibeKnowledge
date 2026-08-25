@@ -19,6 +19,10 @@ const nonEmptyString = z
   .string()
   .refine((value) => value.trim().length > 0, 'must be a non-empty string');
 const positiveLine = z.number().int().min(1);
+const scopeSchema = nonEmptyString.refine(
+  (value) => value === '.' || isValidRelativePath(value),
+  'must be . or a normalized workspace-relative path using /'
+);
 const entityTypeSchema = z.enum([
   'function',
   'class',
@@ -45,6 +49,7 @@ const relationVerbSchema = z.enum([
   'imports',
   'exports'
 ]);
+const groupKindSchema = z.enum(['framework', 'module', 'feature']);
 const relativePathSchema = nonEmptyString.refine(
   isValidRelativePath,
   'must be a normalized workspace-relative path using /'
@@ -77,82 +82,119 @@ const evidenceSchema = z
     { message: 'endLine must be greater than or equal to startLine' }
   );
 
-const relationSchema = z
+const relationSchema = z.object({
+  source: nonEmptyString,
+  target: nonEmptyString,
+  verb: relationVerbSchema,
+  evidence: z.array(evidenceSchema).min(1),
+  description: nonEmptyString.optional()
+});
+
+const groupContentsSchema = z.object({
+  entities: z.array(entitySchema),
+  relations: z.array(relationSchema)
+});
+
+const groupSchema = z
   .object({
-    source: nonEmptyString,
-    target: nonEmptyString,
-    verb: relationVerbSchema,
-    evidence: z.array(evidenceSchema).min(1),
-    description: nonEmptyString.optional()
+    key: nonEmptyString.refine(
+      (value) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value),
+      'must use lowercase kebab-case'
+    ),
+    name: nonEmptyString,
+    kind: groupKindSchema,
+    order: z.number().int().min(0),
+    description: nonEmptyString.optional(),
+    scope: scopeSchema.optional(),
+    entities: z.array(entitySchema),
+    relations: z.array(relationSchema)
+  })
+  .superRefine((group, context) => {
+    validateGroupContents(group, context, []);
   });
 
-const documentSchema = z
+const legacyDocumentSchema = z
   .object({
     version: z.literal(1),
     generatedAt: nonEmptyString.refine(
       isIsoTimestamp,
       'must be a valid ISO-8601 timestamp'
     ),
-    scope: nonEmptyString
-      .refine(
-        (value) => value === '.' || isValidRelativePath(value),
-        'must be . or a normalized workspace-relative path using /'
-      )
-      .optional(),
+    scope: scopeSchema.optional(),
     entities: z.array(entitySchema),
     relations: z.array(relationSchema)
   })
   .superRefine((document, context) => {
-    const entityKeys = new Set<string>();
-    document.entities.forEach((entity, index) => {
-      if (entityKeys.has(entity.key)) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['entities', index, 'key'],
-          message: 'duplicate entity key'
-        });
-      }
-      entityKeys.add(entity.key);
-    });
-
-    const relationKeys = new Set<string>();
-    document.relations.forEach((relation, index) => {
-      if (!entityKeys.has(relation.source)) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['relations', index, 'source'],
-          message: 'does not reference an entity key'
-        });
-      }
-      if (!entityKeys.has(relation.target)) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['relations', index, 'target'],
-          message: 'does not reference an entity key'
-        });
-      }
-      if (relation.source === relation.target) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['relations', index],
-          message: 'must not be a self relation'
-        });
-      }
-
-      const key = `${relation.source}\u0000${relation.target}\u0000${relation.verb}`;
-      if (relationKeys.has(key)) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['relations', index],
-          message: 'duplicate relation'
-        });
-      }
-      relationKeys.add(key);
-    });
+    validateGroupContents(document, context, []);
   });
+
+const groupedDocumentSchema = z
+  .object({
+    version: z.literal(2),
+    generatedAt: nonEmptyString.refine(
+      isIsoTimestamp,
+      'must be a valid ISO-8601 timestamp'
+    ),
+    scope: scopeSchema.optional(),
+    groups: z.array(groupSchema).min(1)
+  })
+  .superRefine((document, context) => {
+    const keys = new Set<string>();
+    const orders = new Set<number>();
+    document.groups.forEach((group, index) => {
+      if (keys.has(group.key)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['groups', index, 'key'],
+          message: 'duplicate group key'
+        });
+      }
+      if (orders.has(group.order)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['groups', index, 'order'],
+          message: 'duplicate group order'
+        });
+      }
+      keys.add(group.key);
+      orders.add(group.order);
+    });
+
+    const sortedGroups = [...document.groups].sort(
+      (left, right) => left.order - right.order
+    );
+    const frameworkGroups = sortedGroups.filter(
+      (group) => group.kind === 'framework'
+    );
+    const first = sortedGroups[0];
+    if (
+      frameworkGroups.length !== 1 ||
+      !first ||
+      first.key !== 'framework' ||
+      first.kind !== 'framework' ||
+      first.order !== 0
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['groups'],
+        message:
+          'must start with exactly one framework group using key framework and order 0'
+      });
+    }
+  });
+
+const documentSchema = z.union([legacyDocumentSchema, groupedDocumentSchema]);
 
 type ParsedEntity = z.infer<typeof entitySchema>;
 type ParsedRelation = z.infer<typeof relationSchema>;
+type ParsedGroup = z.infer<typeof groupSchema>;
+type AgentGraphGroupKind = z.infer<typeof groupKindSchema>;
+
+interface NormalizedDocument {
+  generatedAt: string;
+  scope?: string;
+  groups: ParsedGroup[];
+}
 
 export interface AgentGraphEvidence {
   filePath: string;
@@ -161,9 +203,22 @@ export interface AgentGraphEvidence {
   detail?: string;
 }
 
+export interface AgentGraphGroupOverview {
+  key: string;
+  name: string;
+  kind: AgentGraphGroupKind;
+  order: number;
+  entityCount: number;
+  relationCount: number;
+}
+
 export interface AgentGraphEntityRecord extends EntityRecord {
   source: 'agent';
   key: string;
+  groupKey: string;
+  groupName: string;
+  groupKind: AgentGraphGroupKind;
+  groupOrder: number;
   generatedAt: string;
 }
 
@@ -171,41 +226,42 @@ export interface AgentGraphRelationRecord extends RelationRecord {
   source: 'agent';
   sourceKey: string;
   targetKey: string;
+  groupKey: string;
+  groupName: string;
+  groupKind: AgentGraphGroupKind;
+  groupOrder: number;
   evidence: AgentGraphEvidence[];
   description: string | null;
   generatedAt: string;
 }
 
 export interface AgentGraphOverview {
+  groupCount: number;
   entityCount: number;
   relationCount: number;
   generatedAt: string | null;
   scope: string | null;
+  groups: AgentGraphGroupOverview[];
 }
 
 interface LoadedAgentGraph {
   generatedAt: string;
   scope: string | null;
+  groups: AgentGraphGroupOverview[];
   entities: AgentGraphEntityRecord[];
   relations: AgentGraphRelationRecord[];
 }
 
 const EMPTY_OVERVIEW: AgentGraphOverview = {
+  groupCount: 0,
   entityCount: 0,
   relationCount: 0,
   generatedAt: null,
-  scope: null
+  scope: null,
+  groups: []
 };
 
-/**
- * Read-only view of the graph generated by an agent skill.
- *
- * The file is parsed on every public operation so a running MCP process sees a
- * newly generated graph without being restarted. A missing, unreadable, or
- * structurally invalid file behaves like an empty graph. Validation is atomic:
- * one invalid entity, relation, endpoint, or evidence item hides the whole
- * sidecar rather than exposing a misleading partial graph.
- */
+/** Read-only view of the grouped graph generated by the Agent Skill. */
 export class AgentGraphStore {
   readonly filePath: string;
 
@@ -216,14 +272,16 @@ export class AgentGraphStore {
   getOverview(): AgentGraphOverview {
     const graph = this.load();
     if (!graph) {
-      return { ...EMPTY_OVERVIEW };
+      return { ...EMPTY_OVERVIEW, groups: [] };
     }
 
     return {
+      groupCount: graph.groups.length,
       entityCount: graph.entities.length,
       relationCount: graph.relations.length,
       generatedAt: graph.generatedAt,
-      scope: graph.scope
+      scope: graph.scope,
+      groups: graph.groups
     };
   }
 
@@ -261,6 +319,7 @@ export class AgentGraphStore {
           !includesNormalized(entity.name, query) &&
           !includesNormalized(entity.key, query) &&
           !includesNormalized(entity.filePath, query) &&
+          !includesNormalized(entity.groupName, query) &&
           !includesNormalized(entity.description ?? '', query)
         ) {
           return false;
@@ -331,32 +390,134 @@ export class AgentGraphStore {
       return null;
     }
 
-    const generatedAt = documentResult.data.generatedAt;
-    const generatedAtTimestamp = Date.parse(generatedAt);
-    const entities = documentResult.data.entities.map((entity) =>
-      toEntityRecord(entity, generatedAt, generatedAtTimestamp)
-    );
-    const entityRecordsByKey = new Map(
-      entities.map((entity) => [entity.key, entity])
-    );
+    const document = normalizeDocument(documentResult.data);
+    const generatedAtTimestamp = Date.parse(document.generatedAt);
+    const entities: AgentGraphEntityRecord[] = [];
+    const relations: AgentGraphRelationRecord[] = [];
+    const groups: AgentGraphGroupOverview[] = [];
 
-    const relations = documentResult.data.relations.map((relation) =>
-      toRelationRecord(
-        relation,
-        entityRecordsByKey.get(relation.source)!,
-        entityRecordsByKey.get(relation.target)!,
-        generatedAt,
-        generatedAtTimestamp
-      )
-    );
+    for (const group of document.groups) {
+      const groupEntities = group.entities.map((entity) =>
+        toEntityRecord(entity, group, document.generatedAt, generatedAtTimestamp)
+      );
+      const entityRecordsByKey = new Map(
+        groupEntities.map((entity) => [entity.key, entity])
+      );
+      const groupRelations = group.relations.map((relation) =>
+        toRelationRecord(
+          relation,
+          entityRecordsByKey.get(relation.source)!,
+          entityRecordsByKey.get(relation.target)!,
+          group,
+          document.generatedAt,
+          generatedAtTimestamp
+        )
+      );
+
+      entities.push(...groupEntities);
+      relations.push(...groupRelations);
+      groups.push({
+        key: group.key,
+        name: group.name,
+        kind: group.kind,
+        order: group.order,
+        entityCount: groupEntities.length,
+        relationCount: groupRelations.length
+      });
+    }
 
     return {
-      generatedAt,
-      scope: documentResult.data.scope ?? null,
+      generatedAt: document.generatedAt,
+      scope: document.scope ?? null,
+      groups,
       entities,
       relations
     };
   }
+}
+
+function validateGroupContents(
+  group: z.infer<typeof groupContentsSchema>,
+  context: z.RefinementCtx,
+  pathPrefix: Array<string | number>
+): void {
+  const entityKeys = new Set<string>();
+  group.entities.forEach((entity, index) => {
+    if (entityKeys.has(entity.key)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [...pathPrefix, 'entities', index, 'key'],
+        message: 'duplicate entity key'
+      });
+    }
+    entityKeys.add(entity.key);
+  });
+
+  const relationKeys = new Set<string>();
+  group.relations.forEach((relation, index) => {
+    if (!entityKeys.has(relation.source)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [...pathPrefix, 'relations', index, 'source'],
+        message: 'does not reference an entity key in the same group'
+      });
+    }
+    if (!entityKeys.has(relation.target)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [...pathPrefix, 'relations', index, 'target'],
+        message: 'does not reference an entity key in the same group'
+      });
+    }
+    if (relation.source === relation.target) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [...pathPrefix, 'relations', index],
+        message: 'must not be a self relation'
+      });
+    }
+
+    const key = `${relation.source}\u0000${relation.target}\u0000${relation.verb}`;
+    if (relationKeys.has(key)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [...pathPrefix, 'relations', index],
+        message: 'duplicate relation'
+      });
+    }
+    relationKeys.add(key);
+  });
+}
+
+function normalizeDocument(
+  document: z.infer<typeof documentSchema>
+): NormalizedDocument {
+  if (document.version === 2) {
+    return {
+      generatedAt: document.generatedAt,
+      scope: document.scope,
+      groups: [...document.groups].sort(
+        (left, right) =>
+          left.order - right.order || left.name.localeCompare(right.name)
+      )
+    };
+  }
+
+  return {
+    generatedAt: document.generatedAt,
+    scope: document.scope,
+    groups: [
+      {
+        key: 'framework',
+        name: 'Framework',
+        kind: 'framework',
+        order: 0,
+        scope: document.scope,
+        entities: document.entities,
+        relations: document.relations
+      }
+    ]
+  };
 }
 
 function applyDescriptionOverrides(
@@ -385,19 +546,30 @@ function applyDescriptionOverrides(
 
 function toEntityRecord(
   entity: ParsedEntity,
+  group: ParsedGroup,
   generatedAt: string,
   generatedAtTimestamp: number
 ): AgentGraphEntityRecord {
   return {
-    id: stableId('entity', entity.key),
+    id: stableId('entity', `${group.key}\u0000${entity.key}`),
     key: entity.key,
+    groupKey: group.key,
+    groupName: group.name,
+    groupKind: group.kind,
+    groupOrder: group.order,
     name: entity.name,
     type: entity.type,
     filePath: entity.filePath,
     startLine: entity.startLine,
     endLine: entity.endLine,
     description: entity.description ?? null,
-    metadata: { agentGraphKey: entity.key },
+    metadata: {
+      agentGraphKey: entity.key,
+      groupKey: group.key,
+      groupName: group.name,
+      groupKind: group.kind,
+      groupOrder: group.order
+    },
     createdAt: generatedAtTimestamp,
     updatedAt: generatedAtTimestamp,
     generatedAt,
@@ -409,13 +581,14 @@ function toRelationRecord(
   relation: ParsedRelation,
   sourceEntity: AgentGraphEntityRecord,
   targetEntity: AgentGraphEntityRecord,
+  group: ParsedGroup,
   generatedAt: string,
   generatedAtTimestamp: number
 ): AgentGraphRelationRecord {
   return {
     id: stableId(
       'relation',
-      `${relation.source}\u0000${relation.target}\u0000${relation.verb}`
+      `${group.key}\u0000${relation.source}\u0000${relation.target}\u0000${relation.verb}`
     ),
     verb: relation.verb,
     createdAt: generatedAtTimestamp,
@@ -429,6 +602,10 @@ function toRelationRecord(
     targetName: targetEntity.name,
     targetType: targetEntity.type,
     targetFilePath: targetEntity.filePath,
+    groupKey: group.key,
+    groupName: group.name,
+    groupKind: group.kind,
+    groupOrder: group.order,
     evidence: relation.evidence,
     description: relation.description ?? null,
     generatedAt,

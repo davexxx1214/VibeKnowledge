@@ -2,6 +2,8 @@
 
 > Complete demo based on [NestJS RealWorld Example App](https://github.com/lujakob/nestjs-realworld-example-app)
 
+> In the current version, the Agent Skill is the only source of entity and relation structure; maintainers edit descriptions only. Part 1 is retained as a legacy manual-graph demo. Use the grouped Agent workflow in Part 2 for current builds.
+
 ---
 
 ## 📋 Table of Contents
@@ -886,7 +888,7 @@ ArticleService ────⚠️ uses────⤴
 
 ---
 
-### Part 2: Agent Generation, Then Human Editing (3 minutes) 🆕
+### Part 2: Grouped Agent Generation and Human Description Editing (3 minutes) 🆕
 
 > Let a coding Agent understand implementation semantics, select high-value direct dependencies, and cite precise code evidence.
 
@@ -898,29 +900,30 @@ ArticleService ────⚠️ uses────⤴
 3. Confirm .agents/skills/vibeknowledge-dependency-graph/ exists
 ```
 
-The command installs the Skill bundled with VibeKnowledge. It generates only the refreshable structure and does not modify human-authored data.
+The command installs the Skill bundled with VibeKnowledge. It owns all entity and relation structure and never modifies human description overrides in SQLite.
 
 #### 2.2 Ask an Agent to Generate Relations (1 minute)
 
 In an Agent Skills-compatible coding agent, ask:
 
 ```text
-$vibeknowledge-dependency-graph generate the dependency knowledge graph for this project
+$vibeknowledge-dependency-graph generate the Knowledge Graph for this project
 ```
 
-The Agent reads the code and writes `.vscode/.knowledge/agent-graph.json`. Every relation must have a supported direction, verb, and at least one source-file evidence location. The bundled validator also rejects missing files and out-of-range evidence lines.
+With no narrower scope, the first run creates the `framework` call graph. Later, ask for a named module or feature; the Agent assigns a stable group name/key, updates only that peer group, and preserves the others. It writes `.vscode/.knowledge/agent-graph.json`, validates every evidence location, and renders the all-group aggregate at `.vscode/.knowledge/knowledge-graph.md`. The same stable entity key may intentionally occur in several groups.
 
 #### 2.3 Review and Edit the Knowledge Graph (1 minute)
 
 ```text
 1. Run "Knowledge: Visualize Graph"
-2. Review the single unified Knowledge Graph
-3. Hover generated edges to inspect descriptions and evidence; double-click nodes to open source
-4. Agent entities show their descriptions in `🧠 KG` above the source; click the hint to edit it manually
-5. You can also right-click an entity and choose "Knowledge: Edit Entity Description" to add human prose
+2. Select Framework, a module, or a feature from the vertical list on the left
+3. Review only the selected graph; switching stops the previous layout and animation
+4. Hover generated edges to inspect descriptions and evidence; double-click nodes to open source
+5. Entities show their descriptions in `🧠 KG` above the source; click the hint to edit it manually
+6. You can also right-click an entity and choose "Knowledge: Edit Entity Description" to add human prose
 ```
 
-Rerunning the Skill replaces only the generated structure, removing stale relationships while preserving human entities, relations, observations, and description overrides.
+Rerunning the Skill replaces only the target group's generated contents. Human description overrides remain authoritative and apply to every occurrence of the same stable entity key.
 
 ---
 
