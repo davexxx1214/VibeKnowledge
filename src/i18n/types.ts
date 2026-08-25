@@ -140,27 +140,21 @@ export interface LanguagePack {
       openSkill: string;
       error: (error: string) => string;
     };
+    editEntityDescription: {
+      title: string;
+      prompt: (name: string) => string;
+      placeholder: string;
+      selectEntity: string;
+      success: (name: string) => string;
+      resetSuccess: (name: string) => string;
+      error: (name: string) => string;
+    };
     generateCursorRules: CommandTranslations & {
       success: (fileName: string) => string;
       error: (error: string) => string;
       noWorkspace: string;
       openFile: string;
       showInFolder: string;
-    };
-    selectGraphSource: {
-      title: string;
-      manual: {
-        label: string;
-        description: string;
-      };
-      agent: {
-        label: string;
-        description: string;
-      };
-      merged: {
-        label: string;
-        description: string;
-      };
     };
     generateCopilotInstructions: CommandTranslations & {
       success: (fileName: string) => string;
@@ -362,17 +356,12 @@ export interface LanguagePack {
 
   agentGraph: {
     treeView: {
-      manualGraph: string;
-      agentGraph: string;
       entities: string;
       relations: string;
       evidence: string;
       invalidManifest: string;
     };
     graphView: {
-      manualGraph: string;
-      agentGraph: string;
-      mergedView: string;
       source: string;
       humanSource: string;
       agentSource: string;

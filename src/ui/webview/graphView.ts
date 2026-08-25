@@ -1,40 +1,26 @@
 import * as vscode from 'vscode';
 import * as crypto from 'crypto';
-import { EntityService } from '../../services/entityService';
-import { RelationService } from '../../services/relationService';
-import { ObservationService } from '../../services/observationService';
-import { AgentGraphService } from '../../services/agentGraph';
+import { KnowledgeGraphService } from '../../services/knowledgeGraphService';
 import { MusicGeneratorService } from '../../services/musicGenerator';
 import { StrudelView } from './strudelView';
 import { t } from '../../i18n/i18nService';
-
-/**
- * 图谱视图模式
- */
-export type GraphViewMode = 'manual' | 'agent' | 'merged';
 
 /**
  * 图谱可视化 Webview
  */
 export class GraphView {
     public static currentPanel: GraphView | undefined;
-    private static _agentGraphService: AgentGraphService | undefined;
+    private static _knowledgeGraphService: KnowledgeGraphService | undefined;
 
     private readonly _panel: vscode.WebviewPanel;
     private readonly _extensionUri: vscode.Uri;
-    private readonly _entityService: EntityService;
-    private readonly _relationService: RelationService;
-    private readonly _observationService: ObservationService;
     private readonly _musicGenerator: MusicGeneratorService;
     private _disposables: vscode.Disposable[] = [];
-    private _currentMode: GraphViewMode = 'manual';
     private _cachedMusicCode: string = '';
 
-    /**
-     * 设置 Agent 图谱服务（用于 agent/merged 视图）
-     */
-    public static setAgentGraphService(service: AgentGraphService): void {
-        GraphView._agentGraphService = service;
+    /** Set the single Knowledge Graph used by the visualization. */
+    public static setKnowledgeGraphService(service: KnowledgeGraphService): void {
+        GraphView._knowledgeGraphService = service;
     }
 
     public static refresh(): void {
@@ -43,16 +29,10 @@ export class GraphView {
 
     private constructor(
         panel: vscode.WebviewPanel,
-        extensionUri: vscode.Uri,
-        entityService: EntityService,
-        relationService: RelationService,
-        observationService: ObservationService
+        extensionUri: vscode.Uri
     ) {
         this._panel = panel;
         this._extensionUri = extensionUri;
-        this._entityService = entityService;
-        this._relationService = relationService;
-        this._observationService = observationService;
         this._musicGenerator = new MusicGeneratorService({ ambientStyle: true });
 
         // 设置初始内容
@@ -71,12 +51,7 @@ export class GraphView {
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
     }
 
-    public static createOrShow(
-        extensionUri: vscode.Uri,
-        entityService: EntityService,
-        relationService: RelationService,
-        observationService: ObservationService
-    ) {
+    public static createOrShow(extensionUri: vscode.Uri) {
         // 如果已经存在，则更新数据并显示
         if (GraphView.currentPanel) {
             GraphView.currentPanel._panel.reveal(vscode.ViewColumn.One);
@@ -97,10 +72,7 @@ export class GraphView {
 
         GraphView.currentPanel = new GraphView(
             panel,
-            extensionUri,
-            entityService,
-            relationService,
-            observationService
+            extensionUri
         );
     }
 
@@ -131,18 +103,11 @@ export class GraphView {
                 break;
             case 'jumpToEntity':
                 // 跳转到实体位置
-                this._jumpToEntity(message.entityId, message.isAgent);
+                this._jumpToEntity(message.entityId);
                 break;
             case 'refresh':
                 // 刷新图谱数据
                 this._sendGraphData();
-                break;
-            case 'switchMode':
-                // 切换视图模式
-                if (message.mode === 'manual' || message.mode === 'agent' || message.mode === 'merged') {
-                    this._currentMode = message.mode;
-                    this._sendGraphData();
-                }
                 break;
             case 'requestMusicCode':
                 // 请求生成音乐代码
@@ -174,7 +139,7 @@ export class GraphView {
             data: {
                 entities,
                 relations,
-                mode: this._currentMode,
+                mode: 'knowledge',
             },
         });
     }
@@ -186,7 +151,7 @@ export class GraphView {
         const { entities, relations } = this._collectGraphData();
 
         // 生成音乐代码
-        const music = this._musicGenerator.generateMusic(entities, relations, this._currentMode);
+        const music = this._musicGenerator.generateMusic(entities, relations, 'merged');
         this._cachedMusicCode = music.code;
 
         // 发送到 webview
@@ -200,22 +165,17 @@ export class GraphView {
         });
     }
 
-    /**
-     * Build one consistent view model for visualization and sonification.
-     * In merged mode, human-maintained entities win and Agent relation
-     * endpoints are remapped to them before duplicate relations are removed.
-     */
+    /** Build one consistent view model for visualization and sonification. */
     private _collectGraphData(): { entities: any[]; relations: any[] } {
-        const entities: any[] = [];
-        const relations: any[] = [];
-        const entityIds = new Set<string>();
-        const entityByIdentity = new Map<string, string>();
-        const agentIdRemap = new Map<string, string>();
-
-        if (this._currentMode === 'manual' || this._currentMode === 'merged') {
-            for (const entity of this._entityService.listEntities()) {
-                const observations = this._observationService.getObservations(entity.id);
-                entities.push({
+        const graphService = GraphView._knowledgeGraphService;
+        if (!graphService) {
+            return { entities: [], relations: [] };
+        }
+        const snapshot = graphService.getSnapshot();
+        return {
+            entities: snapshot.entities.map((entity) => {
+                const observations = graphService.getObservations(entity.id);
+                return {
                     id: entity.id,
                     name: entity.name,
                     type: entity.type,
@@ -223,104 +183,30 @@ export class GraphView {
                     startLine: entity.startLine,
                     endLine: entity.endLine,
                     description: entity.description,
-                    isAgent: false,
-                    observations: observations.map(o => ({
-                        id: o.id,
-                        content: o.content,
-                        createdAt: o.createdAt,
-                        updatedAt: o.updatedAt,
+                    isAgent: entity.origin === 'agent',
+                    observations: observations.map(observation => ({
+                        id: observation.id,
+                        content: observation.content,
+                        createdAt: observation.createdAt,
+                        updatedAt: observation.updatedAt,
                     })),
                     observationCount: observations.length,
-                });
-                entityIds.add(entity.id);
-                entityByIdentity.set(this._getEntityIdentity(entity), entity.id);
-            }
-
-            for (const relation of this._relationService.getAllRelations()) {
-                if (!entityIds.has(relation.sourceEntityId) || !entityIds.has(relation.targetEntityId)) {
-                    continue;
-                }
-                relations.push({
-                    id: relation.id,
-                    sourceId: relation.sourceEntityId,
-                    targetId: relation.targetEntityId,
-                    verb: relation.verb,
-                    isAgent: false,
-                });
-            }
-        }
-
-        if ((this._currentMode === 'agent' || this._currentMode === 'merged') && GraphView._agentGraphService) {
-            for (const entity of GraphView._agentGraphService.listEntities()) {
-                const identity = this._getEntityIdentity(entity);
-                const manualId = this._currentMode === 'merged'
-                    ? entityByIdentity.get(identity)
-                    : undefined;
-                if (manualId) {
-                    agentIdRemap.set(entity.id, manualId);
-                    continue;
-                }
-
-                agentIdRemap.set(entity.id, entity.id);
-                entityIds.add(entity.id);
-                entityByIdentity.set(identity, entity.id);
-                entities.push({
-                    id: entity.id,
-                    name: entity.name,
-                    type: entity.type,
-                    filePath: entity.filePath,
-                    startLine: entity.startLine,
-                    endLine: entity.endLine,
-                    description: entity.description,
-                    isAgent: true,
-                    observations: [],
-                    observationCount: 0,
-                });
-            }
-
-            const relationKeys = new Set(
-                relations.map(relation =>
-                    `${relation.sourceId}\u0000${relation.targetId}\u0000${relation.verb}`
-                )
-            );
-            for (const relation of GraphView._agentGraphService.listRelations()) {
-                const sourceId = agentIdRemap.get(relation.sourceEntityId);
-                const targetId = agentIdRemap.get(relation.targetEntityId);
-                if (!sourceId || !targetId || sourceId === targetId) {
-                    continue;
-                }
-                const relationKey = `${sourceId}\u0000${targetId}\u0000${relation.verb}`;
-                if (relationKeys.has(relationKey)) {
-                    continue;
-                }
-                relationKeys.add(relationKey);
-                relations.push({
-                    id: relation.id,
-                    sourceId,
-                    targetId,
-                    verb: relation.verb,
-                    isAgent: true,
-                    description: relation.metadata?.description,
-                    evidence: relation.metadata?.evidence || [],
-                });
-            }
-        }
-
-        return { entities, relations };
+                };
+            }),
+            relations: snapshot.relations.map((relation) => ({
+                id: relation.id,
+                sourceId: relation.sourceEntityId,
+                targetId: relation.targetEntityId,
+                verb: relation.verb,
+                isAgent: relation.origin === 'agent',
+                description: relation.metadata?.description,
+                evidence: relation.metadata?.evidence || [],
+            })),
+        };
     }
 
-    private _getEntityIdentity(entity: { name: string; filePath: string }): string {
-        const normalizedPath = entity.filePath.replace(/\\/g, '/').replace(/^\.\//, '');
-        return `${normalizedPath.toLocaleLowerCase()}\u0000${entity.name.toLocaleLowerCase()}`;
-    }
-
-    private async _jumpToEntity(entityId: string, isAgent: boolean = false) {
-        let entity;
-        if (isAgent && GraphView._agentGraphService) {
-            entity = GraphView._agentGraphService.getEntity(entityId);
-        } else {
-            entity = this._entityService.getEntity(entityId);
-        }
+    private async _jumpToEntity(entityId: string) {
+        const entity = GraphView._knowledgeGraphService?.getEntity(entityId);
         
         if (!entity) {
             return;
@@ -371,12 +257,9 @@ export class GraphView {
         );
         const translations = t().graphView;
         const agentGraphTranslations = t().agentGraph?.graphView || {
-            manualGraph: 'Manual Graph',
-            agentGraph: 'Agent Graph',
-            mergedView: 'Merged View',
-            source: 'Source',
-            humanSource: 'Human-maintained',
-            agentSource: 'Agent',
+            source: 'Provenance',
+            humanSource: 'Human-authored',
+            agentSource: 'Agent-generated',
             evidence: 'Evidence'
         };
         const musicTranslations = (t().graphView as any)?.music || {
@@ -415,43 +298,6 @@ export class GraphView {
             z-index: 1000;
             display: flex;
             gap: 8px;
-        }
-        
-        #mode-switcher {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            z-index: 1000;
-            display: flex;
-            gap: 4px;
-            background-color: rgba(30, 30, 30, 0.9);
-            padding: 4px;
-            border-radius: 6px;
-            border: 1px solid var(--vscode-panel-border);
-        }
-        
-        .mode-btn {
-            background-color: transparent;
-            color: var(--vscode-foreground);
-            border: none;
-            padding: 6px 12px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 12px;
-            width: auto;
-            height: auto;
-            transition: all 0.2s;
-        }
-        
-        .mode-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .mode-btn.active {
-            background-color: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
         }
         
         button {
@@ -650,12 +496,6 @@ export class GraphView {
     </style>
 </head>
 <body>
-    <div id="mode-switcher">
-        <button class="mode-btn active" data-mode="manual" onclick="switchMode('manual')" title="${agentGraphTranslations.manualGraph}">📝 ${agentGraphTranslations.manualGraph}</button>
-        <button class="mode-btn" data-mode="agent" onclick="switchMode('agent')" title="${agentGraphTranslations.agentGraph}">🤖 ${agentGraphTranslations.agentGraph}</button>
-        <button class="mode-btn" data-mode="merged" onclick="switchMode('merged')" title="${agentGraphTranslations.mergedView}">🔗 ${agentGraphTranslations.mergedView}</button>
-    </div>
-    
     <div id="toolbar">
         <button id="playBtn" onclick="toggleMusic()" title="${musicTranslations.openRepl}">🎵</button>
         <button onclick="fitGraph()" title="${translations.toolbar.fit}">⛶</button>
@@ -1335,33 +1175,6 @@ export class GraphView {
             vscode.postMessage({ type: 'refresh' });
         }
         
-        let currentMode = 'manual';
-        
-        function switchMode(mode) {
-            if (mode === currentMode) return;
-            
-            currentMode = mode;
-            
-            // 更新按钮状态
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.mode === mode) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // 显示加载状态
-            document.getElementById('loading').classList.remove('hidden');
-            
-            // 停止当前播放的音乐
-            if (isPlaying) {
-                stopMusic();
-            }
-            
-            // 通知后端切换模式
-            vscode.postMessage({ type: 'switchMode', mode: mode });
-        }
-        
         // ============================================================
         // Music Control Functions
         // ============================================================
@@ -1438,7 +1251,6 @@ export class GraphView {
         window.toggleMusic = toggleMusic;
         window.fitGraph = fitGraph;
         window.refreshGraph = refreshGraph;
-        window.switchMode = switchMode;
     </script>
 </body>
 </html>`;

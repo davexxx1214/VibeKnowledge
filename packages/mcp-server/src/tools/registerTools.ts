@@ -64,7 +64,7 @@ function registerSearchEntitiesTool(
     {
       title: 'Search Entities',
       description:
-        '合并查询手动 knowledge graph 与 Agent 生成图谱中的实体，支持按名称、类型、文件路径模糊匹配。',
+        '查询统一知识图谱中的实体，支持按名称、类型、文件路径或描述模糊匹配。',
       inputSchema
     },
     async ({ query = '', type, filePath, limit = DEFAULT_LIMIT }) => {
@@ -194,7 +194,7 @@ function registerRelationsTool(
     {
       title: 'List Relations',
       description:
-        '合并列出手动 knowledge graph 与 Agent 生成图谱中的关系，可按动词、源实体、目标实体筛选。',
+        '列出统一知识图谱中的关系，可按动词、源实体、目标实体筛选。',
       inputSchema
     },
     async ({ verb, source, target, limit = DEFAULT_LIMIT }) => {

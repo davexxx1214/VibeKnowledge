@@ -5,8 +5,12 @@ import { RelationService } from './services/relationService';
 import { ObservationService } from './services/observationService';
 import { GeminiClient } from './services/geminiClient';
 import { RAGService } from './services/ragService';
-import { AgentGraphService } from './services/agentGraph';
+import {
+  AgentEntityOverrideService,
+  AgentGraphService,
+} from './services/agentGraph';
 import { AgentSkillService } from './services/agentSkillService';
+import { KnowledgeGraphService } from './services/knowledgeGraphService';
 import { KnowledgeHoverProvider } from './providers/hoverProvider';
 import { KnowledgeCodeLensProvider } from './providers/codeLensProvider';
 import { KnowledgeTreeDataProvider } from './providers/treeDataProvider';
@@ -160,28 +164,33 @@ export async function activate(context: vscode.ExtensionContext) {
       })
     );
 
-    // Agent Graph 由项目 Skill 生成的声明式清单提供，不直接写 SQLite。
-    const agentGraphService = new AgentGraphService(workspaceRoot);
+    // Agent 刷新生成清单；人工描述保存在 SQLite 覆盖层并始终优先。
+    const agentEntityOverrides = new AgentEntityOverrideService(dbService);
+    const agentGraphService = new AgentGraphService(
+      workspaceRoot,
+      agentEntityOverrides
+    );
+    const knowledgeGraphService = new KnowledgeGraphService(
+      entityService,
+      relationService,
+      observationService,
+      agentGraphService
+    );
     const agentSkillService = new AgentSkillService(context.extensionPath);
-    GraphView.setAgentGraphService(agentGraphService);
+    GraphView.setKnowledgeGraphService(knowledgeGraphService);
 
     // 初始化命令处理器
     const entityCommands = new EntityCommands(
       entityService,
       relationService,
       observationService,
-      agentGraphService
+      knowledgeGraphService
     );
 
     const ragCommands = new RAGCommands(ragService, geminiClient);
 
     // 注册树视图
-    const treeDataProvider = new KnowledgeTreeDataProvider(
-      entityService,
-      relationService,
-      observationService,
-      agentGraphService
-    );
+    const treeDataProvider = new KnowledgeTreeDataProvider(knowledgeGraphService);
     const treeView = vscode.window.createTreeView('knowledgeGraphExplorer', {
       treeDataProvider,
       showCollapseAll: true,
@@ -196,7 +205,6 @@ export async function activate(context: vscode.ExtensionContext) {
       )
     );
     const refreshAgentGraph = () => {
-      agentGraphService.refresh();
       treeDataProvider.refresh();
       GraphView.refresh();
     };
@@ -277,6 +285,35 @@ export async function activate(context: vscode.ExtensionContext) {
           } catch (error) {
             console.error('Error in editObservation:', error);
             vscode.window.showErrorMessage(`Error editing observation: ${error}`);
+          }
+        }
+      )
+    );
+
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'knowledge.editEntityDescription',
+        async (treeItem) => {
+          try {
+            await entityCommands.editEntityDescription(treeItem);
+            treeDataProvider.refresh();
+            GraphView.refresh();
+          } catch (error) {
+            console.error('Error editing entity description:', error);
+            vscode.window.showErrorMessage(`Error editing description: ${error}`);
+          }
+        }
+      ),
+      vscode.commands.registerCommand(
+        'knowledge.resetEntityDescription',
+        async (treeItem) => {
+          try {
+            await entityCommands.resetEntityDescription(treeItem);
+            treeDataProvider.refresh();
+            GraphView.refresh();
+          } catch (error) {
+            console.error('Error resetting entity description:', error);
+            vscode.window.showErrorMessage(`Error resetting description: ${error}`);
           }
         }
       )
@@ -439,12 +476,7 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.commands.registerCommand('knowledge.visualizeGraph', () => {
         try {
           console.log('Executing: knowledge.visualizeGraph');
-          GraphView.createOrShow(
-            context.extensionUri,
-            entityService,
-            relationService,
-            observationService
-          );
+          GraphView.createOrShow(context.extensionUri);
         } catch (error) {
           console.error('Error in visualizeGraph:', error);
           vscode.window.showErrorMessage(`Error opening graph: ${error}`);

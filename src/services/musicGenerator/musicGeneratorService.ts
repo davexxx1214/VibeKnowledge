@@ -20,7 +20,7 @@ import {
 } from './mappings';
 
 /**
- * 图谱实体接口（兼容人工维护图谱和 Agent 图谱）
+ * 统一知识图谱实体接口
  */
 interface GraphEntity {
   id: string;

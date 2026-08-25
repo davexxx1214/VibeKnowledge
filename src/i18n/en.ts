@@ -73,6 +73,16 @@ export const en = {
       error: (error: string) => `Failed to add observation: ${error}`
     },
 
+    editEntityDescription: {
+      title: 'Edit Entity Description',
+      prompt: (name: string) => `Edit the description for "${name}". Human text is preserved when the Agent regenerates the graph.`,
+      placeholder: 'Enter a description (an empty value is preserved too)',
+      selectEntity: 'Select an entity to edit',
+      success: (name: string) => `Description for "${name}" was saved`,
+      resetSuccess: (name: string) => `Restored the latest Agent description for "${name}"`,
+      error: (name: string) => `Could not update the description for "${name}"`
+    },
+
     addRelation: {
       title: 'Knowledge: Add Relation',
       placeholder: 'Select entity type',
@@ -224,22 +234,6 @@ export const en = {
       noWorkspace: 'Please open a workspace first',
       openFile: 'Open file',
       showInFolder: 'Show in folder'
-    },
-
-    selectGraphSource: {
-      title: 'Select Graph Source',
-      manual: {
-        label: '📝 Manual Graph',
-        description: 'Design decisions, observations, manually maintained relations'
-      },
-      agent: {
-        label: '🤖 Agent Graph',
-        description: 'Evidence-backed dependencies generated after an Agent reads the code'
-      },
-      merged: {
-        label: '🔗 Merged Graph',
-        description: 'Human-maintained + Agent-generated, the most complete context'
-      }
     },
 
     generateCopilotInstructions: {
@@ -565,20 +559,15 @@ export const en = {
 
   agentGraph: {
     treeView: {
-      manualGraph: 'Human-maintained Graph',
-      agentGraph: 'Agent Graph',
       entities: 'Entities',
       relations: 'Relations',
       evidence: 'Evidence',
-      invalidManifest: 'Invalid Agent Graph manifest'
+      invalidManifest: 'Invalid generated graph manifest'
     },
     graphView: {
-      manualGraph: 'Human-maintained Graph',
-      agentGraph: 'Agent Graph',
-      mergedView: 'Merged View',
-      source: 'Source',
-      humanSource: 'Human-maintained',
-      agentSource: 'Agent',
+      source: 'Provenance',
+      humanSource: 'Human-authored',
+      agentSource: 'Agent-generated',
       evidence: 'Evidence'
     }
   },

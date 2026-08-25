@@ -115,6 +115,16 @@ export class DatabaseService {
 
     this.db.run('CREATE INDEX IF NOT EXISTS idx_observations_entity ON observations(entity_id)');
 
+    // Agent 会反复刷新生成清单；人工修改的描述单独保存为覆盖层，
+    // 以稳定的 Agent entity key 关联，避免被下一次生成覆盖。
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS agent_entity_overrides (
+        agent_key TEXT PRIMARY KEY,
+        description TEXT NOT NULL,
+        updated_at INTEGER NOT NULL
+      )
+    `);
+
     // 保存数据库到文件
     this.save();
   }

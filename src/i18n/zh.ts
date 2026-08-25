@@ -72,6 +72,16 @@ export const zh = {
       error: (error: string) => `添加观察记录失败: ${error}`
     },
 
+    editEntityDescription: {
+      title: '编辑实体描述',
+      prompt: (name: string) => `编辑“${name}”的描述。Agent 再次生成图谱时会保留这里的人工内容。`,
+      placeholder: '输入描述（留空也会作为人工编辑保留）',
+      selectEntity: '选择要编辑的实体',
+      success: (name: string) => `已保存“${name}”的描述`,
+      resetSuccess: (name: string) => `已恢复“${name}”最新的 Agent 描述`,
+      error: (name: string) => `无法更新“${name}”的描述`
+    },
+
     addRelation: {
       title: '知识图谱: 添加关系',
       placeholder: '选择实体类型',
@@ -223,22 +233,6 @@ export const zh = {
       noWorkspace: '请先打开一个工作区',
       openFile: '打开文件',
       showInFolder: '在文件夹中显示'
-    },
-
-    selectGraphSource: {
-      title: '选择图谱数据源',
-      manual: {
-        label: '📝 手动图谱',
-        description: '设计决策、观察记录、手动维护的关系'
-      },
-      agent: {
-        label: '🤖 Agent 图谱',
-        description: 'Agent 阅读代码并基于证据生成的依赖关系'
-      },
-      merged: {
-        label: '🔗 合并图谱',
-        description: '人工维护 + Agent 生成，最完整的上下文'
-      }
     },
 
     generateCopilotInstructions: {
@@ -564,20 +558,15 @@ export const zh = {
 
   agentGraph: {
     treeView: {
-      manualGraph: '人工维护图谱',
-      agentGraph: 'Agent 图谱',
       entities: '实体',
       relations: '关系',
       evidence: '证据',
-      invalidManifest: 'Agent 图谱清单无效'
+      invalidManifest: 'Agent 生成清单无效'
     },
     graphView: {
-      manualGraph: '人工维护图谱',
-      agentGraph: 'Agent 图谱',
-      mergedView: '合并视图',
-      source: '来源',
-      humanSource: '人工维护',
-      agentSource: 'Agent',
+      source: '数据来源',
+      humanSource: '人工编写',
+      agentSource: 'Agent 生成',
       evidence: '证据'
     }
   },

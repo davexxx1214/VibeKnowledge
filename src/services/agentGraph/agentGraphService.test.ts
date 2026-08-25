@@ -3,6 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { AgentGraphService, parseAgentGraphDocument } from './agentGraphService';
+import type { AgentEntityDescriptionOverrideStore } from './agentEntityOverrideService';
 
 const tempDirs: string[] = [];
 
@@ -122,5 +123,40 @@ describe('AgentGraphService', () => {
     expect(service.listEntities()).toEqual([]);
     expect(service.listRelations()).toEqual([]);
     expect(service.getLastError()).toBeDefined();
+  });
+
+  it('keeps a human description when the Agent regenerates the entity', () => {
+    const workspace = createWorkspace();
+    const graphPath = join(workspace, '.vscode', '.knowledge', 'agent-graph.json');
+    const descriptions = new Map<string, string>();
+    const overrides: AgentEntityDescriptionOverrideStore = {
+      getDescription: (key) => descriptions.get(key),
+      setDescription: (key, description) => descriptions.set(key, description),
+      deleteDescription: (key) => descriptions.delete(key),
+    };
+    const firstDocument: any = validDocument();
+    firstDocument.entities[0].description = 'Agent description v1';
+    writeFileSync(graphPath, JSON.stringify(firstDocument), 'utf8');
+
+    const service = new AgentGraphService(workspace, overrides);
+    const entityId = service.listEntities({ name: 'A' })[0].id;
+    expect(service.setManualDescription(entityId, 'Human description')?.description)
+      .toBe('Human description');
+
+    const regenerated: any = validDocument();
+    regenerated.generatedAt = '2026-08-22T12:00:00.000Z';
+    regenerated.entities[0].description = 'Agent description v2';
+    writeFileSync(graphPath, JSON.stringify(regenerated), 'utf8');
+    service.refresh();
+
+    expect(service.getEntity(entityId)).toMatchObject({
+      description: 'Human description',
+      metadata: {
+        generatedDescription: 'Agent description v2',
+        descriptionSource: 'manual',
+      },
+    });
+    expect(service.resetManualDescription(entityId)?.description)
+      .toBe('Agent description v2');
   });
 });

@@ -52,6 +52,12 @@ describe('GraphDatabase', () => {
         updated_at INTEGER NOT NULL,
         FOREIGN KEY (entity_id) REFERENCES entities(id)
       );
+
+      CREATE TABLE IF NOT EXISTS agent_entity_overrides (
+        agent_key TEXT PRIMARY KEY,
+        description TEXT NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
     `);
 
     // 插入测试数据
@@ -94,6 +100,11 @@ describe('GraphDatabase', () => {
       INSERT INTO observations (id, entity_id, content, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?)
     `).run('obs-2', 'entity-1', 'TODO: Add caching layer', now, now);
+
+    realDb.prepare(`
+      INSERT INTO agent_entity_overrides (agent_key, description, updated_at)
+      VALUES (?, ?, ?)
+    `).run('agent-auth', 'Human-authored Auth description', now);
 
     realDb.close();
   });
@@ -196,6 +207,17 @@ describe('GraphDatabase', () => {
     it('应该返回 null metadata 当字段为空', () => {
       const results = db.searchEntities({ query: 'Database' });
       expect(results[0].metadata).toBeNull();
+    });
+  });
+
+  describe('getAgentEntityDescriptionOverrides', () => {
+    it('returns human descriptions keyed by stable Agent key', () => {
+      const db = new GraphDatabase(testDbPath);
+      db.open();
+      expect(db.getAgentEntityDescriptionOverrides().get('agent-auth')).toBe(
+        'Human-authored Auth description'
+      );
+      db.close();
     });
   });
 

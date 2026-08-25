@@ -84,7 +84,9 @@ describe('dependency graph skill validator', () => {
     });
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain('Valid Agent Graph: 2 entities, 1 relations');
+    expect(result.stdout).toContain(
+      'Valid generated Knowledge Graph: 2 entities, 1 relations'
+    );
   });
 
   it('rejects missing evidence files and out-of-range lines', () => {

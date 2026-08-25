@@ -154,12 +154,14 @@ export class GraphDatabase {
       )
       .get() as OverviewRow | undefined;
 
+    const overrideUpdatedAt = this.getAgentOverrideLastUpdatedAt();
+    const lastUpdatedAt = Math.max(row?.lastUpdatedAt ?? 0, overrideUpdatedAt);
     return {
       entityCount: row?.entityCount ?? 0,
       relationCount: row?.relationCount ?? 0,
       observationCount: row?.observationCount ?? 0,
-      lastUpdatedAt: row?.lastUpdatedAt
-        ? new Date(row.lastUpdatedAt).toISOString()
+      lastUpdatedAt: lastUpdatedAt > 0
+        ? new Date(lastUpdatedAt).toISOString()
         : null
     };
   }
@@ -372,6 +374,43 @@ export class GraphDatabase {
       .all() as RelationRow[];
 
     return this.mapRelationRows(rows);
+  }
+
+  /** Human descriptions keyed by the stable Agent entity key. */
+  getAgentEntityDescriptionOverrides(): Map<string, string> {
+    const db = this.ensureDb();
+    if (!this.hasTable('agent_entity_overrides')) {
+      return new Map();
+    }
+
+    const rows = db
+      .prepare(
+        'SELECT agent_key AS agentKey, description FROM agent_entity_overrides'
+      )
+      .all() as Array<{ agentKey: string; description: string }>;
+    return new Map(rows.map((row) => [row.agentKey, row.description]));
+  }
+
+  private getAgentOverrideLastUpdatedAt(): number {
+    if (!this.hasTable('agent_entity_overrides')) {
+      return 0;
+    }
+    const row = this.ensureDb()
+      .prepare(
+        'SELECT MAX(updated_at) AS updatedAt FROM agent_entity_overrides'
+      )
+      .get() as { updatedAt: number | null } | undefined;
+    return row?.updatedAt ?? 0;
+  }
+
+  private hasTable(tableName: string): boolean {
+    return Boolean(
+      this.ensureDb()
+        .prepare(
+          `SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?`
+        )
+        .get(tableName)
+    );
   }
 
   private mapEntityRows(rows: EntityRow[]): EntityRecord[] {

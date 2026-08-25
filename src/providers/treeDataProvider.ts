@@ -1,44 +1,31 @@
 import * as vscode from 'vscode';
-import { Entity, EntityType } from '../utils/types';
-import { EntityService } from '../services/entityService';
-import { RelationService } from '../services/relationService';
-import { ObservationService } from '../services/observationService';
-import {
-  AgentEntity,
-  AgentGraphEvidence,
-  AgentGraphService,
-} from '../services/agentGraph';
+import type { EntityType } from '../utils/types';
+import type {
+  KnowledgeEntity,
+  KnowledgeGraphOrigin,
+  KnowledgeRelation,
+} from '../services/knowledgeGraphService';
+import { KnowledgeGraphService } from '../services/knowledgeGraphService';
+import type { AgentGraphEvidence } from '../services/agentGraph';
 import { t } from '../i18n/i18nService';
 
-type GraphKind = 'manual' | 'agent';
-type ItemType =
-  | 'graph-root'
-  | 'root'
-  | 'category'
-  | 'entity'
-  | 'relation'
-  | 'observation';
+type ItemType = 'root' | 'category' | 'entity' | 'relation' | 'observation';
 type RootKind = 'entities' | 'relations';
 
 interface RelationDisplay {
-  id: string;
-  sourceId: string;
-  sourceName: string;
-  sourceEntity: Entity | AgentEntity;
-  verb: string;
-  targetId: string;
-  targetName: string;
-  targetEntity: Entity | AgentEntity;
+  relation: KnowledgeRelation;
+  sourceEntity: KnowledgeEntity;
+  targetEntity: KnowledgeEntity;
   description?: string;
   evidence?: AgentGraphEvidence[];
 }
 
 interface TreeItemOptions {
   type: ItemType;
-  graphKind?: GraphKind;
   rootKind?: RootKind;
   entityType?: EntityType;
-  entity?: Entity | AgentEntity;
+  entity?: KnowledgeEntity;
+  origin?: KnowledgeGraphOrigin;
   relationData?: RelationDisplay;
   observationData?: { id: string; content: string; entityId: string };
   parent?: KnowledgeTreeItem;
@@ -46,10 +33,10 @@ interface TreeItemOptions {
 
 export class KnowledgeTreeItem extends vscode.TreeItem {
   public readonly type: ItemType;
-  public readonly graphKind?: GraphKind;
   public readonly rootKind?: RootKind;
   public readonly entityType?: EntityType;
-  public readonly entity?: Entity | AgentEntity;
+  public readonly entity?: KnowledgeEntity;
+  public readonly origin?: KnowledgeGraphOrigin;
   public readonly relationData?: RelationDisplay;
   public readonly observationData?: {
     id: string;
@@ -65,14 +52,13 @@ export class KnowledgeTreeItem extends vscode.TreeItem {
   ) {
     super(label, collapsibleState);
     this.type = options.type;
-    this.graphKind = options.graphKind;
     this.rootKind = options.rootKind;
     this.entityType = options.entityType;
     this.entity = options.entity;
+    this.origin = options.origin;
     this.relationData = options.relationData;
     this.observationData = options.observationData;
     this.parent = options.parent;
-    const isAgent = options.graphKind === 'agent';
 
     if (options.type === 'observation' && options.observationData) {
       this.tooltip = options.observationData.content;
@@ -82,11 +68,20 @@ export class KnowledgeTreeItem extends vscode.TreeItem {
     }
 
     if (options.type === 'entity' && options.entity) {
-      this.tooltip = `${options.entity.name} (${options.entity.type})${
-        isAgent ? ' [Agent]' : ''
-      }`;
+      const tooltip = [
+        `${options.entity.name} (${options.entity.type})`,
+        `${options.entity.filePath}:${options.entity.startLine}`,
+      ];
+      if (options.entity.description !== undefined) {
+        tooltip.push(options.entity.description || '(empty description)');
+      }
+      this.tooltip = tooltip.join('\n');
       this.description = `${options.entity.filePath}:${options.entity.startLine}`;
-      this.contextValue = isAgent ? 'agentEntity' : 'entity';
+      // Provenance stays internal so generated records cannot be deleted as if
+      // they were SQLite rows, while both appear in one Knowledge Graph.
+      this.contextValue = options.entity.origin === 'agent'
+        ? 'agentEntity'
+        : 'entity';
       this.command = {
         command: 'knowledge.jumpToEntity',
         title: 'Jump to Entity',
@@ -99,41 +94,40 @@ export class KnowledgeTreeItem extends vscode.TreeItem {
     }
 
     if (options.type === 'relation' && options.relationData) {
+      const { relation, sourceEntity, targetEntity } = options.relationData;
       const tooltipLines = [
-        `${options.relationData.sourceName} ${options.relationData.verb} ${options.relationData.targetName}${
-          isAgent ? ' [Agent]' : ''
-        }`,
+        `${sourceEntity.name} ${relation.verb} ${targetEntity.name}`,
       ];
       if (options.relationData.description) {
         tooltipLines.push(options.relationData.description);
       }
       if (options.relationData.evidence?.length) {
-        const evidenceLabel = t().agentGraph?.treeView.evidence || 'Evidence';
+        const evidenceLabel = t().agentGraph.treeView.evidence;
         tooltipLines.push(
           `${evidenceLabel}:`,
-          ...options.relationData.evidence.map((evidence) =>
-            `• ${evidence.filePath}:${evidence.startLine}${
-              evidence.endLine ? `-${evidence.endLine}` : ''
-            }${evidence.detail ? ` — ${evidence.detail}` : ''}`
+          ...options.relationData.evidence.map(
+            (evidence) =>
+              `• ${evidence.filePath}:${evidence.startLine}${
+                evidence.endLine ? `-${evidence.endLine}` : ''
+              }${evidence.detail ? ` — ${evidence.detail}` : ''}`
           )
         );
       }
       this.tooltip = tooltipLines.join('\n');
-      this.description = options.relationData.verb;
-      this.contextValue = isAgent ? 'agentRelation' : 'relation';
+      this.description = relation.verb;
+      this.contextValue = relation.origin === 'agent'
+        ? 'agentRelation'
+        : 'relation';
       this.iconPath = new vscode.ThemeIcon('arrow-right');
       this.command = {
         command: 'knowledge.jumpToEntity',
         title: 'Jump to Source Entity',
-        arguments: [options.relationData.sourceEntity],
+        arguments: [sourceEntity],
       };
       return;
     }
 
-    if (options.type === 'graph-root') {
-      this.contextValue = 'graphRoot';
-      this.iconPath = new vscode.ThemeIcon(isAgent ? 'sparkle' : 'edit');
-    } else if (options.type === 'root') {
+    if (options.type === 'root') {
       this.contextValue = 'root';
       this.iconPath = new vscode.ThemeIcon(
         options.rootKind === 'entities' ? 'symbol-namespace' : 'references'
@@ -177,15 +171,10 @@ export class KnowledgeTreeDataProvider
   private searchQuery = '';
   private expandAllState = false;
 
-  constructor(
-    private readonly entityService: EntityService,
-    private readonly relationService: RelationService,
-    private readonly observationService: ObservationService,
-    private readonly agentGraphService: AgentGraphService
-  ) {}
+  constructor(private readonly graphService: KnowledgeGraphService) {}
 
   public refresh(): void {
-    this.agentGraphService.refresh();
+    this.graphService.refresh();
     this._onDidChangeTreeData.fire();
   }
 
@@ -211,114 +200,56 @@ export class KnowledgeTreeDataProvider
 
   public getChildren(element?: KnowledgeTreeItem): Thenable<KnowledgeTreeItem[]> {
     if (!element) {
-      return Promise.resolve(this.getGraphRoots());
+      return Promise.resolve(this.getRoots());
     }
-
-    if (element.type === 'graph-root' && element.graphKind) {
-      return Promise.resolve(this.getSectionRoots(element.graphKind, element));
-    }
-
-    if (element.type === 'root' && element.graphKind) {
-      if (element.rootKind === 'entities') {
-        return Promise.resolve(this.getEntityCategories(element.graphKind, element));
-      }
-      return Promise.resolve(this.getRelations(element.graphKind, element));
-    }
-
-    if (
-      element.type === 'category' &&
-      element.graphKind &&
-      element.entityType
-    ) {
+    if (element.type === 'root') {
       return Promise.resolve(
-        this.getEntities(element.graphKind, element.entityType, element)
+        element.rootKind === 'entities'
+          ? this.getEntityCategories(element)
+          : this.getRelations(element)
       );
     }
-
+    if (element.type === 'category' && element.entityType) {
+      return Promise.resolve(this.getEntities(element.entityType, element));
+    }
     if (
       element.type === 'entity' &&
-      element.graphKind === 'manual' &&
-      element.entity
+      element.entity?.origin === 'manual'
     ) {
       return Promise.resolve(this.getObservations(element.entity, element));
     }
-
     return Promise.resolve([]);
   }
 
-  private getGraphRoots(): KnowledgeTreeItem[] {
-    const translations = t().agentGraph?.treeView || {
-      manualGraph: 'Manual Graph',
-      agentGraph: 'Agent Graph',
-      entities: 'Entities',
-      relations: 'Relations',
-      evidence: 'Evidence',
-      invalidManifest: 'Invalid Agent Graph manifest',
-    };
-    const manualEntityCount = this.entityService.listEntities().length;
-    const manualRelationCount = this.relationService.getAllRelations().length;
-    const agentStats = this.agentGraphService.getStats();
-    const agentError = this.agentGraphService.getLastError();
-    const manualRoot = new KnowledgeTreeItem(
-      `📝 ${translations.manualGraph} (${manualEntityCount} / ${manualRelationCount})`,
+  private getRoots(): KnowledgeTreeItem[] {
+    const snapshot = this.graphService.getSnapshot();
+    const translations = t().agentGraph.treeView;
+    const agentError = this.graphService.getGenerationError();
+    const entities = new KnowledgeTreeItem(
+      `${agentError ? '⚠️ ' : ''}${translations.entities} (${snapshot.entities.length})`,
       vscode.TreeItemCollapsibleState.Expanded,
-      { type: 'graph-root', graphKind: 'manual' }
-    );
-    const agentRoot = new KnowledgeTreeItem(
-      `${agentError ? '⚠️' : '🤖'} ${translations.agentGraph} (${agentStats.entityCount} / ${agentStats.relationCount})`,
-      this.expandAllState
-        ? vscode.TreeItemCollapsibleState.Expanded
-        : vscode.TreeItemCollapsibleState.Collapsed,
-      { type: 'graph-root', graphKind: 'agent' }
+      { type: 'root', rootKind: 'entities' }
     );
     if (agentError) {
-      agentRoot.iconPath = new vscode.ThemeIcon('warning');
-      agentRoot.tooltip = `${translations.invalidManifest}: ${agentError.message}`;
+      entities.tooltip = `${translations.invalidManifest}: ${agentError.message}`;
     }
-
-    return [manualRoot, agentRoot];
-  }
-
-  private getSectionRoots(
-    graphKind: GraphKind,
-    parent: KnowledgeTreeItem
-  ): KnowledgeTreeItem[] {
-    const translations = t().agentGraph?.treeView || {
-      manualGraph: 'Manual Graph',
-      agentGraph: 'Agent Graph',
-      entities: 'Entities',
-      relations: 'Relations',
-      evidence: 'Evidence',
-      invalidManifest: 'Invalid Agent Graph manifest',
-    };
-    const entityCount = this.getGraphEntities(graphKind).length;
-    const relationCount = this.getGraphRelations(graphKind).length;
-
     return [
+      entities,
       new KnowledgeTreeItem(
-        `${translations.entities} (${entityCount})`,
-        vscode.TreeItemCollapsibleState.Expanded,
-        { type: 'root', graphKind, rootKind: 'entities', parent }
-      ),
-      new KnowledgeTreeItem(
-        `${translations.relations} (${relationCount})`,
+        `${translations.relations} (${snapshot.relations.length})`,
         this.expandAllState
           ? vscode.TreeItemCollapsibleState.Expanded
           : vscode.TreeItemCollapsibleState.Collapsed,
-        { type: 'root', graphKind, rootKind: 'relations', parent }
+        { type: 'root', rootKind: 'relations' }
       ),
     ];
   }
 
-  private getEntityCategories(
-    graphKind: GraphKind,
-    parent: KnowledgeTreeItem
-  ): KnowledgeTreeItem[] {
+  private getEntityCategories(parent: KnowledgeTreeItem): KnowledgeTreeItem[] {
     const counts = new Map<EntityType, number>();
-    for (const entity of this.getGraphEntities(graphKind)) {
+    for (const entity of this.getFilteredEntities()) {
       counts.set(entity.type, (counts.get(entity.type) || 0) + 1);
     }
-
     return Array.from(counts.entries())
       .sort(([left], [right]) => left.localeCompare(right))
       .map(
@@ -328,42 +259,38 @@ export class KnowledgeTreeDataProvider
             this.expandAllState
               ? vscode.TreeItemCollapsibleState.Expanded
               : vscode.TreeItemCollapsibleState.Collapsed,
-            { type: 'category', graphKind, entityType, parent }
+            { type: 'category', entityType, parent }
           )
       );
   }
 
   private getEntities(
-    graphKind: GraphKind,
     entityType: EntityType,
     parent: KnowledgeTreeItem
   ): KnowledgeTreeItem[] {
-    return this.getGraphEntities(graphKind)
+    return this.getFilteredEntities()
       .filter((entity) => entity.type === entityType)
       .map((entity) => {
-        const observationCount =
-          graphKind === 'manual'
-            ? this.observationService.getObservations(entity.id).length
-            : 0;
+        const observations = this.graphService.getObservations(entity.id);
         return new KnowledgeTreeItem(
-          observationCount > 0
-            ? `${entity.name} (${observationCount})`
+          observations.length > 0
+            ? `${entity.name} (${observations.length})`
             : entity.name,
-          observationCount > 0
+          observations.length > 0
             ? this.expandAllState
               ? vscode.TreeItemCollapsibleState.Expanded
               : vscode.TreeItemCollapsibleState.Collapsed
             : vscode.TreeItemCollapsibleState.None,
-          { type: 'entity', graphKind, entity, parent }
+          { type: 'entity', entity, origin: entity.origin, parent }
         );
       });
   }
 
   private getObservations(
-    entity: Entity | AgentEntity,
+    entity: KnowledgeEntity,
     parent: KnowledgeTreeItem
   ): KnowledgeTreeItem[] {
-    return this.observationService.getObservations(entity.id).map(
+    return this.graphService.getObservations(entity.id).map(
       (observation) =>
         new KnowledgeTreeItem(
           observation.content.length > 50
@@ -372,7 +299,6 @@ export class KnowledgeTreeDataProvider
           vscode.TreeItemCollapsibleState.None,
           {
             type: 'observation',
-            graphKind: 'manual',
             entity,
             observationData: {
               id: observation.id,
@@ -385,69 +311,50 @@ export class KnowledgeTreeDataProvider
     );
   }
 
-  private getRelations(
-    graphKind: GraphKind,
-    parent: KnowledgeTreeItem
-  ): KnowledgeTreeItem[] {
-    return this.getGraphRelations(graphKind).map(
-      (relation) =>
-        new KnowledgeTreeItem(
-          `${relation.sourceName} → ${relation.targetName}`,
-          vscode.TreeItemCollapsibleState.None,
-          { type: 'relation', graphKind, relationData: relation, parent }
-        )
-    );
-  }
-
-  private getGraphEntities(graphKind: GraphKind): Array<Entity | AgentEntity> {
-    const entities =
-      graphKind === 'manual'
-        ? this.entityService.listEntities()
-        : this.agentGraphService.listEntities();
-    if (!this.searchQuery) {
-      return entities;
-    }
-    const query = this.searchQuery.toLocaleLowerCase();
-    return entities.filter((entity) =>
-      entity.name.toLocaleLowerCase().includes(query)
-    );
-  }
-
-  private getGraphRelations(graphKind: GraphKind): RelationDisplay[] {
-    const entities = this.getGraphEntities(graphKind);
-    const entityById = new Map(entities.map((entity) => [entity.id, entity]));
-    const relations =
-      graphKind === 'manual'
-        ? this.relationService.getAllRelations()
-        : this.agentGraphService.listRelations();
-
-    return relations.flatMap((relation) => {
+  private getRelations(parent: KnowledgeTreeItem): KnowledgeTreeItem[] {
+    const snapshot = this.graphService.getSnapshot();
+    const visibleEntities = this.getFilteredEntities();
+    const entityById = new Map(visibleEntities.map((entity) => [entity.id, entity]));
+    return snapshot.relations.flatMap((relation) => {
       const sourceEntity = entityById.get(relation.sourceEntityId);
       const targetEntity = entityById.get(relation.targetEntityId);
       if (!sourceEntity || !targetEntity) {
         return [];
       }
+      const relationData: RelationDisplay = {
+        relation,
+        sourceEntity,
+        targetEntity,
+        description:
+          typeof relation.metadata?.description === 'string'
+            ? relation.metadata.description
+            : undefined,
+        evidence: Array.isArray(relation.metadata?.evidence)
+          ? (relation.metadata.evidence as AgentGraphEvidence[])
+          : undefined,
+      };
       return [
-        {
-          id: relation.id,
-          sourceId: sourceEntity.id,
-          sourceName: sourceEntity.name,
-          sourceEntity,
-          verb: relation.verb,
-          targetId: targetEntity.id,
-          targetName: targetEntity.name,
-          targetEntity,
-          description:
-            graphKind === 'agent' && typeof relation.metadata?.description === 'string'
-              ? relation.metadata.description
-              : undefined,
-          evidence:
-            graphKind === 'agent' && Array.isArray(relation.metadata?.evidence)
-              ? relation.metadata.evidence as AgentGraphEvidence[]
-              : undefined,
-        },
+        new KnowledgeTreeItem(
+          `${sourceEntity.name} → ${targetEntity.name}`,
+          vscode.TreeItemCollapsibleState.None,
+          { type: 'relation', relationData, origin: relation.origin, parent }
+        ),
       ];
     });
+  }
+
+  private getFilteredEntities(): KnowledgeEntity[] {
+    const entities = this.graphService.listEntities();
+    if (!this.searchQuery) {
+      return entities;
+    }
+    const query = this.searchQuery.toLocaleLowerCase();
+    return entities.filter(
+      (entity) =>
+        entity.name.toLocaleLowerCase().includes(query) ||
+        entity.filePath.toLocaleLowerCase().includes(query) ||
+        entity.description?.toLocaleLowerCase().includes(query)
+    );
   }
 
   private capitalizeFirst(value: string): string {

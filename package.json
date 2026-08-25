@@ -53,6 +53,14 @@
         "title": "Knowledge: Edit Observation"
       },
       {
+        "command": "knowledge.editEntityDescription",
+        "title": "Knowledge: Edit Entity Description"
+      },
+      {
+        "command": "knowledge.resetEntityDescription",
+        "title": "Knowledge: Restore Agent Description"
+      },
+      {
         "command": "knowledge.addRelation",
         "title": "Knowledge: Add Relation"
       },
@@ -231,6 +239,16 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "knowledge.editEntityDescription",
+          "when": "view == knowledgeGraphExplorer && (viewItem == entity || viewItem == agentEntity)",
+          "group": "knowledge@0.5"
+        },
+        {
+          "command": "knowledge.resetEntityDescription",
+          "when": "view == knowledgeGraphExplorer && viewItem == agentEntity",
+          "group": "knowledge@0.6"
+        },
         {
           "command": "knowledge.editObservation",
           "when": "view == knowledgeGraphExplorer && viewItem == entity",

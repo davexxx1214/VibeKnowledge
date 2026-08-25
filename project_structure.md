@@ -41,7 +41,8 @@ VibeKnowledge/
 │   │   ├── 📄 ragService.ts         # RAG 知识库服务
 │   │   ├── 📄 scenarioManager.ts    # 场景管理器
 │   │   ├── 📄 agentSkillService.ts  # 项目级 Skill 安装服务
-│   │   ├── 📂 agentGraph/           # Agent Graph 清单读取、校验与类型
+│   │   ├── 📄 knowledgeGraphService.ts # 统一图谱合并、去重与编辑
+│   │   ├── 📂 agentGraph/           # Agent 生成清单、人工描述覆盖与校验
 │   │   └── 📂 rag/                  # RAG 具体实现
 │   │       ├── 📄 cloudRagProvider.ts # 云端 RAG 提供者
 │   │       ├── 📄 localRagProvider.ts # 本地 RAG 提供者
@@ -92,8 +93,8 @@ VibeKnowledge/
 │       │   ├── 📄 server.ts         # MCP 服务器初始化
 │       │   ├── 📄 config.ts         # 配置解析
 │       │   ├── 📄 database.ts       # 读取 graph.sqlite
-│       │   ├── 📄 agentGraphStore.ts # 读取 Agent Graph sidecar
-│       │   ├── 📄 mergedGraph.ts    # 合并人工与 Agent 图谱查询
+│       │   ├── 📄 agentGraphStore.ts # 读取 Agent 生成层 sidecar
+│       │   ├── 📄 mergedGraph.ts    # 统一知识图谱查询与去重
 │       │   ├── 📂 resources/        # Resource 注册（knowledge://overview）
 │       │   ├── 📂 tools/            # Tool 注册（search_entities 等）
 │       │   ├── 📂 prompts/          # Prompt 注册（get_observations）
@@ -134,8 +135,8 @@ VibeKnowledge/
 
 ```
 <工作区>/.vscode/.knowledge/
-├── graph.sqlite              # SQLite 数据库（人工图谱与 RAG 索引）
-└── agent-graph.json          # Agent Skill 生成的依赖图谱
+├── graph.sqlite              # 人工数据、描述覆盖与 RAG 索引
+└── agent-graph.json          # Agent Skill 生成的可刷新结构层
 
 <工作区>/Knowledge/           # RAG 文档知识库
 ├── *.md                      # Markdown 文档

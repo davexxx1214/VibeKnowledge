@@ -10,7 +10,7 @@ VibeKnowledge 以源码形式提供。你可以 Fork 本仓库进行定制、本
 
 https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 
-| 人工维护图谱 | AI 场景选择 |
+| 知识图谱 | AI 场景选择 |
 | --- | --- |
 | ![手动维护的知识图谱](presentation/snap4.png) | ![AI 场景选择](presentation/snap2.png) |
 
@@ -18,12 +18,12 @@ https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 
 | 模块 | 当前能力 |
 | --- | --- |
-| 手动知识图谱 | 从选中的代码创建实体，维护关系，并记录设计决策、重构备注等观察记录。 |
-| Agent 图谱 | 安装项目级 Agent Skill，让 Agent 语义阅读代码并生成带来源证据的实体和依赖关系。 |
-| 图谱可视化 | 在 `vis-network` Webview 中查看人工维护、Agent 生成或合并图谱，并跳回源码位置。 |
+| 知识图谱 | 在同一张图谱中查看和编辑人工数据与 Agent 生成的实体、依赖关系和证据。 |
+| Agent 生成 | 安装项目级 Agent Skill，让 Agent 先语义阅读代码并生成图谱；人工随后可以补充实体、关系、观察记录和描述。 |
+| 图谱可视化 | 在统一的 `vis-network` Webview 中查看完整图谱，并跳回源码位置。 |
 | AI 上下文 | 导出 Markdown 或 JSON，生成 Cursor 规则和 GitHub Copilot 指令，并切换内置任务场景。 |
 | RAG | 通过 Gemini File Search 或 OpenAI 兼容接口索引文档，在 VS Code 侧边栏中提问。 |
-| MCP Server | 让 Cursor、GitHub Copilot 或其他 MCP 客户端合并查询人工图谱与 Agent sidecar。 |
+| MCP Server | 让 Cursor、GitHub Copilot 或其他 MCP 客户端查询同一份统一知识图谱。 |
 | 图谱音乐 | 根据图谱结构生成 Strudel 乐谱，并在内嵌播放器中打开。这个功能仍在实验阶段。 |
 
 项目数据保存在：
@@ -33,7 +33,7 @@ https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 <workspace>/.vscode/.knowledge/agent-graph.json
 ```
 
-`graph.sqlite` 保存人工维护的实体、关系和观察记录；`agent-graph.json` 是 Agent Skill 生成的独立声明式图谱。两者不会互相覆盖，合并视图可同时展示。
+`agent-graph.json` 是可重复生成的结构层；`graph.sqlite` 保存人工实体、关系、观察记录，以及 Agent 实体的人工描述覆盖。扩展把它们读取成同一张知识图谱。人工描述始终优先，因此 Agent 再次生成时不会覆盖已经编辑的描述。
 
 ## 从源码运行
 
@@ -62,11 +62,11 @@ npm run watch
 
 ## 常用工作流
 
-### 维护手动图谱
+### 编辑知识图谱
 
 1. 在编辑器中选中一段代码。
 2. 从右键菜单或命令面板运行 **Knowledge: Create Entity from Selection**。
-3. 在 VibeKnowledge 侧边栏中添加关系和观察记录。
+3. 在 VibeKnowledge 侧边栏中添加关系和观察记录，或右键实体选择 **Knowledge: Edit Entity Description** 编辑描述。
 4. 运行 **Knowledge: Visualize Graph** 查看图谱。
 
 手动观察记录适合保存静态分析拿不到的信息，比如架构决策、已知风险、迁移说明和重构约束。
@@ -78,7 +78,7 @@ npm run watch
 3. Agent 会阅读代码，以稳定实体键、明确关系方向和文件行号证据生成 `.vscode/.knowledge/agent-graph.json`，并运行 Skill 自带的校验器。
 4. 扩展监听该文件；保存后侧边栏与已打开的图谱视图会自动刷新。
 
-Agent Graph 使用完整替换语义，因此再次运行 Skill 会清理已经不存在的 Agent 关系。它不会修改 `graph.sqlite` 中的人工实体、关系或观察记录。清单格式见 [Agent Graph schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md)。
+Agent 生成层使用完整替换语义，因此再次运行 Skill 会清理已经不存在的生成关系。它不会修改 `graph.sqlite`；人工实体、关系、观察记录和描述覆盖都会保留。实体的稳定 `key` 用于重新关联人工描述。清单格式见 [生成层 schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md)。
 
 ### 使用 RAG
 
@@ -137,7 +137,7 @@ src/
   commands/              AI 场景命令
   i18n/                  中英文界面文本
   providers/             VS Code 树视图、悬浮提示和 CodeLens
-  services/              人工图谱、Agent 图谱、RAG 和导出服务
+  services/              统一知识图谱、Agent 生成层、RAG 和导出服务
   ui/                    命令处理与 Webview
 packages/mcp-server/     独立 MCP Server
 resources/scenarios/     内置 AI 任务模板

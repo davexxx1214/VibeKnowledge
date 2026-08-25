@@ -6,6 +6,7 @@ import { RelationService } from './relationService';
 import { ObservationService } from './observationService';
 import { DependencyAnalyzer } from './dependencyAnalyzer';
 import { Entity, Relation, Observation } from '../utils/types';
+import type { KnowledgeGraphService } from './knowledgeGraphService';
 import { t, getLocale } from '../i18n/i18nService';
 
 /**
@@ -18,7 +19,8 @@ export class ExportService {
   constructor(
     private entityService: EntityService,
     private relationService: RelationService,
-    private observationService: ObservationService
+    private observationService: ObservationService,
+    private knowledgeGraphService?: KnowledgeGraphService
   ) {
     this.dependencyAnalyzer = new DependencyAnalyzer(entityService, relationService);
   }
@@ -30,8 +32,8 @@ export class ExportService {
     outputPath: string,
     options: { includeDependencyAnalysis?: boolean } = {}
   ): Promise<void> {
-    const entities = this.entityService.listEntities({});
-    const allRelations = this.relationService.getAllRelations();
+    const entities = this.getEntities();
+    const allRelations = this.getAllRelations();
 
     let markdown = this.generateMarkdownHeader();
     markdown += this.generateOverview(entities, allRelations);
@@ -123,7 +125,7 @@ export class ExportService {
     detail += `**${translations.createdAt}**：${new Date(entity.createdAt).toLocaleString(getLocale())}  \n`;
     
     // 观察记录
-    const observations = this.observationService.getObservations(entity.id);
+    const observations = this.getObservations(entity.id);
     if (observations.length > 0) {
       detail += `\n**${translations.observations}** (${observations.length})：\n\n`;
       for (const obs of observations) {
@@ -133,7 +135,7 @@ export class ExportService {
     }
     
     // 关系
-    const relations = this.relationService.getRelationsByEntity(entity.id);
+    const relations = this.getRelationsByEntity(entity.id);
     if (relations.length > 0) {
       detail += `\n**${translations.relations}** (${relations.length})：\n\n`;
       
@@ -142,7 +144,7 @@ export class ExportService {
       if (outgoing.length > 0) {
         detail += `_${translations.outgoing}：_\n`;
         for (const rel of outgoing) {
-          const target = this.entityService.getEntity(rel.targetEntityId);
+          const target = this.getEntity(rel.targetEntityId);
           if (target) {
             detail += `- ${entity.name} **${rel.verb}** → ${target.name} (\`${target.type}\`)\n`;
           }
@@ -154,7 +156,7 @@ export class ExportService {
       if (incoming.length > 0) {
         detail += `\n_${translations.incoming}：_\n`;
         for (const rel of incoming) {
-          const source = this.entityService.getEntity(rel.sourceEntityId);
+          const source = this.getEntity(rel.sourceEntityId);
           if (source) {
             detail += `- ${source.name} (\`${source.type}\`) **${rel.verb}** → ${entity.name}\n`;
           }
@@ -185,8 +187,8 @@ export class ExportService {
       section += `### ${verb.toUpperCase()} (${verbRelations.length})\n\n`;
       
       for (const rel of verbRelations) {
-        const source = this.entityService.getEntity(rel.sourceEntityId);
-        const target = this.entityService.getEntity(rel.targetEntityId);
+        const source = this.getEntity(rel.sourceEntityId);
+        const target = this.getEntity(rel.targetEntityId);
         
         if (source && target) {
           section += `- **${source.name}** (\`${source.type}\`) → **${target.name}** (\`${target.type}\`)\n`;
@@ -270,13 +272,13 @@ export class ExportService {
    * 导出为 JSON 格式
    */
   public async exportToJSON(outputPath: string): Promise<void> {
-    const entities = this.entityService.listEntities({});
-    const relations = this.relationService.getAllRelations();
+    const entities = this.getEntities();
+    const relations = this.getAllRelations();
     
     // 收集所有观察记录
     const observations: Record<string, Observation[]> = {};
     for (const entity of entities) {
-      observations[entity.id] = this.observationService.getObservations(entity.id);
+      observations[entity.id] = this.getObservations(entity.id);
     }
     
     const exportData = {
@@ -323,7 +325,7 @@ export class ExportService {
     }
 
     // 详细依赖树（只显示依赖数量 > 0 的实体）
-    const entities = this.entityService.listEntities({});
+    const entities = this.getEntities();
     const entitiesWithDeps = entities.filter(entity => {
       const chain = this.dependencyAnalyzer.analyzeDependencyChain(entity.id);
       return chain && chain.totalDependencies > 0;
@@ -376,7 +378,7 @@ export class ExportService {
    * 检测所有循环依赖
    */
   private detectAllCircularDependencies() {
-    const entities = this.entityService.listEntities({});
+    const entities = this.getEntities();
     const allCircular = new Map<string, any>();
 
     for (const entity of entities) {
@@ -407,7 +409,7 @@ export class ExportService {
    * 格式化单个实体的完整信息，适合粘贴给 AI
    */
   public generateEntityContext(entityId: string): string {
-    const entity = this.entityService.getEntity(entityId);
+    const entity = this.getEntity(entityId);
     if (!entity) {
       throw new Error('实体不存在');
     }
@@ -421,7 +423,7 @@ export class ExportService {
     }
 
     // 观察记录
-    const observations = this.observationService.getObservations(entity.id);
+    const observations = this.getObservations(entity.id);
     if (observations.length > 0) {
       context += `## 观察记录 (${observations.length})\n\n`;
       observations.forEach((obs, i) => {
@@ -431,7 +433,7 @@ export class ExportService {
     }
 
     // 关系
-    const relations = this.relationService.getRelationsByEntity(entity.id);
+    const relations = this.getRelationsByEntity(entity.id);
     if (relations.length > 0) {
       context += `## 关系 (${relations.length})\n\n`;
 
@@ -440,7 +442,7 @@ export class ExportService {
       if (outgoing.length > 0) {
         context += `### 依赖项（此实体使用的其他实体）\n\n`;
         outgoing.forEach(rel => {
-          const target = this.entityService.getEntity(rel.targetEntityId);
+          const target = this.getEntity(rel.targetEntityId);
           if (target) {
             context += `- **${rel.verb}** → ${target.name} (\`${target.type}\` 在 \`${target.filePath}:${target.startLine}\`)\n`;
           }
@@ -453,7 +455,7 @@ export class ExportService {
       if (incoming.length > 0) {
         context += `### 被依赖项（依赖此实体的其他实体）\n\n`;
         incoming.forEach(rel => {
-          const source = this.entityService.getEntity(rel.sourceEntityId);
+          const source = this.getEntity(rel.sourceEntityId);
           if (source) {
             context += `- ${source.name} (\`${source.type}\` 在 \`${source.filePath}:${source.startLine}\`) **${rel.verb}** → 此实体\n`;
           }
@@ -474,7 +476,7 @@ export class ExportService {
    */
   public generateFileContext(filePath: string): string {
     // 获取文件中的所有实体
-    const allEntities = this.entityService.listEntities({});
+    const allEntities = this.getEntities();
     const fileEntities = allEntities.filter(e => e.filePath === filePath);
 
     if (fileEntities.length === 0) {
@@ -501,7 +503,7 @@ export class ExportService {
         }
 
         // 观察记录
-        const observations = this.observationService.getObservations(entity.id);
+        const observations = this.getObservations(entity.id);
         if (observations.length > 0) {
           context += `\n**观察记录** (${observations.length})：\n`;
           observations.forEach(obs => {
@@ -510,14 +512,14 @@ export class ExportService {
         }
 
         // 关系
-        const relations = this.relationService.getRelationsByEntity(entity.id);
+        const relations = this.getRelationsByEntity(entity.id);
         if (relations.length > 0) {
           context += `\n**关系** (${relations.length})：\n`;
           
           const outgoing = relations.filter(r => r.sourceEntityId === entity.id);
           if (outgoing.length > 0) {
             outgoing.forEach(rel => {
-              const target = this.entityService.getEntity(rel.targetEntityId);
+              const target = this.getEntity(rel.targetEntityId);
               if (target) {
                 context += `- ${rel.verb} → ${target.name} (\`${target.filePath}\`)\n`;
               }
@@ -527,7 +529,7 @@ export class ExportService {
           const incoming = relations.filter(r => r.targetEntityId === entity.id);
           if (incoming.length > 0) {
             incoming.forEach(rel => {
-              const source = this.entityService.getEntity(rel.sourceEntityId);
+              const source = this.getEntity(rel.sourceEntityId);
               if (source) {
                 context += `- ← ${rel.verb} ${source.name} (\`${source.filePath}\`)\n`;
               }
@@ -551,8 +553,8 @@ export class ExportService {
    * 生成简洁的项目概览，适合作为 AI 对话的上下文
    */
   public generateAISummary(): string {
-    const entities = this.entityService.listEntities({});
-    const relations = this.relationService.getAllRelations();
+    const entities = this.getEntities();
+    const relations = this.getAllRelations();
     
     if (entities.length === 0) {
       return `# 项目知识图谱摘要\n\n_此项目暂无知识图谱数据_\n`;
@@ -570,7 +572,7 @@ export class ExportService {
 
     // 统计所有观察记录
     entities.forEach(entity => {
-      const observations = this.observationService.getObservations(entity.id);
+      const observations = this.getObservations(entity.id);
       stats.totalObservations += observations.length;
     });
 
@@ -589,8 +591,8 @@ export class ExportService {
     // 关键组件（有观察记录或关系多的实体）
     const keyEntities = entities
       .map(entity => {
-        const observations = this.observationService.getObservations(entity.id);
-        const relations = this.relationService.getRelationsByEntity(entity.id);
+        const observations = this.getObservations(entity.id);
+        const relations = this.getRelationsByEntity(entity.id);
         return {
           entity,
           score: observations.length * 2 + relations.length,
@@ -639,7 +641,7 @@ export class ExportService {
     const importantObservations: Array<{ entity: Entity; observation: Observation }> = [];
 
     entities.forEach(entity => {
-      const observations = this.observationService.getObservations(entity.id);
+      const observations = this.getObservations(entity.id);
       observations.forEach(obs => {
         const lowerContent = obs.content.toLowerCase();
         if (importantKeywords.some(keyword => lowerContent.includes(keyword))) {
@@ -678,6 +680,43 @@ export class ExportService {
     summary += `> - 分享给团队成员作为项目概览\n`;
 
     return summary;
+  }
+
+  private getEntities(): Entity[] {
+    return this.knowledgeGraphService
+      ? this.knowledgeGraphService.listEntities()
+      : this.entityService.listEntities({});
+  }
+
+  private getAllRelations(): Relation[] {
+    return this.knowledgeGraphService
+      ? this.knowledgeGraphService.listRelations()
+      : this.relationService.getAllRelations();
+  }
+
+  private getEntity(entityId: string): Entity | null {
+    return this.knowledgeGraphService
+      ? this.knowledgeGraphService.getEntity(entityId)
+      : this.entityService.getEntity(entityId);
+  }
+
+  private getObservations(entityId: string): Observation[] {
+    return this.knowledgeGraphService
+      ? this.knowledgeGraphService.getObservations(entityId)
+      : this.observationService.getObservations(entityId);
+  }
+
+  private getRelationsByEntity(entityId: string): Relation[] {
+    if (this.knowledgeGraphService) {
+      return this.knowledgeGraphService
+        .listRelations()
+        .filter(
+          (relation) =>
+            relation.sourceEntityId === entityId ||
+            relation.targetEntityId === entityId
+        );
+    }
+    return this.relationService.getRelationsByEntity(entityId);
   }
 }
 

@@ -8,7 +8,6 @@ import type {
 } from './database.js';
 import type {
   AgentGraphEntityRecord,
-  AgentGraphOverview,
   AgentGraphRelationRecord,
   AgentGraphStore
 } from './agentGraphStore.js';
@@ -27,9 +26,9 @@ export type MergedRelationRecord =
   | AgentGraphRelationRecord;
 
 export interface MergedKnowledgeOverview extends KnowledgeOverview {
-  sources: {
-    manual: KnowledgeOverview;
-    agent: AgentGraphOverview;
+  generation: {
+    generatedAt: string | null;
+    scope: string | null;
   };
 }
 
@@ -43,7 +42,10 @@ export function searchMergedEntities(
   const manualResults: ManualEntityRecord[] = db
     .searchEntities({ ...params, limit: 100 })
     .map((entity) => ({ ...entity, source: 'manual' }));
-  const agentResults = agentGraph.searchEntities({ ...params, limit: 100 });
+  const agentResults = agentGraph.searchEntities(
+    { ...params, limit: 100 },
+    db.getAgentEntityDescriptionOverrides()
+  );
 
   return mergePreferManual(
     manualResults,
@@ -74,9 +76,8 @@ export function searchMergedRelations(
 }
 
 /**
- * Preserve the existing overview fields while reporting de-duplicated merged
- * counts plus raw per-source counts. Observation counts remain database-only
- * because v1 of the sidecar does not contain observations.
+ * Report the de-duplicated unified graph. Observation counts remain
+ * database-only because v1 of the generated layer does not contain them.
  */
 export function getMergedOverview(
   db: GraphDatabase,
@@ -89,7 +90,7 @@ export function getMergedOverview(
       ...entity,
       source: 'manual' as const
     })),
-    agentGraph.listAllEntities(),
+    agentGraph.listAllEntities(db.getAgentEntityDescriptionOverrides()),
     entityIdentityAliases,
     Number.MAX_SAFE_INTEGER
   );
@@ -108,7 +109,10 @@ export function getMergedOverview(
     relationCount: mergedRelations.length,
     observationCount: manual.observationCount,
     lastUpdatedAt: latestTimestamp(manual.lastUpdatedAt, agent.generatedAt),
-    sources: { manual, agent }
+    generation: {
+      generatedAt: agent.generatedAt,
+      scope: agent.scope
+    }
   };
 }
 
@@ -148,7 +152,7 @@ function mergePreferManual<TManual, TAgent>(
   }
 
   // A bounded merged query must not let a large manual result set hide the
-  // Agent graph completely. Split the available slots, then give unused quota
+  // generated records completely. Split the available slots, then give unused quota
   // back to the other source while keeping manual records first in the output.
   let manualQuota = Math.min(manualResults.length, Math.ceil(limit / 2));
   let agentQuota = Math.min(uniqueAgentResults.length, limit - manualQuota);

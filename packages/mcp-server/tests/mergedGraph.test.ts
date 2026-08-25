@@ -92,6 +92,18 @@ describe('merged graph queries', () => {
     ]);
     expect(results[0].source).toBe('manual');
     expect(results.filter(({ name }) => name === 'UserService')).toHaveLength(1);
+    expect(results.find(({ name }) => name === 'AuthService')).toMatchObject({
+      description: 'Human-authored Auth description',
+      metadata: { descriptionSource: 'manual' }
+    });
+    expect(
+      searchMergedEntities(db, agentGraph, {
+        query: 'Human-authored Auth',
+        limit: 100
+      })
+        .filter(({ source }) => source === 'agent')
+        .map(({ name }) => name)
+    ).toEqual(['AuthService']);
   });
 
   it('merges relations with manual records taking precedence', () => {
@@ -145,7 +157,7 @@ describe('merged graph queries', () => {
     );
   });
 
-  it('merges overview totals and reports a source breakdown', () => {
+  it('reports one de-duplicated Knowledge Graph overview', () => {
     const overview = getMergedOverview(createDbStub(), agentGraph);
 
     expect(overview).toMatchObject({
@@ -153,9 +165,9 @@ describe('merged graph queries', () => {
       relationCount: 2,
       observationCount: 4,
       lastUpdatedAt: '2026-08-21T01:02:03.000Z',
-      sources: {
-        manual: { entityCount: 2, relationCount: 1 },
-        agent: { entityCount: 3, relationCount: 2 }
+      generation: {
+        generatedAt: '2026-08-21T01:02:03.000Z',
+        scope: null
       }
     });
   });
@@ -214,6 +226,9 @@ function createDbStub(): GraphDatabase {
       relationCount: 1,
       observationCount: 4,
       lastUpdatedAt: '2026-08-20T01:02:03.000Z'
-    }))
+    })),
+    getAgentEntityDescriptionOverrides: vi.fn(
+      () => new Map([['agent-auth', 'Human-authored Auth description']])
+    )
   } as unknown as GraphDatabase;
 }

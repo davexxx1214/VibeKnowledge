@@ -9,10 +9,8 @@ import { ScenarioManager } from './scenarioManager';
 import { Entity, Relation } from '../utils/types';
 import { getLocale } from '../i18n/i18nService';
 
-/**
- * 图谱数据源类型
- */
-export type GraphSourceType = 'manual' | 'agent' | 'merged';
+/** The public product now exposes one unified Knowledge Graph. */
+export type GraphSourceType = 'knowledge';
 
 /**
  * 图谱数据
@@ -828,16 +826,9 @@ export class AIIntegrationService {
    */
   private getSourceLabel(sourceType: GraphSourceType | undefined, locale: 'zh' | 'en'): string {
     if (!sourceType) {
-      return locale === 'zh' ? '人工维护图谱（默认）' : 'Human-maintained Graph (default)';
+      return locale === 'zh' ? '知识图谱' : 'Knowledge Graph';
     }
-    
-    const labels = {
-      manual: { zh: '📝 人工维护图谱', en: '📝 Human-maintained Graph' },
-      agent: { zh: '🤖 Agent 图谱', en: '🤖 Agent Graph' },
-      merged: { zh: '🔗 合并图谱', en: '🔗 Merged Graph' }
-    };
-    
-    return labels[sourceType][locale];
+    return locale === 'zh' ? '知识图谱' : 'Knowledge Graph';
   }
 
   /**
@@ -850,12 +841,12 @@ export class AIIntegrationService {
     circularDependencyCount: number;
     topDependencies: Array<{ entity: Entity; dependencyCount: number }>;
   } {
-    // 如果没有传入 graphData 或者是手动图谱，使用原有的 dependencyAnalyzer
-    if (!graphData || graphData.sourceType === 'manual') {
+    // 没有显式图谱数据时，使用原有的 SQLite 分析器。
+    if (!graphData) {
       return this.dependencyAnalyzer.getGlobalDependencyStats();
     }
 
-    // 对于 Agent 图谱或合并图谱，根据传入的数据计算统计
+    // 对统一知识图谱，根据传入的数据计算统计。
     const { entities, relations } = graphData;
     
     // 计算每个实体的依赖数（出边数量）

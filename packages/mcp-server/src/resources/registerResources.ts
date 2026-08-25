@@ -12,7 +12,7 @@ export function registerBaseResources(
     'knowledge-overview',
     'knowledge://overview',
     {
-      description: 'VibeKnowledge 手动图谱与 Agent 生成图谱的合并总览',
+      description: 'VibeKnowledge 统一知识图谱总览',
       mimeType: 'application/json'
     },
     async () => {

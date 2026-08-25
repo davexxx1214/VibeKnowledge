@@ -21,7 +21,7 @@
   - [Part 2: Agent Dependency Graph](#part-2-agent-dependency-graph-3-minutes) 🆕
     - [Install the Skill](#21-install-the-dependency-graph-skill-1-minute)
     - [Ask an Agent to Generate Relations](#22-ask-an-agent-to-generate-relations-1-minute)
-    - [Review the Agent Graph](#23-review-the-agent-graph-1-minute)
+    - [Review and Edit the Knowledge Graph](#23-review-and-edit-the-knowledge-graph-1-minute)
   - [Part 3: RAG Persistent Knowledge Base](#part-3-rag-persistent-knowledge-base-5-minutes) 🆕
     - [Configure API Key](#31-configure-gemini-api-key-1-minute)
     - [Add Documents](#32-add-documents-to-knowledge-folder-1-minute)
@@ -886,7 +886,7 @@ ArticleService ────⚠️ uses────⤴
 
 ---
 
-### Part 2: Agent Dependency Graph (3 minutes) 🆕
+### Part 2: Agent Generation, Then Human Editing (3 minutes) 🆕
 
 > Let a coding Agent understand implementation semantics, select high-value direct dependencies, and cite precise code evidence.
 
@@ -898,7 +898,7 @@ ArticleService ────⚠️ uses────⤴
 3. Confirm .agents/skills/vibeknowledge-dependency-graph/ exists
 ```
 
-The command installs the Skill bundled with VibeKnowledge. It does not modify the human-maintained graph.
+The command installs the Skill bundled with VibeKnowledge. It generates only the refreshable structure and does not modify human-authored data.
 
 #### 2.2 Ask an Agent to Generate Relations (1 minute)
 
@@ -910,15 +910,16 @@ $vibeknowledge-dependency-graph generate the dependency knowledge graph for this
 
 The Agent reads the code and writes `.vscode/.knowledge/agent-graph.json`. Every relation must have a supported direction, verb, and at least one source-file evidence location. The bundled validator also rejects missing files and out-of-range evidence lines.
 
-#### 2.3 Review the Agent Graph (1 minute)
+#### 2.3 Review and Edit the Knowledge Graph (1 minute)
 
 ```text
 1. Run "Knowledge: Visualize Graph"
-2. Select "Agent Graph" or "Merged View"
-3. Hover Agent edges to inspect descriptions and evidence; double-click nodes to open source
+2. Review the single unified Knowledge Graph
+3. Hover generated edges to inspect descriptions and evidence; double-click nodes to open source
+4. Right-click an entity and choose "Knowledge: Edit Entity Description" to add human prose
 ```
 
-Rerunning the Skill replaces only the Agent graph, removing stale Agent relationships while preserving all human entities, relations, and observations.
+Rerunning the Skill replaces only the generated structure, removing stale relationships while preserving human entities, relations, observations, and description overrides.
 
 ---
 
@@ -1174,7 +1175,7 @@ For complete features see:
 
 2. **Before Refactoring**
    ```
-   Run the dependency graph Skill → Open Agent or merged graph → Assess impact scope
+   Run the dependency graph Skill → Open the Knowledge Graph → Review dependencies → Add human descriptions → Assess impact scope
    ```
 
 3. **During Code Review**

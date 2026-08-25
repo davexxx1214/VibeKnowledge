@@ -6,12 +6,12 @@ import { RelationService } from '../../services/relationService';
 import { ObservationService } from '../../services/observationService';
 import { ExportService } from '../../services/exportService';
 import { AIIntegrationService, GraphData } from '../../services/aiIntegrationService';
-import { AgentGraphService } from '../../services/agentGraph';
-import { Entity, EntityType, Observation, Relation } from '../../utils/types';
+import {
+  KnowledgeGraphService,
+  type KnowledgeEntity,
+} from '../../services/knowledgeGraphService';
+import { Entity, EntityType, Observation } from '../../utils/types';
 import { t } from '../../i18n/i18nService';
-
-/** 图谱数据源类型 */
-export type GraphSourceType = 'manual' | 'agent' | 'merged';
 
 /**
  * 实体相关的命令处理器
@@ -19,19 +19,18 @@ export type GraphSourceType = 'manual' | 'agent' | 'merged';
 export class EntityCommands {
   private exportService: ExportService;
   private aiIntegrationService: AIIntegrationService;
-  private agentGraphService: AgentGraphService;
 
   constructor(
     private entityService: EntityService,
     private relationService: RelationService,
     private observationService: ObservationService,
-    agentGraphService: AgentGraphService
+    private knowledgeGraphService: KnowledgeGraphService
   ) {
-    this.agentGraphService = agentGraphService;
     this.exportService = new ExportService(
       entityService,
       relationService,
-      observationService
+      observationService,
+      knowledgeGraphService
     );
     this.aiIntegrationService = new AIIntegrationService(
       entityService,
@@ -40,46 +39,12 @@ export class EntityCommands {
     );
   }
 
-  /**
-   * 选择图谱数据源
-   */
-  private async selectGraphSource(): Promise<GraphSourceType | undefined> {
-    const translations = t().commands.selectGraphSource;
-    
-    const options: (vscode.QuickPickItem & { value: GraphSourceType })[] = [
-      {
-        label: translations.manual.label,
-        description: translations.manual.description,
-        value: 'manual'
-      },
-      {
-        label: translations.agent.label,
-        description: translations.agent.description,
-        value: 'agent'
-      },
-      {
-        label: translations.merged.label,
-        description: translations.merged.description,
-        value: 'merged'
-      }
-    ];
-
-    const selected = await vscode.window.showQuickPick(options, {
-      placeHolder: translations.title
-    });
-
-    return selected?.value;
-  }
-
-  /**
-   * 根据选择的数据源获取图谱数据
-   */
-  private getGraphData(sourceType: GraphSourceType): GraphData {
-    const manualEntities = this.entityService.listEntities({});
-    const manualRelations = this.relationService.getAllRelations();
+  /** Build the one product-level Knowledge Graph used by AI exports. */
+  private getGraphData(): GraphData {
+    const snapshot = this.knowledgeGraphService.getSnapshot();
     const observations: Array<{ entityId: string; entityName: string; content: string }> = [];
-    for (const entity of manualEntities) {
-      const entityObservations = this.observationService.getObservations(entity.id);
+    for (const entity of snapshot.entities) {
+      const entityObservations = this.knowledgeGraphService.getObservations(entity.id);
       for (const obs of entityObservations) {
         observations.push({
           entityId: entity.id,
@@ -89,78 +54,12 @@ export class EntityCommands {
       }
     }
 
-    if (sourceType === 'manual') {
-      return {
-        entities: manualEntities,
-        relations: manualRelations,
-        observations,
-        sourceType: 'manual'
-      };
-    }
-
-    const agentEntities = this.agentGraphService.listEntities();
-    const agentRelations = this.agentGraphService.listRelations();
-    if (sourceType === 'agent') {
-      return {
-        entities: agentEntities,
-        relations: agentRelations,
-        observations: [],
-        sourceType: 'agent'
-      };
-    }
-
-    // 合并时人工实体优先，并把 Agent 关系端点映射到最终实体 ID。
-    const entityMap = new Map<string, Entity>();
-    const agentIdToIdentity = new Map<string, string>();
-    for (const entity of agentEntities) {
-      const identity = this.getEntityIdentity(entity);
-      entityMap.set(identity, entity);
-      agentIdToIdentity.set(entity.id, identity);
-    }
-    for (const entity of manualEntities) {
-      entityMap.set(this.getEntityIdentity(entity), entity);
-    }
-
-    const entities = Array.from(entityMap.values());
-    const finalIdByIdentity = new Map(
-      Array.from(entityMap.entries()).map(([identity, entity]) => [identity, entity.id])
-    );
-    const relations: Relation[] = [...manualRelations];
-    const relationKeys = new Set(
-      manualRelations.map(
-        (relation) =>
-          `${relation.sourceEntityId}\u0000${relation.targetEntityId}\u0000${relation.verb}`
-      )
-    );
-
-    for (const relation of agentRelations) {
-      const sourceIdentity = agentIdToIdentity.get(relation.sourceEntityId);
-      const targetIdentity = agentIdToIdentity.get(relation.targetEntityId);
-      if (!sourceIdentity || !targetIdentity) {
-        continue;
-      }
-      const sourceEntityId = finalIdByIdentity.get(sourceIdentity);
-      const targetEntityId = finalIdByIdentity.get(targetIdentity);
-      if (!sourceEntityId || !targetEntityId || sourceEntityId === targetEntityId) {
-        continue;
-      }
-      const relationKey = `${sourceEntityId}\u0000${targetEntityId}\u0000${relation.verb}`;
-      if (relationKeys.has(relationKey)) {
-        continue;
-      }
-      relationKeys.add(relationKey);
-      relations.push({ ...relation, sourceEntityId, targetEntityId });
-    }
-
-    return { entities, relations, observations, sourceType: 'merged' };
-  }
-
-  private getEntityIdentity(entity: Entity): string {
-    const normalizedPath = entity.filePath
-      .replace(/\\/g, '/')
-      .replace(/^\.\//, '')
-      .toLocaleLowerCase();
-    return `${normalizedPath}\u0000${entity.name.toLocaleLowerCase()}`;
+    return {
+      entities: snapshot.entities,
+      relations: snapshot.relations,
+      observations,
+      sourceType: 'knowledge',
+    };
   }
 
   /**
@@ -322,6 +221,72 @@ export class EntityCommands {
     }
   }
 
+  /** Edit descriptions in the unified graph without mutating Agent output. */
+  public async editEntityDescription(treeItem?: any): Promise<void> {
+    let entity = this.resolveKnowledgeEntity(treeItem);
+    if (!entity) {
+      const selected = await vscode.window.showQuickPick(
+        this.knowledgeGraphService.listEntities().map((candidate) => ({
+          label: candidate.name,
+          description: `${candidate.type} - ${candidate.filePath}:${candidate.startLine}`,
+          entity: candidate,
+        })),
+        { placeHolder: t().commands.editEntityDescription.selectEntity }
+      );
+      entity = selected?.entity || null;
+    }
+    if (!entity) {
+      return;
+    }
+
+    const description = await vscode.window.showInputBox({
+      title: t().commands.editEntityDescription.title,
+      prompt: t().commands.editEntityDescription.prompt(entity.name),
+      value: entity.description ?? '',
+      placeHolder: t().commands.editEntityDescription.placeholder,
+    });
+    if (description === undefined) {
+      return;
+    }
+
+    const updated = this.knowledgeGraphService.updateDescription(
+      entity.id,
+      description
+    );
+    if (!updated) {
+      vscode.window.showErrorMessage(
+        t().commands.editEntityDescription.error(entity.name)
+      );
+      return;
+    }
+    vscode.window.showInformationMessage(
+      t().commands.editEntityDescription.success(entity.name)
+    );
+  }
+
+  /** Restore the newest generated prose for an Agent-only entity. */
+  public async resetEntityDescription(treeItem?: any): Promise<void> {
+    const entity = this.resolveKnowledgeEntity(treeItem);
+    if (!entity || entity.origin !== 'agent') {
+      return;
+    }
+    this.knowledgeGraphService.resetGeneratedDescription(entity.id);
+    vscode.window.showInformationMessage(
+      t().commands.editEntityDescription.resetSuccess(entity.name)
+    );
+  }
+
+  private resolveKnowledgeEntity(input?: any): KnowledgeEntity | null {
+    const candidate = input?.entity || input;
+    const entityId =
+      typeof candidate === 'string'
+        ? candidate
+        : typeof candidate?.id === 'string'
+          ? candidate.id
+          : undefined;
+    return entityId ? this.knowledgeGraphService.getEntity(entityId) : null;
+  }
+
   /**
    * 查看实体详情
    */
@@ -448,17 +413,7 @@ export class EntityCommands {
       return;
     }
 
-    const manualEntities = this.entityService.listEntities({ name: query });
-    const manualIdentities = new Set(
-      manualEntities.map((entity) => this.getEntityIdentity(entity))
-    );
-    const agentEntities = this.agentGraphService
-      .listEntities({ name: query })
-      .filter((entity) => !manualIdentities.has(this.getEntityIdentity(entity)));
-    const entities = [
-      ...manualEntities.map((entity) => ({ entity, isAgent: false })),
-      ...agentEntities.map((entity) => ({ entity, isAgent: true })),
-    ];
+    const entities = this.knowledgeGraphService.listEntities({ name: query });
 
     if (entities.length === 0) {
       vscode.window.showInformationMessage('No entities found');
@@ -466,10 +421,9 @@ export class EntityCommands {
     }
 
     // 显示搜索结果
-    const sourceTranslations = t().agentGraph.graphView;
-    const items: Array<vscode.QuickPickItem & { entity: Entity }> = entities.map(({ entity, isAgent }) => ({
+    const items: Array<vscode.QuickPickItem & { entity: KnowledgeEntity }> = entities.map((entity) => ({
       label: entity.name,
-      description: `[${isAgent ? sourceTranslations.agentSource : sourceTranslations.humanSource}] ${entity.type} - ${entity.filePath}:${entity.startLine}`,
+      description: `${entity.type} - ${entity.filePath}:${entity.startLine}`,
       detail: entity.description,
       entity,
     }));
@@ -1284,14 +1238,8 @@ export class EntityCommands {
       return;
     }
 
-    // 选择图谱数据源
-    const sourceType = await this.selectGraphSource();
-    if (!sourceType) {
-      return; // 用户取消
-    }
-
     try {
-      const graphData = this.getGraphData(sourceType);
+      const graphData = this.getGraphData();
       const filePath = await this.aiIntegrationService.generateCursorRules(
         workspaceFolder.uri.fsPath,
         graphData
@@ -1325,14 +1273,8 @@ export class EntityCommands {
       return;
     }
 
-    // 选择图谱数据源
-    const sourceType = await this.selectGraphSource();
-    if (!sourceType) {
-      return; // 用户取消
-    }
-
     try {
-      const graphData = this.getGraphData(sourceType);
+      const graphData = this.getGraphData();
       const filePath = await this.aiIntegrationService.generateCopilotInstructions(
         workspaceFolder.uri.fsPath,
         graphData
@@ -1366,14 +1308,8 @@ export class EntityCommands {
       return;
     }
 
-    // 选择图谱数据源
-    const sourceType = await this.selectGraphSource();
-    if (!sourceType) {
-      return; // 用户取消
-    }
-
     try {
-      const graphData = this.getGraphData(sourceType);
+      const graphData = this.getGraphData();
       
       await vscode.window.withProgress(
         {

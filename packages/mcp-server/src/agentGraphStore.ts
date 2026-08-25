@@ -227,8 +227,13 @@ export class AgentGraphStore {
     };
   }
 
-  listAllEntities(): AgentGraphEntityRecord[] {
-    return this.load()?.entities ?? [];
+  listAllEntities(
+    descriptionOverrides: ReadonlyMap<string, string> = new Map()
+  ): AgentGraphEntityRecord[] {
+    return applyDescriptionOverrides(
+      this.load()?.entities ?? [],
+      descriptionOverrides
+    );
   }
 
   listAllRelations(): AgentGraphRelationRecord[] {
@@ -236,7 +241,8 @@ export class AgentGraphStore {
   }
 
   searchEntities(
-    params: SearchEntitiesParams = {}
+    params: SearchEntitiesParams = {},
+    descriptionOverrides: ReadonlyMap<string, string> = new Map()
   ): AgentGraphEntityRecord[] {
     const graph = this.load();
     if (!graph) {
@@ -248,7 +254,7 @@ export class AgentGraphStore {
     const filePath = normalizeFilter(params.filePath);
     const limit = clampLimit(params.limit);
 
-    return graph.entities
+    return applyDescriptionOverrides(graph.entities, descriptionOverrides)
       .filter((entity) => {
         if (
           query &&
@@ -351,6 +357,30 @@ export class AgentGraphStore {
       relations
     };
   }
+}
+
+function applyDescriptionOverrides(
+  entities: AgentGraphEntityRecord[],
+  overrides: ReadonlyMap<string, string>
+): AgentGraphEntityRecord[] {
+  if (overrides.size === 0) {
+    return entities;
+  }
+  return entities.map((entity) => {
+    const description = overrides.get(entity.key);
+    if (description === undefined) {
+      return entity;
+    }
+    return {
+      ...entity,
+      description,
+      metadata: {
+        ...(entity.metadata ?? {}),
+        generatedDescription: entity.description,
+        descriptionSource: 'manual'
+      }
+    };
+  });
 }
 
 function toEntityRecord(

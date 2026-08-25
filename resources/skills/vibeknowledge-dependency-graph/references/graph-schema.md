@@ -1,4 +1,4 @@
-# Agent Graph manifest schema
+# Generated Knowledge Graph manifest schema
 
 Write UTF-8 JSON to `<workspace>/.vscode/.knowledge/agent-graph.json`.
 
@@ -17,7 +17,8 @@ Write UTF-8 JSON to `<workspace>/.vscode/.knowledge/agent-graph.json`.
 - `version` must be `1`.
 - `generatedAt` must be an ISO-8601 timestamp.
 - `scope` is optional. Use `.` for the whole workspace or a normalized workspace-relative path for a narrower graph.
-- Rewriting the document replaces the previous Agent Graph. It never replaces the separate human-maintained graph.
+- Rewriting the document replaces only the generated layer. VibeKnowledge presents it together with human-authored data as one Knowledge Graph.
+- Human description overrides live outside this document and win at read time. Preserve each entity's `key` across runs so those edits remain attached.
 
 ## Entities
 

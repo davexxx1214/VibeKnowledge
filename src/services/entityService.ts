@@ -57,7 +57,7 @@ export class EntityService {
       entity.filePath,
       entity.startLine,
       entity.endLine,
-      entity.description || null,
+      entity.description ?? null,
       entity.createdAt,
       entity.updatedAt,
       entity.metadata ? JSON.stringify(entity.metadata) : null
@@ -104,7 +104,7 @@ export class EntityService {
       updated.filePath,
       updated.startLine,
       updated.endLine,
-      updated.description || null,
+      updated.description ?? null,
       updated.updatedAt,
       updated.metadata ? JSON.stringify(updated.metadata) : null,
       entityId

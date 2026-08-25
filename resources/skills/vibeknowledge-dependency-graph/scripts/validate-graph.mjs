@@ -172,9 +172,9 @@ if (Array.isArray(graph?.relations)) {
 }
 
 if (errors.length > 0) {
-  console.error(`Invalid Agent Graph (${errors.length} error${errors.length === 1 ? '' : 's'}):`);
+  console.error(`Invalid generated Knowledge Graph (${errors.length} error${errors.length === 1 ? '' : 's'}):`);
   errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log(`Valid Agent Graph: ${graph.entities.length} entities, ${graph.relations.length} relations`);
+console.log(`Valid generated Knowledge Graph: ${graph.entities.length} entities, ${graph.relations.length} relations`);

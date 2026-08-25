@@ -12,6 +12,7 @@ import {
   AgentGraphStats,
   AgentRelation,
 } from './types';
+import type { AgentEntityDescriptionOverrideStore } from './agentEntityOverrideService';
 
 const ENTITY_TYPES = new Set<EntityType>([
   'function',
@@ -56,7 +57,10 @@ export class AgentGraphService {
   private cachedSnapshot: AgentGraphSnapshot = EMPTY_SNAPSHOT;
   private lastError: Error | undefined;
 
-  constructor(workspaceRoot: string) {
+  constructor(
+    workspaceRoot: string,
+    private readonly descriptionOverrides?: AgentEntityDescriptionOverrideStore
+  ) {
     this.graphPath = path.join(
       workspaceRoot,
       '.vscode',
@@ -103,6 +107,33 @@ export class AgentGraphService {
 
   public getEntity(entityId: string): AgentEntity | null {
     return this.load().entities.find((entity) => entity.id === entityId) || null;
+  }
+
+  /** Save human prose separately from the generated manifest. */
+  public setManualDescription(
+    entityId: string,
+    description: string
+  ): AgentEntity | null {
+    const entity = this.getEntity(entityId);
+    if (!entity || !this.descriptionOverrides) {
+      return null;
+    }
+
+    this.descriptionOverrides.setDescription(entity.key, description);
+    this.refresh();
+    return this.getEntity(entityId);
+  }
+
+  /** Remove the human override and reveal the latest Agent description. */
+  public resetManualDescription(entityId: string): AgentEntity | null {
+    const entity = this.getEntity(entityId);
+    if (!entity || !this.descriptionOverrides) {
+      return null;
+    }
+
+    this.descriptionOverrides.deleteDescription(entity.key);
+    this.refresh();
+    return this.getEntity(entityId);
   }
 
   public listRelations(filters?: {
@@ -176,14 +207,14 @@ export class AgentGraphService {
 
       const raw = fs.readFileSync(this.graphPath, 'utf8').replace(/^\uFEFF/, '');
       const document = parseAgentGraphDocument(JSON.parse(raw));
-      this.cachedSnapshot = buildSnapshot(document);
+      this.cachedSnapshot = buildSnapshot(document, this.descriptionOverrides);
       this.cachedSignature = signature;
       this.lastError = undefined;
     } catch (error) {
       this.cachedSnapshot = EMPTY_SNAPSHOT;
       this.cachedSignature = signature;
       this.lastError = error instanceof Error ? error : new Error(String(error));
-      console.error(`Failed to load Agent Graph at ${this.graphPath}:`, error);
+      console.error(`Failed to load generated graph at ${this.graphPath}:`, error);
     }
 
     return this.cachedSnapshot;
@@ -192,16 +223,16 @@ export class AgentGraphService {
 
 export function parseAgentGraphDocument(value: unknown): AgentGraphDocument {
   if (!isRecord(value)) {
-    throw new Error('Agent Graph root must be an object');
+    throw new Error('Generated graph root must be an object');
   }
   if (value.version !== 1) {
-    throw new Error('Agent Graph version must be 1');
+    throw new Error('Generated graph version must be 1');
   }
   if (
     typeof value.generatedAt !== 'string' ||
     !isIsoTimestamp(value.generatedAt)
   ) {
-    throw new Error('Agent Graph generatedAt must be an ISO-8601 timestamp');
+    throw new Error('Generated graph generatedAt must be an ISO-8601 timestamp');
   }
   if (value.scope !== undefined) {
     if (value.scope !== '.') {
@@ -209,14 +240,14 @@ export function parseAgentGraphDocument(value: unknown): AgentGraphDocument {
     }
   }
   if (!Array.isArray(value.entities) || !Array.isArray(value.relations)) {
-    throw new Error('Agent Graph entities and relations must be arrays');
+    throw new Error('Generated graph entities and relations must be arrays');
   }
 
   const keys = new Set<string>();
   const entities = value.entities.map((item, index) => {
     const entity = parseEntity(item, index);
     if (keys.has(entity.key)) {
-      throw new Error(`Duplicate Agent Graph entity key: ${entity.key}`);
+      throw new Error(`Duplicate generated graph entity key: ${entity.key}`);
     }
     keys.add(entity.key);
     return entity;
@@ -227,15 +258,15 @@ export function parseAgentGraphDocument(value: unknown): AgentGraphDocument {
     const relation = parseRelation(item, index);
     if (!keys.has(relation.source) || !keys.has(relation.target)) {
       throw new Error(
-        `Agent Graph relation ${index} references an unknown entity key`
+        `Generated graph relation ${index} references an unknown entity key`
       );
     }
     if (relation.source === relation.target) {
-      throw new Error(`Agent Graph relation ${index} must not be a self relation`);
+      throw new Error(`Generated graph relation ${index} must not be a self relation`);
     }
     const relationKey = `${relation.source}\u0000${relation.target}\u0000${relation.verb}`;
     if (relationKeys.has(relationKey)) {
-      throw new Error(`Duplicate Agent Graph relation at index ${index}`);
+      throw new Error(`Duplicate generated graph relation at index ${index}`);
     }
     relationKeys.add(relationKey);
     return relation;
@@ -252,7 +283,7 @@ export function parseAgentGraphDocument(value: unknown): AgentGraphDocument {
 
 function parseEntity(value: unknown, index: number): AgentGraphEntityInput {
   if (!isRecord(value)) {
-    throw new Error(`Agent Graph entity ${index} must be an object`);
+    throw new Error(`Generated graph entity ${index} must be an object`);
   }
   const key = requireString(value.key, `entities[${index}].key`);
   const name = requireString(value.name, `entities[${index}].name`);
@@ -286,7 +317,7 @@ function parseEntity(value: unknown, index: number): AgentGraphEntityInput {
 
 function parseRelation(value: unknown, index: number): AgentGraphRelationInput {
   if (!isRecord(value)) {
-    throw new Error(`Agent Graph relation ${index} must be an object`);
+    throw new Error(`Generated graph relation ${index} must be an object`);
   }
   const source = requireString(value.source, `relations[${index}].source`);
   const target = requireString(value.target, `relations[${index}].target`);
@@ -337,11 +368,16 @@ function parseEvidence(
   };
 }
 
-function buildSnapshot(document: AgentGraphDocument): AgentGraphSnapshot {
+function buildSnapshot(
+  document: AgentGraphDocument,
+  descriptionOverrides?: AgentEntityDescriptionOverrideStore
+): AgentGraphSnapshot {
   const timestamp = Date.parse(document.generatedAt);
   const entityIds = new Map<string, string>();
   const entities: AgentEntity[] = document.entities.map((entity) => {
     const id = stableId('entity', entity.key);
+    const manualDescription = descriptionOverrides?.getDescription(entity.key);
+    const hasManualDescription = manualDescription !== undefined;
     entityIds.set(entity.key, id);
     return {
       id,
@@ -351,13 +387,15 @@ function buildSnapshot(document: AgentGraphDocument): AgentGraphSnapshot {
       filePath: entity.filePath,
       startLine: entity.startLine,
       endLine: entity.endLine,
-      description: entity.description,
+      description: hasManualDescription ? manualDescription : entity.description,
       createdAt: timestamp,
       updatedAt: timestamp,
       metadata: {
         source: 'agent-skill',
         agentKey: entity.key,
         scope: document.scope || '.',
+        generatedDescription: entity.description,
+        descriptionSource: hasManualDescription ? 'manual' : 'agent',
       },
     };
   });
