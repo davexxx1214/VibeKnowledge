@@ -55,6 +55,16 @@ function validDocument() {
   };
 }
 
+function documentWithDescription(description: string) {
+  const document = validDocument();
+  return {
+    ...document,
+    entities: document.entities.map((entity, index) =>
+      index === 0 ? { ...entity, description } : entity
+    ),
+  };
+}
+
 afterEach(() => {
   while (tempDirs.length > 0) {
     rmSync(tempDirs.pop()!, { recursive: true, force: true });
@@ -125,6 +135,31 @@ describe('AgentGraphService', () => {
     expect(service.getLastError()).toBeDefined();
   });
 
+  it('uses a refreshed Agent description when there is no human override', () => {
+    const workspace = createWorkspace();
+    const graphPath = join(workspace, '.vscode', '.knowledge', 'agent-graph.json');
+    const firstDocument = documentWithDescription('Agent description v1');
+    writeFileSync(graphPath, JSON.stringify(firstDocument), 'utf8');
+
+    const service = new AgentGraphService(workspace);
+    const entityId = service.listEntities({ name: 'A' })[0].id;
+
+    const refreshedDocument = {
+      ...documentWithDescription('Agent description v2'),
+      generatedAt: '2026-08-22T12:00:00.000Z',
+    };
+    writeFileSync(graphPath, JSON.stringify(refreshedDocument), 'utf8');
+    service.refresh();
+
+    expect(service.getEntity(entityId)).toMatchObject({
+      description: 'Agent description v2',
+      metadata: {
+        generatedDescription: 'Agent description v2',
+        descriptionSource: 'agent',
+      },
+    });
+  });
+
   it('keeps a human description when the Agent regenerates the entity', () => {
     const workspace = createWorkspace();
     const graphPath = join(workspace, '.vscode', '.knowledge', 'agent-graph.json');
@@ -134,8 +169,7 @@ describe('AgentGraphService', () => {
       setDescription: (key, description) => descriptions.set(key, description),
       deleteDescription: (key) => descriptions.delete(key),
     };
-    const firstDocument: any = validDocument();
-    firstDocument.entities[0].description = 'Agent description v1';
+    const firstDocument = documentWithDescription('Agent description v1');
     writeFileSync(graphPath, JSON.stringify(firstDocument), 'utf8');
 
     const service = new AgentGraphService(workspace, overrides);
@@ -143,9 +177,10 @@ describe('AgentGraphService', () => {
     expect(service.setManualDescription(entityId, 'Human description')?.description)
       .toBe('Human description');
 
-    const regenerated: any = validDocument();
-    regenerated.generatedAt = '2026-08-22T12:00:00.000Z';
-    regenerated.entities[0].description = 'Agent description v2';
+    const regenerated = {
+      ...documentWithDescription('Agent description v2'),
+      generatedAt: '2026-08-22T12:00:00.000Z',
+    };
     writeFileSync(graphPath, JSON.stringify(regenerated), 'utf8');
     service.refresh();
 

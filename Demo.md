@@ -302,7 +302,7 @@ VibeKnowledge 支持中英文双语界面：
 
 **预期效果**：
 - ✅ 悬浮提示显示观察记录
-- ✅ CodeLens 显示：`[KG: 1 observation]`
+- ✅ CodeLens 显示描述和统计：`🧠 KG: 用户管理核心服务 · 📝 1 · 🔗 0`
 
 ---
 
@@ -933,7 +933,8 @@ Agent 会阅读代码、判断直接依赖关系，并生成：
 1. 命令面板 → "Knowledge: Visualize Graph"
 2. 直接查看统一的知识图谱
 3. 双击节点跳转到代码，并依据 evidence 审查关系
-4. 在侧边栏右键实体 → "Knowledge: Edit Entity Description" 补充人工描述
+4. Agent 实体会在源码上方显示 `🧠 KG` 描述；点击提示即可人工编辑
+5. 也可以在侧边栏右键实体 → "Knowledge: Edit Entity Description" 补充人工描述
 ```
 
 **支持的关系类型**：`uses`、`calls`、`extends`、`implements`、`depends_on`、`contains`、`references`、`imports`、`exports`。

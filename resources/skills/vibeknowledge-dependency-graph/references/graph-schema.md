@@ -36,11 +36,12 @@ Each entity has this shape:
 }
 ```
 
-Required fields are `key`, `name`, `type`, `filePath`, `startLine`, and `endLine`. `description` is optional.
+Required fields are `key`, `name`, `type`, `filePath`, `startLine`, and `endLine`. `description` remains optional for schema compatibility, but file-backed entities should include it because VibeKnowledge displays it in the editor's `🧠 KG` hint.
 
 - `key` must be unique and stable across runs. Prefer `<workspace-relative-path>#<symbol>`; use just the path for file, directory, database, or configuration nodes.
 - `filePath` must use `/`, be relative to the workspace, and must not contain `.` or `..` path segments.
 - Lines are one-based positive integers and `endLine >= startLine`.
+- Keep `description` concise and responsibility-focused. The Agent may refresh it when code changes; a human override is stored separately and remains authoritative until the user restores the Agent description.
 - `type` must be one of: `function`, `class`, `interface`, `variable`, `file`, `directory`, `api`, `config`, `database`, `service`, `component`, `external`, `other`.
 - For a genuinely external entity, use a portable virtual path under `external/`, such as `external/postgresql`.
 

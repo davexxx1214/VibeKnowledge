@@ -291,12 +291,12 @@ export class EntityCommands {
    * 查看实体详情
    */
   public async viewEntityDetails(entityId?: string | any): Promise<void> {
-    let entity: Entity | null = null;
+    let entity: KnowledgeEntity | null = null;
 
     // 检查 entityId 参数类型
     // 如果是 URI 对象（从右键菜单调用），忽略它
     if (entityId && typeof entityId === 'string') {
-      entity = this.entityService.getEntity(entityId);
+      entity = this.knowledgeGraphService.getEntity(entityId);
     }
     
     if (!entity) {
@@ -312,7 +312,10 @@ export class EntityCommands {
       }
 
       const line = editor.selection.active.line + 1;
-      entity = this.entityService.findEntityAtLocation(relativePath, line);
+      entity = this.knowledgeGraphService.findEntityAtLocation(
+        relativePath,
+        line
+      );
     }
 
     if (!entity) {
@@ -321,8 +324,8 @@ export class EntityCommands {
     }
 
     // 获取相关信息
-    const observations = this.observationService.getObservations(entity.id);
-    const relations = this.relationService.getRelatedEntities(entity.id);
+    const observations = this.knowledgeGraphService.getObservations(entity.id);
+    const relations = this.knowledgeGraphService.getRelatedEntities(entity.id);
 
     // 构建详情信息
     const lines: string[] = [

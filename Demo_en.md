@@ -302,7 +302,7 @@ This demo includes three core features: **Knowledge Graph Visualization**, **Age
 
 **Expected Result**:
 - ✅ Hover tip shows observation
-- ✅ CodeLens shows: `[KG: 1 observation]`
+- ✅ CodeLens shows the description and counts: `🧠 KG: Core user management service · 📝 1 · 🔗 0`
 
 ---
 
@@ -916,7 +916,8 @@ The Agent reads the code and writes `.vscode/.knowledge/agent-graph.json`. Every
 1. Run "Knowledge: Visualize Graph"
 2. Review the single unified Knowledge Graph
 3. Hover generated edges to inspect descriptions and evidence; double-click nodes to open source
-4. Right-click an entity and choose "Knowledge: Edit Entity Description" to add human prose
+4. Agent entities show their descriptions in `🧠 KG` above the source; click the hint to edit it manually
+5. You can also right-click an entity and choose "Knowledge: Edit Entity Description" to add human prose
 ```
 
 Rerunning the Skill replaces only the generated structure, removing stale relationships while preserving human entities, relations, observations, and description overrides.

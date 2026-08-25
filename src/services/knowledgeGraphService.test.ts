@@ -58,6 +58,37 @@ describe('KnowledgeGraphService', () => {
       description: 'Human A v2',
     });
   });
+
+  it('finds Agent entities and relations from an editor location', () => {
+    const agentEntities: AgentEntity[] = [
+      agentEntity('agent-a', 'key-a', 'A', 'src/a.ts', 'Agent A'),
+      agentEntity('agent-b', 'key-b', 'B', 'src/b.ts', 'Agent B'),
+    ];
+    const agentRelations: AgentRelation[] = [
+      {
+        id: 'agent-relation',
+        sourceKey: 'key-a',
+        targetKey: 'key-b',
+        sourceEntityId: 'agent-a',
+        targetEntityId: 'agent-b',
+        verb: 'calls',
+        createdAt: 1,
+      },
+    ];
+    const service = createService([], [], agentEntities, agentRelations);
+
+    expect(service.getEntitiesByFile('SRC\\A.TS')).toMatchObject([
+      { id: 'agent-a', description: 'Agent A', origin: 'agent' },
+    ]);
+    expect(service.findEntityAtLocation('./src/a.ts', 5)?.id).toBe('agent-a');
+    expect(service.getRelatedEntities('agent-a')).toMatchObject([
+      {
+        direction: 'outgoing',
+        entity: { id: 'agent-b' },
+        relation: { id: 'agent-relation', origin: 'agent' },
+      },
+    ]);
+  });
 });
 
 function createService(
@@ -71,6 +102,10 @@ function createService(
     {
       listEntities: vi.fn(() => manualEntities),
       updateEntity,
+      getEntity: vi.fn(
+        (entityId: string) =>
+          manualEntities.find((entity) => entity.id === entityId) || null
+      ),
     } as any,
     { getAllRelations: vi.fn(() => manualRelations) } as any,
     { getObservations: vi.fn(() => []) } as any,

@@ -207,6 +207,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const refreshAgentGraph = () => {
       treeDataProvider.refresh();
       GraphView.refresh();
+      codeLensProvider.refresh();
     };
     context.subscriptions.push(
       agentGraphWatcher,
@@ -226,9 +227,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // 注册 CodeLens Provider
     const codeLensProvider = new KnowledgeCodeLensProvider(
-      entityService,
-      relationService,
-      observationService
+      knowledgeGraphService
     );
     context.subscriptions.push(
       vscode.languages.registerCodeLensProvider(
@@ -298,6 +297,7 @@ export async function activate(context: vscode.ExtensionContext) {
             await entityCommands.editEntityDescription(treeItem);
             treeDataProvider.refresh();
             GraphView.refresh();
+            codeLensProvider.refresh();
           } catch (error) {
             console.error('Error editing entity description:', error);
             vscode.window.showErrorMessage(`Error editing description: ${error}`);
@@ -311,6 +311,7 @@ export async function activate(context: vscode.ExtensionContext) {
             await entityCommands.resetEntityDescription(treeItem);
             treeDataProvider.refresh();
             GraphView.refresh();
+            codeLensProvider.refresh();
           } catch (error) {
             console.error('Error resetting entity description:', error);
             vscode.window.showErrorMessage(`Error resetting description: ${error}`);
@@ -595,11 +596,7 @@ export async function activate(context: vscode.ExtensionContext) {
     );
 
     // 注册 Hover Provider
-    const hoverProvider = new KnowledgeHoverProvider(
-      entityService,
-      relationService,
-      observationService
-    );
+    const hoverProvider = new KnowledgeHoverProvider(knowledgeGraphService);
     context.subscriptions.push(
       vscode.languages.registerHoverProvider(
         { scheme: 'file' },

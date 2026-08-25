@@ -76,9 +76,11 @@ Manual observations work well for information that static analysis cannot recove
 1. Run **Knowledge: Install Dependency Graph Agent Skill**. The extension installs the skill under `.agents/skills/vibeknowledge-dependency-graph/` in the project.
 2. Ask an Agent Skills-compatible coding agent to generate or refresh the project dependency graph, or invoke `$vibeknowledge-dependency-graph` explicitly.
 3. The Agent reads the code and writes `.vscode/.knowledge/agent-graph.json` with stable entity keys, explicit relation direction, and file/line evidence, then runs the bundled validator.
-4. The extension watches that file and refreshes the explorer and any open graph view after it is saved.
+4. The extension watches that file and refreshes the explorer, editor `🧠 KG` hints, and any open graph view after it is saved.
 
 The generated layer uses full-replacement semantics, so rerunning the skill removes stale generated relationships. It never edits `graph.sqlite`; human entities, relations, observations, and description overrides remain intact. Stable entity keys reconnect those descriptions after every run. See the [generated-layer schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md).
+
+File-backed Agent entities display their current description in a `🧠 KG` CodeLens above the source location. Click the hint to edit the description manually. The Agent can update its generated description on later Skill runs; once a human edits it, the human override wins until **Knowledge: Restore Agent Description** is used from the entity menu.
 
 ### Use RAG
 

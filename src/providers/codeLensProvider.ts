@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { EntityService } from '../services/entityService';
-import { RelationService } from '../services/relationService';
-import { ObservationService } from '../services/observationService';
+import { KnowledgeGraphService } from '../services/knowledgeGraphService';
+import { buildKnowledgeCodeLensModels } from './knowledgeCodeLensModel';
 
 /**
  * CodeLens 提供者
@@ -12,11 +11,7 @@ export class KnowledgeCodeLensProvider implements vscode.CodeLensProvider {
   private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
   public readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
 
-  constructor(
-    private entityService: EntityService,
-    private relationService: RelationService,
-    private observationService: ObservationService
-  ) {}
+  constructor(private readonly graphService: KnowledgeGraphService) {}
 
   public provideCodeLenses(
     document: vscode.TextDocument,
@@ -30,26 +25,25 @@ export class KnowledgeCodeLensProvider implements vscode.CodeLensProvider {
       return codeLenses;
     }
     
-    const entities = this.entityService.getEntitiesByFile(relativePath);
+    const models = buildKnowledgeCodeLensModels(
+      this.graphService.getEntitiesByFile(relativePath),
+      this.graphService.listRelations(),
+      document.lineCount,
+      (entityId) => this.graphService.getObservations(entityId).length
+    );
 
-    for (const entity of entities) {
-      // 获取统计信息
-      const observationCount = this.observationService.getObservationCount(entity.id);
-      const relationCount = this.relationService.getRelationCount(entity.id);
-
-      // 创建 CodeLens 范围
+    for (const model of models) {
       const range = new vscode.Range(
-        entity.startLine - 1, // VSCode 行号从 0 开始
+        model.line,
         0,
-        entity.startLine - 1,
+        model.line,
         0
       );
-
-      // 创建 CodeLens
       const codeLens = new vscode.CodeLens(range, {
-        title: `🧠 KG: ${observationCount} observations, ${relationCount} relations`,
-        command: 'knowledge.viewEntityDetails',
-        arguments: [entity.id],
+        title: model.title,
+        tooltip: 'Edit knowledge graph description',
+        command: 'knowledge.editEntityDescription',
+        arguments: [model.entityId],
       });
 
       codeLenses.push(codeLens);

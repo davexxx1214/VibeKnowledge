@@ -76,9 +76,11 @@ npm run watch
 1. 运行 **Knowledge: Install Dependency Graph Agent Skill**。扩展会把 Skill 安装到项目的 `.agents/skills/vibeknowledge-dependency-graph/`。
 2. 在支持 Agent Skills 的编码 Agent 中提出“生成/更新项目依赖图谱”，或显式调用 `$vibeknowledge-dependency-graph`。
 3. Agent 会阅读代码，以稳定实体键、明确关系方向和文件行号证据生成 `.vscode/.knowledge/agent-graph.json`，并运行 Skill 自带的校验器。
-4. 扩展监听该文件；保存后侧边栏与已打开的图谱视图会自动刷新。
+4. 扩展监听该文件；保存后侧边栏、编辑器中的 `🧠 KG` 提示与已打开的图谱视图都会自动刷新。
 
 Agent 生成层使用完整替换语义，因此再次运行 Skill 会清理已经不存在的生成关系。它不会修改 `graph.sqlite`；人工实体、关系、观察记录和描述覆盖都会保留。实体的稳定 `key` 用于重新关联人工描述。清单格式见 [生成层 schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md)。
+
+具有源码位置的 Agent 实体会在对应代码上方显示当前描述，例如 `🧠 KG: 负责用户认证……`。点击提示即可人工编辑；Agent 后续运行 Skill 时也可以更新生成描述。一旦人工编辑，人工覆盖优先，直到在实体菜单中执行 **Knowledge: Restore Agent Description** 恢复使用 Agent 描述。
 
 ### 使用 RAG
 

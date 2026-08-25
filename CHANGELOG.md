@@ -19,6 +19,7 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 - Replaced the regex-based automatic dependency analyzer with Agent-driven semantic analysis, while presenting generated and human-authored data as one graph.
 - Made human-authored descriptions authoritative across Agent regeneration.
+- Made editor `🧠 KG` CodeLens and hover hints use the unified graph, show Agent-authored descriptions, refresh after Skill output changes, and open manual description editing directly.
 - Made English the default README and moved the Chinese documentation to `README_ZH.md`.
 - Updated compatible dependencies and development tooling.
 - Removed generated coverage reports from version control.

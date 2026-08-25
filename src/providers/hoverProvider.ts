@@ -1,19 +1,13 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { EntityService } from '../services/entityService';
-import { RelationService } from '../services/relationService';
-import { ObservationService } from '../services/observationService';
+import { KnowledgeGraphService } from '../services/knowledgeGraphService';
 
 /**
  * 悬浮提示提供者
  * 当鼠标悬停在代码上时，显示实体的相关信息
  */
 export class KnowledgeHoverProvider implements vscode.HoverProvider {
-  constructor(
-    private entityService: EntityService,
-    private relationService: RelationService,
-    private observationService: ObservationService
-  ) {}
+  constructor(private readonly graphService: KnowledgeGraphService) {}
 
   public provideHover(
     document: vscode.TextDocument,
@@ -28,29 +22,36 @@ export class KnowledgeHoverProvider implements vscode.HoverProvider {
 
     const line = position.line + 1; // VSCode 行号从 0 开始，数据库从 1 开始
 
-    const entity = this.entityService.findEntityAtLocation(relativePath, line);
+    const entity = this.graphService.findEntityAtLocation(relativePath, line);
     if (!entity) {
       return null;
     }
 
     // 构建悬浮提示内容
     const markdown = new vscode.MarkdownString();
-    markdown.isTrusted = true;
+    markdown.isTrusted = false;
 
     // 实体基本信息
     markdown.appendMarkdown(`### 🧠 Knowledge Graph\n\n`);
-    markdown.appendMarkdown(`**${entity.name}** (${entity.type})\n\n`);
+    markdown.appendMarkdown('**');
+    markdown.appendText(entity.name);
+    markdown.appendMarkdown('** (');
+    markdown.appendText(entity.type);
+    markdown.appendMarkdown(')\n\n');
 
     if (entity.description) {
-      markdown.appendMarkdown(`${entity.description}\n\n`);
+      markdown.appendText(entity.description);
+      markdown.appendMarkdown('\n\n');
     }
 
     // 观察记录
-    const observations = this.observationService.getObservations(entity.id);
+    const observations = this.graphService.getObservations(entity.id);
     if (observations.length > 0) {
       markdown.appendMarkdown(`#### 📝 Observations (${observations.length})\n\n`);
       observations.slice(0, 3).forEach(obs => {
-        markdown.appendMarkdown(`- ${obs.content}\n`);
+        markdown.appendMarkdown('- ');
+        markdown.appendText(obs.content);
+        markdown.appendMarkdown('\n');
       });
       if (observations.length > 3) {
         markdown.appendMarkdown(`- *...and ${observations.length - 3} more*\n`);
@@ -59,7 +60,7 @@ export class KnowledgeHoverProvider implements vscode.HoverProvider {
     }
 
     // 关系信息
-    const relations = this.relationService.getRelatedEntities(entity.id);
+    const relations = this.graphService.getRelatedEntities(entity.id);
     if (relations.length > 0) {
       markdown.appendMarkdown(`#### 🔗 Relations (${relations.length})\n\n`);
       
@@ -69,7 +70,9 @@ export class KnowledgeHoverProvider implements vscode.HoverProvider {
       if (outgoing.length > 0) {
         markdown.appendMarkdown(`**Outgoing:**\n`);
         outgoing.slice(0, 3).forEach(rel => {
-          markdown.appendMarkdown(`- ${rel.relation.verb} → ${rel.entity.name}\n`);
+          markdown.appendMarkdown('- ');
+          markdown.appendText(`${rel.relation.verb} → ${rel.entity.name}`);
+          markdown.appendMarkdown('\n');
         });
         if (outgoing.length > 3) {
           markdown.appendMarkdown(`- *...and ${outgoing.length - 3} more*\n`);
@@ -79,7 +82,9 @@ export class KnowledgeHoverProvider implements vscode.HoverProvider {
       if (incoming.length > 0) {
         markdown.appendMarkdown(`\n**Incoming:**\n`);
         incoming.slice(0, 3).forEach(rel => {
-          markdown.appendMarkdown(`- ${rel.entity.name} → ${rel.relation.verb}\n`);
+          markdown.appendMarkdown('- ');
+          markdown.appendText(`${rel.entity.name} → ${rel.relation.verb}`);
+          markdown.appendMarkdown('\n');
         });
         if (incoming.length > 3) {
           markdown.appendMarkdown(`- *...and ${incoming.length - 3} more*\n`);

@@ -21,6 +21,12 @@ export interface KnowledgeRelation extends Relation {
   origin: KnowledgeGraphOrigin;
 }
 
+export interface KnowledgeRelatedEntity {
+  entity: KnowledgeEntity;
+  relation: KnowledgeRelation;
+  direction: 'incoming' | 'outgoing';
+}
+
 export interface KnowledgeGraphSnapshot {
   entities: KnowledgeEntity[];
   relations: KnowledgeRelation[];
@@ -166,7 +172,11 @@ export class KnowledgeGraphService {
       if (filters?.type && entity.type !== filters.type) {
         return false;
       }
-      if (filters?.filePath && entity.filePath !== filters.filePath) {
+      if (
+        filters?.filePath &&
+        normalizeKnowledgeFilePath(entity.filePath) !==
+          normalizeKnowledgeFilePath(filters.filePath)
+      ) {
         return false;
       }
       if (
@@ -177,6 +187,27 @@ export class KnowledgeGraphService {
       }
       return true;
     });
+  }
+
+  public getEntitiesByFile(filePath: string): KnowledgeEntity[] {
+    return this.listEntities({ filePath });
+  }
+
+  public findEntityAtLocation(
+    filePath: string,
+    line: number
+  ): KnowledgeEntity | null {
+    return (
+      this.getEntitiesByFile(filePath)
+        .filter(
+          (entity) => entity.startLine <= line && entity.endLine >= line
+        )
+        .sort((left, right) => {
+          const leftSpan = left.endLine - left.startLine;
+          const rightSpan = right.endLine - right.startLine;
+          return leftSpan - rightSpan || right.startLine - left.startLine;
+        })[0] || null
+    );
   }
 
   public getEntity(entityId: string): KnowledgeEntity | null {
@@ -207,6 +238,29 @@ export class KnowledgeGraphService {
         return false;
       }
       return true;
+    });
+  }
+
+  public getRelatedEntities(entityId: string): KnowledgeRelatedEntity[] {
+    const snapshot = this.getSnapshot();
+    const entitiesById = new Map(
+      snapshot.entities.map((entity) => [entity.id, entity])
+    );
+
+    return snapshot.relations.flatMap((relation) => {
+      if (relation.sourceEntityId === entityId) {
+        const entity = entitiesById.get(relation.targetEntityId);
+        return entity
+          ? [{ entity, relation, direction: 'outgoing' as const }]
+          : [];
+      }
+      if (relation.targetEntityId === entityId) {
+        const entity = entitiesById.get(relation.sourceEntityId);
+        return entity
+          ? [{ entity, relation, direction: 'incoming' as const }]
+          : [];
+      }
+      return [];
     });
   }
 
@@ -250,11 +304,16 @@ export class KnowledgeGraphService {
 }
 
 export function entityIdentity(entity: Pick<Entity, 'name' | 'filePath'>): string {
-  const normalizedPath = entity.filePath
+  return `${normalizeKnowledgeFilePath(entity.filePath)}\u0000${entity.name
+    .trim()
+    .toLocaleLowerCase()}`;
+}
+
+export function normalizeKnowledgeFilePath(filePath: string): string {
+  return filePath
     .replace(/\\/g, '/')
     .replace(/^\.\//, '')
     .toLocaleLowerCase();
-  return `${normalizedPath}\u0000${entity.name.trim().toLocaleLowerCase()}`;
 }
 
 function relationIdentity(

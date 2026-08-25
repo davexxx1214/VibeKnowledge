@@ -16,9 +16,9 @@ Before writing, read [references/graph-schema.md](references/graph-schema.md). I
 1. Inspect the existing manifest when present so stable entity keys survive refreshes.
 2. Establish the requested scope. If the user does not narrow it, analyze the workspace architecture rather than every symbol.
 3. Read entry points, manifests, module boundaries, dependency-injection wiring, routes, data access, and representative implementations. Trace actual imports, calls, inheritance, configuration, and data flow.
-4. Prefer high-signal modules, services, components, APIs, databases, configuration, and cross-boundary functions. Do not emit nodes merely because a parser can see them.
+4. Prefer high-signal modules, services, components, APIs, databases, configuration, and cross-boundary functions. Do not emit nodes merely because a parser can see them. Give every file-backed entity a concise responsibility description suitable for the editor's `🧠 KG` hint, and refresh that description when the code's responsibility changes.
 5. Add a relation only when workspace evidence supports it. Use the most specific verb that the evidence proves, and keep the direction `source -> target` meaning that the source depends on, invokes, imports, contains, or otherwise references the target.
-6. Replace the manifest as one complete version-1 document. You may refresh Agent-authored descriptions in the manifest; VibeKnowledge will keep any human description override authoritative. Never edit `graph.sqlite`, including its human records or override tables.
+6. Replace the manifest as one complete version-1 document. Refresh Agent-authored entity descriptions in the manifest when the implementation changes; VibeKnowledge displays them in the editor and keeps any human description override authoritative. Never edit `graph.sqlite`, including its human records or override tables.
 7. Validate the result:
 
    ```bash
