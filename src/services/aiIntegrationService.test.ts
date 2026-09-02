@@ -83,13 +83,38 @@ describe('AIIntegrationService', () => {
     expect(content).toContain(
       '.vscode/.knowledge/agent-context/index.md'
     );
+    expect(content).toContain('`query_graph`');
+    expect(content).toContain('`get_neighbors`');
+    expect(content).toContain('`shortest_path`');
+    expect(content).toContain('`includeEvidence=true`');
     expect(content).toContain(
       'Do not load `.vscode/.knowledge/knowledge-graph.md` by default'
     );
-    expect(content).toContain('load only the single framework, module, or feature view');
+    expect(content).toContain('load only the single best-matching group view');
     expect(content).not.toContain('TEMPLATE_ONLY_MARKER');
     expect(content).not.toContain('Tech Stack');
     expect(content).not.toContain('Dependency Details');
+    expect(content).not.toContain('Total Entities');
+  });
+
+  it('generates compact query-first Cursor instructions without graph dumps', async () => {
+    const workspace = createWorkspace();
+    const knowledgeDirectory = join(workspace, '.vscode', '.knowledge');
+    mkdirSync(knowledgeDirectory, { recursive: true });
+    writeFileSync(
+      join(knowledgeDirectory, 'ai-template.md'),
+      'CURSOR_TEMPLATE_ONLY_MARKER',
+      'utf8'
+    );
+
+    const outputPath = await createService().generateCursorRules(workspace);
+    const content = readFileSync(outputPath, 'utf8');
+
+    expect(content).toContain('`query_graph`');
+    expect(content).toContain('`get_entity`');
+    expect(content).toContain('.vscode/.knowledge/agent-context/index.md');
+    expect(content).not.toContain('CURSOR_TEMPLATE_ONLY_MARKER');
+    expect(content).not.toContain('Tech Stack');
     expect(content).not.toContain('Total Entities');
   });
 

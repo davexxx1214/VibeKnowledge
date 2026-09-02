@@ -10,7 +10,10 @@ export type {
   AgentGraphGroupKind,
   AgentGraphGroupSnapshot,
   AgentGraphRelationInput,
+  AgentGraphRelationConfidence,
+  AgentGraphRelationOrigin,
   AgentGraphSnapshot,
+  AgentGraphStructuralHop,
   AgentGraphStats,
   AgentRelation,
 } from './types';

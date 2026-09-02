@@ -7,6 +7,16 @@ export interface AgentGraphEvidence {
   detail?: string;
 }
 
+export interface AgentGraphStructuralHop {
+  source: string;
+  target: string;
+  verb: RelationVerb;
+  filePath: string;
+  startLine: number;
+  endLine: number;
+  traversal?: 'forward' | 'reverse';
+}
+
 export interface AgentGraphEntityInput {
   key: string;
   name: string;
@@ -17,12 +27,21 @@ export interface AgentGraphEntityInput {
   description?: string;
 }
 
+export type AgentGraphRelationOrigin = 'ast' | 'resolver' | 'agent';
+export type AgentGraphRelationConfidence =
+  | 'extracted'
+  | 'inferred'
+  | 'review_required';
+
 export interface AgentGraphRelationInput {
   source: string;
   target: string;
   verb: RelationVerb;
   description?: string;
+  origin?: AgentGraphRelationOrigin;
+  confidence?: AgentGraphRelationConfidence;
   evidence: AgentGraphEvidence[];
+  structuralPath?: AgentGraphStructuralHop[];
 }
 
 export type AgentGraphGroupKind = 'framework' | 'module' | 'feature';
@@ -60,6 +79,9 @@ export interface AgentRelation extends Relation {
   groupName: string;
   groupKind: AgentGraphGroupKind;
   groupOrder: number;
+  extractionOrigin?: AgentGraphRelationOrigin;
+  confidence?: AgentGraphRelationConfidence;
+  structuralPath?: AgentGraphStructuralHop[];
 }
 
 export interface AgentGraphGroupSnapshot {

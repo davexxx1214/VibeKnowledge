@@ -167,6 +167,16 @@
         "command": "knowledge.installDependencyGraphSkill",
         "title": "Knowledge: Install Dependency Graph Agent Skill",
         "icon": "$(sparkle)"
+      },
+      {
+        "command": "knowledge.generateStructuralGraph",
+        "title": "Knowledge: Generate Structural Graph",
+        "icon": "$(symbol-structure)"
+      },
+      {
+        "command": "knowledge.curateStructuralGraph",
+        "title": "Knowledge: Curate Graph from Structure",
+        "icon": "$(type-hierarchy-sub)"
       }
     ],
     "menus": {
@@ -206,6 +216,11 @@
           "command": "knowledge.installDependencyGraphSkill",
           "when": "view == knowledgeGraphExplorer",
           "group": "navigation@0.5"
+        },
+        {
+          "command": "knowledge.curateStructuralGraph",
+          "when": "view == knowledgeGraphExplorer",
+          "group": "navigation@0.6"
         },
         {
           "command": "knowledge.exportGraph",
@@ -367,7 +382,7 @@
     "viewsWelcome": [
       {
         "view": "knowledgeGraphExplorer",
-        "contents": "暂无知识图谱数据。\n\n[安装知识图谱 Agent Skill](command:knowledge.installDependencyGraphSkill)\n\n请让 Agent 先生成框架层图谱，再按模块或功能继续生成。"
+        "contents": "暂无知识图谱数据。\n\n[安装知识图谱 Agent Skill](command:knowledge.installDependencyGraphSkill)\n\n[从结构图策展](command:knowledge.curateStructuralGraph)\n\n先生成框架层，再按模块或功能继续生成。"
       }
     ]
   },
@@ -394,7 +409,6 @@
     "d3": "^7.9.0",
     "esbuild": "^0.28.2",
     "eslint": "^8.0.0",
-    "typescript": "^5.2.0",
     "vitest": "^4.1.10"
   },
   "dependencies": {
@@ -403,6 +417,7 @@
     "mime-types": "^3.0.2",
     "pdf-parse": "^1.1.1",
     "sql.js": "^1.13.0",
+    "typescript": "^5.2.0",
     "word-extractor": "^1.0.4"
   }
 }

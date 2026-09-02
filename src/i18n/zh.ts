@@ -227,6 +227,46 @@ export const zh = {
       error: (error: string) => `安装依赖图谱 Skill 失败: ${error}`
     },
 
+    generateStructuralGraph: {
+      title: '知识图谱: 生成结构图',
+      progress: '正在提取确定性的 TypeScript/JavaScript 代码结构…',
+      success: (files: number, entities: number, relations: number, diagnostics: number) =>
+        `结构图已生成：${files} 个文件、${entities} 个实体、${relations} 条关系、${diagnostics} 条诊断。`,
+      openGraph: '打开 structural-graph.json',
+      recoveryRequired: (error: string) =>
+        `无法确认本次增量更新安全，旧结构图已保留。请先检查源码变更，再决定是否强制全量重建。\n\n${error}`,
+      forceRebuild: '强制全量重建',
+      cancel: '取消',
+      error: (error: string) => `生成结构图失败: ${error}`
+    },
+
+    curateStructuralGraph: {
+      title: '知识图谱: 从结构图策展',
+      kindPlaceholder: '选择要生成或刷新的图谱视图',
+      frameworkKind: '框架层系统边界',
+      frameworkDescription: '启动链路、根模块、顶层模块、共享基础设施和外部系统',
+      moduleKind: '模块视图',
+      moduleDescription: '指定源码范围内的公开组件和直接依赖',
+      featureKind: '功能视图',
+      featureDescription: '指定功能的 API、Service、Entity 和关键调用路径',
+      scopePrompt: '工作区相对源码范围',
+      scopePlaceholder: '例如：src/article',
+      scopeRequired: '请输入比工作区根目录更窄的工作区相对范围',
+      keyPrompt: '稳定的分组键',
+      keyPlaceholder: '例如：article-management',
+      keyRequired: '请输入稳定的分组键',
+      namePrompt: '便于阅读的分组名称',
+      progress: '正在刷新结构事实并策展目标分组…',
+      success: (name: string, entities: number, relations: number) =>
+        `已策展“${name}”：${entities} 个实体、${relations} 条关系；Agent 语义和其他分组均已保留。`,
+      openGraph: '打开 agent-graph.json',
+      recoveryRequired: (error: string) =>
+        `无法安全刷新现有结构图。请先检查源码变更，再决定是否强制全量重建。\n\n${error}`,
+      forceRebuild: '强制全量重建',
+      cancel: '取消',
+      error: (error: string) => `图谱策展失败: ${error}`
+    },
+
     generateCursorRules: {
       title: '知识图谱: 生成 Cursor 规则',
       success: (fileName: string) => `✅ Cursor 规则已生成: ${fileName}`,
@@ -574,6 +614,8 @@ export const zh = {
       source: '数据来源',
       humanSource: '人工编写',
       agentSource: 'Agent 生成',
+      relationOrigin: '关系来源',
+      confidence: '置信度',
       evidence: '证据'
     }
   },

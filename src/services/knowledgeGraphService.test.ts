@@ -101,6 +101,35 @@ describe('KnowledgeGraphService', () => {
     expect(service.getEntity('checkout-a')?.name).toBe('A');
   });
 
+  it('de-duplicates cross-group key variants by canonical alias', () => {
+    const framework = agentEntity(
+      'framework-a',
+      'src/auth/auth.service.ts#AuthService',
+      'AuthService',
+      'src/auth/auth.service.ts'
+    );
+    const checkout = agentEntity(
+      'checkout-a',
+      ' SRC\\AUTH//auth.service.ts ## authservice() ',
+      'AuthService',
+      'src/auth/auth.service.ts',
+      checkoutGroup
+    );
+    const service = createService(
+      [framework, checkout],
+      [],
+      [
+        group(frameworkGroup, [framework], []),
+        group(checkoutGroup, [checkout], []),
+      ]
+    );
+
+    expect(service.getSnapshot().entities).toHaveLength(1);
+    expect(service.getSnapshot().entities[0].agentKey).toBe(
+      'src/auth/auth.service.ts#AuthService'
+    );
+  });
+
   it('edits and resets descriptions through the Agent override store', () => {
     const entity = agentEntity('framework-a', 'key-a', 'A', 'src/a.ts');
     entity.description = 'Agent description';

@@ -135,11 +135,117 @@ describe('dependency graph skill validator', () => {
     expect(result.stderr).toContain('but the file has 4 lines');
   });
 
+  it('rejects canonical key collisions and invalid relation provenance', () => {
+    const fixture = createFixture();
+    const graph = graphWithEvidence([
+      { filePath: 'src/a.ts', startLine: 2 },
+    ]);
+    graph.groups[0].entities[1].key = ' SRC\\A.ts ## a() ';
+    Object.assign(graph.groups[0].relations[0], {
+      origin: 'parser',
+      confidence: 'certain',
+    });
+    writeFileSync(fixture.graphPath, JSON.stringify(graph), 'utf8');
+
+    const result = spawnSync(process.execPath, [validatorPath, fixture.graphPath], {
+      cwd: fixture.workspace,
+      encoding: 'utf8',
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('after canonicalization');
+    expect(result.stderr).toContain('.origin must be ast, resolver, or agent');
+    expect(result.stderr).toContain(
+      '.confidence must be extracted, inferred, or review_required'
+    );
+  });
+
+  it('accepts only structural paths that trace exact raw relations', () => {
+    const fixture = createFixture();
+    const graph = graphWithEvidence([
+      { filePath: 'src/a.ts', startLine: 2 },
+    ]);
+    Object.assign(graph.groups[0].relations[0], {
+      structuralPath: [
+        {
+          source: 'src/a.ts#A',
+          target: 'src/b.ts#B',
+          verb: 'calls',
+          filePath: 'src/a.ts',
+          startLine: 2,
+          endLine: 2,
+          traversal: 'forward',
+        },
+      ],
+    });
+    writeFileSync(fixture.graphPath, JSON.stringify(graph), 'utf8');
+    writeFileSync(
+      join(
+        fixture.workspace,
+        '.vscode',
+        '.knowledge',
+        'structural-graph.json'
+      ),
+      JSON.stringify({
+        relations: [
+          {
+            source: 'src/a.ts#A',
+            target: 'src/b.ts#B',
+            verb: 'calls',
+            location: {
+              filePath: 'src/a.ts',
+              startLine: 2,
+              endLine: 2,
+            },
+          },
+        ],
+      }),
+      'utf8'
+    );
+
+    const valid = spawnSync(process.execPath, [validatorPath, fixture.graphPath], {
+      cwd: fixture.workspace,
+      encoding: 'utf8',
+    });
+    expect(valid.status, valid.stderr).toBe(0);
+
+    (
+      graph.groups[0].relations[0] as (typeof graph.groups)[number]['relations'][number] & {
+        structuralPath: Array<{ startLine: number }>;
+      }
+    ).structuralPath[0].startLine = 3;
+    writeFileSync(fixture.graphPath, JSON.stringify(graph), 'utf8');
+    const invalid = spawnSync(
+      process.execPath,
+      [validatorPath, fixture.graphPath],
+      { cwd: fixture.workspace, encoding: 'utf8' }
+    );
+    expect(invalid.status).toBe(1);
+    expect(invalid.stderr).toContain(
+      'does not match a relation in structural-graph.json'
+    );
+  });
+
   it('renders a complete audit report and compact per-group Agent views', () => {
     const fixture = createFixture();
     const graph = graphWithEvidence([
       { filePath: 'src/a.ts', startLine: 2 },
     ]);
+    Object.assign(graph.groups[0].relations[0], {
+      origin: 'agent',
+      confidence: 'extracted',
+      structuralPath: [
+        {
+          source: 'src/a.ts#A',
+          target: 'src/b.ts#B',
+          verb: 'calls',
+          filePath: 'src/a.ts',
+          startLine: 2,
+          endLine: 2,
+          traversal: 'forward',
+        },
+      ],
+    });
     graph.groups.push({
       key: 'sample-feature',
       name: 'Sample Feature',
@@ -152,6 +258,29 @@ describe('dependency graph skill validator', () => {
       })),
     });
     writeFileSync(fixture.graphPath, JSON.stringify(graph), 'utf8');
+    writeFileSync(
+      join(
+        fixture.workspace,
+        '.vscode',
+        '.knowledge',
+        'structural-graph.json'
+      ),
+      JSON.stringify({
+        relations: [
+          {
+            source: 'src/a.ts#A',
+            target: 'src/b.ts#B',
+            verb: 'calls',
+            location: {
+              filePath: 'src/a.ts',
+              startLine: 2,
+              endLine: 2,
+            },
+          },
+        ],
+      }),
+      'utf8'
+    );
 
     const validation = spawnSync(
       process.execPath,
@@ -196,7 +325,13 @@ describe('dependency graph skill validator', () => {
     expect(markdown).toContain('## 1. Framework');
     expect(markdown).toContain('## 2. Sample Feature');
     expect(markdown).toContain('Entity occurrences: 4 (2 unique keys)');
-    expect(markdown).toContain('| Source | Verb | Target | Description | Evidence |');
+    expect(markdown).toContain(
+      '| Source | Verb | Target | Origin | Confidence | Description | Evidence | Structural path |'
+    );
+    expect(markdown).toContain('| A | calls | B | agent | extracted |');
+    expect(markdown).toContain(
+      'src/a.ts#A --calls--> src/b.ts#B @ src/a.ts:2-2'
+    );
 
     const index = readFileSync(join(agentContextDirectory, 'index.md'), 'utf8');
     const framework = readFileSync(
@@ -208,13 +343,19 @@ describe('dependency graph skill validator', () => {
       'utf8'
     );
     expect(index).toContain('should not be loaded by default');
+    expect(index).toContain('use `query_graph` first');
+    expect(index).toContain('`get_neighbors`');
+    expect(index).toContain('Evidence through MCP only when auditing');
     expect(index).toContain('[framework](./framework.md)');
     expect(index).toContain('[sample-feature](./sample-feature.md)');
     expect(framework).toContain('| A | function | src/a.ts:1-3 |');
-    expect(framework).toContain('| A | calls | B |');
+    expect(framework).toContain(
+      '| A | calls | B | agent | extracted |'
+    );
     expect(framework).not.toContain('Evidence');
+    expect(framework).not.toContain('Structural path');
     expect(framework).not.toContain('Dependency is used here');
-    expect(feature).toContain('| A | calls | B |');
+    expect(feature).toContain('| A | calls | B | agent | extracted |');
     expect(existsSync(join(agentContextDirectory, 'stale-group.md'))).toBe(
       false
     );

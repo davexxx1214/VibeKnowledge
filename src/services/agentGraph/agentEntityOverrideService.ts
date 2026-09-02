@@ -1,4 +1,5 @@
 import { DatabaseService } from '../database';
+import { canonicalizeEntityKey } from '../../../resources/skills/vibeknowledge-dependency-graph/scripts/canonicalize-entity-key.mjs';
 
 export interface AgentEntityDescriptionOverrideStore {
   getDescription(agentKey: string): string | undefined;
@@ -19,6 +20,14 @@ export class AgentEntityOverrideService
   constructor(private readonly dbService: DatabaseService) {}
 
   public getDescription(agentKey: string): string | undefined {
+    const exactDescription = this.getExactDescription(agentKey);
+    if (exactDescription !== undefined) {
+      return exactDescription;
+    }
+    return this.findCanonicalOverride(agentKey)?.description;
+  }
+
+  private getExactDescription(agentKey: string): string | undefined {
     const db = this.dbService.getDatabase();
     const stmt = db.prepare(
       'SELECT description FROM agent_entity_overrides WHERE agent_key = ?'
@@ -51,11 +60,41 @@ export class AgentEntityOverrideService
 
   public deleteDescription(agentKey: string): void {
     const db = this.dbService.getDatabase();
+    const storedKey =
+      this.getExactDescription(agentKey) !== undefined
+        ? agentKey
+        : this.findCanonicalOverride(agentKey)?.agentKey;
+    if (storedKey === undefined) {
+      return;
+    }
     const stmt = db.prepare(
       'DELETE FROM agent_entity_overrides WHERE agent_key = ?'
     );
-    stmt.run([agentKey]);
+    stmt.run([storedKey]);
     stmt.free();
     this.dbService.save();
+  }
+
+  private findCanonicalOverride(
+    agentKey: string
+  ): { agentKey: string; description: string } | undefined {
+    const canonicalKey = canonicalizeEntityKey(agentKey);
+    const db = this.dbService.getDatabase();
+    const stmt = db.prepare(
+      'SELECT agent_key, description FROM agent_entity_overrides'
+    );
+    const matches: Array<{ agentKey: string; description: string }> = [];
+    while (stmt.step()) {
+      const row = stmt.getAsObject();
+      const storedKey = String(row.agent_key);
+      if (canonicalizeEntityKey(storedKey) === canonicalKey) {
+        matches.push({
+          agentKey: storedKey,
+          description: String(row.description),
+        });
+      }
+    }
+    stmt.free();
+    return matches.length === 1 ? matches[0] : undefined;
   }
 }

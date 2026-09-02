@@ -1,4 +1,4 @@
 interface:
   display_name: "VibeKnowledge Grouped Graph"
   short_description: "Build framework, module, and feature graphs"
-  default_prompt: "Use $vibeknowledge-dependency-graph to analyze this workspace, ensure the framework graph exists, and update the requested module or feature group."
+  default_prompt: "Use $vibeknowledge-dependency-graph to refresh deterministic structural facts, curate the requested group, and review only its naming, responsibilities, ambiguities, and business semantics."

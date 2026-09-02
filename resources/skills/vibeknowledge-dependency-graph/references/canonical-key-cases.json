@@ -1,0 +1,26 @@
+[
+  {
+    "input": " src\\User//user.service.ts # UserService ",
+    "canonical": "src/user/user.service.ts#userservice"
+  },
+  {
+    "input": "ＳＲＣ／ＣＡＦÉ.ts＃Ｆｏｏ",
+    "canonical": "src/café.ts#foo"
+  },
+  {
+    "input": "core::User---Service",
+    "canonical": "core:user-service"
+  },
+  {
+    "input": "./src///auth.ts##AuthService()",
+    "canonical": "src/auth.ts#authservice"
+  },
+  {
+    "input": "模块/用户.ts#用户服务",
+    "canonical": "模块/用户.ts#用户服务"
+  },
+  {
+    "input": "packages / core / logger.ts # Logger",
+    "canonical": "packages/core/logger.ts#logger"
+  }
+]

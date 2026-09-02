@@ -75,6 +75,17 @@ Required fields are `key`, `name`, `type`, `filePath`, `startLine`, and `endLine
 - `type` is one of `function`, `class`, `interface`, `variable`, `file`, `directory`, `api`, `config`, `database`, `service`, `component`, `external`, `other`.
 - For a genuinely external entity, use a portable virtual path such as `external/postgresql`.
 
+### Canonical comparison aliases
+
+The serialized `key` remains the stable identifier and must not be rewritten during routine refreshes. VibeKnowledge derives a comparison-only canonical alias that normalizes path separators, Unicode NFKC compatibility forms, case, surrounding whitespace, and redundant punctuation.
+
+Maintainers can use [canonical-key-cases.json](canonical-key-cases.json) as the executable compatibility contract; ordinary graph generation does not need to load it separately.
+
+- Two entity keys in the same group must not resolve to the same canonical alias.
+- Matching, cross-group de-duplication, and manual-description lookup may use the alias.
+- Stable IDs and persisted human overrides continue to use the original serialized key.
+- Preserve an existing key even when a newly generated spelling looks cleaner.
+
 ## Relations
 
 ```json
@@ -82,6 +93,8 @@ Required fields are `key`, `name`, `type`, `filePath`, `startLine`, and `endLine
   "source": "src/auth/auth-service.ts#AuthService",
   "target": "src/users/user-repository.ts#UserRepository",
   "verb": "depends_on",
+  "origin": "agent",
+  "confidence": "extracted",
   "description": "Authentication loads a user before checking credentials.",
   "evidence": [
     {
@@ -90,14 +103,37 @@ Required fields are `key`, `name`, `type`, `filePath`, `startLine`, and `endLine
       "endLine": 34,
       "detail": "login() queries UserRepository before password validation."
     }
+  ],
+  "structuralPath": [
+    {
+      "source": "src/auth/auth-service.ts#AuthService.login",
+      "target": "src/users/user-repository.ts#UserRepository.findByEmail",
+      "verb": "calls",
+      "filePath": "src/auth/auth-service.ts",
+      "startLine": 31,
+      "endLine": 31,
+      "traversal": "forward"
+    }
   ]
 }
 ```
 
 - `source` and `target` reference entity keys in the same group and must differ.
 - `(source, target, verb)` is unique within the group. The same tuple may occur in another group.
+- `origin` is optional for backward compatibility and is one of:
+  - `ast`: emitted directly by a syntax or compiler extractor;
+  - `resolver`: produced by deterministic cross-file symbol resolution;
+  - `agent`: selected or inferred by an Agent semantic pass.
+- `confidence` is optional for backward compatibility and is one of:
+  - `extracted`: the cited source directly proves the relation;
+  - `inferred`: the relation is a deterministic or semantic synthesis of multiple facts;
+  - `review_required`: the relation is useful but remains ambiguous and needs review.
 - `evidence` contains at least one item.
+- Evidence and confidence serve different purposes: Evidence records what can be audited; confidence states how directly that Evidence supports the relation. Never omit Evidence because confidence is present.
 - Evidence paths and lines follow the entity rules, resolve to an existing workspace file, and stay inside that file. `endLine` and `detail` are optional.
+- `structuralPath` is optional for backward compatibility and for genuinely Agent-only business relations. When present, it is a non-empty ordered list of raw structural edges from `structural-graph.json`.
+- Every structural hop requires `source`, `target`, `verb`, `filePath`, `startLine`, and `endLine`, and must exactly match one raw relation and its location. `traversal` is optional and is `forward` or `reverse`; generated multi-hop paths use it to record how the raw edge is traversed. A collapsed boundary relation may contain several ordered hops.
+- Deterministic condenser output must keep `structuralPath`; Agents must not fabricate or rewrite its hops. The compact Markdown view omits it, while the full audit report retains it.
 - `verb` is one of:
   - `calls`: source directly invokes target.
   - `extends`: source inherits from target.
@@ -148,6 +184,8 @@ Required fields are `key`, `name`, `type`, `filePath`, `startLine`, and `endLine
           "source": "src/app.ts#Application",
           "target": "src/auth/auth-module.ts#AuthModule",
           "verb": "imports",
+          "origin": "agent",
+          "confidence": "extracted",
           "description": "The application assembles the authentication boundary.",
           "evidence": [
             {
@@ -191,6 +229,8 @@ Required fields are `key`, `name`, `type`, `filePath`, `startLine`, and `endLine
           "source": "src/auth/auth-service.ts#AuthService",
           "target": "src/users/user-repository.ts#UserRepository",
           "verb": "depends_on",
+          "origin": "agent",
+          "confidence": "extracted",
           "description": "Authentication requires persisted user records.",
           "evidence": [
             {

@@ -15,6 +15,7 @@ import {
   searchMergedEntities,
   searchMergedRelations
 } from '../mergedGraph.js';
+import { registerGraphQueryTools } from './registerGraphQueryTools.js';
 
 const DEFAULT_LIMIT = 20;
 
@@ -28,6 +29,10 @@ export function registerTools(
   registerSearchEntitiesTool(server, db, logger, agentGraph);
   registerSearchObservationsTool(server, db, logger);
   registerRelationsTool(server, db, logger, agentGraph);
+
+  if (agentGraph) {
+    registerGraphQueryTools(server, db, agentGraph, logger);
+  }
 
   if (ragEngine) {
     registerAskQuestionTool(server, ragEngine, logger);
@@ -351,11 +356,16 @@ export function formatRelationResults(results: MergedRelationRecord[]): string {
               .map(formatEvidence)
               .join('; ')}`
           : '';
+      const provenance =
+        relation.source === 'agent' &&
+        (relation.origin || relation.confidence)
+          ? `\n    Relation Origin: ${relation.origin ?? 'unknown'}\n    Confidence: ${relation.confidence ?? 'unknown'}`
+          : '';
       const group =
         relation.source === 'agent'
           ? `\n    Group: ${relation.groupName} (${relation.groupKind}, ${relation.groupKey})`
           : '';
-      return `${index + 1}. ${relation.sourceName} [${relation.sourceType}] --${relation.verb}--> ${relation.targetName} [${relation.targetType}]\n    Source: ${relation.sourceFilePath}\n    Target: ${relation.targetFilePath}\n    Data Source: ${source}${group}\n    Created At: ${createdAt}${description}${evidence}`;
+      return `${index + 1}. ${relation.sourceName} [${relation.sourceType}] --${relation.verb}--> ${relation.targetName} [${relation.targetType}]\n    Source: ${relation.sourceFilePath}\n    Target: ${relation.targetFilePath}\n    Data Source: ${source}${group}${provenance}\n    Created At: ${createdAt}${description}${evidence}`;
     })
     .join('\n\n');
 }

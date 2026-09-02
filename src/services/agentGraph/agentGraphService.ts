@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { canonicalizeEntityKey } from '../../../resources/skills/vibeknowledge-dependency-graph/scripts/canonicalize-entity-key.mjs';
 import { EntityFilters, EntityType, RelationVerb } from '../../utils/types';
 import {
   AgentEntity,
@@ -10,7 +11,10 @@ import {
   AgentGraphGroupInput,
   AgentGraphGroupKind,
   AgentGraphRelationInput,
+  AgentGraphRelationConfidence,
+  AgentGraphRelationOrigin,
   AgentGraphSnapshot,
+  AgentGraphStructuralHop,
   AgentGraphStats,
   AgentRelation,
 } from './types';
@@ -48,6 +52,23 @@ const GROUP_KINDS = new Set<AgentGraphGroupKind>([
   'framework',
   'module',
   'feature',
+]);
+
+const RELATION_ORIGINS = new Set<AgentGraphRelationOrigin>([
+  'ast',
+  'resolver',
+  'agent',
+]);
+
+const RELATION_CONFIDENCES = new Set<AgentGraphRelationConfidence>([
+  'extracted',
+  'inferred',
+  'review_required',
+]);
+
+const STRUCTURAL_TRAVERSALS = new Set<'forward' | 'reverse'>([
+  'forward',
+  'reverse',
 ]);
 
 const EMPTY_SNAPSHOT: AgentGraphSnapshot = {
@@ -362,12 +383,24 @@ function parseGroupContents(
   }
 
   const keys = new Set<string>();
+  const keysByCanonicalAlias = new Map<string, string>();
   const entities = entityValue.map((item, index) => {
     const entity = parseEntity(item, `${label}.entities[${index}]`);
     if (keys.has(entity.key)) {
       throw new Error(`${label} has duplicate entity key: ${entity.key}`);
     }
+    const canonicalAlias = canonicalizeEntityKey(entity.key);
+    if (!canonicalAlias) {
+      throw new Error(`${label} entity key cannot be canonicalized: ${entity.key}`);
+    }
+    const collidingKey = keysByCanonicalAlias.get(canonicalAlias);
+    if (collidingKey !== undefined) {
+      throw new Error(
+        `${label} entity key ${entity.key} collides with ${collidingKey} after canonicalization`
+      );
+    }
     keys.add(entity.key);
+    keysByCanonicalAlias.set(canonicalAlias, entity.key);
     return entity;
   });
 
@@ -440,10 +473,68 @@ function parseRelation(
     target,
     verb: value.verb as RelationVerb,
     description: optionalString(value.description, `${label}.description`),
+    origin: optionalEnum(
+      value.origin,
+      `${label}.origin`,
+      RELATION_ORIGINS,
+      'ast, resolver, or agent'
+    ),
+    confidence: optionalEnum(
+      value.confidence,
+      `${label}.confidence`,
+      RELATION_CONFIDENCES,
+      'extracted, inferred, or review_required'
+    ),
     evidence: value.evidence.map((item, evidenceIndex) =>
       parseEvidence(item, `${label}.evidence[${evidenceIndex}]`)
     ),
+    structuralPath:
+      value.structuralPath === undefined
+        ? undefined
+        : parseStructuralPath(value.structuralPath, `${label}.structuralPath`),
   };
+}
+
+function parseStructuralPath(
+  value: unknown,
+  label: string
+): AgentGraphStructuralHop[] {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error(`${label} must be a non-empty array when provided`);
+  }
+  return value.map((item, index) => {
+    const hopLabel = `${label}[${index}]`;
+    if (!isRecord(item)) {
+      throw new Error(`${hopLabel} must be an object`);
+    }
+    const filePath = requireString(item.filePath, `${hopLabel}.filePath`);
+    validateRelativePath(filePath, `${hopLabel}.filePath`);
+    const startLine = requirePositiveLine(
+      item.startLine,
+      `${hopLabel}.startLine`
+    );
+    const endLine = requirePositiveLine(item.endLine, `${hopLabel}.endLine`);
+    if (endLine < startLine) {
+      throw new Error(`${hopLabel}.endLine must be >= startLine`);
+    }
+    if (!RELATION_VERBS.has(item.verb as RelationVerb)) {
+      throw new Error(`Unsupported relation verb at ${hopLabel}.verb`);
+    }
+    return {
+      source: requireString(item.source, `${hopLabel}.source`),
+      target: requireString(item.target, `${hopLabel}.target`),
+      verb: item.verb as RelationVerb,
+      filePath,
+      startLine,
+      endLine,
+      traversal: optionalEnum(
+        item.traversal,
+        `${hopLabel}.traversal`,
+        STRUCTURAL_TRAVERSALS,
+        'forward or reverse'
+      ),
+    };
+  });
 }
 
 function parseEvidence(value: unknown, label: string): AgentGraphEvidence {
@@ -520,6 +611,9 @@ function buildSnapshot(
       groupName: group.name,
       groupKind: group.kind,
       groupOrder: group.order,
+      extractionOrigin: relation.origin,
+      confidence: relation.confidence,
+      structuralPath: relation.structuralPath,
       sourceEntityId: entityIds.get(relation.source)!,
       targetEntityId: entityIds.get(relation.target)!,
       verb: relation.verb,
@@ -532,7 +626,10 @@ function buildSnapshot(
         groupKind: group.kind,
         groupOrder: group.order,
         description: relation.description,
+        relationOrigin: relation.origin,
+        relationConfidence: relation.confidence,
         evidence: relation.evidence,
+        structuralPath: relation.structuralPath,
       },
     }));
 
@@ -582,6 +679,21 @@ function optionalString(value: unknown, label: string): string | undefined {
     return undefined;
   }
   return requireString(value, label);
+}
+
+function optionalEnum<T extends string>(
+  value: unknown,
+  label: string,
+  allowedValues: ReadonlySet<T>,
+  allowedDescription: string
+): T | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!allowedValues.has(value as T)) {
+    throw new Error(`${label} must be ${allowedDescription}`);
+  }
+  return value as T;
 }
 
 function requirePositiveLine(value: unknown, label: string): number {

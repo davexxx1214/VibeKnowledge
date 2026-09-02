@@ -77,6 +77,8 @@ describe('AgentGraphStore', () => {
         detail: 'constructor injection'
       }
     ]);
+    expect(firstRelations[0].origin).toBeUndefined();
+    expect(firstRelations[0].confidence).toBeUndefined();
 
     const updated = validGraph();
     updated.generatedAt = '2026-08-22T01:02:03.000Z';
@@ -126,12 +128,55 @@ describe('AgentGraphStore', () => {
       'Human description',
       'Human description'
     ]);
+
+    const canonicalOverride = store.searchEntities(
+      { query: 'UserService', limit: 100 },
+      new Map([['CORE::USER---SERVICE', 'Canonical human description']])
+    );
+    expect(canonicalOverride.map((entity) => entity.description)).toEqual([
+      'Canonical human description',
+      'Canonical human description'
+    ]);
+  });
+
+  it('preserves optional relation provenance without changing graph version', () => {
+    const graph = validGroupedGraph();
+    graph.groups[0].relations[0].origin = 'resolver';
+    graph.groups[0].relations[0].confidence = 'inferred';
+    graph.groups[0].relations[0].structuralPath = [
+      {
+        source: 'core:auth-service',
+        target: 'core:user-service',
+        verb: 'calls',
+        filePath: 'src/auth.ts',
+        startLine: 5,
+        endLine: 5,
+        traversal: 'forward'
+      }
+    ];
+    writeGraph(store.filePath, graph);
+
+    expect(store.searchRelations({ limit: 100 })[0]).toMatchObject({
+      origin: 'resolver',
+      confidence: 'inferred',
+      structuralPath: [
+        expect.objectContaining({
+          source: 'core:auth-service',
+          target: 'core:user-service',
+          verb: 'calls',
+          traversal: 'forward'
+        })
+      ]
+    });
   });
 
   it('applies entity and relation filters and limits', () => {
     writeGraph(store.filePath, validGraph());
 
     expect(store.searchEntities({ query: 'AUTH' })).toHaveLength(1);
+    expect(store.searchEntities({ query: 'CORE::AUTH---SERVICE' })).toHaveLength(
+      1
+    );
     expect(store.searchEntities({ query: 'constructor' })).toHaveLength(0);
     expect(store.searchEntities({ type: 'service' })).toHaveLength(2);
     expect(store.searchEntities({ filePath: 'src/' })).toHaveLength(3);
@@ -142,6 +187,9 @@ describe('AgentGraphStore', () => {
     expect(store.searchRelations({ source: 'core:user-service' })).toHaveLength(
       1
     );
+    expect(
+      store.searchRelations({ source: 'CORE::USER---SERVICE' })
+    ).toHaveLength(1);
     expect(store.searchRelations({ target: 'logger' })).toHaveLength(1);
     expect(store.searchRelations({ limit: 1 })).toHaveLength(1);
   });
@@ -166,6 +214,17 @@ describe('AgentGraphStore', () => {
       () => {
         const graph = validGraph();
         graph.entities.push({ ...graph.entities[0] });
+        return graph;
+      }
+    ],
+    [
+      'a canonical entity key collision',
+      () => {
+        const graph = validGraph();
+        graph.entities.push({
+          ...graph.entities[0],
+          key: ' CORE::USER---SERVICE '
+        });
         return graph;
       }
     ],
@@ -222,6 +281,22 @@ describe('AgentGraphStore', () => {
       () => {
         const graph = validGraph();
         graph.relations[0].verb = 'guesses';
+        return graph;
+      }
+    ],
+    [
+      'an unsupported relation origin',
+      () => {
+        const graph = validGraph();
+        graph.relations[0].origin = 'parser';
+        return graph;
+      }
+    ],
+    [
+      'an unsupported relation confidence',
+      () => {
+        const graph = validGraph();
+        graph.relations[0].confidence = 'certain';
         return graph;
       }
     ],

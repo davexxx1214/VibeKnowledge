@@ -11,6 +11,11 @@ import {
 } from './services/agentGraph';
 import { AgentSkillService } from './services/agentSkillService';
 import { KnowledgeGraphService } from './services/knowledgeGraphService';
+import {
+  CuratedGraphService,
+  DebouncedStructuralGraphUpdater,
+  StructuralGraphService,
+} from './services/structuralGraph';
 import { KnowledgeHoverProvider } from './providers/hoverProvider';
 import { KnowledgeCodeLensProvider } from './providers/codeLensProvider';
 import { KnowledgeTreeDataProvider } from './providers/treeDataProvider';
@@ -175,6 +180,66 @@ export async function activate(context: vscode.ExtensionContext) {
       agentGraphService
     );
     const agentSkillService = new AgentSkillService(context.extensionPath);
+    const structuralGraphService = new StructuralGraphService(workspaceRoot);
+    const curatedGraphService = new CuratedGraphService(workspaceRoot);
+    const structuralGraphUpdater = new DebouncedStructuralGraphUpdater(
+      async (changedPaths) => {
+        if (!structuralGraphService.hasGraph()) {
+          return;
+        }
+        try {
+          structuralGraphService.generate();
+          const statistics = structuralGraphService.getLastStatistics();
+          console.log(
+            `Structural graph incrementally refreshed after ${changedPaths.length} source event(s):`,
+            statistics
+          );
+        } catch (error) {
+          console.warn(
+            'Structural graph background refresh was skipped; the previous graph was preserved:',
+            error
+          );
+        }
+      },
+      500
+    );
+    const structuralSourceWatcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(
+        workspaceFolders[0],
+        '**/*.{ts,tsx,js,jsx}'
+      )
+    );
+    const structuralConfigWatcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(
+        workspaceFolders[0],
+        '**/{tsconfig,jsconfig}*.json'
+      )
+    );
+    const queueStructuralRefresh = (uri: vscode.Uri) => {
+      const relativePath = vscode.workspace
+        .asRelativePath(uri, false)
+        .replace(/\\/g, '/');
+      if (
+        relativePath.startsWith('../') ||
+        /(^|\/)(node_modules|dist|out|build|coverage|\.git|\.vscode)(\/|$)/.test(
+          relativePath
+        )
+      ) {
+        return;
+      }
+      structuralGraphUpdater.notify(relativePath);
+    };
+    context.subscriptions.push(
+      structuralGraphUpdater,
+      structuralSourceWatcher,
+      structuralConfigWatcher,
+      structuralSourceWatcher.onDidCreate(queueStructuralRefresh),
+      structuralSourceWatcher.onDidChange(queueStructuralRefresh),
+      structuralSourceWatcher.onDidDelete(queueStructuralRefresh),
+      structuralConfigWatcher.onDidCreate(queueStructuralRefresh),
+      structuralConfigWatcher.onDidChange(queueStructuralRefresh),
+      structuralConfigWatcher.onDidDelete(queueStructuralRefresh)
+    );
     GraphView.setKnowledgeGraphService(knowledgeGraphService);
 
     // 初始化命令处理器
@@ -284,6 +349,215 @@ export async function activate(context: vscode.ExtensionContext) {
           } catch (error) {
             console.error('Error in editObservation:', error);
             vscode.window.showErrorMessage(`Error editing observation: ${error}`);
+          }
+        }
+      )
+    );
+
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'knowledge.generateStructuralGraph',
+        async () => {
+          const translations = t().commands.generateStructuralGraph;
+          try {
+            const generate = (force = false) =>
+              vscode.window.withProgress(
+                {
+                  location: vscode.ProgressLocation.Notification,
+                  title: translations.progress,
+                  cancellable: false,
+                },
+                async () => structuralGraphService.generate({ force })
+              );
+            let graph;
+            try {
+              graph = await generate();
+            } catch (error) {
+              if (!isStructuralGraphRecoveryError(error)) {
+                throw error;
+              }
+              const action = await vscode.window.showWarningMessage(
+                translations.recoveryRequired(String(error)),
+                { modal: true },
+                translations.forceRebuild,
+                translations.cancel
+              );
+              if (action !== translations.forceRebuild) {
+                return;
+              }
+              graph = await generate(true);
+            }
+            const action = await vscode.window.showInformationMessage(
+              translations.success(
+                graph.files.length,
+                graph.entities.length,
+                graph.relations.length,
+                graph.diagnostics.length
+              ),
+              translations.openGraph
+            );
+            if (action === translations.openGraph) {
+              const document = await vscode.workspace.openTextDocument(
+                structuralGraphService.getOutputPath()
+              );
+              await vscode.window.showTextDocument(document);
+            }
+          } catch (error) {
+            console.error('Error generating structural graph:', error);
+            vscode.window.showErrorMessage(translations.error(String(error)));
+          }
+        }
+      )
+    );
+
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'knowledge.curateStructuralGraph',
+        async () => {
+          const translations = t().commands.curateStructuralGraph;
+          try {
+            const selection = await vscode.window.showQuickPick(
+              [
+                {
+                  label: translations.frameworkKind,
+                  description: translations.frameworkDescription,
+                  kind: 'framework' as const,
+                },
+                {
+                  label: translations.moduleKind,
+                  description: translations.moduleDescription,
+                  kind: 'module' as const,
+                },
+                {
+                  label: translations.featureKind,
+                  description: translations.featureDescription,
+                  kind: 'feature' as const,
+                },
+              ],
+              { placeHolder: translations.kindPlaceholder }
+            );
+            if (!selection) {
+              return;
+            }
+
+            let scope: string | undefined;
+            let key: string | undefined;
+            let name: string | undefined;
+            if (selection.kind !== 'framework') {
+              const activeRelativePath = vscode.window.activeTextEditor
+                ? vscode.workspace
+                    .asRelativePath(
+                      vscode.window.activeTextEditor.document.uri,
+                      false
+                    )
+                    .replace(/\\/g, '/')
+                : '';
+              const separatorIndex = activeRelativePath.lastIndexOf('/');
+              const suggestedScope =
+                separatorIndex > 0
+                  ? activeRelativePath.slice(0, separatorIndex)
+                  : undefined;
+              scope = await vscode.window.showInputBox({
+                title: translations.scopePrompt,
+                prompt: translations.scopePrompt,
+                placeHolder: translations.scopePlaceholder,
+                value: suggestedScope,
+                validateInput: (value) =>
+                  !value.trim() || value.trim() === '.'
+                    ? translations.scopeRequired
+                    : undefined,
+              });
+              if (!scope) {
+                return;
+              }
+              scope = scope.trim().replace(/\\/g, '/').replace(/^\.\//, '');
+              const suggestedKey =
+                scope
+                  .split('/')
+                  .filter(Boolean)
+                  .pop()
+                  ?.toLocaleLowerCase()
+                  .replace(/[^\p{L}\p{N}]+/gu, '-') ?? '';
+              key = await vscode.window.showInputBox({
+                title: translations.keyPrompt,
+                prompt: translations.keyPrompt,
+                placeHolder: translations.keyPlaceholder,
+                value: suggestedKey,
+                validateInput: (value) =>
+                  value.trim() ? undefined : translations.keyRequired,
+              });
+              if (!key) {
+                return;
+              }
+              key = key.trim();
+              name = await vscode.window.showInputBox({
+                title: translations.namePrompt,
+                prompt: translations.namePrompt,
+                value: key,
+              });
+              if (name === undefined) {
+                return;
+              }
+              name = name.trim() || key;
+            }
+
+            const run = (force = false) =>
+              vscode.window.withProgress(
+                {
+                  location: vscode.ProgressLocation.Notification,
+                  title: translations.progress,
+                  cancellable: false,
+                },
+                async () => {
+                  const graph = structuralGraphService.generate({ force });
+                  return curatedGraphService.curate(graph, {
+                    kind: selection.kind,
+                    scope,
+                    key,
+                    name,
+                  });
+                }
+              );
+            let result;
+            try {
+              result = await run();
+            } catch (error) {
+              if (!isStructuralGraphRecoveryError(error)) {
+                throw error;
+              }
+              const action = await vscode.window.showWarningMessage(
+                translations.recoveryRequired(String(error)),
+                { modal: true },
+                translations.forceRebuild,
+                translations.cancel
+              );
+              if (action !== translations.forceRebuild) {
+                return;
+              }
+              result = await run(true);
+            }
+
+            agentGraphService.refresh();
+            treeDataProvider.refresh();
+            GraphView.refresh();
+            codeLensProvider.refresh();
+            const action = await vscode.window.showInformationMessage(
+              translations.success(
+                result.group.name,
+                result.group.entities.length,
+                result.group.relations.length
+              ),
+              translations.openGraph
+            );
+            if (action === translations.openGraph) {
+              const document = await vscode.workspace.openTextDocument(
+                curatedGraphService.getOutputPath()
+              );
+              await vscode.window.showTextDocument(document);
+            }
+          } catch (error) {
+            console.error('Error curating structural graph:', error);
+            vscode.window.showErrorMessage(translations.error(String(error)));
           }
         }
       )
@@ -798,6 +1072,18 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 }
 
+function isStructuralGraphRecoveryError(
+  error: unknown
+): error is { code: string } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code?: unknown }).code ===
+      'STRUCTURAL_GRAPH_RECOVERY_REQUIRED'
+  );
+}
+
 /**
  * 注册占位命令
  */
@@ -837,6 +1123,8 @@ function registerPlaceholderCommands(context: vscode.ExtensionContext) {
     'knowledge.switchAIScenario',
     'knowledge.showCurrentScenario',
     'knowledge.installDependencyGraphSkill',
+    'knowledge.generateStructuralGraph',
+    'knowledge.curateStructuralGraph',
   ];
 
   placeholderCommands.forEach(commandId => {

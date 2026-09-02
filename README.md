@@ -2,7 +2,7 @@
 
 [English](./README.md) | [简体中文](./README_ZH.md)
 
-VibeKnowledge is a VS Code extension for maintaining an Agent-generated project knowledge graph alongside the code it describes. An Agent Skill creates evidence-backed framework, module, and feature graphs; maintainers can refine entity descriptions without manually rebuilding graph structure.
+VibeKnowledge is a VS Code extension for maintaining a project knowledge graph alongside the code it describes. A deterministic extractor records code facts, while an Agent Skill turns those facts and source evidence into focused framework, module, and feature graphs. Maintainers can refine entity descriptions without manually rebuilding graph structure.
 
 VibeKnowledge is distributed as source code. Fork the repository to customize it, run it locally, or package your own VSIX.
 
@@ -18,7 +18,7 @@ https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 
 | Area | Current capabilities |
 | --- | --- |
-| Knowledge Graph | Let the Agent own entity and relation structure while maintainers edit descriptions. |
+| Knowledge Graph | Separate deterministic code facts from Agent-curated entities, relations, and descriptions. |
 | Grouped generation | Generate a boundary-focused framework graph first, then add parallel module or feature groups incrementally. |
 | Visualization | Switch groups from a vertical list and render only the selected D3/SVG graph, then jump back to source locations. |
 | AI context | Keep the full audit report for humans and route Coding Agents to compact, on-demand group views. |
@@ -30,13 +30,15 @@ VibeKnowledge stores its project data in:
 
 ```text
 <workspace>/.vscode/.knowledge/graph.sqlite
+<workspace>/.vscode/.knowledge/structural-graph.json
+<workspace>/.vscode/.knowledge/cache/structural/index.json
 <workspace>/.vscode/.knowledge/agent-graph.json
 <workspace>/.vscode/.knowledge/knowledge-graph.md
 <workspace>/.vscode/.knowledge/agent-context/index.md
 <workspace>/.vscode/.knowledge/agent-context/<group-key>.md
 ```
 
-`agent-graph.json` is the version-2 generated source containing independent groups. `knowledge-graph.md` is the complete human audit report, while `agent-context/` contains compact entity/path/relation views for on-demand Agent navigation. `graph.sqlite` stores human description overrides and RAG data; it is not a second structural graph. Human descriptions always win, so rerunning the Agent cannot overwrite edited prose.
+`structural-graph.json` is the deterministic TypeScript/JavaScript code-fact layer and is not loaded into Agent context wholesale. `agent-graph.json` is the version-2 curated source containing independent groups. `knowledge-graph.md` is the complete human audit report, while `agent-context/` contains compact entity/path/relation views for on-demand Agent navigation. `graph.sqlite` stores human description overrides and RAG data; it is not a second structural graph. Human descriptions always win, so rerunning the Agent cannot overwrite edited prose.
 
 ## Run from source
 
@@ -68,10 +70,21 @@ npm run watch
 ### Generate and refine the Knowledge Graph
 
 1. Run **Knowledge: Install Dependency Graph Agent Skill**. The extension installs the skill under `.agents/skills/vibeknowledge-dependency-graph/` in the project.
-2. First ask an Agent Skills-compatible coding agent to generate the project Knowledge Graph, or invoke `$vibeknowledge-dependency-graph` explicitly. With no narrower request, the Skill creates the boundary-focused `framework` graph.
-3. Ask for a specific module or feature later. The Agent automatically names it, appends or refreshes that parallel group, and preserves every unrelated group. The same stable entity key may intentionally occur in several groups.
+2. First ask an Agent Skills-compatible coding agent to generate the project Knowledge Graph, or invoke `$vibeknowledge-dependency-graph` explicitly. With no narrower request, the Skill deterministically condenses the structural facts into a boundary-focused `framework` graph, then reviews only naming and business semantics.
+3. Ask for a specific module or feature later. The condenser expands only that source scope to API, service, entity, and key call paths. The Agent refines semantic descriptions while the merge preserves every unrelated group. The same stable entity key may intentionally occur in several groups.
 4. The Agent validates `.vscode/.knowledge/agent-graph.json`, then regenerates the complete `.vscode/.knowledge/knowledge-graph.md` audit report and compact views under `.vscode/.knowledge/agent-context/`.
 5. Run **Knowledge: Visualize Graph**. Select a group on the left; only that group is simulated and rendered.
+
+For TypeScript and JavaScript projects, **Knowledge: Generate Structural Graph** refreshes the raw fact layer and **Knowledge: Curate Graph from Structure** generates or refreshes one selected view. The same deterministic pipeline is available from the installed Skill:
+
+```bash
+node .agents/skills/vibeknowledge-dependency-graph/scripts/extract-structural-graph.mjs --workspace . --scope .
+node .agents/skills/vibeknowledge-dependency-graph/scripts/validate-structural-graph.mjs .vscode/.knowledge/structural-graph.json .
+node .agents/skills/vibeknowledge-dependency-graph/scripts/curate-structural-graph.mjs --workspace . --kind framework --name "Framework"
+node .agents/skills/vibeknowledge-dependency-graph/scripts/curate-structural-graph.mjs --workspace . --kind feature --scope src/article --key article-management --name "Article management"
+```
+
+The outputs are validated before atomic replacement. Later extraction runs reuse a portable per-file cache and re-resolve only changed files and their transitive importers. Curation replaces one group, preserves Agent-authored semantics and stable keys, and records the raw structural path behind every generated relation. Syntax errors are recorded per file on a full build; an incremental update preserves the previous graph if an existing valid file becomes broken or the result shrinks abnormally. After reviewing an intentional change, rerun extraction with `--force` or confirm the full rebuild in VS Code.
 
 The Agent replaces only the requested group's generated contents and never edits `graph.sqlite`. Stable entity keys reconnect human descriptions to every occurrence after each run. Legacy version-1 manifests remain readable and are treated as one framework group. See the [grouped schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md).
 

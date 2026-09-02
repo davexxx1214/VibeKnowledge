@@ -11,6 +11,7 @@ import type {
   AgentGraphRelationRecord,
   AgentGraphStore
 } from './agentGraphStore.js';
+import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
 
 export interface ManualEntityRecord extends EntityRecord {
   source: 'manual';
@@ -43,7 +44,7 @@ export function searchMergedEntities(
   const limit = clampLimit(params.limit);
   const agentResults = agentGraph.searchEntities(
     { ...params, limit: 100 },
-    getDescriptionOverrides(db, agentGraph)
+    getAgentDescriptionOverrides(db, agentGraph)
   );
 
   return deduplicate(agentResults, entityIdentityAliases, limit);
@@ -72,7 +73,7 @@ export function getMergedOverview(
 ): MergedKnowledgeOverview {
   const agent = agentGraph.getOverview();
   const mergedEntities = deduplicate(
-    agentGraph.listAllEntities(getDescriptionOverrides(db, agentGraph)),
+    agentGraph.listAllEntities(getAgentDescriptionOverrides(db, agentGraph)),
     entityIdentityAliases,
     Number.MAX_SAFE_INTEGER
   );
@@ -118,7 +119,7 @@ function deduplicate<T>(
 }
 
 /** Reuse old manual entity prose without treating those rows as structure. */
-function getDescriptionOverrides(
+export function getAgentDescriptionOverrides(
   db: GraphDatabase,
   agentGraph: AgentGraphStore
 ): Map<string, string> {
@@ -145,8 +146,8 @@ function entityIdentityAliases(
   entity: ManualEntityRecord | AgentGraphEntityRecord
 ): string[] {
   return entity.source === 'agent'
-    ? [`key:${normalize(entity.key)}`]
-    : [`key:${normalize(entity.id)}`];
+    ? [`key:${canonicalizeEntityKey(entity.key)}`]
+    : [`key:${canonicalizeEntityKey(entity.id)}`];
 }
 
 function relationIdentityAliases(
@@ -162,9 +163,9 @@ function relationIdentityAliases(
       : relation.targetKey;
 
   return [
-    `relation-key:${normalize(sourceKey)}\u0000${normalize(
+    `relation-key:${canonicalizeEntityKey(sourceKey)}\u0000${normalize(
       relation.verb
-    )}\u0000${normalize(targetKey)}`
+    )}\u0000${canonicalizeEntityKey(targetKey)}`
   ];
 }
 
@@ -176,7 +177,7 @@ function symbolIdentity(entity: {
   name: string;
   filePath: string;
 }): string {
-  return `${normalize(entity.filePath).replace(/\\/g, '/').replace(/^\.\//, '')}\u0000${normalize(entity.name)}`;
+  return canonicalizeEntityKey(`${entity.filePath}#${entity.name}`);
 }
 
 function clampLimit(limit?: number): number {

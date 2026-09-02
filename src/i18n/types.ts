@@ -141,6 +141,43 @@ export interface LanguagePack {
       openSkill: string;
       error: (error: string) => string;
     };
+    generateStructuralGraph: CommandTranslations & {
+      progress: string;
+      success: (
+        fileCount: number,
+        entityCount: number,
+        relationCount: number,
+        diagnosticCount: number
+      ) => string;
+      openGraph: string;
+      recoveryRequired: (error: string) => string;
+      forceRebuild: string;
+      cancel: string;
+      error: (error: string) => string;
+    };
+    curateStructuralGraph: CommandTranslations & {
+      kindPlaceholder: string;
+      frameworkKind: string;
+      frameworkDescription: string;
+      moduleKind: string;
+      moduleDescription: string;
+      featureKind: string;
+      featureDescription: string;
+      scopePrompt: string;
+      scopePlaceholder: string;
+      scopeRequired: string;
+      keyPrompt: string;
+      keyPlaceholder: string;
+      keyRequired: string;
+      namePrompt: string;
+      progress: string;
+      success: (groupName: string, entityCount: number, relationCount: number) => string;
+      openGraph: string;
+      recoveryRequired: (error: string) => string;
+      forceRebuild: string;
+      cancel: string;
+      error: (error: string) => string;
+    };
     editEntityDescription: {
       title: string;
       prompt: (name: string) => string;
@@ -372,6 +409,8 @@ export interface LanguagePack {
       source: string;
       humanSource: string;
       agentSource: string;
+      relationOrigin: string;
+      confidence: string;
       evidence: string;
     };
   };

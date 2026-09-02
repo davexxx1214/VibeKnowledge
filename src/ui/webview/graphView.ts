@@ -1,7 +1,11 @@
 import * as vscode from 'vscode';
 import * as crypto from 'crypto';
 import { KnowledgeGraphService } from '../../services/knowledgeGraphService';
-import type { AgentGraphEvidence } from '../../services/agentGraph';
+import type {
+    AgentGraphEvidence,
+    AgentGraphRelationConfidence,
+    AgentGraphRelationOrigin,
+} from '../../services/agentGraph';
 import { MusicGeneratorService } from '../../services/musicGenerator';
 import type { EntityType, RelationVerb } from '../../utils/types';
 import { StrudelView } from './strudelView';
@@ -32,6 +36,8 @@ interface GraphViewRelation {
     verb: RelationVerb;
     isAgent: boolean;
     description?: string;
+    relationOrigin?: AgentGraphRelationOrigin;
+    confidence?: AgentGraphRelationConfidence;
     evidence: AgentGraphEvidence[];
 }
 
@@ -250,6 +256,12 @@ export class GraphView {
                 description: typeof relation.metadata?.description === 'string'
                     ? relation.metadata.description
                     : undefined,
+                relationOrigin: typeof relation.metadata?.relationOrigin === 'string'
+                    ? relation.metadata.relationOrigin as AgentGraphRelationOrigin
+                    : undefined,
+                confidence: typeof relation.metadata?.relationConfidence === 'string'
+                    ? relation.metadata.relationConfidence as AgentGraphRelationConfidence
+                    : undefined,
                 evidence: Array.isArray(relation.metadata?.evidence)
                     ? relation.metadata.evidence as AgentGraphEvidence[]
                     : [],
@@ -318,6 +330,8 @@ export class GraphView {
             source: 'Provenance',
             humanSource: 'Human-authored',
             agentSource: 'Agent-generated',
+            relationOrigin: 'Relation origin',
+            confidence: 'Confidence',
             evidence: 'Evidence'
         };
         const musicTranslations = (t().graphView as any)?.music || {
@@ -693,6 +707,8 @@ export class GraphView {
                 source: '${agentGraphTranslations.source}',
                 humanSource: '${agentGraphTranslations.humanSource}',
                 agentSource: '${agentGraphTranslations.agentSource}',
+                relationOrigin: '${agentGraphTranslations.relationOrigin}',
+                confidence: '${agentGraphTranslations.confidence}',
                 evidence: '${agentGraphTranslations.evidence}'
             },
             cyclicDependency: '${translations.cyclicDependency}'
@@ -1340,6 +1356,12 @@ export class GraphView {
             lines.push(i18n.tooltip.source + ': ' + (
                 relation.isAgent ? i18n.tooltip.agentSource : i18n.tooltip.humanSource
             ));
+            if (relation.relationOrigin) {
+                lines.push(i18n.tooltip.relationOrigin + ': ' + relation.relationOrigin);
+            }
+            if (relation.confidence) {
+                lines.push(i18n.tooltip.confidence + ': ' + relation.confidence);
+            }
             if (relation.description) {
                 lines.push(relation.description);
             }

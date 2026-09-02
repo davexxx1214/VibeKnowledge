@@ -36,6 +36,8 @@ function relation(source: string, target: string, filePath: string) {
     source,
     target,
     verb: 'depends_on',
+    origin: 'agent',
+    confidence: 'extracted',
     description: `${source} needs ${target}`,
     evidence: [
       {
@@ -90,7 +92,9 @@ function legacyDocument() {
     generatedAt: document.generatedAt,
     scope: document.scope,
     entities: document.groups[0].entities,
-    relations: document.groups[0].relations,
+    relations: document.groups[0].relations.map(
+      ({ origin: _origin, confidence: _confidence, ...relation }) => relation
+    ),
   };
 }
 
@@ -133,6 +137,22 @@ describe('parseAgentGraphDocument', () => {
         order: 0,
       }),
     ]);
+  });
+
+  it('accepts legacy v2 relations without provenance fields', () => {
+    const document = cloneDocument();
+    delete (document.groups[0].relations[0] as Partial<{
+      origin: string;
+      confidence: string;
+    }>).origin;
+    delete (document.groups[0].relations[0] as Partial<{
+      origin: string;
+      confidence: string;
+    }>).confidence;
+
+    const relation = parseAgentGraphDocument(document).groups[0].relations[0];
+    expect(relation.origin).toBeUndefined();
+    expect(relation.confidence).toBeUndefined();
   });
 
   it.each([
@@ -204,6 +224,38 @@ describe('parseAgentGraphDocument', () => {
         return document;
       },
     ],
+    [
+      'canonical key collisions inside one group',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].entities[1].key = ' SRC\\A.ts ## a() ';
+        return document;
+      },
+    ],
+    [
+      'an unsupported relation origin',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].relations[0].origin = 'parser';
+        return document;
+      },
+    ],
+    [
+      'an unsupported relation confidence',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].relations[0].confidence = 'certain';
+        return document;
+      },
+    ],
+    [
+      'an empty structural path',
+      () => {
+        const document = cloneDocument();
+        Object.assign(document.groups[0].relations[0], { structuralPath: [] });
+        return document;
+      },
+    ],
   ])('rejects %s', (_label, makeDocument) => {
     expect(() => parseAgentGraphDocument(makeDocument())).toThrow();
   });
@@ -225,7 +277,21 @@ describe('AgentGraphService', () => {
   it('loads ordered groups with stable, group-specific IDs and metadata', () => {
     const workspace = createWorkspace();
     const graphPath = join(workspace, '.vscode', '.knowledge', 'agent-graph.json');
-    writeFileSync(graphPath, JSON.stringify(validDocument()), 'utf8');
+    const document = validDocument();
+    Object.assign(document.groups[0].relations[0], {
+      structuralPath: [
+        {
+          source: 'src/a.ts#A',
+          target: 'src/b.ts#B',
+          verb: 'calls',
+          filePath: 'src/a.ts',
+          startLine: 5,
+          endLine: 5,
+          traversal: 'forward',
+        },
+      ],
+    });
+    writeFileSync(graphPath, JSON.stringify(document), 'utf8');
 
     const first = new AgentGraphService(workspace);
     const second = new AgentGraphService(workspace);
@@ -243,6 +309,28 @@ describe('AgentGraphService', () => {
     );
     expect(relation.sourceEntityId).toBe(duplicateEntities[0].id);
     expect(relation.metadata?.evidence).toHaveLength(1);
+    expect(relation).toMatchObject({
+      extractionOrigin: 'agent',
+      confidence: 'extracted',
+      structuralPath: [
+        expect.objectContaining({
+          source: 'src/a.ts#A',
+          target: 'src/b.ts#B',
+          verb: 'calls',
+          traversal: 'forward',
+        }),
+      ],
+      metadata: {
+        relationOrigin: 'agent',
+        relationConfidence: 'extracted',
+        structuralPath: [
+          expect.objectContaining({
+            source: 'src/a.ts#A',
+            target: 'src/b.ts#B',
+          }),
+        ],
+      },
+    });
     expect(first.getRelationsByEntity(duplicateEntities[0].id, 'outgoing'))
       .toHaveLength(1);
     expect(first.getStats()).toMatchObject({

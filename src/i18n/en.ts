@@ -228,6 +228,46 @@ export const en = {
       error: (error: string) => `Failed to install dependency graph skill: ${error}`
     },
 
+    generateStructuralGraph: {
+      title: 'Knowledge: Generate Structural Graph',
+      progress: 'Extracting deterministic TypeScript/JavaScript structure...',
+      success: (files: number, entities: number, relations: number, diagnostics: number) =>
+        `Structural graph generated: ${files} files, ${entities} entities, ${relations} relations, ${diagnostics} diagnostics.`,
+      openGraph: 'Open structural-graph.json',
+      recoveryRequired: (error: string) =>
+        `The existing structural graph was preserved because a safe incremental update could not be verified. Review the source changes before forcing a full rebuild.\n\n${error}`,
+      forceRebuild: 'Force Full Rebuild',
+      cancel: 'Cancel',
+      error: (error: string) => `Failed to generate structural graph: ${error}`
+    },
+
+    curateStructuralGraph: {
+      title: 'Knowledge: Curate Graph from Structure',
+      kindPlaceholder: 'Choose the graph view to generate or refresh',
+      frameworkKind: 'Framework system boundary',
+      frameworkDescription: 'Startup, root module, top-level modules, shared infrastructure, and external systems',
+      moduleKind: 'Module view',
+      moduleDescription: 'Public components and direct dependencies under one source scope',
+      featureKind: 'Feature view',
+      featureDescription: 'API, service, entity, and key call paths for one feature',
+      scopePrompt: 'Workspace-relative source scope',
+      scopePlaceholder: 'For example: src/article',
+      scopeRequired: 'Use a workspace-relative scope narrower than the workspace root',
+      keyPrompt: 'Stable group key',
+      keyPlaceholder: 'For example: article-management',
+      keyRequired: 'Enter a stable group key',
+      namePrompt: 'Human-readable group name',
+      progress: 'Refreshing structural facts and curating one graph group...',
+      success: (name: string, entities: number, relations: number) =>
+        `Curated '${name}': ${entities} entities and ${relations} relations. Agent-authored semantics and unrelated groups were preserved.`,
+      openGraph: 'Open agent-graph.json',
+      recoveryRequired: (error: string) =>
+        `The existing structural graph could not be refreshed safely. Review the source changes before forcing a full rebuild.\n\n${error}`,
+      forceRebuild: 'Force Full Rebuild',
+      cancel: 'Cancel',
+      error: (error: string) => `Failed to curate graph: ${error}`
+    },
+
     generateCursorRules: {
       title: 'Knowledge: Generate Cursor Rules',
       success: (fileName: string) => `✅ Cursor Rules generated: ${fileName}`,
@@ -575,6 +615,8 @@ export const en = {
       source: 'Provenance',
       humanSource: 'Human-authored',
       agentSource: 'Agent-generated',
+      relationOrigin: 'Relation origin',
+      confidence: 'Confidence',
       evidence: 'Evidence'
     }
   },

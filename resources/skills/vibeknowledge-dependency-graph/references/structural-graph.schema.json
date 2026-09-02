@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vibeknowledge.dev/schema/structural-graph-v1.json",
+  "title": "VibeKnowledge Structural Graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "generatedAt", "scope", "extractor", "files", "entities", "relations", "diagnostics"],
+  "properties": {
+    "version": { "const": 1 },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "scope": { "type": "string", "minLength": 1 },
+    "extractor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "typescriptVersion"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "integer", "minimum": 1 },
+        "typescriptVersion": { "type": "string", "minLength": 1 }
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["filePath", "language", "contentHash"],
+        "properties": {
+          "filePath": { "$ref": "#/$defs/path" },
+          "language": { "enum": ["typescript", "typescriptreact", "javascript", "javascriptreact"] },
+          "contentHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "name", "kind", "filePath", "startLine", "endLine"],
+        "properties": {
+          "key": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["file", "class", "interface", "function", "method", "variable", "external"] },
+          "filePath": { "$ref": "#/$defs/path" },
+          "startLine": { "type": "integer", "minimum": 1 },
+          "endLine": { "type": "integer", "minimum": 1 },
+          "exported": { "type": "boolean" },
+          "containerKey": { "type": "string", "minLength": 1 },
+          "metadata": { "type": "object" }
+        }
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source", "target", "verb", "origin", "confidence", "location"],
+        "properties": {
+          "source": { "type": "string", "minLength": 1 },
+          "target": { "type": "string", "minLength": 1 },
+          "verb": { "enum": ["imports", "exports", "contains", "extends", "implements", "calls", "references"] },
+          "origin": { "enum": ["ast", "resolver"] },
+          "confidence": { "enum": ["extracted", "inferred", "review_required"] },
+          "location": { "$ref": "#/$defs/location" },
+          "detail": { "type": "string", "minLength": 1 },
+          "metadata": { "type": "object" }
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "category", "message"],
+        "properties": {
+          "filePath": { "$ref": "#/$defs/path" },
+          "code": { "type": "string", "minLength": 1 },
+          "category": { "enum": ["warning", "error"] },
+          "message": { "type": "string", "minLength": 1 },
+          "startLine": { "type": "integer", "minimum": 1 },
+          "endLine": { "type": "integer", "minimum": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "path": { "type": "string", "minLength": 1, "pattern": "^(?![A-Za-z]:)(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//).+$" },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filePath", "startLine", "endLine"],
+      "properties": {
+        "filePath": { "$ref": "#/$defs/path" },
+        "startLine": { "type": "integer", "minimum": 1 },
+        "endLine": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

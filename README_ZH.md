@@ -2,7 +2,7 @@
 
 [English](./README.md) | 简体中文
 
-VibeKnowledge 是一个 VS Code 插件，用来维护与代码一起演进、由 Agent 生成的项目知识图谱。Agent Skill 负责生成带证据的框架、模块和功能图谱，人工只需补充或修改实体描述。
+VibeKnowledge 是一个 VS Code 插件，用来维护与代码一起演进的项目知识图谱。确定性提取器负责记录代码事实，Agent Skill 再结合这些事实和源码证据，生成聚焦的框架、模块和功能图谱；人工只需补充或修改实体描述。
 
 VibeKnowledge 以源码形式提供。你可以 Fork 本仓库进行定制、本地运行，或自行打包 VSIX 使用。
 
@@ -18,7 +18,7 @@ https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 
 | 模块 | 当前能力 |
 | --- | --- |
-| 知识图谱 | Agent 负责实体与关系结构，人工只编辑描述。 |
+| 知识图谱 | 将确定性代码事实与 Agent 精选的实体、关系和描述分层保存。 |
 | 分组生成 | 先生成聚焦系统边界的框架图，再按需增量添加平行的模块或功能图谱。 |
 | 图谱可视化 | 从左侧竖向列表切换分组，只渲染当前选中的 D3/SVG 图谱，并可跳回源码。 |
 | AI 上下文 | 保留完整人工审计报告，让 Coding Agent 按需加载紧凑的分组视图。 |
@@ -30,13 +30,15 @@ https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
 
 ```text
 <workspace>/.vscode/.knowledge/graph.sqlite
+<workspace>/.vscode/.knowledge/structural-graph.json
+<workspace>/.vscode/.knowledge/cache/structural/index.json
 <workspace>/.vscode/.knowledge/agent-graph.json
 <workspace>/.vscode/.knowledge/knowledge-graph.md
 <workspace>/.vscode/.knowledge/agent-context/index.md
 <workspace>/.vscode/.knowledge/agent-context/<group-key>.md
 ```
 
-`agent-graph.json` 是包含独立分组的 v2 结构源，`knowledge-graph.md` 是完整的人工审计报告，`agent-context/` 则提供仅包含实体、路径和关系的紧凑视图，供 Agent 按需导航。`graph.sqlite` 保存人工描述覆盖与 RAG 数据，不再作为第二份结构图谱。人工描述始终优先，因此 Agent 再次生成时不会覆盖已经编辑的描述。
+`structural-graph.json` 是由 TypeScript/JavaScript 确定性提取器生成的代码事实层，不会整份注入 Agent 上下文。`agent-graph.json` 是包含独立分组的 v2 精选结构源，`knowledge-graph.md` 是完整的人工审计报告，`agent-context/` 则提供仅包含实体、路径和关系的紧凑视图，供 Agent 按需导航。`graph.sqlite` 保存人工描述覆盖与 RAG 数据，不再作为第二份结构图谱。人工描述始终优先，因此 Agent 再次生成时不会覆盖已经编辑的描述。
 
 ## 从源码运行
 
@@ -68,10 +70,21 @@ npm run watch
 ### 生成并维护知识图谱
 
 1. 运行 **Knowledge: Install Dependency Graph Agent Skill**。扩展会把 Skill 安装到项目的 `.agents/skills/vibeknowledge-dependency-graph/`。
-2. 第一次让支持 Agent Skills 的编码 Agent “生成项目知识图谱”，或显式调用 `$vibeknowledge-dependency-graph`。没有指定范围时，Skill 会先生成聚焦系统边界的 `framework` 框架图。
-3. 后续点名某个模块或功能。Agent 会自动生成名称，新增或刷新这个平行分组，并完整保留其他分组。同一个稳定实体 key 可以正常出现在多个分组中。
+2. 第一次让支持 Agent Skills 的编码 Agent “生成项目知识图谱”，或显式调用 `$vibeknowledge-dependency-graph`。没有指定范围时，Skill 会先把结构事实确定性收敛为聚焦系统边界的 `framework` 框架图，再只审查命名和业务语义。
+3. 后续点名某个模块或功能。收敛器只把对应源码范围展开到 API、Service、Entity 和关键调用路径；Agent 负责完善语义描述，合并过程完整保留其他分组。同一个稳定实体 key 可以正常出现在多个分组中。
 4. Agent 校验 `.vscode/.knowledge/agent-graph.json` 后，会重新生成完整的 `.vscode/.knowledge/knowledge-graph.md` 审计报告，以及 `.vscode/.knowledge/agent-context/` 下的紧凑分组视图。
 5. 运行 **Knowledge: Visualize Graph**，从左侧选择分组；界面只模拟和渲染当前分组。
+
+对于 TypeScript 和 JavaScript 项目，**Knowledge: Generate Structural Graph** 用于刷新原始事实层，**Knowledge: Curate Graph from Structure** 用于生成或刷新一个精选视图。安装 Skill 后也可以直接运行同一套确定性流程：
+
+```bash
+node .agents/skills/vibeknowledge-dependency-graph/scripts/extract-structural-graph.mjs --workspace . --scope .
+node .agents/skills/vibeknowledge-dependency-graph/scripts/validate-structural-graph.mjs .vscode/.knowledge/structural-graph.json .
+node .agents/skills/vibeknowledge-dependency-graph/scripts/curate-structural-graph.mjs --workspace . --kind framework --name "框架层"
+node .agents/skills/vibeknowledge-dependency-graph/scripts/curate-structural-graph.mjs --workspace . --kind feature --scope src/article --key article-management --name "文章管理"
+```
+
+输出通过 schema 校验后才会原子替换。后续提取会复用可迁移的文件级缓存，只重新解析变更文件及其传递 importer；策展只替换一个分组，保留 Agent 语义和 stable key，并为每条生成关系记录可回溯的原始结构路径。全量构建会记录单文件语法错误并继续；增量更新遇到原本正常的文件损坏或结果异常缩小时，会保留旧图。确认源码变化符合预期后，可以使用 `--force`，或在 VS Code 中确认全量重建。
 
 Agent 每次只替换目标分组的生成内容，并且绝不修改 `graph.sqlite`。稳定实体 `key` 会让人工描述在每次生成后重新关联到该实体的所有分组实例。旧版 v1 清单仍可读取，并会被视为一个框架层分组。格式见 [分组 schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md)。
 

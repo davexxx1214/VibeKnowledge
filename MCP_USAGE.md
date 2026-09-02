@@ -18,7 +18,7 @@
    ```bash
    node packages/mcp-server/dist/index.js --workspace "D:/workspace/nestjs-realworld-example-app"
    ```
-   - `--workspace` 指向目标项目根目录（需已生成 `.vscode/.knowledge/graph.sqlite`）。
+   - `--workspace` 指向目标项目根目录，MCP Server 启动前仍需存在 `.vscode/.knowledge/graph.sqlite`；新的局部图查询还需要已生成 `.vscode/.knowledge/agent-graph.json`。SQLite 不再提供图结构，只提供人工描述覆盖、观察记录和 RAG 数据。
    - 日志全部输出到 `stderr`，`stdout` 专用于 MCP 协议通信。
    - **提示**：Cursor / Copilot 会按 `mcp.json` 自动启动 server，除非需要独立调试，一般无需在此手动运行。
 
@@ -82,6 +82,9 @@
 6. 测试：
    - 项目概览：`@mcp vibeknowledge resource knowledge://overview`
    - 查询实体：`@mcp vibeknowledge tool search_entities {"query": "UserService"}`（查询统一知识图谱）
+   - 查询局部子图：`@mcp vibeknowledge tool query_graph {"query": "用户认证依赖哪些组件", "depth": 2, "tokenBudget": 2000}`
+   - 查询实体邻居：`@mcp vibeknowledge tool get_neighbors {"selector": "UserService", "direction": "both"}`
+   - 查询最短路径：`@mcp vibeknowledge tool shortest_path {"source": "UserController", "target": "UserEntity"}`
    - 查询观察记录：`@mcp vibeknowledge tool search_observations {"limit": 5}`
    - 查询关系：`@mcp vibeknowledge tool knowledge://relations {"verb": "uses", "limit": 5}`（返回数据来源与 Agent 证据）
    - RAG 问答：`@mcp vibeknowledge tool ask_question {"question": "项目的数据库连接数是多少？"}`
@@ -109,7 +112,7 @@
    }
    ```
 
-3. 重启 VS Code，Copilot 会自动连接该 MCP server。随后即可在 Copilot Chat 中直接请求项目概览、实体信息等。
+3. 重启 VS Code，Copilot 会自动连接该 MCP server。随后即可在 Copilot Chat 中直接请求项目概览、实体信息等。对于架构、跨文件依赖和影响分析任务，应优先调用 `query_graph`，再用 `get_entity`、`get_neighbors` 或 `shortest_path` 扩展结果。
 
 ---
 
@@ -119,7 +122,7 @@
 |------|------|
 | `graph.sqlite` 找不到 | 需先在对应项目中运行 VibeKnowledge VS Code 插件以生成 `.vscode/.knowledge/graph.sqlite` |
 | 想切换到其他项目 | 停止当前 server，重新以新的 `--workspace` 路径启动 |
-| 无法连接 | 检查 `mcp.json` 路径、命令参数及 Node.js 版本（≥ 18） |
+| 无法连接 | 检查 `mcp.json` 路径、命令参数及 Node.js 版本（≥ 20） |
 | 想查看实时日志 | MCP Server 日志打印在启动终端的 `stderr`，不会污染协议输出 |
 
 如需在多个项目间复用，可为每个项目同时运行一个 MCP 进程，并在 `mcp.json` 中配置不同的名称与工作区路径。
@@ -131,13 +134,44 @@
 | 类型 | 名称 | 说明 |
 |------|------|------|
 | Resource | `knowledge://overview` | 返回知识图谱去重后的实体/关系统计、生成时间，以及框架/模块/功能分组摘要 |
+| Tool | `query_graph` | 根据自然语言问题选择最多 3 个种子，并返回受深度和 token budget 限制的局部子图 |
+| Tool | `get_entity` | 按 stable key、实体名或内部 ID 获取实体；可限定分组 |
+| Tool | `get_neighbors` | 按 incoming/outgoing/both 方向、关系类型和深度查询实体邻居 |
+| Tool | `shortest_path` | 查询两个实体之间的最短路径，并保留关系的原始方向 |
 | Tool | `search_entities` | 根据名称、类型、文件路径或描述搜索统一知识图谱中的实体 |
 | Tool | `search_observations` | 检索观察记录，可按关键字或实体 ID 过滤 |
 | Tool | `knowledge://relations` | 列出统一知识图谱关系，可按动词、源/目标实体筛选；Agent 生成关系附带代码证据 |
 | Prompt | `get_observations` | 引导 AI 调用 `search_observations` 工具 |
 | Tool | `ask_question` | 自动根据 `rag.mode` 调用本地或云端 RAG，并附带引用文件 |
 
-知识图谱结构来自目标工作区的 `.vscode/.knowledge/agent-graph.json`。可以先在 VS Code 中运行 **Knowledge: Install Dependency Graph Agent Skill**，让 Agent 先生成框架层，再按模块或功能追加平行分组；Skill 同时生成 `.vscode/.knowledge/knowledge-graph.md` 汇总文档。同一实体可以出现在多个分组中，MCP 搜索结果会标明所属分组，而总览统计会按稳定实体去重。SQLite 只提供人工描述覆盖和 RAG 数据，不再提供实体或关系结构；人工描述在 MCP 查询时始终优先。MCP Server 全程只读，因此不会与扩展的 SQL.js 保存流程争抢数据库写入。
+知识图谱结构来自目标工作区的 `.vscode/.knowledge/agent-graph.json`。可以先在 VS Code 中运行 **Knowledge: Install Dependency Graph Agent Skill**，再由 Agent 或 **Knowledge: Curate Graph from Structure** 先生成框架层、后按模块或功能追加平行分组；Skill 同时生成 `.vscode/.knowledge/knowledge-graph.md` 汇总文档。同一实体可以出现在多个分组中，MCP 搜索结果会标明所属分组，而总览统计会按稳定实体去重。实体匹配会使用 canonical alias 兼容路径分隔符、Unicode NFKC、大小写和冗余标点，但不会改写原 stable key。关系可携带 `origin`（`ast | resolver | agent`）、`confidence`（`extracted | inferred | review_required`）和可选的底层 `structuralPath`；旧 v1/v2 图谱缺少这些字段时仍可读取。SQLite 只提供人工描述覆盖和 RAG 数据，不再提供实体或关系结构；人工描述在 MCP 查询时始终优先。MCP Server 全程只读，因此不会与扩展的 SQL.js 保存流程争抢数据库写入。
+
+### 局部图查询
+
+`query_graph` 是 Coding Agent 理解工程结构时的首选入口。它不会把完整 `knowledge-graph.md` 返回给 Agent，而是先匹配少量种子实体，再沿关系图向外遍历。
+
+```jsonc
+@mcp vibeknowledge tool query_graph {
+  "query": "修改用户登录会影响哪些模块？",
+  "groupKey": "user-management",
+  "depth": 2,
+  "tokenBudget": 2000
+}
+```
+
+- `depth` 默认为 `2`，范围为 `0–5`。
+- `tokenBudget` 默认为 `2000`，范围为 `200–12000`；返回内容会按该预算实际截断。
+- 默认不返回 Evidence 正文或 `structuralPath`。审计某条关系时显式设置 `"includeEvidence": true`，同时取得源码证据和底层结构路径。
+- 可以使用 `relationVerbs` 只遍历指定关系，例如 `["calls", "depends_on"]`。
+- 非种子的高连接度节点不会继续扩散，避免共享基础设施把局部结果扩大成整个图。
+- 输出中的 `状态: 已截断` 表示应提高预算、缩小查询范围或继续调用邻居/实体工具。
+
+推荐工作流：
+
+1. 用 `query_graph` 获取任务相关的局部结构。
+2. 用 `get_entity` 确认 stable key 和源码位置。
+3. 用 `get_neighbors` 扩展一个关键节点，或用 `shortest_path` 验证两个节点如何连接。
+4. 只有需要审计关系时请求 Evidence，然后打开对应源码验证当前行为。
 
 ### `ask_question` 使用示例
 

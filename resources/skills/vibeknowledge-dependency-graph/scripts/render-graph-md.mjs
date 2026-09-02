@@ -101,11 +101,11 @@ for (const group of groups) {
     '',
     '### Relations',
     '',
-    '| Source | Verb | Target | Description | Evidence |',
-    '| --- | --- | --- | --- | --- |'
+    '| Source | Verb | Target | Origin | Confidence | Description | Evidence | Structural path |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- |'
   );
   if (group.relations.length === 0) {
-    lines.push('| _None_ | — | — | — | — |');
+    lines.push('| _None_ | — | — | — | — | — | — | — |');
   } else {
     const entityNames = new Map(
       group.entities.map((entity) => [entity.key, entity.name])
@@ -118,8 +118,17 @@ for (const group of groups) {
           return `${item.filePath}:${item.startLine}${endLine}${detail}`;
         })
         .join('<br>');
+      const structuralPath = (relation.structuralPath || [])
+        .map((hop) => {
+          const path =
+            hop.traversal === 'reverse'
+              ? `${hop.target} <--${hop.verb}-- ${hop.source}`
+              : `${hop.source} --${hop.verb}--> ${hop.target}`;
+          return `${path} @ ${hop.filePath}:${hop.startLine}-${hop.endLine}`;
+        })
+        .join('<br>');
       lines.push(
-        `| ${cell(entityNames.get(relation.source) || relation.source)} | ${cell(relation.verb)} | ${cell(entityNames.get(relation.target) || relation.target)} | ${cell(relation.description || '—')} | ${cell(evidence)} |`
+        `| ${cell(entityNames.get(relation.source) || relation.source)} | ${cell(relation.verb)} | ${cell(entityNames.get(relation.target) || relation.target)} | ${cell(relation.origin || '—')} | ${cell(relation.confidence || '—')} | ${cell(relation.description || '—')} | ${cell(evidence)} | ${cell(structuralPath || '—')} |`
       );
     }
   }
@@ -182,16 +191,16 @@ function renderAgentContext() {
       '',
       '## Relations',
       '',
-      '| Source | Verb | Target |',
-      '| --- | --- | --- |'
+      '| Source | Verb | Target | Origin | Confidence |',
+      '| --- | --- | --- | --- | --- |'
     );
 
     if (group.relations.length === 0) {
-      groupLines.push('| _None_ | — | — |');
+      groupLines.push('| _None_ | — | — | — | — |');
     } else {
       for (const relation of group.relations) {
         groupLines.push(
-          `| ${cell(entityNames.get(relation.source) || relation.source)} | ${cell(relation.verb)} | ${cell(entityNames.get(relation.target) || relation.target)} |`
+          `| ${cell(entityNames.get(relation.source) || relation.source)} | ${cell(relation.verb)} | ${cell(entityNames.get(relation.target) || relation.target)} | ${cell(relation.origin || '—')} | ${cell(relation.confidence || '—')} |`
         );
       }
     }
@@ -205,10 +214,12 @@ function renderAgentContext() {
   const indexLines = [
     '# Agent Knowledge Graph Index',
     '',
-    '> Use this compact index for on-demand code navigation. The full `../knowledge-graph.md` is a human audit report and should not be loaded by default.',
+    '> This index is the file-based fallback for on-demand code navigation. The full `../knowledge-graph.md` is a human audit report and should not be loaded by default.',
     '',
     '- Skip the Knowledge Graph for a small task whose target files are already known.',
-    '- For architecture, unfamiliar, cross-file, or impact-analysis work, open only the best-matching group below.',
+    '- When VibeKnowledge MCP is available, use `query_graph` first and expand with `get_entity`, `get_neighbors`, or `shortest_path`.',
+    '- If MCP is unavailable or returns no useful result, open only the best-matching group below.',
+    '- Request relation Evidence through MCP only when auditing; compact files intentionally omit Evidence prose.',
     '- Treat every compact view as a navigation hint and verify behavior in current source code.',
     '',
     '| Order | Group | Kind | Scope | View |',

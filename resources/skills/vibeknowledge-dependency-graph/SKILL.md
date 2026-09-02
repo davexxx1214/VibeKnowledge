@@ -7,6 +7,8 @@ description: Analyze a code workspace and create or incrementally refresh VibeKn
 
 Maintain these generated artifacts:
 
+- `.vscode/.knowledge/structural-graph.json`: the version-1 deterministic code-fact graph. Treat it as an internal evidence source and do not load the complete file into Agent context by default.
+- `.vscode/.knowledge/cache/structural/`: portable per-file extraction cache and active index. Never edit cache entries by hand.
 - `.vscode/.knowledge/agent-graph.json`: the version-2 machine-readable source.
 - `.vscode/.knowledge/knowledge-graph.md`: the complete deterministic audit report for humans. Do not load it into Agent context by default.
 - `.vscode/.knowledge/agent-context/index.md`: the compact routing index for Coding Agents.
@@ -14,7 +16,49 @@ Maintain these generated artifacts:
 
 VibeKnowledge displays one framework/module/feature group at a time and combines the generated structure with human-authored description overrides. Never edit `.vscode/.knowledge/graph.sqlite`. Human descriptions live there and remain authoritative when the same stable entity key is regenerated.
 
-Before writing, read [references/graph-schema.md](references/graph-schema.md). It defines the exact schema, group invariants, relation direction, allowed values, and evidence requirements.
+Before writing the curated graph, read [references/graph-schema.md](references/graph-schema.md). It defines the exact schema, group invariants, relation direction, allowed values, and evidence requirements. Read [references/structural-graph-schema.md](references/structural-graph-schema.md) only when generating, validating, or diagnosing the deterministic structural graph.
+
+## Refresh deterministic code facts
+
+For TypeScript or JavaScript workspaces, refresh the complete deterministic graph before semantic analysis. The incremental cache keeps this inexpensive after the first run:
+
+```bash
+node .agents/skills/vibeknowledge-dependency-graph/scripts/extract-structural-graph.mjs --workspace . --scope .
+node .agents/skills/vibeknowledge-dependency-graph/scripts/validate-structural-graph.mjs .vscode/.knowledge/structural-graph.json .
+```
+
+The extractor uses the TypeScript Compiler API for `.ts`, `.tsx`, `.js`, and `.jsx`, records syntax failures as diagnostics, and emits only source-backed relationships. The curated group command applies its own narrow scope; do not overwrite the full structural graph with a feature-only extraction. Use targeted symbol/path searches in this file when verification is needed; do not inject the whole structural graph into Agent context.
+
+Later runs are incremental: unchanged file contributions are reused and only changed files plus their reverse-import dependants are resolved again. If extraction refuses to overwrite a corrupt, newly broken, or abnormally smaller graph, preserve the old artifacts and read [references/structural-cache.md](references/structural-cache.md). Never add `--force` autonomously; use it only after the user reviews and accepts the recovery rebuild.
+
+If the workspace cannot resolve the `typescript` package, ask the user to run **Knowledge: Generate Structural Graph** in the VibeKnowledge extension when available. Otherwise continue with the existing source-inspection workflow and report that deterministic extraction was unavailable; never invent missing facts.
+
+## Generate or refresh one curated group
+
+Use the deterministic condenser before reading implementation details. It selects structural candidates, attaches Evidence and raw `structuralPath` hops, preserves stable keys and Agent-authored semantics, and atomically replaces only the target group.
+
+For the framework boundary view:
+
+```bash
+node .agents/skills/vibeknowledge-dependency-graph/scripts/curate-structural-graph.mjs --workspace . --kind framework --name "框架层"
+```
+
+For one module or feature:
+
+```bash
+node .agents/skills/vibeknowledge-dependency-graph/scripts/curate-structural-graph.mjs --workspace . --kind feature --scope src/article --key article-management --name "文章管理"
+```
+
+Use `--kind module` for a technical subsystem or package. Keep the existing group key when refreshing. The command refuses a detailed group when no framework group exists, validates the complete candidate document before replacement, and leaves the previous file untouched on failure.
+
+After convergence, load only the target group plus the source snippets referenced by its Evidence. Review and edit only what requires semantic judgment:
+
+- boundary and group naming;
+- group and entity responsibility descriptions;
+- ambiguous edge handling;
+- business concepts or relations that syntax cannot express.
+
+Do not manually reproduce imports, calls, containment, or source locations already emitted by the condenser. A relation synthesized from structural facts keeps its generated `structuralPath`. A genuinely Agent-only business relation may omit `structuralPath`, but must use `origin: agent`, normally `confidence: review_required`, and precise source Evidence.
 
 ## Choose the target group
 
@@ -50,15 +94,19 @@ Boundary nodes and genuinely shared infrastructure may also appear in detailed g
 
 For an ordinary application, aim for roughly 8–15 entities and 10–20 relations in the framework group. These are readability targets, not validation limits. If a legitimate architecture exceeds them, collapse at the nearest stable boundary or add a missing module or feature group; never omit an architecturally important boundary solely to meet a count.
 
-## Analyze and update
+## Semantic review and update
 
-1. Establish the requested scope. For the framework group, inspect only the artifacts needed to prove startup, top-level composition, cross-boundary dependencies, shared infrastructure, and external systems. For a module or feature group, read its relevant public APIs, implementations, routes, data access, configuration, and tests, and trace their direct relationships.
-2. Prefer high-signal boundaries, services, components, APIs, databases, configuration, and cross-boundary functions appropriate to the target group. Do not emit nodes merely because a parser can see them.
-3. Give every file-backed entity a concise responsibility description suitable for the editor's `🧠 KG` hint. The Agent may refresh generated prose as code changes; a human override remains visible until the user explicitly restores the Agent description.
-4. Add a relation only when workspace evidence supports it. Keep direction `source -> target`: the source invokes, imports, contains, or otherwise depends on the target.
-5. Replace only the target group's generated contents. Preserve every unrelated group, its metadata, entities, relations, stable keys, and order. Update top-level `generatedAt` after the full document is assembled.
-6. The same source symbol may appear in several detailed groups. Reuse the same entity key for that symbol. In the framework group, repeat only boundary nodes and genuinely shared infrastructure; keep feature-internal symbols in their detailed group. Keys must be unique only within one group, and every relation endpoint must exist in that same group.
-7. Write the complete version-2 JSON document atomically. Never write generated structure to `graph.sqlite`.
+1. Confirm the requested group and run deterministic extraction and convergence when available.
+2. Inspect the target group only. Read its referenced public APIs, implementations, routes, data access, configuration, or tests only as needed to replace mechanical descriptions with business meaning or resolve a warning.
+3. Keep the condenser's high-signal selection. Remove a node only when it is clearly internal noise for the requested view; add a node only when a business concept cannot be represented from structural facts and has precise Evidence.
+4. Keep direction `source -> target`: the source invokes, imports, contains, or otherwise depends on the target. Do not change an extracted relation to `origin: agent` merely because the Agent reviewed its wording.
+5. Preserve every unrelated group, its metadata, entities, relations, stable keys, and order. The condenser already performs this merge; edit only the refreshed target group afterward.
+6. Give file-backed entities concise responsibility prose suitable for the editor's `🧠 KG` hint. Human SQLite overrides remain authoritative and must never be written into `agent-graph.json`.
+7. Validate and render after semantic edits. Never write generated structure to `graph.sqlite`.
+
+## Pure Agent fallback
+
+Use the earlier source-inspection workflow only when the deterministic extractor or condenser cannot run and no current structural graph is available. State the fallback in the result. Inspect the requested scope with targeted searches, preserve unrelated groups, use stable keys, attach precise Evidence to every relation, validate, and render normally. Never claim an unavailable raw `structuralPath`; omit it for Agent-only relations instead.
 
 ## Validate and render
 
@@ -86,6 +134,7 @@ Resolve scripts relative to this `SKILL.md` when the skill is installed elsewher
 - Base relationships on code or configuration, not names alone.
 - Give every relation at least one precise evidence location and a short explanation of what it proves.
 - Use stable keys such as `src/auth/service.ts#AuthService`. Changing a key disconnects all occurrences from their shared human description override.
+- Treat canonical keys only as comparison aliases. Preserve the serialized key exactly when refreshing an existing entity; the validator rejects two keys in one group that differ only by path separators, Unicode compatibility forms, case, whitespace, or redundant punctuation.
 - Model direct relationships. Avoid transitive edges that duplicate paths already present.
 - Keep the framework group boundary-focused; completeness belongs to the detailed groups, not the overview.
 - Keep external packages only when architecturally important; lockfile entries are noise.

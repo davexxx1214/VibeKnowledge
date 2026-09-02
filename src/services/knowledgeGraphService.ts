@@ -11,6 +11,7 @@ import type {
   Relation,
   RelationVerb,
 } from '../utils/types';
+import { canonicalizeEntityKey } from '../../resources/skills/vibeknowledge-dependency-graph/scripts/canonicalize-entity-key.mjs';
 
 export type KnowledgeGraphOrigin = 'manual' | 'agent';
 
@@ -75,14 +76,15 @@ export class KnowledgeGraphService {
     const entities: KnowledgeEntity[] = [];
 
     for (const agentEntity of agentEntities) {
-      const existing = finalEntityByKey.get(agentEntity.key);
+      const canonicalKey = canonicalizeEntityKey(agentEntity.key);
+      const existing = finalEntityByKey.get(canonicalKey);
       if (existing) {
         finalIdByAgentId.set(agentEntity.id, existing.id);
         continue;
       }
       const entity = this.toKnowledgeEntity(agentEntity, legacyDescriptions);
       entities.push(entity);
-      finalEntityByKey.set(agentEntity.key, entity);
+      finalEntityByKey.set(canonicalKey, entity);
       finalIdByAgentId.set(agentEntity.id, entity.id);
     }
 
@@ -339,16 +341,11 @@ export class KnowledgeGraphService {
 }
 
 export function entityIdentity(entity: Pick<Entity, 'name' | 'filePath'>): string {
-  return `${normalizeKnowledgeFilePath(entity.filePath)}\u0000${entity.name
-    .trim()
-    .toLocaleLowerCase()}`;
+  return canonicalizeEntityKey(`${entity.filePath}#${entity.name}`);
 }
 
 export function normalizeKnowledgeFilePath(filePath: string): string {
-  return filePath
-    .replace(/\\/g, '/')
-    .replace(/^\.\//, '')
-    .toLocaleLowerCase();
+  return canonicalizeEntityKey(filePath);
 }
 
 function relationIdentity(

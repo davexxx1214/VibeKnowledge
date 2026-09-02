@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { isAbsolute, join, resolve } from 'node:path';
 import { z } from 'zod';
+import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
 import type {
   EntityRecord,
   RelationRecord,
@@ -49,6 +50,12 @@ const relationVerbSchema = z.enum([
   'imports',
   'exports'
 ]);
+const relationOriginSchema = z.enum(['ast', 'resolver', 'agent']);
+const relationConfidenceSchema = z.enum([
+  'extracted',
+  'inferred',
+  'review_required'
+]);
 const groupKindSchema = z.enum(['framework', 'module', 'feature']);
 const relativePathSchema = nonEmptyString.refine(
   isValidRelativePath,
@@ -82,11 +89,28 @@ const evidenceSchema = z
     { message: 'endLine must be greater than or equal to startLine' }
   );
 
+const structuralHopSchema = z
+  .object({
+    source: nonEmptyString,
+    target: nonEmptyString,
+    verb: relationVerbSchema,
+    filePath: relativePathSchema,
+    startLine: positiveLine,
+    endLine: positiveLine,
+    traversal: z.enum(['forward', 'reverse']).optional()
+  })
+  .refine((hop) => hop.endLine >= hop.startLine, {
+    message: 'endLine must be greater than or equal to startLine'
+  });
+
 const relationSchema = z.object({
   source: nonEmptyString,
   target: nonEmptyString,
   verb: relationVerbSchema,
+  origin: relationOriginSchema.optional(),
+  confidence: relationConfidenceSchema.optional(),
   evidence: z.array(evidenceSchema).min(1),
+  structuralPath: z.array(structuralHopSchema).min(1).optional(),
   description: nonEmptyString.optional()
 });
 
@@ -189,6 +213,10 @@ type ParsedEntity = z.infer<typeof entitySchema>;
 type ParsedRelation = z.infer<typeof relationSchema>;
 type ParsedGroup = z.infer<typeof groupSchema>;
 type AgentGraphGroupKind = z.infer<typeof groupKindSchema>;
+export type AgentGraphRelationOrigin = z.infer<typeof relationOriginSchema>;
+export type AgentGraphRelationConfidence = z.infer<
+  typeof relationConfidenceSchema
+>;
 
 interface NormalizedDocument {
   generatedAt: string;
@@ -201,6 +229,16 @@ export interface AgentGraphEvidence {
   startLine: number;
   endLine?: number;
   detail?: string;
+}
+
+export interface AgentGraphStructuralHop {
+  source: string;
+  target: string;
+  verb: z.infer<typeof relationVerbSchema>;
+  filePath: string;
+  startLine: number;
+  endLine: number;
+  traversal?: 'forward' | 'reverse';
 }
 
 export interface AgentGraphGroupOverview {
@@ -231,7 +269,10 @@ export interface AgentGraphRelationRecord extends RelationRecord {
   groupKind: AgentGraphGroupKind;
   groupOrder: number;
   evidence: AgentGraphEvidence[];
+  structuralPath?: AgentGraphStructuralHop[];
   description: string | null;
+  origin?: AgentGraphRelationOrigin;
+  confidence?: AgentGraphRelationConfidence;
   generatedAt: string;
 }
 
@@ -308,6 +349,7 @@ export class AgentGraphStore {
     }
 
     const query = normalizeFilter(params.query);
+    const canonicalQuery = query ? canonicalizeEntityKey(query) : '';
     const type = params.type?.trim();
     const filePath = normalizeFilter(params.filePath);
     const limit = clampLimit(params.limit);
@@ -320,7 +362,11 @@ export class AgentGraphStore {
           !includesNormalized(entity.key, query) &&
           !includesNormalized(entity.filePath, query) &&
           !includesNormalized(entity.groupName, query) &&
-          !includesNormalized(entity.description ?? '', query)
+          !includesNormalized(entity.description ?? '', query) &&
+          !(
+            canonicalQuery &&
+            canonicalizeEntityKey(entity.key).includes(canonicalQuery)
+          )
         ) {
           return false;
         }
@@ -346,6 +392,8 @@ export class AgentGraphStore {
     const verb = params.verb?.trim();
     const source = normalizeFilter(params.source);
     const target = normalizeFilter(params.target);
+    const canonicalSource = source ? canonicalizeEntityKey(source) : '';
+    const canonicalTarget = target ? canonicalizeEntityKey(target) : '';
     const limit = clampLimit(params.limit);
 
     return graph.relations
@@ -356,14 +404,22 @@ export class AgentGraphStore {
         if (
           source &&
           !includesNormalized(relation.sourceName, source) &&
-          !includesNormalized(relation.sourceKey, source)
+          !includesNormalized(relation.sourceKey, source) &&
+          !(
+            canonicalSource &&
+            canonicalizeEntityKey(relation.sourceKey).includes(canonicalSource)
+          )
         ) {
           return false;
         }
         if (
           target &&
           !includesNormalized(relation.targetName, target) &&
-          !includesNormalized(relation.targetKey, target)
+          !includesNormalized(relation.targetKey, target) &&
+          !(
+            canonicalTarget &&
+            canonicalizeEntityKey(relation.targetKey).includes(canonicalTarget)
+          )
         ) {
           return false;
         }
@@ -442,6 +498,7 @@ function validateGroupContents(
   pathPrefix: Array<string | number>
 ): void {
   const entityKeys = new Set<string>();
+  const entityKeysByCanonicalAlias = new Map<string, string>();
   group.entities.forEach((entity, index) => {
     if (entityKeys.has(entity.key)) {
       context.addIssue({
@@ -450,7 +507,24 @@ function validateGroupContents(
         message: 'duplicate entity key'
       });
     }
+    const canonicalAlias = canonicalizeEntityKey(entity.key);
+    if (!canonicalAlias) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [...pathPrefix, 'entities', index, 'key'],
+        message: 'must contain a canonical identity'
+      });
+    }
+    const collidingKey = entityKeysByCanonicalAlias.get(canonicalAlias);
+    if (collidingKey !== undefined) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [...pathPrefix, 'entities', index, 'key'],
+        message: `collides with '${collidingKey}' after canonicalization`
+      });
+    }
     entityKeys.add(entity.key);
+    entityKeysByCanonicalAlias.set(canonicalAlias, entity.key);
   });
 
   const relationKeys = new Set<string>();
@@ -527,8 +601,11 @@ function applyDescriptionOverrides(
   if (overrides.size === 0) {
     return entities;
   }
+  const canonicalOverrides = buildCanonicalDescriptionOverrides(overrides);
   return entities.map((entity) => {
-    const description = overrides.get(entity.key);
+    const description =
+      overrides.get(entity.key) ??
+      canonicalOverrides.get(canonicalizeEntityKey(entity.key));
     if (description === undefined) {
       return entity;
     }
@@ -542,6 +619,21 @@ function applyDescriptionOverrides(
       }
     };
   });
+}
+
+function buildCanonicalDescriptionOverrides(
+  overrides: ReadonlyMap<string, string>
+): Map<string, string | undefined> {
+  const canonicalOverrides = new Map<string, string | undefined>();
+  for (const [key, description] of overrides) {
+    const canonicalKey = canonicalizeEntityKey(key);
+    if (canonicalOverrides.has(canonicalKey)) {
+      canonicalOverrides.set(canonicalKey, undefined);
+    } else {
+      canonicalOverrides.set(canonicalKey, description);
+    }
+  }
+  return canonicalOverrides;
 }
 
 function toEntityRecord(
@@ -607,7 +699,10 @@ function toRelationRecord(
     groupKind: group.kind,
     groupOrder: group.order,
     evidence: relation.evidence,
+    structuralPath: relation.structuralPath,
     description: relation.description ?? null,
+    origin: relation.origin,
+    confidence: relation.confidence,
     generatedAt,
     source: 'agent'
   };

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
-import { readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { isAbsolute, resolve } from 'node:path';
+import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
 
 const ENTITY_TYPES = new Set([
   'function', 'class', 'interface', 'variable', 'file', 'directory',
@@ -12,13 +13,22 @@ const RELATION_VERBS = new Set([
   'contains', 'references', 'imports', 'exports'
 ]);
 const GROUP_KINDS = new Set(['framework', 'module', 'feature']);
+const RELATION_ORIGINS = new Set(['ast', 'resolver', 'agent']);
+const RELATION_CONFIDENCES = new Set([
+  'extracted', 'inferred', 'review_required'
+]);
 
 const inputPath = process.argv[2];
 if (!inputPath) {
-  console.error('Usage: node validate-graph.mjs <agent-graph.json> [workspace-root]');
+  console.error(
+    'Usage: node validate-graph.mjs <agent-graph.json> [workspace-root] [structural-graph.json]'
+  );
   process.exit(2);
 }
 const workspaceRoot = resolve(process.argv[3] || process.cwd());
+const structuralGraphInputPath = process.argv[4]
+  ? resolve(process.argv[4])
+  : resolve(workspaceRoot, '.vscode', '.knowledge', 'structural-graph.json');
 
 let graph;
 try {
@@ -37,6 +47,7 @@ const isoTimestamp = (value) =>
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value) &&
   !Number.isNaN(Date.parse(value));
 const sourceLineCounts = new Map();
+let structuralRelationIdentities;
 
 function validatePath(value, label) {
   let valid = true;
@@ -89,6 +100,53 @@ function validateEvidenceLocation(evidence, label) {
   }
 }
 
+function getStructuralRelationIdentities() {
+  if (structuralRelationIdentities !== undefined) {
+    return structuralRelationIdentities;
+  }
+  const structuralPath = structuralGraphInputPath;
+  structuralRelationIdentities = new Set();
+  if (!existsSync(structuralPath)) {
+    errors.push('structural-graph.json is required when structuralPath is present');
+    return structuralRelationIdentities;
+  }
+  try {
+    const structuralGraph = JSON.parse(
+      readFileSync(structuralPath, 'utf8').replace(/^\uFEFF/, '')
+    );
+    if (!Array.isArray(structuralGraph.relations)) {
+      errors.push('structural-graph.json must contain a relations array');
+      return structuralRelationIdentities;
+    }
+    for (const relation of structuralGraph.relations) {
+      if (isRecord(relation) && isRecord(relation.location)) {
+        structuralRelationIdentities.add(structuralIdentity({
+          source: relation.source,
+          target: relation.target,
+          verb: relation.verb,
+          filePath: relation.location.filePath,
+          startLine: relation.location.startLine,
+          endLine: relation.location.endLine
+        }));
+      }
+    }
+  } catch (error) {
+    errors.push(`Cannot read structural-graph.json: ${error.message}`);
+  }
+  return structuralRelationIdentities;
+}
+
+function structuralIdentity(hop) {
+  return [
+    hop.source,
+    hop.target,
+    hop.verb,
+    hop.filePath,
+    hop.startLine,
+    hop.endLine
+  ].join('\u0000');
+}
+
 function validateGroup(group, groupIndex) {
   const label = `groups[${groupIndex}]`;
   if (!isRecord(group)) {
@@ -113,6 +171,7 @@ function validateGroup(group, groupIndex) {
   if (!Array.isArray(group.relations)) errors.push(`${label}.relations must be an array`);
 
   const keys = new Set();
+  const keysByCanonicalAlias = new Map();
   if (Array.isArray(group.entities)) {
     group.entities.forEach((entity, entityIndex) => {
       const entityLabel = `${label}.entities[${entityIndex}]`;
@@ -125,6 +184,15 @@ function validateGroup(group, groupIndex) {
       } else if (keys.has(entity.key)) {
         errors.push(`${entityLabel}.key duplicates '${entity.key}' inside this group`);
       } else {
+        const canonicalAlias = canonicalizeEntityKey(entity.key);
+        const collidingKey = keysByCanonicalAlias.get(canonicalAlias);
+        if (canonicalAlias.length === 0) {
+          errors.push(`${entityLabel}.key must contain a canonical identity`);
+        } else if (collidingKey !== undefined) {
+          errors.push(`${entityLabel}.key collides with '${collidingKey}' after canonicalization`);
+        } else {
+          keysByCanonicalAlias.set(canonicalAlias, entity.key);
+        }
         keys.add(entity.key);
       }
       if (!nonEmptyString(entity.name)) errors.push(`${entityLabel}.name must be a non-empty string`);
@@ -153,11 +221,79 @@ function validateGroup(group, groupIndex) {
       if (!keys.has(relation.target)) errors.push(`${relationLabel}.target does not reference an entity key in this group`);
       if (relation.source === relation.target) errors.push(`${relationLabel} must not be a self relation`);
       if (!RELATION_VERBS.has(relation.verb)) errors.push(`${relationLabel}.verb is not supported`);
+      if (relation.origin !== undefined && !RELATION_ORIGINS.has(relation.origin)) {
+        errors.push(`${relationLabel}.origin must be ast, resolver, or agent when provided`);
+      }
+      if (relation.confidence !== undefined && !RELATION_CONFIDENCES.has(relation.confidence)) {
+        errors.push(`${relationLabel}.confidence must be extracted, inferred, or review_required when provided`);
+      }
       const relationKey = `${relation.source}\u0000${relation.target}\u0000${relation.verb}`;
       if (relationKeys.has(relationKey)) errors.push(`${relationLabel} duplicates an earlier relation in this group`);
       relationKeys.add(relationKey);
       if (relation.description !== undefined && !nonEmptyString(relation.description)) {
         errors.push(`${relationLabel}.description must be a non-empty string when provided`);
+      }
+      if (relation.structuralPath !== undefined) {
+        if (!Array.isArray(relation.structuralPath) || relation.structuralPath.length === 0) {
+          errors.push(`${relationLabel}.structuralPath must be a non-empty array when provided`);
+        } else {
+          const structuralIdentities = getStructuralRelationIdentities();
+          const traversedHops = [];
+          relation.structuralPath.forEach((hop, hopIndex) => {
+            const hopLabel = `${relationLabel}.structuralPath[${hopIndex}]`;
+            if (!isRecord(hop)) {
+              errors.push(`${hopLabel} must be an object`);
+              return;
+            }
+            if (!nonEmptyString(hop.source)) errors.push(`${hopLabel}.source must be a non-empty string`);
+            if (!nonEmptyString(hop.target)) errors.push(`${hopLabel}.target must be a non-empty string`);
+            if (!RELATION_VERBS.has(hop.verb)) errors.push(`${hopLabel}.verb is not supported`);
+            if (
+              hop.traversal !== undefined &&
+              !['forward', 'reverse'].includes(hop.traversal)
+            ) {
+              errors.push(`${hopLabel}.traversal must be forward or reverse when provided`);
+            } else if (
+              nonEmptyString(hop.source) &&
+              nonEmptyString(hop.target) &&
+              hop.traversal !== undefined
+            ) {
+              traversedHops.push({
+                from: hop.traversal === 'reverse' ? hop.target : hop.source,
+                to: hop.traversal === 'reverse' ? hop.source : hop.target
+              });
+            }
+            const validPath = validatePath(hop.filePath, `${hopLabel}.filePath`);
+            if (!positiveLine(hop.startLine)) errors.push(`${hopLabel}.startLine must be a positive integer`);
+            if (!positiveLine(hop.endLine)) errors.push(`${hopLabel}.endLine must be a positive integer`);
+            if (positiveLine(hop.startLine) && positiveLine(hop.endLine) && hop.endLine < hop.startLine) {
+              errors.push(`${hopLabel}.endLine must be greater than or equal to startLine`);
+            }
+            if (
+              validPath &&
+              positiveLine(hop.startLine) &&
+              positiveLine(hop.endLine)
+            ) {
+              validateEvidenceLocation(hop, hopLabel);
+              if (!structuralIdentities.has(structuralIdentity(hop))) {
+                errors.push(`${hopLabel} does not match a relation in structural-graph.json`);
+              }
+            }
+          });
+          if (traversedHops.length === relation.structuralPath.length) {
+            if (traversedHops[0].from !== relation.source) {
+              errors.push(`${relationLabel}.structuralPath must start at relation.source`);
+            }
+            for (let hopIndex = 1; hopIndex < traversedHops.length; hopIndex += 1) {
+              if (traversedHops[hopIndex - 1].to !== traversedHops[hopIndex].from) {
+                errors.push(`${relationLabel}.structuralPath is disconnected before hop ${hopIndex}`);
+              }
+            }
+            if (traversedHops[traversedHops.length - 1].to !== relation.target) {
+              errors.push(`${relationLabel}.structuralPath must end at relation.target`);
+            }
+          }
+        }
       }
       if (!Array.isArray(relation.evidence) || relation.evidence.length === 0) {
         errors.push(`${relationLabel}.evidence must contain at least one item`);

@@ -10,6 +10,13 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 - Version-2 framework/module/feature groups with framework-first generation, incremental group refreshes, and a generated `.vscode/.knowledge/knowledge-graph.md` aggregate.
 - A left-side group selector that renders one independent graph at a time.
 - Compact per-group Agent context views containing only entities, source paths, and direct relations.
+- Token-budgeted MCP graph navigation with `query_graph`, `get_entity`, `get_neighbors`, and `shortest_path`.
+- Comparison-only canonical entity-key aliases shared by the Skill validator, extension, and MCP server.
+- Optional relation `origin` and `confidence` provenance in graph parsing, MCP results, Markdown reports, and graph tooltips.
+- A deterministic TypeScript/JavaScript structural extractor with schema validation, two-pass symbol resolution, NestJS metadata, per-file diagnostics, and atomic `structural-graph.json` output.
+- Portable content-addressed structural caches with reverse-import invalidation, deletion cleanup, guarded recovery, `--force` rebuilds, and debounced VS Code source watching.
+- A deterministic structural condenser and VS Code curation command for boundary-focused framework views and scoped module/feature views, with single-group atomic merges.
+- Optional curated-relation `structuralPath` traces validated against raw structural facts and returned with explicitly requested MCP Evidence.
 - A unified Knowledge Graph view across the extension and MCP server.
 - Durable human description overrides for Agent-generated entities.
 - Root tests for graph sonification and Strudel Webview security behavior.
@@ -20,10 +27,13 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 ### Changed
 
-- Replaced the regex-based automatic dependency analyzer with Agent-driven semantic analysis. Agent output is now the only entity/relation structure; SQLite supplies human description overrides and RAG data.
+- Replaced the regex-based automatic dependency analyzer with a deterministic TypeScript/JavaScript fact layer plus Agent-driven semantic curation. SQLite supplies human description overrides and RAG data, not graph structure.
 - Kept legacy version-1 manifests readable by normalizing them into one framework group.
+- Kept legacy version-2 relations without provenance fields readable and preserved serialized stable keys for IDs and human description overrides.
 - Kept the framework group at system-boundary level instead of expanding feature-internal controllers, services, entities, DTOs, or tests.
+- Limited Agent graph generation to semantic naming, responsibility prose, ambiguity review, and business-only concepts after deterministic structural convergence, with a pure Agent fallback when extraction is unavailable.
 - Made GitHub Copilot instructions route to one compact Knowledge Graph group on demand instead of embedding the full audit report or template content.
+- Made generated Cursor and Copilot instructions query the MCP graph first, with compact group files as the fallback.
 - Reduced graph-view animation work by cancelling stale loops, caching lookup/path data, throttling particles to 30 FPS, limiting animated edge styles, and debouncing resize handling.
 - Made human-authored descriptions authoritative across Agent regeneration.
 - Made editor `🧠 KG` CodeLens and hover hints use the unified graph, show Agent-authored descriptions, refresh after Skill output changes, and open manual description editing directly.
