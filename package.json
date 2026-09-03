@@ -2,7 +2,7 @@
   "name": "vibe-knowledge",
   "displayName": "Vibe Knowledge",
   "description": "Turn a VS Code workspace into a searchable knowledge graph with RAG and MCP access.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "davexxx1214",
   "icon": "resources/icon.png",
   "author": "davexxx",
