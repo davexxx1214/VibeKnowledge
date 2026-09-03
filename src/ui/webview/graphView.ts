@@ -5,7 +5,18 @@ import type {
     AgentGraphEvidence,
     AgentGraphRelationConfidence,
     AgentGraphRelationOrigin,
+    AgentGraphStructuralHop,
 } from '../../services/agentGraph';
+import type {
+    StructuralGraphEntity,
+    StructuralGraphRelation,
+    StructuralGraphService,
+} from '../../services/structuralGraph';
+import {
+    aggregateStructuralGraph,
+    analyzeStructuralImpact,
+    resolveStructuralEntity,
+} from '../../../resources/skills/vibeknowledge-dependency-graph/scripts/structural-analysis.mjs';
 import { MusicGeneratorService } from '../../services/musicGenerator';
 import type { EntityType, RelationVerb } from '../../utils/types';
 import { StrudelView } from './strudelView';
@@ -27,6 +38,11 @@ interface GraphViewEntity {
         updatedAt: number;
     }>;
     observationCount: number;
+    source: 'curated' | 'structural' | 'aggregate';
+    structuralKey?: string;
+    aggregateId?: string;
+    aggregateLevel?: 'boundary' | 'file' | 'community';
+    aggregateFiles?: string[];
 }
 
 interface GraphViewRelation {
@@ -39,6 +55,8 @@ interface GraphViewRelation {
     relationOrigin?: AgentGraphRelationOrigin;
     confidence?: AgentGraphRelationConfidence;
     evidence: AgentGraphEvidence[];
+    structuralPath?: AgentGraphStructuralHop[];
+    aggregateCount?: number;
 }
 
 interface GraphViewGroup {
@@ -52,12 +70,39 @@ interface GraphViewGroup {
     relations: GraphViewRelation[];
 }
 
+interface StructuralAggregate {
+    level: 'boundary' | 'file' | 'community';
+    truncated: boolean;
+    totalNodeCount: number;
+    nodes: Array<{
+        id: string;
+        name: string;
+        entityCount: number;
+        files: string[];
+        rawKeys: string[];
+    }>;
+    relations: Array<{
+        source: string;
+        target: string;
+        verb: RelationVerb;
+        count: number;
+        relations: StructuralGraphRelation[];
+    }>;
+}
+
+interface StructuralImpact {
+    seed: StructuralGraphEntity;
+    upstream: { entities: StructuralGraphEntity[]; relations: StructuralGraphRelation[] };
+    downstream: { entities: StructuralGraphEntity[]; relations: StructuralGraphRelation[] };
+}
+
 /**
  * 图谱可视化 Webview
  */
 export class GraphView {
     public static currentPanel: GraphView | undefined;
     private static _knowledgeGraphService: KnowledgeGraphService | undefined;
+    private static _structuralGraphService: StructuralGraphService | undefined;
 
     private readonly _panel: vscode.WebviewPanel;
     private readonly _extensionUri: vscode.Uri;
@@ -68,6 +113,10 @@ export class GraphView {
     /** Set the single Knowledge Graph used by the visualization. */
     public static setKnowledgeGraphService(service: KnowledgeGraphService): void {
         GraphView._knowledgeGraphService = service;
+    }
+
+    public static setStructuralGraphService(service: StructuralGraphService): void {
+        GraphView._structuralGraphService = service;
     }
 
     public static refresh(): void {
@@ -156,6 +205,25 @@ export class GraphView {
                 // 刷新图谱数据
                 this._sendGraphData();
                 break;
+            case 'requestStructuralOverview':
+                this._sendStructuralOverview(message.level);
+                break;
+            case 'drillDownRelation':
+                this._sendStructuralPath(message.structuralPath);
+                break;
+            case 'drillDownEntity':
+                this._sendStructuralEntity(message.structuralKey);
+                break;
+            case 'drillDownAggregate':
+                this._sendStructuralAggregate(
+                    message.aggregateId,
+                    message.level,
+                    message.files
+                );
+                break;
+            case 'jumpToStructuralEntity':
+                this._jumpToStructuralEntity(message.structuralKey);
+                break;
             case 'requestMusicCode':
                 // 请求生成音乐代码
                 this._sendMusicCode(message.groupKey);
@@ -214,6 +282,138 @@ export class GraphView {
         });
     }
 
+    private _sendStructuralOverview(level: 'boundary' | 'file' | 'community' = 'boundary') {
+        try {
+            const graph = GraphView._structuralGraphService?.read();
+            if (!graph) {
+                throw new Error('Structural graph service is unavailable.');
+            }
+            const aggregate = aggregateStructuralGraph(graph, {
+                level,
+                limit: 80,
+            }) as StructuralAggregate;
+            this._sendStructuralGroup(this._aggregateToGroup(aggregate));
+        } catch (error) {
+            this._sendStructuralError(error);
+        }
+    }
+
+    private _sendStructuralPath(path: AgentGraphStructuralHop[] | undefined) {
+        try {
+            if (!Array.isArray(path) || path.length === 0) {
+                throw new Error('This curated relationship has no structural path.');
+            }
+            const graph = GraphView._structuralGraphService?.read();
+            if (!graph) {
+                throw new Error('Structural graph service is unavailable.');
+            }
+            const relationIds = new Set(
+                path.map(hop => this._structuralRelationIdentity(hop))
+            );
+            const relations = graph.relations.filter(relation =>
+                relationIds.has(this._structuralRelationIdentity(relation))
+            );
+            const keys = new Set(relations.flatMap(relation => [relation.source, relation.target]));
+            const entities = graph.entities.filter(entity => keys.has(entity.key));
+            this._sendStructuralGroup(
+                this._rawSliceToGroup('Structural path', entities, relations)
+            );
+        } catch (error) {
+            this._sendStructuralError(error);
+        }
+    }
+
+    private _sendStructuralEntity(structuralKey: string | undefined) {
+        try {
+            if (!structuralKey) {
+                throw new Error('No structural entity key was provided.');
+            }
+            const graph = GraphView._structuralGraphService?.read();
+            if (!graph) {
+                throw new Error('Structural graph service is unavailable.');
+            }
+            const result = analyzeStructuralImpact(graph, structuralKey, {
+                direction: 'both',
+                maxDepth: 1,
+            }) as StructuralImpact;
+            const relations = [
+                ...result.upstream.relations,
+                ...result.downstream.relations,
+            ].filter((relation, index, all) =>
+                all.findIndex(candidate =>
+                    this._structuralRelationIdentity(candidate) ===
+                    this._structuralRelationIdentity(relation)
+                ) === index
+            ).slice(0, 120);
+            const keys = new Set([
+                result.seed.key,
+                ...relations.flatMap(relation => [relation.source, relation.target]),
+            ]);
+            const entities = graph.entities.filter(entity => keys.has(entity.key)).slice(0, 80);
+            const included = new Set(entities.map(entity => entity.key));
+            this._sendStructuralGroup(
+                this._rawSliceToGroup(
+                    `${result.seed.name} · structural neighbors`,
+                    entities,
+                    relations.filter(relation =>
+                        included.has(relation.source) && included.has(relation.target)
+                    )
+                )
+            );
+        } catch (error) {
+            this._sendStructuralError(error);
+        }
+    }
+
+    private _sendStructuralAggregate(
+        aggregateId: string | undefined,
+        level: string | undefined,
+        files: string[] | undefined
+    ) {
+        try {
+            if (!aggregateId) {
+                throw new Error('No aggregate was selected.');
+            }
+            const graph = GraphView._structuralGraphService?.read();
+            if (!graph) {
+                throw new Error('Structural graph service is unavailable.');
+            }
+            const selectedFiles = new Set(Array.isArray(files) ? files : []);
+            const matches = (entity: StructuralGraphEntity) => {
+                if (selectedFiles.size > 0) {
+                    return selectedFiles.has(entity.filePath);
+                }
+                if (level === 'file') {
+                    return entity.filePath === aggregateId;
+                }
+                return entity.filePath === '@external'
+                    ? aggregateId === '@external'
+                    : entity.filePath.replace(/\\/g, '/').startsWith(`${aggregateId}/`) ||
+                        (aggregateId === 'src/(root)' && /^src\/[^/]+$/.test(entity.filePath));
+            };
+            const selected = graph.entities.filter(matches).slice(0, 80);
+            const keys = new Set(selected.map(entity => entity.key));
+            const relations = graph.relations.filter(relation =>
+                keys.has(relation.source) && keys.has(relation.target)
+            ).slice(0, 120);
+            this._sendStructuralGroup(
+                this._rawSliceToGroup(`${aggregateId} · raw structure`, selected, relations)
+            );
+        } catch (error) {
+            this._sendStructuralError(error);
+        }
+    }
+
+    private _sendStructuralGroup(group: GraphViewGroup) {
+        this._panel.webview.postMessage({ type: 'structuralGroup', data: group });
+    }
+
+    private _sendStructuralError(error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        this._panel.webview.postMessage({ type: 'structuralError', message });
+        vscode.window.showWarningMessage(`Knowledge Graph: ${message}`);
+    }
+
     /** Build independent view models so the Webview renders only one group. */
     private _collectGraphGroups(): GraphViewGroup[] {
         const graphService = GraphView._knowledgeGraphService;
@@ -245,6 +445,10 @@ export class GraphView {
                         updatedAt: observation.updatedAt,
                     })),
                     observationCount: observations.length,
+                    source: 'curated',
+                    structuralKey: typeof entity.metadata?.agentKey === 'string'
+                        ? entity.metadata.agentKey
+                        : entity.agentKey,
                 };
             }),
             relations: group.relations.map((relation) => ({
@@ -265,8 +469,140 @@ export class GraphView {
                 evidence: Array.isArray(relation.metadata?.evidence)
                     ? relation.metadata.evidence as AgentGraphEvidence[]
                     : [],
+                structuralPath: Array.isArray(relation.metadata?.structuralPath)
+                    ? relation.metadata.structuralPath as AgentGraphStructuralHop[]
+                    : undefined,
             })),
         }));
+    }
+
+    private _aggregateToGroup(aggregate: StructuralAggregate): GraphViewGroup {
+        return {
+            key: `__structural_${aggregate.level}`,
+            name: `Advanced · ${aggregate.level} structure`,
+            kind: 'module',
+            order: Number.MAX_SAFE_INTEGER - 1,
+            description: aggregate.truncated
+                ? `Showing 80 of ${aggregate.totalNodeCount} aggregated nodes.`
+                : `Aggregated ${aggregate.totalNodeCount} structural nodes.`,
+            entities: aggregate.nodes.map(node => ({
+                id: `aggregate:${aggregate.level}:${node.id}`,
+                name: node.name,
+                type: node.id === '@external' ? 'external' : 'component',
+                filePath: node.files[0] ?? '@aggregate',
+                startLine: 1,
+                endLine: 1,
+                description: `${node.entityCount} entities across ${node.files.length} files`,
+                isAgent: false,
+                observations: [],
+                observationCount: 0,
+                source: 'aggregate',
+                aggregateId: node.id,
+                aggregateLevel: aggregate.level,
+                aggregateFiles: node.files,
+            })),
+            relations: aggregate.relations.map((relation, index) => ({
+                id: `aggregate-relation:${index}`,
+                sourceId: `aggregate:${aggregate.level}:${relation.source}`,
+                targetId: `aggregate:${aggregate.level}:${relation.target}`,
+                verb: relation.verb,
+                isAgent: false,
+                description: `${relation.count} raw relationships`,
+                evidence: [],
+                structuralPath: relation.relations.map(item => ({
+                    source: item.source,
+                    target: item.target,
+                    verb: item.verb,
+                    filePath: item.location.filePath,
+                    startLine: item.location.startLine,
+                    endLine: item.location.endLine,
+                })),
+                aggregateCount: relation.count,
+            })),
+        };
+    }
+
+    private _rawSliceToGroup(
+        name: string,
+        entities: StructuralGraphEntity[],
+        relations: StructuralGraphRelation[]
+    ): GraphViewGroup {
+        const entityIds = new Map(
+            entities.map(entity => [
+                entity.key,
+                this._stableWebviewId('structural-entity', entity.key),
+            ])
+        );
+        return {
+            key: `__structural_drilldown_${Date.now()}`,
+            name,
+            kind: 'feature',
+            order: Number.MAX_SAFE_INTEGER,
+            description: 'On-demand raw structural graph slice.',
+            entities: entities.map(entity => ({
+                id: entityIds.get(entity.key)!,
+                name: entity.name,
+                type: this._structuralEntityType(entity),
+                filePath: entity.filePath,
+                startLine: entity.startLine,
+                endLine: entity.endLine,
+                description: entity.exported ? 'exported structural symbol' : undefined,
+                isAgent: false,
+                observations: [],
+                observationCount: 0,
+                source: 'structural',
+                structuralKey: entity.key,
+            })),
+            relations: relations.map((relation, index) => ({
+                id: this._stableWebviewId(
+                    'structural-relation',
+                    `${index}\u0000${this._structuralRelationIdentity(relation)}`
+                ),
+                sourceId: entityIds.get(relation.source)!,
+                targetId: entityIds.get(relation.target)!,
+                verb: relation.verb,
+                isAgent: false,
+                relationOrigin: relation.origin,
+                confidence: relation.confidence,
+                description: relation.detail,
+                evidence: [{ ...relation.location, detail: relation.detail }],
+                structuralPath: [{
+                    source: relation.source,
+                    target: relation.target,
+                    verb: relation.verb,
+                    filePath: relation.location.filePath,
+                    startLine: relation.location.startLine,
+                    endLine: relation.location.endLine,
+                }],
+            })),
+        };
+    }
+
+    private _structuralEntityType(entity: StructuralGraphEntity): EntityType {
+        if (entity.kind === 'method') {
+            return 'function';
+        }
+        return entity.kind;
+    }
+
+    private _structuralRelationIdentity(
+        relation: StructuralGraphRelation | AgentGraphStructuralHop
+    ): string {
+        const location = 'location' in relation
+            ? relation.location
+            : relation;
+        return [
+            relation.source,
+            relation.target,
+            relation.verb,
+            location.filePath,
+            location.startLine,
+            location.endLine,
+        ].join('\u0000');
+    }
+
+    private _stableWebviewId(prefix: string, value: string): string {
+        return `${prefix}:${crypto.createHash('sha1').update(value).digest('hex').slice(0, 20)}`;
     }
 
     private async _jumpToEntity(entityId: string) {
@@ -312,6 +648,37 @@ export class GraphView {
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to open file: ${error}`);
         }
+    }
+
+    private async _jumpToStructuralEntity(structuralKey: string | undefined) {
+        if (!structuralKey) {
+            return;
+        }
+        try {
+            const graph = GraphView._structuralGraphService?.read();
+            const entity = graph
+                ? resolveStructuralEntity(graph, structuralKey) as StructuralGraphEntity | undefined
+                : undefined;
+            if (!entity || entity.filePath === '@external') {
+                return;
+            }
+            await this._openCodeLocation(entity.filePath, entity.startLine, entity.endLine);
+        } catch (error) {
+            this._sendStructuralError(error);
+        }
+    }
+
+    private async _openCodeLocation(filePath: string, startLine: number, endLine: number) {
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            return;
+        }
+        const uri = vscode.Uri.joinPath(workspaceFolder.uri, filePath);
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        const range = new vscode.Range(startLine - 1, 0, endLine - 1, 0);
+        editor.selection = new vscode.Selection(range.start, range.end);
+        editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
     }
 
     private _getHtmlForWebview(webview: vscode.Webview) {
@@ -462,6 +829,30 @@ export class GraphView {
             inset: 0 0 0 220px;
             cursor: grab;
         }
+
+        #structuralLevel {
+            height: 36px;
+            color: var(--vscode-dropdown-foreground);
+            background: var(--vscode-dropdown-background);
+            border: 1px solid var(--vscode-dropdown-border, var(--vscode-panel-border));
+            border-radius: 4px;
+            padding: 0 8px;
+        }
+
+        #structural-status {
+            position: absolute;
+            right: 15px;
+            bottom: 15px;
+            max-width: 420px;
+            z-index: 1001;
+            display: none;
+            padding: 8px 12px;
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 4px;
+            background: var(--vscode-notifications-background, rgba(30, 30, 30, 0.95));
+        }
+
+        #structural-status.visible { display: block; }
 
         #graph-container:active {
             cursor: grabbing;
@@ -643,6 +1034,12 @@ export class GraphView {
         <div id="group-list"></div>
     </aside>
     <div id="toolbar">
+        <select id="structuralLevel" title="Raw structural graph aggregation">
+            <option value="boundary">Boundary</option>
+            <option value="community">Community</option>
+            <option value="file">File</option>
+        </select>
+        <button id="structuralBtn" type="button" title="Open aggregated structural graph (advanced)">⌘</button>
         <button id="playBtn" type="button" title="${musicTranslations.openRepl}">🎵</button>
         <button id="fitBtn" type="button" title="${translations.toolbar.fit}">⛶</button>
         <button id="refreshBtn" type="button" title="${translations.toolbar.refresh}">↻</button>
@@ -665,6 +1062,7 @@ export class GraphView {
         <span class="status-icon">🎵</span>
         <span id="music-status-text">Ready</span>
     </div>
+    <div id="structural-status"></div>
 
     <script nonce="${nonce}">
         const vscode = acquireVsCodeApi();
@@ -794,6 +1192,13 @@ export class GraphView {
                 case 'musicCode':
                     handleMusicCode(message.data);
                     break;
+                case 'structuralGroup':
+                    upsertStructuralGroup(message.data);
+                    break;
+                case 'structuralError':
+                    showStructuralStatus(message.message, true);
+                    document.getElementById('loading').classList.add('hidden');
+                    break;
             }
         });
 
@@ -881,6 +1286,28 @@ export class GraphView {
             const selected = graphGroups.find(group => group.key === selectedGroupKey)
                 || graphGroups[0];
             selectGraphGroup(selected.key);
+        }
+
+        function upsertStructuralGroup(group) {
+            graphGroups = graphGroups.filter(candidate =>
+                !candidate.key.startsWith('__structural_')
+            );
+            graphGroups.push(group);
+            graphGroups.sort((left, right) =>
+                left.order - right.order || left.name.localeCompare(right.name)
+            );
+            renderGroupList();
+            selectGraphGroup(group.key);
+            showStructuralStatus(
+                group.name + ' · ' + group.entities.length + ' nodes / ' + group.relations.length + ' relations'
+            );
+        }
+
+        function showStructuralStatus(message, isError = false) {
+            const status = document.getElementById('structural-status');
+            status.textContent = (isError ? '⚠ ' : '') + message;
+            status.classList.add('visible');
+            window.setTimeout(() => status.classList.remove('visible'), isError ? 6000 : 3000);
         }
 
         function renderGroupList() {
@@ -1015,6 +1442,18 @@ export class GraphView {
 
             link.append('title').text(formatRelationTooltip);
 
+            link
+                .style('cursor', d => Array.isArray(d.structuralPath) ? 'pointer' : null)
+                .on('dblclick', (event, d) => {
+                    if (!Array.isArray(d.structuralPath) || d.structuralPath.length === 0) return;
+                    event.stopPropagation();
+                    document.getElementById('loading').classList.remove('hidden');
+                    vscode.postMessage({
+                        type: 'drillDownRelation',
+                        structuralPath: d.structuralPath
+                    });
+                });
+
             // Particles
             const particleGroup = g.append('g')
                 .attr('class', 'particles');
@@ -1087,9 +1526,18 @@ export class GraphView {
                 .attr('text-anchor', 'middle')
                 .attr('dy', -5);
 
-            linkLabel.style('cursor', 'help')
-                .append('title')
-                .text(formatRelationTooltip);
+            linkLabel
+                .style('cursor', d => Array.isArray(d.structuralPath) ? 'pointer' : 'help')
+                .on('dblclick', (event, d) => {
+                    if (!Array.isArray(d.structuralPath) || d.structuralPath.length === 0) return;
+                    event.stopPropagation();
+                    document.getElementById('loading').classList.remove('hidden');
+                    vscode.postMessage({
+                        type: 'drillDownRelation',
+                        structuralPath: d.structuralPath
+                    });
+                });
+            linkLabel.append('title').text(formatRelationTooltip);
 
             // Warning Icon for Cyclic Dependencies
             linkLabel.filter(d => d.isCyclic)
@@ -1153,10 +1601,41 @@ export class GraphView {
                     linkLabel.classed('text-dimmed', false);
                 })
                 .on('dblclick', (event, d) => {
+                    if (d.source === 'aggregate') {
+                        vscode.postMessage({
+                            type: 'drillDownAggregate',
+                            aggregateId: d.aggregateId,
+                            level: d.aggregateLevel,
+                            files: d.aggregateFiles
+                        });
+                        return;
+                    }
+                    if (d.source === 'structural') {
+                        vscode.postMessage({
+                            type: 'jumpToStructuralEntity',
+                            structuralKey: d.structuralKey
+                        });
+                        return;
+                    }
+                    if (event.shiftKey && d.structuralKey) {
+                        vscode.postMessage({
+                            type: 'drillDownEntity',
+                            structuralKey: d.structuralKey
+                        });
+                        return;
+                    }
                     vscode.postMessage({
                         type: 'jumpToEntity',
                         entityId: d.id,
                         isAgent: d.isAgent || false
+                    });
+                })
+                .on('contextmenu', (event, d) => {
+                    if (d.source !== 'curated' || !d.structuralKey) return;
+                    event.preventDefault();
+                    vscode.postMessage({
+                        type: 'drillDownEntity',
+                        structuralKey: d.structuralKey
                     });
                 });
 
@@ -1359,6 +1838,12 @@ export class GraphView {
             if (relation.relationOrigin) {
                 lines.push(i18n.tooltip.relationOrigin + ': ' + relation.relationOrigin);
             }
+
+            if (d.source === 'curated' && d.structuralKey) {
+                html += '<span style="opacity:.75">Right-click: structural neighbors</span><br>';
+            } else if (d.source === 'aggregate') {
+                html += '<span style="opacity:.75">Double-click: raw structural slice</span><br>';
+            }
             if (relation.confidence) {
                 lines.push(i18n.tooltip.confidence + ': ' + relation.confidence);
             }
@@ -1372,6 +1857,12 @@ export class GraphView {
                     const detail = item.detail ? ' — ' + item.detail : '';
                     lines.push('• ' + item.filePath + ':' + item.startLine + endLine + detail);
                 });
+            }
+            if (Array.isArray(relation.structuralPath) && relation.structuralPath.length > 0) {
+                lines.push('Raw path: double-click (' + relation.structuralPath.length + ' hop(s))');
+            }
+            if (relation.aggregateCount) {
+                lines.push('Aggregated raw relationships: ' + relation.aggregateCount);
             }
             return lines.join('\\n');
         }
@@ -1451,6 +1942,12 @@ export class GraphView {
             document.getElementById('loading').classList.remove('hidden');
             vscode.postMessage({ type: 'refresh' });
         }
+
+        function openStructuralGraph() {
+            const level = document.getElementById('structuralLevel').value;
+            document.getElementById('loading').classList.remove('hidden');
+            vscode.postMessage({ type: 'requestStructuralOverview', level });
+        }
         
         // ============================================================
         // Music Control Functions
@@ -1528,6 +2025,7 @@ export class GraphView {
         }
         
         document.getElementById('playBtn').addEventListener('click', toggleMusic);
+        document.getElementById('structuralBtn').addEventListener('click', openStructuralGraph);
         document.getElementById('fitBtn').addEventListener('click', fitGraph);
         document.getElementById('refreshBtn').addEventListener('click', refreshGraph);
     </script>

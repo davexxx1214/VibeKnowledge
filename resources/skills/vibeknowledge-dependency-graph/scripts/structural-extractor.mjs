@@ -121,7 +121,7 @@ export function updateStructuralGraph(options) {
     force: options.force === true
   });
   assertSafeReplacement(previousGraph, result.graph, result, options.force === true);
-  writeIncrementalResult(result, outputPath, cacheDirectory);
+  writeIncrementalResult(result, outputPath, cacheDirectory, previousGraph);
   return {
     graph: result.graph,
     statistics: result.statistics,
@@ -2021,7 +2021,7 @@ function buildCacheIndex(
   };
 }
 
-function writeIncrementalResult(result, outputPath, cacheDirectory) {
+function writeIncrementalResult(result, outputPath, cacheDirectory, previousGraph) {
   assertStructuralGraphDocument(result.graph);
   const entryDirectory = join(cacheDirectory, 'entries');
   mkdirSync(entryDirectory, { recursive: true });
@@ -2031,11 +2031,31 @@ function writeIncrementalResult(result, outputPath, cacheDirectory) {
       `${stableStringify(entry, 2)}\n`
     );
   }
+  preservePreviousStructuralGraph(previousGraph, result.graph, outputPath);
   writeStructuralGraphAtomically(result.graph, outputPath);
   atomicWriteText(
     join(cacheDirectory, 'index.json'),
     `${stableStringify(result.cacheIndex, 2)}\n`
   );
+}
+
+function preservePreviousStructuralGraph(previousGraph, nextGraph, outputPath) {
+  if (!previousGraph || structuralFactsIdentity(previousGraph) === structuralFactsIdentity(nextGraph)) {
+    return;
+  }
+  const previousPath = outputPath.endsWith('.json')
+    ? `${outputPath.slice(0, -5)}.previous.json`
+    : `${outputPath}.previous.json`;
+  writeStructuralGraphAtomically(previousGraph, previousPath);
+}
+
+function structuralFactsIdentity(graph) {
+  return stableStringify({
+    version: graph.version,
+    scope: graph.scope,
+    entities: graph.entities,
+    relations: graph.relations
+  });
 }
 
 function readPreviousGraph(outputPath, force) {

@@ -175,6 +175,44 @@ describe('incremental structural graph cache', () => {
     expect(renamed.graph).toEqual(full);
   });
 
+  it('preserves the last structurally different valid graph for diff analysis', () => {
+    const workspace = createWorkspace();
+    const initial = update(workspace).graph;
+
+    appendFileSync(
+      join(workspace, 'src', 'legacy.js'),
+      '\nexport function phaseSixAdded() { return true; }\n'
+    );
+    const changed = update(workspace).graph;
+    const previous = JSON.parse(
+      readFileSync(
+        join(
+          workspace,
+          '.vscode',
+          '.knowledge',
+          'structural-graph.previous.json'
+        ),
+        'utf8'
+      )
+    );
+
+    expect(changed.entities.some((entity) =>
+      entity.key === 'src/legacy.js#phaseSixAdded'
+    )).toBe(true);
+    expect(previous).toEqual(initial);
+
+    update(workspace);
+    expect(JSON.parse(readFileSync(
+      join(
+        workspace,
+        '.vscode',
+        '.knowledge',
+        'structural-graph.previous.json'
+      ),
+      'utf8'
+    ))).toEqual(initial);
+  });
+
   it('preserves the old graph for corrupt cache, broken source, and abnormal shrink', () => {
     const workspace = createWorkspace();
     update(workspace);

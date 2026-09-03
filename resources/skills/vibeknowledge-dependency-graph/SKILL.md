@@ -8,6 +8,7 @@ description: Analyze a code workspace and create or incrementally refresh VibeKn
 Maintain these generated artifacts:
 
 - `.vscode/.knowledge/structural-graph.json`: the version-1 deterministic code-fact graph. Treat it as an internal evidence source and do not load the complete file into Agent context by default.
+- `.vscode/.knowledge/structural-graph.previous.json`: the last structurally different valid snapshot, maintained automatically for graph diff. Treat it as internal evidence too.
 - `.vscode/.knowledge/cache/structural/`: portable per-file extraction cache and active index. Never edit cache entries by hand.
 - `.vscode/.knowledge/agent-graph.json`: the version-2 machine-readable source.
 - `.vscode/.knowledge/knowledge-graph.md`: the complete deterministic audit report for humans. Do not load it into Agent context by default.
@@ -103,6 +104,16 @@ For an ordinary application, aim for roughly 8–15 entities and 10–20 relatio
 5. Preserve every unrelated group, its metadata, entities, relations, stable keys, and order. The condenser already performs this merge; edit only the refreshed target group afterward.
 6. Give file-backed entities concise responsibility prose suitable for the editor's `🧠 KG` hint. Human SQLite overrides remain authoritative and must never be written into `agent-graph.json`.
 7. Validate and render after semantic edits. Never write generated structure to `graph.sqlite`.
+
+## Diagnose structure on demand
+
+Keep the curated group as the normal task-routing context. When VibeKnowledge MCP is available, query the raw fact layer only for a concrete diagnostic question:
+
+- `analyze_structure` with `cycles`, `coupling`, `cross_boundary`, `diff`, or `communities`;
+- `analyze_impact` for upstream dependants and downstream dependencies of one stable key;
+- `find_structural_path` when a curated relationship is too coarse to explain a cross-module route.
+
+Set a token budget and continue from the returned stable keys and source locations. Community results are suggestions for a future module/feature group, never authorization to replace the curated grouping. If MCP is unavailable, search the structural JSON only for the named keys and their adjacent relations; do not load the whole file.
 
 ## Pure Agent fallback
 

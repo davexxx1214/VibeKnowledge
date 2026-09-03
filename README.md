@@ -31,6 +31,7 @@ VibeKnowledge stores its project data in:
 ```text
 <workspace>/.vscode/.knowledge/graph.sqlite
 <workspace>/.vscode/.knowledge/structural-graph.json
+<workspace>/.vscode/.knowledge/structural-graph.previous.json
 <workspace>/.vscode/.knowledge/cache/structural/index.json
 <workspace>/.vscode/.knowledge/agent-graph.json
 <workspace>/.vscode/.knowledge/knowledge-graph.md
@@ -38,7 +39,7 @@ VibeKnowledge stores its project data in:
 <workspace>/.vscode/.knowledge/agent-context/<group-key>.md
 ```
 
-`structural-graph.json` is the deterministic TypeScript/JavaScript code-fact layer and is not loaded into Agent context wholesale. `agent-graph.json` is the version-2 curated source containing independent groups. `knowledge-graph.md` is the complete human audit report, while `agent-context/` contains compact entity/path/relation views for on-demand Agent navigation. `graph.sqlite` stores human description overrides and RAG data; it is not a second structural graph. Human descriptions always win, so rerunning the Agent cannot overwrite edited prose.
+`structural-graph.json` is the deterministic TypeScript/JavaScript code-fact layer and is not loaded into Agent context wholesale. When structural facts change, `structural-graph.previous.json` keeps the last different valid snapshot for diff analysis. `agent-graph.json` is the version-2 curated source containing independent groups. `knowledge-graph.md` is the complete human audit report, while `agent-context/` contains compact entity/path/relation views for on-demand Agent navigation. `graph.sqlite` stores human description overrides and RAG data; it is not a second structural graph. Human descriptions always win, so rerunning the Agent cannot overwrite edited prose.
 
 ## Run from source
 
@@ -73,7 +74,7 @@ npm run watch
 2. First ask an Agent Skills-compatible coding agent to generate the project Knowledge Graph, or invoke `$vibeknowledge-dependency-graph` explicitly. With no narrower request, the Skill deterministically condenses the structural facts into a boundary-focused `framework` graph, then reviews only naming and business semantics.
 3. Ask for a specific module or feature later. The condenser expands only that source scope to API, service, entity, and key call paths. The Agent refines semantic descriptions while the merge preserves every unrelated group. The same stable entity key may intentionally occur in several groups.
 4. The Agent validates `.vscode/.knowledge/agent-graph.json`, then regenerates the complete `.vscode/.knowledge/knowledge-graph.md` audit report and compact views under `.vscode/.knowledge/agent-context/`.
-5. Run **Knowledge: Visualize Graph**. Select a group on the left; only that group is simulated and rendered.
+5. Run **Knowledge: Visualize Graph**. Select a curated group on the left; only that group is simulated and rendered. Use the `⌘` advanced control to request a boundary, community, or file aggregate of the raw graph. Right-click a curated node or double-click a relationship with a structural path to load only its raw neighborhood.
 
 For TypeScript and JavaScript projects, **Knowledge: Generate Structural Graph** refreshes the raw fact layer and **Knowledge: Curate Graph from Structure** generates or refreshes one selected view. The same deterministic pipeline is available from the installed Skill:
 
@@ -115,7 +116,7 @@ npm run build
 node dist/index.js --workspace /path/to/your/project
 ```
 
-The target workspace should contain the generated manifest and a VibeKnowledge database for description overrides or RAG. Run the VS Code extension and install the Skill in that workspace first. Use `node dist/index.js --help` for the available database and RAG options. The [MCP guide](./MCP_USAGE.md) contains Cursor and GitHub Copilot configuration examples in Chinese.
+The target workspace should contain the generated manifest and a VibeKnowledge database for description overrides or RAG. Structural diagnostics also require `structural-graph.json`; generate it from the extension or installed Skill first. In addition to compact curated queries, MCP exposes cycle, coupling, cross-boundary, diff, impact, community-suggestion, and raw shortest-path analysis. Use `node dist/index.js --help` for the available database and RAG options. The [MCP guide](./MCP_USAGE.md) contains Cursor and GitHub Copilot configuration examples in Chinese.
 
 ## Development
 

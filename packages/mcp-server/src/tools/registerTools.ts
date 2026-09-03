@@ -16,6 +16,8 @@ import {
   searchMergedRelations
 } from '../mergedGraph.js';
 import { registerGraphQueryTools } from './registerGraphQueryTools.js';
+import type { StructuralGraphStore } from '../structuralGraphStore.js';
+import { registerStructuralAnalysisTools } from './registerStructuralAnalysisTools.js';
 
 const DEFAULT_LIMIT = 20;
 
@@ -24,7 +26,8 @@ export function registerTools(
   db: GraphDatabase,
   ragEngine: RagEngine | null,
   logger: Logger,
-  agentGraph?: AgentGraphStore
+  agentGraph?: AgentGraphStore,
+  structuralGraph?: StructuralGraphStore
 ): void {
   registerSearchEntitiesTool(server, db, logger, agentGraph);
   registerSearchObservationsTool(server, db, logger);
@@ -32,6 +35,9 @@ export function registerTools(
 
   if (agentGraph) {
     registerGraphQueryTools(server, db, agentGraph, logger);
+  }
+  if (structuralGraph) {
+    registerStructuralAnalysisTools(server, structuralGraph, logger);
   }
 
   if (ragEngine) {

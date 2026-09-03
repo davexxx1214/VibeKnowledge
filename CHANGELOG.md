@@ -17,6 +17,10 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 - Portable content-addressed structural caches with reverse-import invalidation, deletion cleanup, guarded recovery, `--force` rebuilds, and debounced VS Code source watching.
 - A deterministic structural condenser and VS Code curation command for boundary-focused framework views and scoped module/feature views, with single-group atomic merges.
 - Optional curated-relation `structuralPath` traces validated against raw structural facts and returned with explicitly requested MCP Evidence.
+- Deterministic structural diagnostics for dependency cycles, upstream/downstream impact, raw shortest paths, coupling hotspots, cross-boundary links, graph diffs, and community suggestions.
+- MCP tools `analyze_structure`, `analyze_impact`, and `find_structural_path`, with token-budgeted results linked to stable keys and source locations.
+- An opt-in advanced graph view with boundary, community, and file aggregation plus curated-node and relationship drill-down.
+- Automatic preservation of the last structurally different valid graph snapshot for change analysis.
 - A unified Knowledge Graph view across the extension and MCP server.
 - Durable human description overrides for Agent-generated entities.
 - Root tests for graph sonification and Strudel Webview security behavior.
@@ -35,6 +39,7 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 - Made GitHub Copilot instructions route to one compact Knowledge Graph group on demand instead of embedding the full audit report or template content.
 - Made generated Cursor and Copilot instructions query the MCP graph first, with compact group files as the fallback.
 - Reduced graph-view animation work by cancelling stale loops, caching lookup/path data, throttling particles to 30 FPS, limiting animated edge styles, and debouncing resize handling.
+- Kept curated groups as the default Webview and Agent context while limiting raw structural rendering to explicit, bounded requests.
 - Made human-authored descriptions authoritative across Agent regeneration.
 - Made editor `🧠 KG` CodeLens and hover hints use the unified graph, show Agent-authored descriptions, refresh after Skill output changes, and open manual description editing directly.
 - Made English the default README and moved the Chinese documentation to `README_ZH.md`.

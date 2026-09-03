@@ -241,6 +241,7 @@ export async function activate(context: vscode.ExtensionContext) {
       structuralConfigWatcher.onDidDelete(queueStructuralRefresh)
     );
     GraphView.setKnowledgeGraphService(knowledgeGraphService);
+    GraphView.setStructuralGraphService(structuralGraphService);
 
     // 初始化命令处理器
     const entityCommands = new EntityCommands(

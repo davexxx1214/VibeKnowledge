@@ -8,6 +8,7 @@ import { createRagEngine } from './rag/ragEngineFactory.js';
 import type { RagEngine } from './rag/ragEngine.js';
 import { registerBaseResources } from './resources/registerResources.js';
 import { AgentGraphStore } from './agentGraphStore.js';
+import { StructuralGraphStore } from './structuralGraphStore.js';
 
 export type Logger = {
   debug: (...args: unknown[]) => void;
@@ -26,6 +27,7 @@ export async function startMcpServer(
     version: config.serverVersion
   });
   const agentGraph = new AgentGraphStore(config.workspaceRoot);
+  const structuralGraph = new StructuralGraphStore(config.workspaceRoot);
 
   registerBaseResources(server, db, agentGraph);
 
@@ -34,7 +36,7 @@ export async function startMcpServer(
     db,
     logger
   );
-  registerTools(server, db, ragEngine, logger, agentGraph);
+  registerTools(server, db, ragEngine, logger, agentGraph, structuralGraph);
   registerPrompts(server);
 
   const transport = new StdioServerTransport();

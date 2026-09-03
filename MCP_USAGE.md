@@ -18,7 +18,7 @@
    ```bash
    node packages/mcp-server/dist/index.js --workspace "D:/workspace/nestjs-realworld-example-app"
    ```
-   - `--workspace` 指向目标项目根目录，MCP Server 启动前仍需存在 `.vscode/.knowledge/graph.sqlite`；新的局部图查询还需要已生成 `.vscode/.knowledge/agent-graph.json`。SQLite 不再提供图结构，只提供人工描述覆盖、观察记录和 RAG 数据。
+   - `--workspace` 指向目标项目根目录，MCP Server 启动前仍需存在 `.vscode/.knowledge/graph.sqlite`；精选局部图查询需要 `.vscode/.knowledge/agent-graph.json`，结构诊断需要 `.vscode/.knowledge/structural-graph.json`。SQLite 不再提供图结构，只提供人工描述覆盖、观察记录和 RAG 数据。
    - 日志全部输出到 `stderr`，`stdout` 专用于 MCP 协议通信。
    - **提示**：Cursor / Copilot 会按 `mcp.json` 自动启动 server，除非需要独立调试，一般无需在此手动运行。
 
@@ -85,6 +85,11 @@
    - 查询局部子图：`@mcp vibeknowledge tool query_graph {"query": "用户认证依赖哪些组件", "depth": 2, "tokenBudget": 2000}`
    - 查询实体邻居：`@mcp vibeknowledge tool get_neighbors {"selector": "UserService", "direction": "both"}`
    - 查询最短路径：`@mcp vibeknowledge tool shortest_path {"source": "UserController", "target": "UserEntity"}`
+   - 检测循环依赖：`@mcp vibeknowledge tool analyze_structure {"analysis": "cycles", "tokenBudget": 2000}`
+   - 查看高耦合节点：`@mcp vibeknowledge tool analyze_structure {"analysis": "coupling", "limit": 20}`
+   - 查看结构变更：`@mcp vibeknowledge tool analyze_structure {"analysis": "diff"}`
+   - 分析底层影响：`@mcp vibeknowledge tool analyze_impact {"selector": "UserService", "direction": "both", "maxDepth": 3}`
+   - 查找底层跨模块路径：`@mcp vibeknowledge tool find_structural_path {"source": "UserController", "target": "ArticleEntity"}`
    - 查询观察记录：`@mcp vibeknowledge tool search_observations {"limit": 5}`
    - 查询关系：`@mcp vibeknowledge tool knowledge://relations {"verb": "uses", "limit": 5}`（返回数据来源与 Agent 证据）
    - RAG 问答：`@mcp vibeknowledge tool ask_question {"question": "项目的数据库连接数是多少？"}`
@@ -138,6 +143,9 @@
 | Tool | `get_entity` | 按 stable key、实体名或内部 ID 获取实体；可限定分组 |
 | Tool | `get_neighbors` | 按 incoming/outgoing/both 方向、关系类型和深度查询实体邻居 |
 | Tool | `shortest_path` | 查询两个实体之间的最短路径，并保留关系的原始方向 |
+| Tool | `analyze_structure` | 对完整结构图执行循环、高耦合、跨边界、diff 或候选社区分析；候选社区不会自动改写精选分组 |
+| Tool | `analyze_impact` | 查询一个底层符号的上游依赖方和下游依赖，结果带源码位置 |
+| Tool | `find_structural_path` | 在完整结构图中查询跨文件或跨模块最短路径 |
 | Tool | `search_entities` | 根据名称、类型、文件路径或描述搜索统一知识图谱中的实体 |
 | Tool | `search_observations` | 检索观察记录，可按关键字或实体 ID 过滤 |
 | Tool | `knowledge://relations` | 列出统一知识图谱关系，可按动词、源/目标实体筛选；Agent 生成关系附带代码证据 |
@@ -172,6 +180,16 @@
 2. 用 `get_entity` 确认 stable key 和源码位置。
 3. 用 `get_neighbors` 扩展一个关键节点，或用 `shortest_path` 验证两个节点如何连接。
 4. 只有需要审计关系时请求 Evidence，然后打开对应源码验证当前行为。
+
+### 结构诊断
+
+精选图用于任务导航，完整结构图用于诊断。不要把 `structural-graph.json` 整体注入 Agent 上下文；按问题调用下列入口：
+
+- `analyze_structure` 的 `cycles`、`coupling`、`cross_boundary`、`diff` 和 `communities` 分别检查循环、高连接热点、越界依赖、最近结构变化和候选分组。`communities` 只给建议，不会替换人工定义的 framework/module/feature 分组。
+- `analyze_impact` 中，`upstream` 表示依赖当前实体的调用方，`downstream` 表示当前实体依赖的实现。
+- `find_structural_path` 在精选图没有足够细节时追踪原始代码关系。
+- 三个工具都接受 `tokenBudget`，并返回 stable key、关系方向和 `file:line`，方便继续打开源码验证。
+- `diff` 读取自动维护的 `structural-graph.previous.json`。只有结构实体或关系确实变化时才更新这份快照，普通无变化刷新不会覆盖它。
 
 ### `ask_question` 使用示例
 
