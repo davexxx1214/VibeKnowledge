@@ -19,6 +19,7 @@ import {
 } from '../../../resources/skills/vibeknowledge-dependency-graph/scripts/structural-analysis.mjs';
 import { MusicGeneratorService } from '../../services/musicGenerator';
 import type { EntityType, RelationVerb } from '../../utils/types';
+import { GRAPH_RELATION_TOOLTIP_SCRIPT } from './graphWebviewClientScript';
 import { StrudelView } from './strudelView';
 import { t } from '../../i18n/i18nService';
 
@@ -882,7 +883,8 @@ export class GraphView {
             100% { transform: rotate(360deg); }
         }
         
-        #empty-state {
+        #empty-state,
+        #render-error {
             position: absolute;
             top: 50%;
             left: calc(50% + 110px);
@@ -892,14 +894,29 @@ export class GraphView {
             pointer-events: none;
         }
         
-        #empty-state.hidden {
+        #empty-state.hidden,
+        #render-error.hidden {
             display: none;
+        }
+
+        #render-error {
+            width: min(520px, calc(100% - 280px));
+            color: var(--vscode-errorForeground);
+        }
+
+        #render-error-message {
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+            color: var(--vscode-foreground);
+            font-family: var(--vscode-editor-font-family);
+            font-size: 12px;
         }
 
         @media (max-width: 700px) {
             #group-sidebar { width: 180px; }
             #graph-container { left: 180px; }
-            #loading, #empty-state { left: calc(50% + 90px); }
+            #loading, #empty-state, #render-error { left: calc(50% + 90px); }
+            #render-error { width: min(440px, calc(100% - 220px)); }
         }
         
         /* Tooltip */
@@ -1049,6 +1066,12 @@ export class GraphView {
         <h2>${translations.emptyState.title}</h2>
         <p>${translations.emptyState.description}</p>
         <p style="margin-top: 10px;">${translations.emptyState.hint}</p>
+    </div>
+
+    <div id="render-error" class="hidden" role="alert">
+        <h2>${translations.renderError.title}</h2>
+        <p>${translations.renderError.description}</p>
+        <pre id="render-error-message"></pre>
     </div>
     
     <div id="graph-container"></div>
@@ -1273,6 +1296,7 @@ export class GraphView {
                 simulation?.stop();
                 g?.selectAll('*').remove();
                 document.getElementById('loading').classList.add('hidden');
+                document.getElementById('render-error').classList.add('hidden');
                 document.getElementById('empty-state').classList.remove('hidden');
                 return;
             }
@@ -1339,11 +1363,28 @@ export class GraphView {
             document.querySelectorAll('.group-button').forEach(button => {
                 button.classList.toggle('active', button.dataset.groupKey === group.key);
             });
-            renderGraph(group);
+            try {
+                renderGraph(group);
+            } catch (error) {
+                showRenderError(error);
+            }
+        }
+
+        function showRenderError(error) {
+            stopParticleAnimation();
+            simulation?.stop();
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('empty-state').classList.add('hidden');
+            const errorState = document.getElementById('render-error');
+            const errorMessage = document.getElementById('render-error-message');
+            errorMessage.textContent = error instanceof Error ? error.message : String(error);
+            errorState.classList.remove('hidden');
+            console.error('Knowledge Graph render failed:', error);
         }
 
         function renderGraph(data) {
             document.getElementById('loading').classList.add('hidden');
+            document.getElementById('render-error').classList.add('hidden');
             stopParticleAnimation();
             simulation?.stop();
             g.selectAll('*').remove();
@@ -1819,46 +1860,17 @@ export class GraphView {
                 html += \`\${i18n.tooltip.description}: \${escapeHtml(d.description)}<br>\`;
             }
 
-            html += renderObservations(d);
-            tooltip.innerHTML = html;
-        }
-
-        function formatRelationTooltip(relation) {
-            const lines = [relation.verb];
-            lines.push(i18n.tooltip.source + ': ' + (
-                relation.isAgent ? i18n.tooltip.agentSource : i18n.tooltip.humanSource
-            ));
-            if (relation.relationOrigin) {
-                lines.push(i18n.tooltip.relationOrigin + ': ' + relation.relationOrigin);
-            }
-
             if (d.source === 'curated' && d.structuralKey) {
                 html += '<span style="opacity:.75">Right-click: structural neighbors</span><br>';
             } else if (d.source === 'aggregate') {
                 html += '<span style="opacity:.75">Double-click: raw structural slice</span><br>';
             }
-            if (relation.confidence) {
-                lines.push(i18n.tooltip.confidence + ': ' + relation.confidence);
-            }
-            if (relation.description) {
-                lines.push(relation.description);
-            }
-            if (Array.isArray(relation.evidence) && relation.evidence.length > 0) {
-                lines.push(i18n.tooltip.evidence + ':');
-                relation.evidence.forEach(item => {
-                    const endLine = item.endLine ? '-' + item.endLine : '';
-                    const detail = item.detail ? ' — ' + item.detail : '';
-                    lines.push('• ' + item.filePath + ':' + item.startLine + endLine + detail);
-                });
-            }
-            if (Array.isArray(relation.structuralPath) && relation.structuralPath.length > 0) {
-                lines.push('Raw path: double-click (' + relation.structuralPath.length + ' hop(s))');
-            }
-            if (relation.aggregateCount) {
-                lines.push('Aggregated raw relationships: ' + relation.aggregateCount);
-            }
-            return lines.join('\\n');
+
+            html += renderObservations(d);
+            tooltip.innerHTML = html;
         }
+
+${GRAPH_RELATION_TOOLTIP_SCRIPT}
         
         function hideTooltip() {
             tooltip.style.opacity = 0;

@@ -582,6 +582,10 @@ export const zh = {
       description: '请先让 Agent 生成框架层图谱',
       hint: '安装并运行 VibeKnowledge 依赖图谱 Skill'
     },
+    renderError: {
+      title: '知识图谱渲染失败',
+      description: '请刷新视图；若问题仍然存在，可根据下方错误信息进行排查。'
+    },
     tooltip: {
       type: '类型',
       file: '文件',

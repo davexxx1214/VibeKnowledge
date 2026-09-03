@@ -583,6 +583,10 @@ export const en = {
       description: 'Ask an Agent to generate the framework graph first',
       hint: 'Install and run the VibeKnowledge dependency graph Skill'
     },
+    renderError: {
+      title: 'Knowledge Graph could not be rendered',
+      description: 'Refresh the view. If the problem continues, use the message below to diagnose it.'
+    },
     tooltip: {
       type: 'Type',
       file: 'File',

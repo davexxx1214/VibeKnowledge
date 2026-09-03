@@ -387,6 +387,10 @@ export interface LanguagePack {
       description: string;
       hint: string;
     };
+    renderError: {
+      title: string;
+      description: string;
+    };
     tooltip: {
       type: string;
       file: string;
