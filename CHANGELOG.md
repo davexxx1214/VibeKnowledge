@@ -4,6 +4,14 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 ## [Unreleased]
 
+### Changed
+
+- Taught the bundled dependency-graph Skill to scope on-demand page and cross-page feature graphs, including help-center content, scattered frontend/backend code, and Markdown/MDX limitations.
+
+### Fixed
+
+- Fixed a Webview runtime error that left the graph canvas blank after group metadata loaded, and made future rendering failures visible in the graph view.
+
 ## [0.2.0] - 2026-09-03
 
 ### Added

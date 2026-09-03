@@ -1,6 +1,6 @@
 ---
 name: vibeknowledge-dependency-graph
-description: Analyze a code workspace and create or incrementally refresh VibeKnowledge's evidence-backed, grouped Knowledge Graph with a boundary-focused framework view and detailed module or feature views. Use when asked to generate, update, repair, or review project architecture, module or feature dependency relationships, including “生成依赖关系” and “知识图谱” requests. Do not use for package-manager upgrades or dependency installation.
+description: Analyze a code workspace and create or incrementally refresh VibeKnowledge's evidence-backed, grouped Knowledge Graph with a boundary-focused framework view and detailed module, page-level, or cross-page feature views. Use when asked to generate, update, repair, or review project architecture, page, module, or feature dependency relationships, including “生成依赖关系” and “知识图谱” requests. Do not use for package-manager upgrades or dependency installation.
 ---
 
 # VibeKnowledge grouped Knowledge Graph
@@ -76,6 +76,24 @@ Do not manually reproduce imports, calls, containment, or source locations alrea
    - use `module` for a subsystem, package, library, or technical boundary;
    - use `feature` for an end-to-end user or product capability.
 7. Groups after `framework` are parallel peers. A new group receives `max(existing order) + 1`. Refreshing a group keeps its existing key and order.
+
+## Scope a page or product feature
+
+Treat a requested page, user journey, or product capability such as a help center as a `feature`, not as a framework boundary. Do not generate detailed groups for every page preemptively; add or refresh only the page or capability needed for the current task.
+
+Locate the route or other user-facing entry point before choosing `--scope` when the user does not provide a path. Choose the narrowest stable scope that still represents the requested behavior:
+
+- for one page, use its route entry file or page-owned directory;
+- for a capability spanning several pages, use its feature directory rather than any individual page;
+- for an API-only capability, use the owning controller, handler, or backend feature directory.
+
+Always refresh deterministic facts with extraction scope `.`. Apply the narrow path only to curated-group convergence. A single-file scope intentionally includes component-level entities from that file plus one direct dependency hop; a feature-directory scope covers its page entries and shared feature implementation.
+
+For a page group, prefer the route, page component, directly rendered feature components, hooks, stores or contexts, API client, public data contracts, and directly connected permission, caching, analytics, or runtime integration. For a cross-page capability, also include its shared navigation, orchestration, data loading, and external content or service boundary. A help-center feature, for example, normally centers on its routes, navigation or sidebar, document renderer or loader, search state and API, and CMS or content source when present.
+
+Do not widen a scattered feature to `src`, `app`, or another broad common ancestor merely to capture every related file. Use the primary feature scope and its one-hop dependencies. If important UI and API implementations remain disconnected across distant directories or packages, create focused peer groups such as `help-center-ui` and `help-center-api`, then use raw structural path queries to explain their connection. Split a group at a stable user journey or responsibility when the condenser reports more than about 25 entities or the rendered graph is no longer independently readable.
+
+The deterministic extractor parses `.ts`, `.tsx`, `.js`, and `.jsx`, not pure `.md` or `.mdx` content. For documentation-driven features, anchor convergence on the TypeScript/JavaScript route, loader, registry, renderer, or search implementation. During semantic review, add an essential Markdown/MDX content file only as an evidence-backed `file` or business concept; do not invent dependency edges the extractor cannot prove. Reuse the same stable group key on later refreshes and preserve every unrelated group.
 
 ## Keep the framework group at boundary level
 
