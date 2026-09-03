@@ -2,53 +2,90 @@
 
 [English](./README.md) | [简体中文](./README_ZH.md)
 
-VibeKnowledge is a VS Code extension for maintaining a project knowledge graph alongside the code it describes. A deterministic extractor records code facts, while an Agent Skill turns those facts and source evidence into focused framework, module, and feature graphs. Maintainers can refine entity descriptions without manually rebuilding graph structure.
+VibeKnowledge is a VS Code extension and local MCP server that turns a TypeScript or JavaScript codebase into a compact, queryable knowledge graph for coding agents.
 
-VibeKnowledge is distributed as source code. Fork the repository to customize it, run it locally, or package your own VSIX.
+The project keeps code facts, curated views, and human-written descriptions separate. A deterministic extractor owns graph structure; the bundled Agent Skill creates focused framework and feature groups; humans may refine descriptions without manually maintaining nodes or edges.
 
-## Demo
+## Why it exists
 
-https://github.com/user-attachments/assets/33b3774a-a142-4cbb-93cc-6768732e0723
+Giving an agent the entire repository or a large generated report consumes context before the task starts. VibeKnowledge instead creates a small routing index and lets the agent request only the relevant group, neighborhood, impact path, or source files.
 
-| Knowledge Graph | AI scenario selection |
-| --- | --- |
-| ![Knowledge graph](presentation/snap4.png) | ![AI scenario selection](presentation/snap2.png) |
-
-## What it does
-
-| Area | Current capabilities |
-| --- | --- |
-| Knowledge Graph | Separate deterministic code facts from Agent-curated entities, relations, and descriptions. |
-| Grouped generation | Generate a boundary-focused framework graph first, then add parallel module or feature groups incrementally. |
-| Visualization | Switch groups from a vertical list and render only the selected D3/SVG graph, then jump back to source locations. |
-| AI context | Keep the full audit report for humans and route Coding Agents to compact, on-demand group views. |
-| RAG | Index documents with Gemini File Search or a configurable OpenAI-compatible endpoint, then ask questions from the VS Code sidebar. |
-| MCP server | Query the same unified Knowledge Graph from Cursor, GitHub Copilot, or another MCP client. |
-| Graph sonification | Generate a Strudel pattern from graph structure and open it in an embedded Strudel player. This feature is experimental. |
-
-VibeKnowledge stores its project data in:
-
-```text
-<workspace>/.vscode/.knowledge/graph.sqlite
-<workspace>/.vscode/.knowledge/structural-graph.json
-<workspace>/.vscode/.knowledge/structural-graph.previous.json
-<workspace>/.vscode/.knowledge/cache/structural/index.json
-<workspace>/.vscode/.knowledge/agent-graph.json
-<workspace>/.vscode/.knowledge/knowledge-graph.md
-<workspace>/.vscode/.knowledge/agent-context/index.md
-<workspace>/.vscode/.knowledge/agent-context/<group-key>.md
+```mermaid
+flowchart LR
+    Source["TypeScript / JavaScript source"] --> Extract["Deterministic extractor"]
+    Extract --> Structural["structural-graph.json"]
+    Structural --> Curate["Structural condenser + Agent Skill"]
+    Curate --> Curated["agent-graph.json"]
+    Curated --> Audit["Full audit Markdown"]
+    Curated --> Compact["Compact group views"]
+    Curated --> Visual["VS Code visualization"]
+    Curated --> MCP["MCP on-demand queries"]
+    Overrides["Human description overrides"] --> Visual
+    Overrides --> MCP
 ```
 
-`structural-graph.json` is the deterministic TypeScript/JavaScript code-fact layer and is not loaded into Agent context wholesale. When structural facts change, `structural-graph.previous.json` keeps the last different valid snapshot for diff analysis. `agent-graph.json` is the version-2 curated source containing independent groups. `knowledge-graph.md` is the complete human audit report, while `agent-context/` contains compact entity/path/relation views for on-demand Agent navigation. `graph.sqlite` stores human description overrides and RAG data; it is not a second structural graph. Human descriptions always win, so rerunning the Agent cannot overwrite edited prose.
+## Measured context savings
 
-## Run from source
+The Phase 7 benchmark runs five fixed coding tasks against `nestjs-realworld-example-app`: locating behavior, adding a test, changing an API path, assessing impact, and tracing a dependency cycle.
 
-### Requirements
+At the recommended 600-token MCP query budget:
 
-- Node.js 20 is recommended for development.
-- VS Code 1.80 or newer.
+| Retrieval mode | Average input tokens | Evidence-coverage proxy | Files read | Tool calls |
+| --- | ---: | ---: | ---: | ---: |
+| Source search without a graph | 2,783 | 85.6% | 5.0 | 6.0 |
+| Compact Markdown group | 2,426 | 72.6% | 4.8 | 6.8 |
+| MCP on-demand graph query | 1,710 | 90.3% | 3.6 | 4.6 |
 
-### Setup
+MCP used **1,073 fewer estimated input tokens per task**, a **38.6% reduction** from source-only retrieval, while the evidence-coverage proxy improved by 4.8 percentage points. It used 29.5% fewer tokens than loading a compact Markdown group. Its average 411-token retrieval payload was 96.2% smaller than injecting the complete 10,679-token audit report.
+
+These are reproducible conservative token estimates, not provider billing telemetry. Evidence coverage measures retrieval quality, not final model-answer quality. See the [full methodology and per-task results](./evaluation/phase7/results.md).
+
+## Graph model
+
+VibeKnowledge produces two graph layers:
+
+- `structural-graph.json` contains deterministic source facts, locations, diagnostics, and structural paths. It is never injected wholesale into agent context.
+- `agent-graph.json` contains independent version-1 groups curated from those facts. Generated keys, types, paths, and relations are authoritative.
+
+The default `framework` group is a system-boundary view. It keeps only the startup chain, root module, top-level business modules, direct cross-module dependencies, shared infrastructure, and external systems.
+
+Detailed module or feature groups keep component-level modules, APIs, services, entities, DTOs, interfaces, and one-hop direct dependencies. Methods, constructors, and tests are folded into their owning components. For each ordered entity pair, only the strongest useful relationship is retained.
+
+Supported entity types:
+
+```text
+function  class  interface  variable  file  api  service  component  external
+```
+
+Supported relations:
+
+```text
+calls  extends  implements  depends_on  contains  references  imports  exports
+```
+
+There is no manual structural graph. Regeneration discards nodes and relations that the Skill no longer produces. Humans edit descriptions only; stable entity keys reconnect those overrides after regeneration.
+
+## Generated files
+
+```text
+<workspace>/.vscode/.knowledge/
+  structural-graph.json             deterministic source facts
+  structural-graph.previous.json    previous valid structural snapshot
+  cache/structural/index.json       incremental extraction cache
+  agent-graph.json                  grouped curated graph
+  knowledge-graph.md                complete human audit report
+  agent-context/index.md            small routing index for agents
+  agent-context/<group-key>.md      compact entity/path/relation view
+  graph.sqlite                      descriptions and optional RAG data
+```
+
+`knowledge-graph.md` is for human review and should not be placed in the default agent instructions. Agents should start with `agent-context/index.md`, load one relevant group, and then inspect source or query MCP as needed.
+
+## Quick start
+
+### Run the extension from source
+
+Requirements: Node.js 20 is recommended, and VS Code 1.80 or newer is required.
 
 ```bash
 git clone https://github.com/davexxx1214/VibeKnowledge.git
@@ -58,117 +95,106 @@ npm run compile
 code .
 ```
 
-Press `F5` in VS Code and select **Run Extension**. In the Extension Development Host, open a target project and run **Knowledge: Install Dependency Graph Agent Skill** from the Command Palette.
+Press `F5`, choose **Run Extension**, open a target workspace in the Extension Development Host, and run **Knowledge: Install Dependency Graph Agent Skill** from the Command Palette.
 
-You can also build continuously while editing:
+### Generate a graph with the Skill
 
-```bash
-npm run watch
+Ask an Agent Skills-compatible coding agent:
+
+```text
+$vibeknowledge-dependency-graph generate the framework graph
 ```
 
-## Main workflows
-
-### Generate and refine the Knowledge Graph
-
-1. Run **Knowledge: Install Dependency Graph Agent Skill**. The extension installs the skill under `.agents/skills/vibeknowledge-dependency-graph/` in the project.
-2. First ask an Agent Skills-compatible coding agent to generate the project Knowledge Graph, or invoke `$vibeknowledge-dependency-graph` explicitly. With no narrower request, the Skill deterministically condenses the structural facts into a boundary-focused `framework` graph, then reviews only naming and business semantics.
-3. Ask for a specific module or feature later. The condenser expands only that source scope to API, service, entity, and key call paths. The Agent refines semantic descriptions while the merge preserves every unrelated group. The same stable entity key may intentionally occur in several groups.
-4. The Agent validates `.vscode/.knowledge/agent-graph.json`, then regenerates the complete `.vscode/.knowledge/knowledge-graph.md` audit report and compact views under `.vscode/.knowledge/agent-context/`.
-5. Run **Knowledge: Visualize Graph**. Select a curated group on the left; only that group is simulated and rendered. Use the `⌘` advanced control to request a boundary, community, or file aggregate of the raw graph. Right-click a curated node or double-click a relationship with a structural path to load only its raw neighborhood.
-
-For TypeScript and JavaScript projects, **Knowledge: Generate Structural Graph** refreshes the raw fact layer and **Knowledge: Curate Graph from Structure** generates or refreshes one selected view. The same deterministic pipeline is available from the installed Skill:
+The same deterministic pipeline can be run directly:
 
 ```bash
 node .agents/skills/vibeknowledge-dependency-graph/scripts/extract-structural-graph.mjs --workspace . --scope .
 node .agents/skills/vibeknowledge-dependency-graph/scripts/validate-structural-graph.mjs .vscode/.knowledge/structural-graph.json .
 node .agents/skills/vibeknowledge-dependency-graph/scripts/curate-structural-graph.mjs --workspace . --kind framework --name "Framework"
+```
+
+Add or refresh a detailed group without replacing unrelated groups:
+
+```bash
 node .agents/skills/vibeknowledge-dependency-graph/scripts/curate-structural-graph.mjs --workspace . --kind feature --scope src/article --key article-management --name "Article management"
 ```
 
-The outputs are validated before atomic replacement. Later extraction runs reuse a portable per-file cache and re-resolve only changed files and their transitive importers. Curation replaces one group, preserves Agent-authored semantics and stable keys, and records the raw structural path behind every generated relation. Syntax errors are recorded per file on a full build; an incremental update preserves the previous graph if an existing valid file becomes broken or the result shrinks abnormally. After reviewing an intentional change, rerun extraction with `--force` or confirm the full rebuild in VS Code.
+Extraction is incremental: unchanged file contributions are reused, and changed files plus reverse importers are resolved again. Outputs are validated before atomic replacement. If an update is corrupt, newly broken, or abnormally smaller, the previous valid artifacts are preserved for review.
 
-The Agent replaces only the requested group's generated contents and never edits `graph.sqlite`. Stable entity keys reconnect human descriptions to every occurrence after each run. Legacy version-1 manifests remain readable and are treated as one framework group. See the [grouped schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md).
+### Explore and edit descriptions
 
-File-backed entities display their current description in a `🧠 KG` CodeLens above the source location. Click the hint to edit it manually. The Agent can update generated prose on later Skill runs; once a human edits it, that override wins in every group until **Knowledge: Restore Agent Description** is used.
+Run **Knowledge: Visualize Graph** and select one group from the list. The webview renders only that group. Source-backed nodes can jump to code, and raw neighborhood or structural-path views are loaded only when requested.
 
-### Use RAG
+A `🧠 KG` CodeLens displays a source entity's current description. Human edits override generated prose across every group until **Knowledge: Restore Agent Description** is used.
 
-Create a `Knowledge/` directory at the project root and place the documents you want to index inside it. Then select a RAG mode in VS Code settings:
+## MCP server
 
-| Setting | Default | Purpose |
-| --- | --- | --- |
-| `knowledgeGraph.rag.mode` | `cloud` | Selects Gemini File Search or a configured OpenAI-compatible endpoint. |
-| `knowledgeGraph.gemini.apiKey` | empty | Enables cloud RAG with Gemini. |
-| `knowledgeGraph.rag.local.apiBase` | `http://localhost:8000/v1` | Sets the endpoint for local-mode embeddings and inference. |
-| `knowledgeGraph.rag.local.embeddingModel` | `text-embedding-3-small` | Selects the embedding model exposed by the configured endpoint. |
-| `knowledgeGraph.rag.local.inferenceModel` | `gpt-4.1` | Selects the inference model exposed by the configured endpoint. |
-
-Cloud mode uploads indexed documents to Gemini File Search. Local mode stores chunks and vectors in the workspace database, but it still sends embedding and inference requests to the endpoint you configure. Review that endpoint's data policy before indexing private material, and do not commit API keys.
-
-### Connect the MCP server
-
-The MCP package lives in [`packages/mcp-server`](./packages/mcp-server). To build and run it from this checkout:
+Build and start the standalone server against a generated workspace:
 
 ```bash
 cd packages/mcp-server
 npm ci
 npm run build
-node dist/index.js --workspace /path/to/your/project
+node dist/index.js --workspace /path/to/project
 ```
 
-The target workspace should contain the generated manifest and a VibeKnowledge database for description overrides or RAG. Structural diagnostics also require `structural-graph.json`; generate it from the extension or installed Skill first. In addition to compact curated queries, MCP exposes cycle, coupling, cross-boundary, diff, impact, community-suggestion, and raw shortest-path analysis. Use `node dist/index.js --help` for the available database and RAG options. The [MCP guide](./MCP_USAGE.md) contains Cursor and GitHub Copilot configuration examples in Chinese.
+MCP exposes compact entity and relationship lookup plus structural cycle, coupling, boundary, diff, impact, community, and shortest-path analysis. Query output is token-budgeted and can fall back to source search when graph freshness checks fail.
+
+See [MCP_USAGE.md](./MCP_USAGE.md) for Cursor and GitHub Copilot configuration examples.
+
+## Optional RAG
+
+Documents under a workspace `Knowledge/` directory can be indexed with Gemini File Search or a configured OpenAI-compatible endpoint. Cloud mode uploads indexed documents to Gemini. Local mode stores chunks and vectors in `graph.sqlite`, but embedding and inference requests still go to the configured endpoint. Review its data policy before indexing private material, and never commit API keys.
+
+The relevant settings are:
+
+| Setting | Default |
+| --- | --- |
+| `knowledgeGraph.rag.mode` | `cloud` |
+| `knowledgeGraph.gemini.apiKey` | empty |
+| `knowledgeGraph.rag.local.apiBase` | `http://localhost:8000/v1` |
+| `knowledgeGraph.rag.local.embeddingModel` | `text-embedding-3-small` |
+| `knowledgeGraph.rag.local.inferenceModel` | `gpt-4.1` |
 
 ## Development
-
-### Commands
 
 | Command | Purpose |
 | --- | --- |
 | `npm run compile` | Bundle the extension into `dist/extension.js`. |
-| `npm run watch` | Rebuild when source files change. |
-| `npm run lint` | Run ESLint against the TypeScript source. |
-| `npm run check` | Compile, lint, and run the root test suite. |
-| `npm run package` | Build a VSIX with `@vscode/vsce`. |
+| `npm run watch` | Rebuild on source changes. |
+| `npm run lint` | Run ESLint. |
 | `npm test` | Run the root Vitest suite. |
-| `npm run test:coverage` | Run tests with V8 coverage. |
+| `npm run check` | Compile, lint, and test. |
+| `npm run test:coverage` | Generate V8 coverage. |
+| `npm run package` | Build a VSIX. |
 
-The MCP server has its own dependencies and scripts:
+The MCP package has its own build and test commands:
 
 ```bash
 cd packages/mcp-server
-npm ci
 npm run build
 npm test
 ```
 
-### Repository layout
+Repository layout:
 
 ```text
-src/
-  commands/              AI scenario commands
-  i18n/                  English and Chinese UI strings
-  providers/             VS Code tree, hover, and CodeLens providers
-  services/              Unified Knowledge Graph, Agent generation, RAG, and export services
-  ui/                    Command handlers and webviews
-packages/mcp-server/     Standalone MCP server
-resources/scenarios/     Built-in AI task templates
-resources/skills/        Installable project Agent Skills
-presentation/            Demo media
+src/                         VS Code extension
+packages/mcp-server/         standalone MCP server
+resources/skills/            installable Agent Skill
+resources/scenarios/         optional AI task scenarios
+evaluation/phase7/           retrieval benchmark and results
 ```
 
 ## Documentation
 
-- [English demo guide](./Demo_en.md)
-- [中文演示指南](./Demo.md)
-- [English project structure](./project_structure_en.md)
-- [中文项目结构](./project_structure.md)
-- [MCP 使用指南](./MCP_USAGE.md)
-- [Contributing guide](./CONTRIBUTING.md)
-- [Security policy](./SECURITY.md)
+- [Graph schema](./resources/skills/vibeknowledge-dependency-graph/references/graph-schema.md)
+- [MCP usage](./MCP_USAGE.md)
+- [Project structure](./project_structure_en.md)
+- [Contributing](./CONTRIBUTING.md)
+- [Security](./SECURITY.md)
 - [Changelog](./CHANGELOG.md)
-
-Issues and pull requests are welcome. For a large change, open an issue first so the behavior and storage format can be discussed before implementation.
 
 ## License
 
-VibeKnowledge is available under the [MIT License](./LICENSE).
+[MIT](./LICENSE)

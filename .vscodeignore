@@ -13,12 +13,6 @@ coverage/**
 .github/**
 .claude/**
 .gemini/**
-presentation/blue/**
-presentation/white/**
-presentation/index.html
-presentation/logo.png
-presentation/*.mp4
-cover.png
 *.vsix
 .eslintrc.json
 **/*.map
