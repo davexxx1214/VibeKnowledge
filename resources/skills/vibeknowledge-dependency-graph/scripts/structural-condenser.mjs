@@ -5,6 +5,8 @@ const INFRASTRUCTURE_PATTERN =
   /(config|database|persistence|typeorm|prisma|sequelize|cache|redis|logger|logging|telemetry|observability|queue|messag|eventbus|storage|mail|search)/i;
 const IMPORTANT_EXTERNAL_PATTERN =
   /(@nestjs\/core|swagger|openapi|typeorm|prisma|sequelize|postgres|mysql|mariadb|mongodb|redis|kafka|rabbit|nats|s3|dynamodb|elasticsearch|opensearch)/i;
+const DETAIL_EXTERNAL_PATTERN =
+  /(typeorm|prisma|sequelize|postgres|mysql|mariadb|mongodb|redis|kafka|rabbit|nats|s3|dynamodb|elasticsearch|opensearch)/i;
 const DETAIL_ENTITY_PATTERN =
   /(module|controller|service|repository|repo|entity|model|gateway|resolver|usecase|use-case|handler|adapter|store)$/i;
 
@@ -81,7 +83,7 @@ export function mergeCuratedGroup(existingDocument, candidateGroup, options = {}
     throw new Error('The merged graph must contain exactly one framework group at order 0');
   }
   return {
-    version: 2,
+    version: 1,
     generatedAt: options.generatedAt ?? new Date().toISOString(),
     scope: document.scope ?? '.',
     groups
@@ -182,8 +184,14 @@ function convergeFramework(context, options) {
     .filter(
       (entity) =>
         entity.kind === 'external' &&
+        isPackageBoundaryExternal(entity) &&
         IMPORTANT_EXTERNAL_PATTERN.test(`${entity.name} ${entity.filePath}`) &&
         isConnectedToSelectedBoundary(entity.key, context, membership, selected)
+    )
+    .filter(
+      (entity, _index, values) =>
+        entity.key !== 'external:typeorm' ||
+        !values.some((candidate) => candidate.key === 'external:@nestjs/typeorm')
     )
     .sort(compareEntities);
   importantExternals.forEach((entity) => {
@@ -192,6 +200,16 @@ function convergeFramework(context, options) {
   });
 
   const relationChoices = new Map();
+  const directModuleKeys = new Set(directModules.map((entity) => entity.key));
+  const startupExternalKeys = new Set(
+    context.graph.relations
+      .filter(
+        (relation) =>
+          startups.some((startup) => startup.key === relation.source) &&
+          importantExternals.some((external) => external.key === relation.target)
+      )
+      .map((relation) => relation.target)
+  );
   for (const startup of startups) {
     for (const root of roots) {
       const path = findStructuralPath(context, startup.key, root.key, 5);
@@ -208,8 +226,23 @@ function convergeFramework(context, options) {
   }
 
   for (const relation of context.graph.relations) {
-    const sourceBoundary = membership.get(relation.source);
+    let sourceBoundary = membership.get(relation.source);
     const targetBoundary = membership.get(relation.target);
+    if (
+      targetBoundary &&
+      selected.get(targetBoundary)?.kind === 'external' &&
+      directModuleKeys.has(sourceBoundary) &&
+      roots[0]
+    ) {
+      sourceBoundary = roots[0].key;
+    }
+    if (
+      targetBoundary &&
+      startupExternalKeys.has(targetBoundary) &&
+      !startups.some((startup) => startup.key === sourceBoundary)
+    ) {
+      continue;
+    }
     if (
       !sourceBoundary ||
       !targetBoundary ||
@@ -282,7 +315,9 @@ function convergeDetailedGroup(context, options) {
   const inScope = [...context.entities.values()]
     .filter(
       (entity) =>
-        entity.kind !== 'external' && isPathInScope(entity.filePath, options.scope)
+        entity.kind !== 'external' &&
+        !isTestPath(entity.filePath) &&
+        isPathInScope(entity.filePath, options.scope)
     )
     .sort(compareEntities);
   if (inScope.length === 0) {
@@ -290,7 +325,13 @@ function convergeDetailedGroup(context, options) {
   }
   const selected = new Map();
   const select = (entity) => {
-    if (entity && entity.kind !== 'file') selected.set(entity.key, entity);
+    if (
+      entity &&
+      !['file', 'method'].includes(entity.kind) &&
+      !isTestPath(entity.filePath)
+    ) {
+      selected.set(entity.key, entity);
+    }
   };
   for (const entity of inScope) {
     if (isDetailedEntity(entity, context)) {
@@ -307,69 +348,75 @@ function convergeDetailedGroup(context, options) {
     if (representative) select(representative);
   }
 
-  for (const entity of [...selected.values()]) {
-    if (entity.containerKey) {
-      select(context.entities.get(entity.containerKey));
-    }
-  }
+  // Lift method-level structural facts to their owning public components. The
+  // detailed graph deliberately omits methods and constructors.
+  const coreSelected = new Map(selected);
   for (const relation of context.graph.relations) {
-    const sourceSelected = selected.has(relation.source);
-    const targetSelected = selected.has(relation.target);
-    if (sourceSelected && !targetSelected) {
-      const target = context.entities.get(relation.target);
-      if (shouldIncludeDetailedNeighbor(target, relation, options.scope)) {
-        select(target);
-      }
-    } else if (targetSelected && !sourceSelected) {
-      const source = context.entities.get(relation.source);
-      if (
-        source &&
-        source.kind !== 'file' &&
-        isPathInScope(source.filePath, options.scope) &&
-        relation.verb === 'contains'
-      ) {
-        select(source);
-      }
+    const sourceRepresentative = selectedRepresentative(
+      relation.source,
+      coreSelected,
+      context
+    );
+    if (
+      sourceRepresentative &&
+      !selectedRepresentative(relation.target, coreSelected, context)
+    ) {
+      selectDetailedNeighbor(
+        relation.target,
+        relation,
+        options.scope,
+        context,
+        select
+      );
     }
   }
-
-  // A direct cross-scope call often selects a method before its owning service.
-  // Re-run container expansion so the curated graph never exposes an orphan method.
-  for (const entity of [...selected.values()]) {
-    if (entity.containerKey) {
-      select(context.entities.get(entity.containerKey));
-    }
+  if (selected.has('external:@nestjs/typeorm')) {
+    selected.delete('external:typeorm');
   }
 
   const relations = new Map();
   for (const relation of context.graph.relations) {
+    const source = selectedRepresentative(relation.source, selected, context);
+    const target = selectedRepresentative(relation.target, selected, context);
     if (
-      selected.has(relation.source) &&
-      selected.has(relation.target) &&
+      source &&
+      target &&
+      source !== target &&
       (isPathInScope(
-        context.entities.get(relation.source)?.filePath ?? '',
+        context.entities.get(source)?.filePath ?? '',
         options.scope
       ) ||
         isPathInScope(
-          context.entities.get(relation.target)?.filePath ?? '',
+          context.entities.get(target)?.filePath ?? '',
           options.scope
         ))
     ) {
-      addCuratedRelation(relations, {
-        source: relation.source,
-        target: relation.target,
+      const direct = relation.source === source && relation.target === target;
+      const structuralRelations = direct
+        ? [{ ...relation, _traversal: 'forward' }]
+        : findStructuralPath(context, source, target, 7);
+      chooseDetailedRelation(relations, {
+        source,
+        target,
         verb: curatedVerb(relation.verb),
-        structuralRelations: [relation],
-        description: relation.detail
+        structuralRelations,
+        description: direct
+          ? relation.detail
+          : `${selected.get(source).name} ${curatedVerb(relation.verb)} ${selected.get(target).name} through implementation details omitted from this view.`
       });
     }
   }
 
   const key = options.key ?? slugify(options.name ?? lastScopeSegment(options.scope));
   const name = options.name ?? titleCase(key);
-  if (selected.size > 35) {
+  if (selected.size > 25) {
     warnings.push(
-      `Detailed candidate contains ${selected.size} entities; narrow the scope or let the Agent remove low-value internals.`
+      `Detailed candidate contains ${selected.size} entities; narrow the scope or split the group at a stable feature boundary.`
+    );
+  }
+  if (relations.size > 45) {
+    warnings.push(
+      `Detailed candidate contains ${relations.size} relations; narrow the scope or split the group at a stable feature boundary.`
     );
   }
   return {
@@ -378,12 +425,14 @@ function convergeDetailedGroup(context, options) {
       name,
       kind: options.kind,
       order: 1,
-      description: `Deterministically selected public components and direct call paths under ${options.scope}.`,
+      description: `Public components and component-level dependencies under ${options.scope}; methods, constructors, tests, and low-value internals are collapsed.`,
       scope: options.scope,
       entities: [...selected.values()].sort(compareEntities).map(toCuratedEntity),
       relations: [...relations.values()].sort(compareCuratedRelations)
     },
-    collapsedRelations: 0,
+    collapsedRelations: [...relations.values()].filter(
+      (relation) => relation.confidence === 'inferred'
+    ).length,
     warnings
   };
 }
@@ -550,6 +599,14 @@ function isConnectedToSelectedBoundary(
   });
 }
 
+function isPackageBoundaryExternal(entity) {
+  const packageName = entity.key.startsWith('external:')
+    ? entity.key.slice('external:'.length)
+    : entity.name;
+  const segments = packageName.split('/').filter(Boolean);
+  return packageName.startsWith('@') ? segments.length === 2 : segments.length === 1;
+}
+
 function findStructuralPath(context, source, target, maxDepth) {
   const queue = [{ key: source, path: [] }];
   const visited = new Set([source]);
@@ -587,30 +644,78 @@ function findStructuralPath(context, source, target, maxDepth) {
 }
 
 function isDetailedEntity(entity, context) {
+  if (['file', 'method', 'external'].includes(entity.kind)) return false;
   if (entity.metadata?.nest?.role) return true;
   if (DETAIL_ENTITY_PATTERN.test(entity.name)) return true;
   if (entity.exported && ['class', 'interface', 'function', 'variable'].includes(entity.kind)) {
     return true;
   }
-  if (entity.kind === 'method') {
-    return (context.incoming.get(entity.key) ?? []).some(
-      (relation) => relation.verb === 'calls'
-    );
-  }
+  void context;
   return false;
 }
 
-function shouldIncludeDetailedNeighbor(entity, relation, scope) {
-  if (!entity || entity.kind === 'file') return false;
-  if (isPathInScope(entity.filePath, scope)) {
-    return ['contains', 'calls', 'references', 'extends', 'implements'].includes(
-      relation.verb
-    );
-  }
+function selectDetailedNeighbor(
+  key,
+  relation,
+  scope,
+  context,
+  select
+) {
+  const entity = meaningfulContainer(key, context);
+  if (!entity || isTestPath(entity.filePath)) return;
   if (entity.kind === 'external') {
-    return IMPORTANT_EXTERNAL_PATTERN.test(`${entity.name} ${entity.filePath}`);
+    if (
+      isPackageBoundaryExternal(entity) &&
+      DETAIL_EXTERNAL_PATTERN.test(`${entity.name} ${entity.filePath}`)
+    ) {
+      select(entity);
+    }
+    return;
   }
-  return ['calls', 'references', 'extends', 'implements'].includes(relation.verb);
+  if (isPathInScope(entity.filePath, scope)) {
+    if (['contains', 'calls', 'references', 'extends', 'implements'].includes(relation.verb)) {
+      select(entity);
+    }
+    return;
+  }
+  if (['calls', 'references', 'extends', 'implements'].includes(relation.verb)) {
+    select(entity);
+  }
+}
+
+function meaningfulContainer(key, context) {
+  let entity = context.entities.get(key);
+  const visited = new Set();
+  while (
+    entity &&
+    ['file', 'method'].includes(entity.kind) &&
+    entity.containerKey &&
+    !visited.has(entity.key)
+  ) {
+    visited.add(entity.key);
+    entity = context.entities.get(entity.containerKey);
+  }
+  return entity && entity.kind !== 'file' ? entity : undefined;
+}
+
+function selectedRepresentative(key, selected, context) {
+  let entity = context.entities.get(key);
+  const visited = new Set();
+  while (entity && !visited.has(entity.key)) {
+    if (selected.has(entity.key)) return entity.key;
+    visited.add(entity.key);
+    entity = entity.containerKey
+      ? context.entities.get(entity.containerKey)
+      : undefined;
+  }
+  return undefined;
+}
+
+function isTestPath(filePath) {
+  return (
+    /(^|\/)(?:__tests__|test|tests)(\/|$)/i.test(filePath) ||
+    /\.(?:spec|test)\.[cm]?[jt]sx?$/i.test(filePath)
+  );
 }
 
 function addCuratedRelation(map, input) {
@@ -689,6 +794,41 @@ function chooseFrameworkRelation(map, input, priority) {
   }
 }
 
+function chooseDetailedRelation(map, input) {
+  const candidateMap = new Map();
+  addCuratedRelation(candidateMap, input);
+  const candidate = [...candidateMap.values()][0];
+  if (!candidate) return;
+  const key = `${candidate.source}\u0000${candidate.target}`;
+  const existing = map.get(key);
+  const candidatePriority = detailedRelationPriority(candidate.verb);
+  const existingPriority = existing
+    ? detailedRelationPriority(existing.verb)
+    : Number.POSITIVE_INFINITY;
+  if (
+    !existing ||
+    candidatePriority < existingPriority ||
+    (candidatePriority === existingPriority &&
+      (candidate.structuralPath.length < existing.structuralPath.length ||
+        (candidate.structuralPath.length === existing.structuralPath.length &&
+          compareText(
+            `${candidate.verb}\u0000${JSON.stringify(candidate.structuralPath)}`,
+            `${existing.verb}\u0000${JSON.stringify(existing.structuralPath)}`
+          ) < 0)))
+  ) {
+    map.set(key, candidate);
+  }
+}
+
+function detailedRelationPriority(verb) {
+  if (verb === 'extends' || verb === 'implements') return 0;
+  if (verb === 'imports' || verb === 'exports') return 1;
+  if (verb === 'contains') return 2;
+  if (verb === 'calls') return 3;
+  if (verb === 'references') return 4;
+  return 5;
+}
+
 function frameworkRelationPriority(verb, structuralRelation) {
   if (verb === 'imports') return 1;
   if (verb === 'exports') return 2;
@@ -733,8 +873,7 @@ function curatedEntityType(entity) {
   if (['class', 'interface', 'function', 'variable', 'file'].includes(entity.kind)) {
     return entity.kind;
   }
-  if (entity.kind === 'method') return 'function';
-  return 'other';
+  return 'component';
 }
 
 function deterministicEntityDescription(entity) {
@@ -759,64 +898,25 @@ function preserveSemanticCuration(candidate, existing) {
   const existingByAlias = new Map(
     existing.entities.map((entity) => [canonicalizeEntityKey(entity.key), entity])
   );
-  const keyMap = new Map();
   const entities = candidate.entities.map((entity) => {
     const prior = existingByAlias.get(canonicalizeEntityKey(entity.key));
     if (!prior) return entity;
-    keyMap.set(entity.key, prior.key);
     return {
       ...entity,
-      key: prior.key,
-      name: prior.name,
-      type: prior.type,
       ...(prior.description ? { description: prior.description } : {})
     };
   });
-  const canonicalEntityKeys = new Set(
-    entities.map((entity) => canonicalizeEntityKey(entity.key))
-  );
-  const agentEndpointKeys = new Set(
-    existing.relations
-      .filter((relation) => relation.origin === 'agent')
-      .flatMap((relation) => [relation.source, relation.target])
-  );
-  for (const entity of existing.entities) {
-    if (
-      agentEndpointKeys.has(entity.key) &&
-      !canonicalEntityKeys.has(canonicalizeEntityKey(entity.key))
-    ) {
-      entities.push(entity);
-      canonicalEntityKeys.add(canonicalizeEntityKey(entity.key));
-    }
-  }
-  const entityKeys = new Set(entities.map((entity) => entity.key));
   const existingRelations = new Map(
     existing.relations.map((relation) => [curatedRelationAlias(relation), relation])
   );
   const relations = candidate.relations.map((relation) => {
-    const rewritten = {
-      ...relation,
-      source: keyMap.get(relation.source) ?? relation.source,
-      target: keyMap.get(relation.target) ?? relation.target
-    };
-    const prior = existingRelations.get(curatedRelationAlias(rewritten));
-    if (!prior) return rewritten;
+    const prior = existingRelations.get(curatedRelationAlias(relation));
+    if (!prior) return relation;
     return {
-      ...rewritten,
+      ...relation,
       ...(prior.description ? { description: prior.description } : {})
     };
   });
-  const relationAliases = new Set(relations.map(curatedRelationAlias));
-  for (const relation of existing.relations) {
-    if (
-      relation.origin === 'agent' &&
-      entityKeys.has(relation.source) &&
-      entityKeys.has(relation.target) &&
-      !relationAliases.has(curatedRelationAlias(relation))
-    ) {
-      relations.push(relation);
-    }
-  }
   return {
     ...candidate,
     name: existing.name,
@@ -837,29 +937,11 @@ function curatedRelationAlias(relation) {
 
 function normalizeExistingDocument(value, generatedAt) {
   if (value === undefined || value === null) {
-    return { version: 2, generatedAt: generatedAt ?? new Date().toISOString(), scope: '.', groups: [] };
+    return { version: 1, generatedAt: generatedAt ?? new Date().toISOString(), scope: '.', groups: [] };
   }
   const document = JSON.parse(JSON.stringify(value));
-  if (document.version === 1) {
-    return {
-      version: 2,
-      generatedAt: document.generatedAt,
-      scope: document.scope ?? '.',
-      groups: [
-        {
-          key: 'framework',
-          name: 'Framework',
-          kind: 'framework',
-          order: 0,
-          scope: document.scope ?? '.',
-          entities: document.entities ?? [],
-          relations: document.relations ?? []
-        }
-      ]
-    };
-  }
-  if (document.version !== 2 || !Array.isArray(document.groups)) {
-    throw new Error('Existing agent graph must be version 1 or version 2');
+  if (document.version !== 1 || !Array.isArray(document.groups)) {
+    throw new Error('Existing agent graph must use the version 1 grouped format');
   }
   return document;
 }

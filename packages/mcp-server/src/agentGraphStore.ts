@@ -30,17 +30,12 @@ const entityTypeSchema = z.enum([
   'interface',
   'variable',
   'file',
-  'directory',
   'api',
-  'config',
-  'database',
   'service',
   'component',
-  'external',
-  'other'
+  'external'
 ]);
 const relationVerbSchema = z.enum([
-  'uses',
   'calls',
   'extends',
   'implements',
@@ -103,21 +98,26 @@ const structuralHopSchema = z
     message: 'endLine must be greater than or equal to startLine'
   });
 
-const relationSchema = z.object({
-  source: nonEmptyString,
-  target: nonEmptyString,
-  verb: relationVerbSchema,
-  origin: relationOriginSchema.optional(),
-  confidence: relationConfidenceSchema.optional(),
-  evidence: z.array(evidenceSchema).min(1),
-  structuralPath: z.array(structuralHopSchema).min(1).optional(),
-  description: nonEmptyString.optional()
-});
-
-const groupContentsSchema = z.object({
-  entities: z.array(entitySchema),
-  relations: z.array(relationSchema)
-});
+const relationSchema = z
+  .object({
+    source: nonEmptyString,
+    target: nonEmptyString,
+    verb: relationVerbSchema,
+    origin: relationOriginSchema,
+    confidence: relationConfidenceSchema,
+    evidence: z.array(evidenceSchema).min(1),
+    structuralPath: z.array(structuralHopSchema).min(1).optional(),
+    description: nonEmptyString.optional()
+  })
+  .superRefine((relation, context) => {
+    if (relation.origin !== 'agent' && relation.structuralPath === undefined) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['structuralPath'],
+        message: `is required for ${relation.origin} relations`
+      });
+    }
+  });
 
 const groupSchema = z
   .object({
@@ -137,24 +137,9 @@ const groupSchema = z
     validateGroupContents(group, context, []);
   });
 
-const legacyDocumentSchema = z
-  .object({
-    version: z.literal(1),
-    generatedAt: nonEmptyString.refine(
-      isIsoTimestamp,
-      'must be a valid ISO-8601 timestamp'
-    ),
-    scope: scopeSchema.optional(),
-    entities: z.array(entitySchema),
-    relations: z.array(relationSchema)
-  })
-  .superRefine((document, context) => {
-    validateGroupContents(document, context, []);
-  });
-
 const groupedDocumentSchema = z
   .object({
-    version: z.literal(2),
+    version: z.literal(1),
     generatedAt: nonEmptyString.refine(
       isIsoTimestamp,
       'must be a valid ISO-8601 timestamp'
@@ -207,7 +192,7 @@ const groupedDocumentSchema = z
     }
   });
 
-const documentSchema = z.union([legacyDocumentSchema, groupedDocumentSchema]);
+const documentSchema = groupedDocumentSchema;
 
 type ParsedEntity = z.infer<typeof entitySchema>;
 type ParsedRelation = z.infer<typeof relationSchema>;
@@ -271,8 +256,8 @@ export interface AgentGraphRelationRecord extends RelationRecord {
   evidence: AgentGraphEvidence[];
   structuralPath?: AgentGraphStructuralHop[];
   description: string | null;
-  origin?: AgentGraphRelationOrigin;
-  confidence?: AgentGraphRelationConfidence;
+  origin: AgentGraphRelationOrigin;
+  confidence: AgentGraphRelationConfidence;
   generatedAt: string;
 }
 
@@ -493,7 +478,7 @@ export class AgentGraphStore {
 }
 
 function validateGroupContents(
-  group: z.infer<typeof groupContentsSchema>,
+  group: Pick<ParsedGroup, 'entities' | 'relations'>,
   context: z.RefinementCtx,
   pathPrefix: Array<string | number>
 ): void {
@@ -566,31 +551,13 @@ function validateGroupContents(
 function normalizeDocument(
   document: z.infer<typeof documentSchema>
 ): NormalizedDocument {
-  if (document.version === 2) {
-    return {
-      generatedAt: document.generatedAt,
-      scope: document.scope,
-      groups: [...document.groups].sort(
-        (left, right) =>
-          left.order - right.order || left.name.localeCompare(right.name)
-      )
-    };
-  }
-
   return {
     generatedAt: document.generatedAt,
     scope: document.scope,
-    groups: [
-      {
-        key: 'framework',
-        name: 'Framework',
-        kind: 'framework',
-        order: 0,
-        scope: document.scope,
-        entities: document.entities,
-        relations: document.relations
-      }
-    ]
+    groups: [...document.groups].sort(
+      (left, right) =>
+        left.order - right.order || left.name.localeCompare(right.name)
+    )
   };
 }
 

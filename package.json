@@ -63,14 +63,6 @@
         "icon": "$(save-as)"
       },
       {
-        "command": "knowledge.importGraph",
-        "title": "Knowledge: Import Graph"
-      },
-      {
-        "command": "knowledge.clearGraph",
-        "title": "Knowledge: Clear Graph"
-      },
-      {
         "command": "knowledge.settings",
         "title": "Knowledge: Settings"
       },

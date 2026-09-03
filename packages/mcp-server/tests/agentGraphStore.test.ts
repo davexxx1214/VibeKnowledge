@@ -36,7 +36,7 @@ describe('AgentGraphStore', () => {
     expect(store.searchRelations()).toEqual([]);
   });
 
-  it('reads a valid v1 graph and creates stable IDs', () => {
+  it('reads a valid grouped graph and creates stable IDs', () => {
     writeGraph(store.filePath, validGraph());
 
     const firstEntities = store.searchEntities({ limit: 100 });
@@ -77,13 +77,13 @@ describe('AgentGraphStore', () => {
         detail: 'constructor injection'
       }
     ]);
-    expect(firstRelations[0].origin).toBeUndefined();
-    expect(firstRelations[0].confidence).toBeUndefined();
+    expect(firstRelations[0].origin).toBe('agent');
+    expect(firstRelations[0].confidence).toBe('review_required');
 
     const updated = validGraph();
     updated.generatedAt = '2026-08-22T01:02:03.000Z';
-    updated.entities[0].description = 'updated prose';
-    updated.relations[0].description = 'updated prose';
+    updated.groups[0].entities[0].description = 'updated prose';
+    updated.groups[0].relations[0].description = 'updated prose';
     writeGraph(store.filePath, updated);
 
     expect(store.searchEntities({ limit: 100 }).map(({ id }) => id)).toEqual(
@@ -94,7 +94,7 @@ describe('AgentGraphStore', () => {
     );
   });
 
-  it('reads v2 groups and preserves repeated symbols as separate occurrences', () => {
+  it('preserves repeated symbols as separate group occurrences', () => {
     writeGraph(store.filePath, validGroupedGraph());
 
     const entities = store.searchEntities({ query: 'UserService', limit: 100 });
@@ -139,7 +139,7 @@ describe('AgentGraphStore', () => {
     ]);
   });
 
-  it('preserves optional relation provenance without changing graph version', () => {
+  it('preserves required relation provenance and structural paths', () => {
     const graph = validGroupedGraph();
     graph.groups[0].relations[0].origin = 'resolver';
     graph.groups[0].relations[0].confidence = 'inferred';
@@ -182,7 +182,7 @@ describe('AgentGraphStore', () => {
     expect(store.searchEntities({ filePath: 'src/' })).toHaveLength(3);
     expect(store.searchEntities({ limit: 1 })).toHaveLength(1);
 
-    expect(store.searchRelations({ verb: 'uses' })).toHaveLength(1);
+    expect(store.searchRelations({ verb: 'depends_on' })).toHaveLength(1);
     expect(store.searchRelations({ source: 'USER' })).toHaveLength(1);
     expect(store.searchRelations({ source: 'core:user-service' })).toHaveLength(
       1
@@ -213,7 +213,7 @@ describe('AgentGraphStore', () => {
       'a duplicate entity key',
       () => {
         const graph = validGraph();
-        graph.entities.push({ ...graph.entities[0] });
+        graph.groups[0].entities.push({ ...graph.groups[0].entities[0] });
         return graph;
       }
     ],
@@ -221,8 +221,8 @@ describe('AgentGraphStore', () => {
       'a canonical entity key collision',
       () => {
         const graph = validGraph();
-        graph.entities.push({
-          ...graph.entities[0],
+        graph.groups[0].entities.push({
+          ...graph.groups[0].entities[0],
           key: ' CORE::USER---SERVICE '
         });
         return graph;
@@ -232,7 +232,7 @@ describe('AgentGraphStore', () => {
       'an invalid entity path',
       () => {
         const graph = validGraph();
-        graph.entities[0].filePath = '../user.ts';
+        graph.groups[0].entities[0].filePath = '../user.ts';
         return graph;
       }
     ],
@@ -240,15 +240,15 @@ describe('AgentGraphStore', () => {
       'an invalid entity line range',
       () => {
         const graph = validGraph();
-        graph.entities[0].endLine = 0;
+        graph.groups[0].entities[0].endLine = 0;
         return graph;
       }
     ],
     [
-      'an unsupported entity type',
+      'a removed catch-all entity type',
       () => {
         const graph = validGraph();
-        graph.entities[0].type = 'guess';
+        graph.groups[0].entities[0].type = 'other';
         return graph;
       }
     ],
@@ -256,7 +256,7 @@ describe('AgentGraphStore', () => {
       'a dangling relation endpoint',
       () => {
         const graph = validGraph();
-        graph.relations[0].target = 'missing';
+        graph.groups[0].relations[0].target = 'missing';
         return graph;
       }
     ],
@@ -264,7 +264,7 @@ describe('AgentGraphStore', () => {
       'a self relation',
       () => {
         const graph = validGraph();
-        graph.relations[0].target = graph.relations[0].source;
+        graph.groups[0].relations[0].target = graph.groups[0].relations[0].source;
         return graph;
       }
     ],
@@ -272,15 +272,15 @@ describe('AgentGraphStore', () => {
       'a duplicate relation edge',
       () => {
         const graph = validGraph();
-        graph.relations.push({ ...graph.relations[0] });
+        graph.groups[0].relations.push({ ...graph.groups[0].relations[0] });
         return graph;
       }
     ],
     [
-      'an unsupported relation verb',
+      'the removed uses relation verb',
       () => {
         const graph = validGraph();
-        graph.relations[0].verb = 'guesses';
+        graph.groups[0].relations[0].verb = 'uses';
         return graph;
       }
     ],
@@ -288,7 +288,7 @@ describe('AgentGraphStore', () => {
       'an unsupported relation origin',
       () => {
         const graph = validGraph();
-        graph.relations[0].origin = 'parser';
+        graph.groups[0].relations[0].origin = 'parser';
         return graph;
       }
     ],
@@ -296,7 +296,7 @@ describe('AgentGraphStore', () => {
       'an unsupported relation confidence',
       () => {
         const graph = validGraph();
-        graph.relations[0].confidence = 'certain';
+        graph.groups[0].relations[0].confidence = 'certain';
         return graph;
       }
     ],
@@ -304,7 +304,7 @@ describe('AgentGraphStore', () => {
       'missing relation evidence',
       () => {
         const graph = validGraph();
-        graph.relations[0].evidence = [];
+        graph.groups[0].relations[0].evidence = [];
         return graph;
       }
     ],
@@ -312,7 +312,7 @@ describe('AgentGraphStore', () => {
       'invalid evidence',
       () => {
         const graph = validGraph();
-        graph.relations[0].evidence[0].filePath = 'src\\user.ts';
+        graph.groups[0].relations[0].evidence[0].filePath = 'src\\user.ts';
         return graph;
       }
     ],
@@ -320,8 +320,8 @@ describe('AgentGraphStore', () => {
       'an invalid evidence line range',
       () => {
         const graph = validGraph();
-        graph.relations[0].evidence[0].startLine = 12;
-        graph.relations[0].evidence[0].endLine = 4;
+        graph.groups[0].relations[0].evidence[0].startLine = 12;
+        graph.groups[0].relations[0].evidence[0].endLine = 4;
         return graph;
       }
     ]
@@ -355,57 +355,49 @@ function validGraph(): Record<string, any> {
     version: 1,
     generatedAt: '2026-08-21T01:02:03.000Z',
     scope: 'packages/core',
-    entities: [
+    groups: [
       {
-        key: 'core:user-service',
-        name: 'UserService',
-        type: 'service',
-        filePath: 'src/user.ts',
-        startLine: 1,
-        endLine: 80,
-        description: 'Manages users'
-      },
-      {
-        key: 'core:auth-service',
-        name: 'AuthService',
-        type: 'service',
-        filePath: 'src/auth.ts',
-        startLine: 1,
-        endLine: 50
-      },
-      {
-        key: 'core:logger',
-        name: 'Logger',
-        type: 'function',
-        filePath: 'src/logger.ts',
-        startLine: 5,
-        endLine: 12
+        key: 'framework',
+        name: 'Framework',
+        kind: 'framework',
+        order: 0,
+        entities: baseEntities(),
+        relations: baseRelations()
       }
-    ],
-    relations: [
+    ]
+  };
+}
+
+function validGroupedGraph(): Record<string, any> {
+  const base = validGraph();
+  const framework = base.groups[0];
+  return {
+    version: 1,
+    generatedAt: base.generatedAt,
+    scope: base.scope,
+    groups: [
       {
-        source: 'core:user-service',
-        target: 'core:auth-service',
-        verb: 'uses',
-        evidence: [
-          {
-            filePath: 'src/user.ts',
-            startLine: 12,
-            endLine: 13,
-            detail: 'constructor injection'
-          }
-        ],
-        description: 'User operations require authorization'
+        key: 'framework',
+        name: 'Framework',
+        kind: 'framework',
+        order: 0,
+        entities: framework.entities.slice(0, 2),
+        relations: framework.relations.slice(0, 1)
       },
       {
-        source: 'core:auth-service',
-        target: 'core:logger',
-        verb: 'calls',
-        evidence: [
+        key: 'checkout',
+        name: 'Checkout',
+        kind: 'feature',
+        order: 1,
+        entities: [framework.entities[0], framework.entities[2]],
+        relations: [
           {
-            filePath: 'src/auth.ts',
-            startLine: 20,
-            detail: 'AuthService logs failed attempts'
+            source: 'core:user-service',
+            target: 'core:logger',
+            verb: 'calls',
+            origin: 'agent',
+            confidence: 'review_required',
+            evidence: [{ filePath: 'src/user.ts', startLine: 30 }]
           }
         ]
       }
@@ -413,36 +405,42 @@ function validGraph(): Record<string, any> {
   };
 }
 
-function validGroupedGraph(): Record<string, any> {
-  const legacy = validGraph();
-  return {
-    version: 2,
-    generatedAt: legacy.generatedAt,
-    scope: legacy.scope,
-    groups: [
-      {
-        key: 'framework',
-        name: 'Framework',
-        kind: 'framework',
-        order: 0,
-        entities: legacy.entities.slice(0, 2),
-        relations: legacy.relations.slice(0, 1)
-      },
-      {
-        key: 'checkout',
-        name: 'Checkout',
-        kind: 'feature',
-        order: 1,
-        entities: [legacy.entities[0], legacy.entities[2]],
-        relations: [
-          {
-            source: 'core:user-service',
-            target: 'core:logger',
-            verb: 'calls',
-            evidence: [{ filePath: 'src/user.ts', startLine: 30 }]
-          }
-        ]
-      }
-    ]
-  };
+function baseEntities(): Array<Record<string, any>> {
+  return [
+    {
+      key: 'core:user-service', name: 'UserService', type: 'service',
+      filePath: 'src/user.ts', startLine: 1, endLine: 80,
+      description: 'Manages users'
+    },
+    {
+      key: 'core:auth-service', name: 'AuthService', type: 'service',
+      filePath: 'src/auth.ts', startLine: 1, endLine: 50
+    },
+    {
+      key: 'core:logger', name: 'Logger', type: 'function',
+      filePath: 'src/logger.ts', startLine: 5, endLine: 12
+    }
+  ];
+}
+
+function baseRelations(): Array<Record<string, any>> {
+  return [
+    {
+      source: 'core:user-service', target: 'core:auth-service',
+      verb: 'depends_on', origin: 'agent', confidence: 'review_required',
+      evidence: [{
+        filePath: 'src/user.ts', startLine: 12, endLine: 13,
+        detail: 'constructor injection'
+      }],
+      description: 'User operations require authorization'
+    },
+    {
+      source: 'core:auth-service', target: 'core:logger',
+      verb: 'calls', origin: 'agent', confidence: 'review_required',
+      evidence: [{
+        filePath: 'src/auth.ts', startLine: 20,
+        detail: 'AuthService logs failed attempts'
+      }]
+    }
+  ];
 }

@@ -28,8 +28,8 @@ try {
   process.exit(1);
 }
 
-if (graph?.version !== 2 || !Array.isArray(graph.groups) || graph.groups.length === 0) {
-  console.error('Cannot render Markdown: expected a version-2 graph with non-empty groups');
+if (graph?.version !== 1 || !Array.isArray(graph.groups) || graph.groups.length === 0) {
+  console.error('Cannot render Markdown: expected a version-1 grouped graph with non-empty groups');
   process.exit(1);
 }
 
@@ -128,7 +128,7 @@ for (const group of groups) {
         })
         .join('<br>');
       lines.push(
-        `| ${cell(entityNames.get(relation.source) || relation.source)} | ${cell(relation.verb)} | ${cell(entityNames.get(relation.target) || relation.target)} | ${cell(relation.origin || '—')} | ${cell(relation.confidence || '—')} | ${cell(relation.description || '—')} | ${cell(evidence)} | ${cell(structuralPath || '—')} |`
+        `| ${cell(entityNames.get(relation.source) || relation.source)} | ${cell(relation.verb)} | ${cell(entityNames.get(relation.target) || relation.target)} | ${cell(relation.origin)} | ${cell(relation.confidence)} | ${cell(relation.description || '—')} | ${cell(evidence)} | ${cell(structuralPath || '—')} |`
       );
     }
   }
@@ -200,7 +200,7 @@ function renderAgentContext() {
     } else {
       for (const relation of group.relations) {
         groupLines.push(
-          `| ${cell(entityNames.get(relation.source) || relation.source)} | ${cell(relation.verb)} | ${cell(entityNames.get(relation.target) || relation.target)} | ${cell(relation.origin || '—')} | ${cell(relation.confidence || '—')} |`
+          `| ${cell(entityNames.get(relation.source) || relation.source)} | ${cell(relation.verb)} | ${cell(entityNames.get(relation.target) || relation.target)} | ${cell(relation.origin)} | ${cell(relation.confidence)} |`
         );
       }
     }

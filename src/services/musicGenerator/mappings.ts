@@ -58,7 +58,6 @@ export const ENTITY_MUSIC_MAPPINGS: Record<EntityType, EntityMusicMapping> = {
     room: 0.7,
     slow: 6,
   },
-  // 其他类型使用默认配置
   file: {
     entityType: 'file',
     sound: 'sine',
@@ -66,34 +65,12 @@ export const ENTITY_MUSIC_MAPPINGS: Record<EntityType, EntityMusicMapping> = {
     gain: 0.1,
     room: 0.4,
   },
-  directory: {
-    entityType: 'directory',
-    sound: 'sine',
-    baseNote: { name: 'f', octave: 3 },
-    gain: 0.1,
-    room: 0.5,
-  },
   api: {
     entityType: 'api',
     sound: 'triangle',
     baseNote: { name: 'g', octave: 4 },
     gain: 0.2,
     delay: 0.2,
-  },
-  config: {
-    entityType: 'config',
-    sound: 'sine',
-    baseNote: { name: 'e', octave: 3 },
-    gain: 0.1,
-    slow: 4,
-  },
-  database: {
-    entityType: 'database',
-    sound: 'sawtooth',
-    baseNote: { name: 'a', octave: 2 },
-    gain: 0.2,
-    lpf: 300,
-    slow: 8,
   },
   service: {
     entityType: 'service',
@@ -109,12 +86,6 @@ export const ENTITY_MUSIC_MAPPINGS: Record<EntityType, EntityMusicMapping> = {
     gain: 0.2,
     room: 0.5,
   },
-  other: {
-    entityType: 'other',
-    sound: 'sine',
-    baseNote: { name: 'b', octave: 4 },
-    gain: 0.1,
-  },
 };
 
 /**
@@ -123,7 +94,7 @@ export const ENTITY_MUSIC_MAPPINGS: Record<EntityType, EntityMusicMapping> = {
  * 设计理念：
  * - extends: 五度进行 (I → V)，稳定的继承关系
  * - implements: 四度进行 (I → IV)，接口实现的张力
- * - uses/depends_on: 平行小调 (i → iv)，依赖关系的流动
+ * - depends_on: 平行小调 (i → iv)，依赖关系的流动
  * - imports: 半音下行，外部引入的过渡感
  */
 export const RELATION_MUSIC_MAPPINGS: Record<RelationVerb, RelationMusicMapping> = {
@@ -136,11 +107,6 @@ export const RELATION_MUSIC_MAPPINGS: Record<RelationVerb, RelationMusicMapping>
     verb: 'implements',
     chordProgression: ['c3', 'f3', 'c3', 'f3'],
     description: '四度进行 (I → IV)',
-  },
-  uses: {
-    verb: 'uses',
-    chordProgression: ['am3', 'dm3', 'am3', 'em3'],
-    description: '平行小调进行',
   },
   depends_on: {
     verb: 'depends_on',

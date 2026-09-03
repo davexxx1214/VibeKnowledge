@@ -38,8 +38,8 @@ export interface AgentGraphRelationInput {
   target: string;
   verb: RelationVerb;
   description?: string;
-  origin?: AgentGraphRelationOrigin;
-  confidence?: AgentGraphRelationConfidence;
+  origin: AgentGraphRelationOrigin;
+  confidence: AgentGraphRelationConfidence;
   evidence: AgentGraphEvidence[];
   structuralPath?: AgentGraphStructuralHop[];
 }
@@ -58,7 +58,7 @@ export interface AgentGraphGroupInput {
 }
 
 export interface AgentGraphDocument {
-  version: 2;
+  version: 1;
   generatedAt: string;
   scope?: string;
   groups: AgentGraphGroupInput[];
@@ -79,8 +79,8 @@ export interface AgentRelation extends Relation {
   groupName: string;
   groupKind: AgentGraphGroupKind;
   groupOrder: number;
-  extractionOrigin?: AgentGraphRelationOrigin;
-  confidence?: AgentGraphRelationConfidence;
+  extractionOrigin: AgentGraphRelationOrigin;
+  confidence: AgentGraphRelationConfidence;
   structuralPath?: AgentGraphStructuralHop[];
 }
 

@@ -489,7 +489,6 @@ export class AIIntegrationService {
     // 显示关系类型说明
     content += `### 关系类型说明\n\n`;
     const relationTypeDescCN: Record<string, string> = {
-      'uses': '使用/依赖',
       'calls': '调用',
       'implements': '实现',
       'extends': '继承',
@@ -603,7 +602,6 @@ export class AIIntegrationService {
     // 显示关系类型说明
     content += `### Relationship Types\n\n`;
     const relationTypeDescEN: Record<string, string> = {
-      'uses': 'Uses/Depends on',
       'calls': 'Calls',
       'implements': 'Implements',
       'extends': 'Extends',

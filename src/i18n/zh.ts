@@ -258,7 +258,7 @@ export const zh = {
       namePrompt: '便于阅读的分组名称',
       progress: '正在刷新结构事实并策展目标分组…',
       success: (name: string, entities: number, relations: number) =>
-        `已策展“${name}”：${entities} 个实体、${relations} 条关系；Agent 语义和其他分组均已保留。`,
+        `已策展“${name}”：${entities} 个实体、${relations} 条关系；匹配的描述和其他分组均已保留。`,
       openGraph: '打开 agent-graph.json',
       recoveryRequired: (error: string) =>
         `无法安全刷新现有结构图。请先检查源码变更，再决定是否强制全量重建。\n\n${error}`,
@@ -549,12 +549,11 @@ export const zh = {
     component: { label: 'component', description: 'UI 组件' },
     service: { label: 'service', description: '服务类' },
     api: { label: 'api', description: 'API 端点' },
-    config: { label: 'config', description: '配置' },
-    other: { label: 'other', description: '其他类型' }
+    file: { label: 'file', description: '源文件' },
+    external: { label: 'external', description: '外部系统或依赖' }
   },
 
   relationTypes: {
-    uses: { label: 'uses', description: '使用或利用' },
     calls: { label: 'calls', description: '调用' },
     extends: { label: 'extends', description: '继承' },
     implements: { label: 'implements', description: '实现接口' },

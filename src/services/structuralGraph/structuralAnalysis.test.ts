@@ -109,6 +109,26 @@ describe('structural graph analysis', () => {
 
     expect(findStructuralCycles(graph)).toEqual([]);
   });
+
+  it('uses containment as a navigation bridge between symbols and importing files', () => {
+    const graph = fixtureGraph();
+    graph.entities.push(
+      entity('src/a/a.ts', 'src/a/a.ts', 'src/a/a.ts', 'file'),
+      entity('src/module/module.ts', 'src/module/module.ts', 'src/module/module.ts', 'file')
+    );
+    graph.relations.push(
+      relation('src/a/a.ts', 'src/a/a.ts#A', 'contains', 'src/a/a.ts', 1),
+      relation('src/module/module.ts', 'src/a/a.ts', 'imports', 'src/module/module.ts', 1)
+    );
+
+    const impact = analyzeStructuralImpact(graph, 'src/a/a.ts#A', {
+      direction: 'upstream',
+      maxDepth: 2,
+    });
+    expect(impact.upstream.entities.map((entity) => entity.key)).toContain(
+      'src/module/module.ts'
+    );
+  });
 });
 
 function fixtureGraph(): StructuralGraphDocument {
@@ -163,7 +183,7 @@ function entity(
   key: string,
   name: string,
   filePath: string,
-  kind: 'class' | 'external' = 'class'
+  kind: 'class' | 'external' | 'file' = 'class'
 ) {
   return { key, name, kind, filePath, startLine: 1, endLine: 10 };
 }
@@ -171,7 +191,7 @@ function entity(
 function relation(
   source: string,
   target: string,
-  verb: 'calls' | 'references',
+  verb: 'calls' | 'references' | 'contains' | 'imports',
   filePath: string,
   startLine: number
 ) {

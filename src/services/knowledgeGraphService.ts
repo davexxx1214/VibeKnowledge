@@ -3,7 +3,6 @@ import type {
   AgentGraphGroupKind,
   AgentGraphService,
 } from './agentGraph';
-import type { EntityService } from './entityService';
 import type {
   Entity,
   EntityFilters,
@@ -13,7 +12,7 @@ import type {
 } from '../utils/types';
 import { canonicalizeEntityKey } from '../../resources/skills/vibeknowledge-dependency-graph/scripts/canonicalize-entity-key.mjs';
 
-export type KnowledgeGraphOrigin = 'manual' | 'agent';
+export type KnowledgeGraphOrigin = 'agent';
 
 export interface KnowledgeEntity extends Entity {
   origin: KnowledgeGraphOrigin;
@@ -55,10 +54,7 @@ export interface KnowledgeGraphGroup extends KnowledgeGraphSnapshot {
  * getGroups() intentionally retains those occurrences for visualization.
  */
 export class KnowledgeGraphService {
-  constructor(
-    private readonly entityService: EntityService,
-    private readonly agentGraphService: AgentGraphService
-  ) {}
+  constructor(private readonly agentGraphService: AgentGraphService) {}
 
   public refresh(): void {
     this.agentGraphService.refresh();
@@ -70,7 +66,6 @@ export class KnowledgeGraphService {
 
   public getSnapshot(): KnowledgeGraphSnapshot {
     const agentEntities = this.agentGraphService.listEntities();
-    const legacyDescriptions = this.getLegacyDescriptions();
     const finalEntityByKey = new Map<string, KnowledgeEntity>();
     const finalIdByAgentId = new Map<string, string>();
     const entities: KnowledgeEntity[] = [];
@@ -82,7 +77,7 @@ export class KnowledgeGraphService {
         finalIdByAgentId.set(agentEntity.id, existing.id);
         continue;
       }
-      const entity = this.toKnowledgeEntity(agentEntity, legacyDescriptions);
+      const entity = this.toKnowledgeEntity(agentEntity);
       entities.push(entity);
       finalEntityByKey.set(canonicalKey, entity);
       finalIdByAgentId.set(agentEntity.id, entity.id);
@@ -156,7 +151,6 @@ export class KnowledgeGraphService {
    */
   public getGroups(): KnowledgeGraphGroup[] {
     const agentGroups = this.agentGraphService.listGroups();
-    const legacyDescriptions = this.getLegacyDescriptions();
     return agentGroups.map((group) => ({
       key: group.key,
       name: group.name,
@@ -165,7 +159,7 @@ export class KnowledgeGraphService {
       description: group.description,
       scope: group.scope,
       entities: group.entities.map((agentEntity) =>
-        this.toKnowledgeEntity(agentEntity, legacyDescriptions)
+        this.toKnowledgeEntity(agentEntity)
       ),
       relations: group.relations.map((relation) => ({
         ...relation,
@@ -287,61 +281,20 @@ export class KnowledgeGraphService {
     if (!this.agentGraphService.resetManualDescription(entity.id)) {
       return null;
     }
-    const identity = entityIdentity(entity);
-    for (const legacyEntity of this.entityService.listEntities()) {
-      if (
-        typeof legacyEntity.description === 'string' &&
-        entityIdentity(legacyEntity) === identity
-      ) {
-        this.entityService.updateEntity(legacyEntity.id, {
-          description: undefined,
-        });
-      }
-    }
     return this.getEntity(entityId);
   }
 
-  /** Treat legacy manual entities as prose only, never as graph structure. */
-  private getLegacyDescriptions(): Map<string, string> {
-    const descriptions = new Map<string, string>();
-    for (const entity of this.entityService.listEntities()) {
-      if (typeof entity.description === 'string') {
-        descriptions.set(entityIdentity(entity), entity.description);
-      }
-    }
-    return descriptions;
-  }
-
-  private toKnowledgeEntity(
-    agentEntity: AgentEntity,
-    legacyDescriptions: ReadonlyMap<string, string>
-  ): KnowledgeEntity {
-    const hasStableKeyOverride =
-      agentEntity.metadata?.descriptionSource === 'manual';
-    const legacyDescription = hasStableKeyOverride
-      ? undefined
-      : legacyDescriptions.get(entityIdentity(agentEntity));
+  private toKnowledgeEntity(agentEntity: AgentEntity): KnowledgeEntity {
     return {
       ...agentEntity,
-      description: legacyDescription ?? agentEntity.description,
       metadata: {
         ...(agentEntity.metadata || {}),
         knowledgeOrigin: 'agent',
-        ...(legacyDescription !== undefined
-          ? {
-              descriptionSource: 'manual',
-              legacyDescriptionOverride: true,
-            }
-          : {}),
       },
       origin: 'agent',
       agentKey: agentEntity.key,
     };
   }
-}
-
-export function entityIdentity(entity: Pick<Entity, 'name' | 'filePath'>): string {
-  return canonicalizeEntityKey(`${entity.filePath}#${entity.name}`);
 }
 
 export function normalizeKnowledgeFilePath(filePath: string): string {

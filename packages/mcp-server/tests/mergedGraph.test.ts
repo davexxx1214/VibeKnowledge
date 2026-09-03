@@ -31,44 +31,38 @@ describe('merged graph queries', () => {
       JSON.stringify({
         version: 1,
         generatedAt: '2026-08-21T01:02:03.000Z',
-        entities: [
+        groups: [
           {
-            key: 'agent-user',
-            name: 'UserService',
-            type: 'service',
-            filePath: 'src/user.ts',
-            startLine: 2,
-            endLine: 70
-          },
-          {
-            key: 'agent-auth',
-            name: 'AuthService',
-            type: 'service',
-            filePath: 'src/auth.ts',
-            startLine: 1,
-            endLine: 50
-          },
-          {
-            key: 'agent-logger',
-            name: 'Logger',
-            type: 'function',
-            filePath: 'src/logger.ts',
-            startLine: 1,
-            endLine: 10
-          }
-        ],
-        relations: [
-          {
-            source: 'agent-user',
-            target: 'agent-auth',
-            verb: 'uses',
-            evidence: [{ filePath: 'src/user.ts', startLine: 10 }]
-          },
-          {
-            source: 'agent-auth',
-            target: 'agent-logger',
-            verb: 'calls',
-            evidence: [{ filePath: 'src/auth.ts', startLine: 20 }]
+            key: 'framework',
+            name: 'Framework',
+            kind: 'framework',
+            order: 0,
+            entities: [
+              {
+                key: 'agent-user', name: 'UserService', type: 'service',
+                filePath: 'src/user.ts', startLine: 2, endLine: 70
+              },
+              {
+                key: 'agent-auth', name: 'AuthService', type: 'service',
+                filePath: 'src/auth.ts', startLine: 1, endLine: 50
+              },
+              {
+                key: 'agent-logger', name: 'Logger', type: 'function',
+                filePath: 'src/logger.ts', startLine: 1, endLine: 10
+              }
+            ],
+            relations: [
+              {
+                source: 'agent-user', target: 'agent-auth', verb: 'depends_on',
+                origin: 'agent', confidence: 'review_required',
+                evidence: [{ filePath: 'src/user.ts', startLine: 10 }]
+              },
+              {
+                source: 'agent-auth', target: 'agent-logger', verb: 'calls',
+                origin: 'agent', confidence: 'review_required',
+                evidence: [{ filePath: 'src/auth.ts', startLine: 20 }]
+              }
+            ]
           }
         ]
       }),
@@ -80,7 +74,7 @@ describe('merged graph queries', () => {
     rmSync(workspaceRoot, { recursive: true, force: true });
   });
 
-  it('returns Agent entities and applies human description overrides', () => {
+  it('returns Agent entities and applies stable-key description overrides', () => {
     const db = createDbStub();
     const results = searchMergedEntities(db, agentGraph, { limit: 100 });
 
@@ -89,11 +83,7 @@ describe('merged graph queries', () => {
       'AuthService',
       'Logger'
     ]);
-    expect(results[0]).toMatchObject({
-      source: 'agent',
-      description: 'manual description wins',
-      metadata: { descriptionSource: 'manual' }
-    });
+    expect(results[0]).toMatchObject({ source: 'agent', description: null });
     expect(results.filter(({ name }) => name === 'UserService')).toHaveLength(1);
     expect(results.find(({ name }) => name === 'AuthService')).toMatchObject({
       description: 'Human-authored Auth description',
@@ -107,12 +97,9 @@ describe('merged graph queries', () => {
         .filter(({ source }) => source === 'agent')
         .map(({ name }) => name)
     ).toEqual(['AuthService']);
-    expect(
-      searchMergedEntities(db, agentGraph, {
-        query: 'manual description wins',
-        limit: 100
-      }).map(({ name }) => name)
-    ).toEqual(['UserService']);
+    expect(searchMergedEntities(db, agentGraph, {
+      query: 'manual description wins', limit: 100
+    })).toEqual([]);
   });
 
   it('returns only Agent-authored relations', () => {
@@ -120,11 +107,11 @@ describe('merged graph queries', () => {
     const results = searchMergedRelations(db, agentGraph, { limit: 100 });
 
     expect(results).toHaveLength(2);
-    expect(results[0]).toMatchObject({ verb: 'uses', source: 'agent' });
+    expect(results[0]).toMatchObject({ verb: 'depends_on', source: 'agent' });
     expect(results[1]).toMatchObject({ verb: 'calls', source: 'agent' });
   });
 
-  it('ignores legacy manual structure in graph queries', () => {
+  it('ignores SQLite structural rows in graph queries', () => {
     const db = createDbStub();
     const manualResults = Array.from({ length: 25 }, (_, index) => ({
       id: `manual-${index}`,
@@ -218,7 +205,7 @@ function createDbStub(): GraphDatabase {
   const manualRelations: RelationRecord[] = [
     {
       id: 'manual-relation',
-      verb: 'uses',
+      verb: 'references',
       createdAt: 2,
       sourceEntityId: 'manual-user',
       sourceName: 'UserService',

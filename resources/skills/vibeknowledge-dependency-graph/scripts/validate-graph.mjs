@@ -5,11 +5,11 @@ import { isAbsolute, resolve } from 'node:path';
 import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
 
 const ENTITY_TYPES = new Set([
-  'function', 'class', 'interface', 'variable', 'file', 'directory',
-  'api', 'config', 'database', 'service', 'component', 'external', 'other'
+  'function', 'class', 'interface', 'variable', 'file',
+  'api', 'service', 'component', 'external'
 ]);
 const RELATION_VERBS = new Set([
-  'uses', 'calls', 'extends', 'implements', 'depends_on',
+  'calls', 'extends', 'implements', 'depends_on',
   'contains', 'references', 'imports', 'exports'
 ]);
 const GROUP_KINDS = new Set(['framework', 'module', 'feature']);
@@ -221,11 +221,14 @@ function validateGroup(group, groupIndex) {
       if (!keys.has(relation.target)) errors.push(`${relationLabel}.target does not reference an entity key in this group`);
       if (relation.source === relation.target) errors.push(`${relationLabel} must not be a self relation`);
       if (!RELATION_VERBS.has(relation.verb)) errors.push(`${relationLabel}.verb is not supported`);
-      if (relation.origin !== undefined && !RELATION_ORIGINS.has(relation.origin)) {
-        errors.push(`${relationLabel}.origin must be ast, resolver, or agent when provided`);
+      if (!RELATION_ORIGINS.has(relation.origin)) {
+        errors.push(`${relationLabel}.origin must be ast, resolver, or agent`);
       }
-      if (relation.confidence !== undefined && !RELATION_CONFIDENCES.has(relation.confidence)) {
-        errors.push(`${relationLabel}.confidence must be extracted, inferred, or review_required when provided`);
+      if (!RELATION_CONFIDENCES.has(relation.confidence)) {
+        errors.push(`${relationLabel}.confidence must be extracted, inferred, or review_required`);
+      }
+      if (relation.origin !== 'agent' && relation.structuralPath === undefined) {
+        errors.push(`${relationLabel}.structuralPath is required for ${relation.origin || 'non-Agent'} relations`);
       }
       const relationKey = `${relation.source}\u0000${relation.target}\u0000${relation.verb}`;
       if (relationKeys.has(relationKey)) errors.push(`${relationLabel} duplicates an earlier relation in this group`);
@@ -331,7 +334,7 @@ function validateGroup(group, groupIndex) {
 if (!isRecord(graph)) {
   errors.push('root must be an object');
 } else {
-  if (graph.version !== 2) errors.push('version must be 2');
+  if (graph.version !== 1) errors.push('version must be 1');
   if (!isoTimestamp(graph.generatedAt)) {
     errors.push('generatedAt must be a valid ISO-8601 timestamp');
   }

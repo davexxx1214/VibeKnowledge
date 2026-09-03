@@ -1,7 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 import { KnowledgeGraphService } from './knowledgeGraphService';
-import type { EntityService } from './entityService';
-import type { Entity } from '../utils/types';
 import type {
   AgentEntity,
   AgentGraphGroupSnapshot,
@@ -168,46 +166,6 @@ describe('KnowledgeGraphService', () => {
     expect(resetManualDescription).toHaveBeenCalledWith('framework-a');
   });
 
-  it('uses legacy manual entities as descriptions without adding their structure', () => {
-    const agent = agentEntity('framework-a', 'key-a', 'A', 'src/a.ts');
-    const legacyA = legacyEntity('legacy-a', 'A', 'src/a.ts', 'Legacy prose');
-    const legacyOnly = legacyEntity(
-      'legacy-only',
-      'LegacyOnly',
-      'src/legacy.ts',
-      'Must not become a node'
-    );
-    const resetManualDescription = vi.fn(() => {
-      agent.description = 'Agent prose';
-      return agent;
-    });
-    const service = createService(
-      [agent],
-      [],
-      [group(frameworkGroup, [agent], [])],
-      {
-        legacyEntities: [legacyA, legacyOnly],
-        resetManualDescription,
-      }
-    );
-
-    expect(service.getSnapshot().entities).toEqual([
-      expect.objectContaining({
-        id: 'framework-a',
-        description: 'Legacy prose',
-        metadata: expect.objectContaining({
-          legacyDescriptionOverride: true,
-        }),
-      }),
-    ]);
-
-    expect(service.resetGeneratedDescription('framework-a')).toMatchObject({
-      description: 'Agent prose',
-    });
-    expect(legacyA.description).toBeUndefined();
-    expect(legacyOnly.description).toBe('Must not become a node');
-  });
-
   it('finds Agent entities and related entities from an editor location', () => {
     const a = agentEntity('framework-a', 'key-a', 'A', 'src/a.ts');
     const b = agentEntity('framework-b', 'key-b', 'B', 'src/b.ts');
@@ -256,21 +214,8 @@ function createService(
   methods: {
     setManualDescription?: ReturnType<typeof vi.fn>;
     resetManualDescription?: ReturnType<typeof vi.fn>;
-    legacyEntities?: Entity[];
   } = {}
 ): KnowledgeGraphService {
-  const legacyEntities = methods.legacyEntities || [];
-  const entityService = {
-    listEntities: vi.fn(() => legacyEntities),
-    updateEntity: vi.fn((entityId: string, updates: Partial<Entity>) => {
-      const target = legacyEntities.find((entity) => entity.id === entityId);
-      if (!target) {
-        return null;
-      }
-      Object.assign(target, updates);
-      return target;
-    }),
-  } as unknown as EntityService;
   const agentGraphService = {
     refresh: vi.fn(),
     getLastError: vi.fn(),
@@ -280,7 +225,7 @@ function createService(
     setManualDescription: methods.setManualDescription || vi.fn(),
     resetManualDescription: methods.resetManualDescription || vi.fn(),
   } as unknown as AgentGraphService;
-  return new KnowledgeGraphService(entityService, agentGraphService);
+  return new KnowledgeGraphService(agentGraphService);
 }
 
 function group(
@@ -333,25 +278,8 @@ function agentRelation(
     sourceEntityId: source.id,
     targetEntityId: target.id,
     verb: 'depends_on',
+    extractionOrigin: 'agent',
+    confidence: 'review_required',
     createdAt: 1,
-  };
-}
-
-function legacyEntity(
-  id: string,
-  name: string,
-  filePath: string,
-  description: string
-): Entity {
-  return {
-    id,
-    name,
-    filePath,
-    description,
-    type: 'service',
-    startLine: 1,
-    endLine: 10,
-    createdAt: 1,
-    updatedAt: 1,
   };
 }

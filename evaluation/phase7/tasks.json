@@ -1,0 +1,103 @@
+[
+  {
+    "id": "locate-tag-sorting",
+    "category": "locate-feature",
+    "query": "Sort the tags returned by GET /tags and update the relevant unit test.",
+    "groupKey": "tag-management",
+    "expectedFiles": [
+      "src/tag/tag.controller.ts",
+      "src/tag/tag.service.ts",
+      "src/tag/tag.controller.spec.ts"
+    ],
+    "expectedTerms": ["TagController", "TagService", "TagEntity", "findAll"],
+    "mcp": {
+      "tool": "query_graph",
+      "arguments": {
+        "query": "Sort the tags returned by GET /tags and update the relevant unit test.",
+        "groupKey": "tag-management",
+        "depth": 2
+      }
+    }
+  },
+  {
+    "id": "test-invalid-login",
+    "category": "add-test",
+    "query": "Add a regression test for invalid password login returning HTTP 401.",
+    "groupKey": "user-management",
+    "expectedFiles": [
+      "src/user/user.controller.ts",
+      "src/user/user.service.ts",
+      "src/user/dto/login-user.dto.ts"
+    ],
+    "expectedTerms": ["UserController", "UserService", "LoginUserDto", "findOne", "argon2"],
+    "mcp": {
+      "tool": "query_graph",
+      "arguments": {
+        "query": "Add a regression test for invalid password login returning HTTP 401.",
+        "groupKey": "user-management",
+        "depth": 2
+      }
+    }
+  },
+  {
+    "id": "modify-article-favorite",
+    "category": "modify-api",
+    "query": "Change the article favorite endpoint and assess persistence impact on users and articles.",
+    "groupKey": "article-management",
+    "expectedFiles": [
+      "src/article/article.controller.ts",
+      "src/article/article.service.ts",
+      "src/article/article.entity.ts",
+      "src/user/user.entity.ts"
+    ],
+    "expectedTerms": ["ArticleController", "ArticleService", "favorite", "ArticleEntity", "UserEntity"],
+    "mcp": {
+      "tool": "query_graph",
+      "arguments": {
+        "query": "Change the article favorite endpoint and assess persistence impact on users and articles.",
+        "groupKey": "article-management",
+        "depth": 2
+      }
+    }
+  },
+  {
+    "id": "impact-auth-middleware",
+    "category": "impact-analysis",
+    "query": "Assess which routes and modules are affected if bearer-token parsing in the authentication middleware changes.",
+    "groupKey": "framework",
+    "expectedFiles": [
+      "src/user/auth.middleware.ts",
+      "src/user/user.module.ts",
+      "src/article/article.module.ts",
+      "src/profile/profile.module.ts"
+    ],
+    "expectedTerms": ["AuthMiddleware", "UserModule", "ArticleModule", "ProfileModule"],
+    "mcp": {
+      "tool": "analyze_impact",
+      "arguments": {
+        "selector": "src/user/auth.middleware.ts#AuthMiddleware",
+        "direction": "upstream",
+        "maxDepth": 3
+      }
+    }
+  },
+  {
+    "id": "trace-entity-cycle",
+    "category": "cycle-analysis",
+    "query": "Trace circular ORM entity relationships around articles, comments, and users before changing relation decorators.",
+    "groupKey": "article-management",
+    "expectedFiles": [
+      "src/article/article.entity.ts",
+      "src/article/comment.entity.ts",
+      "src/user/user.entity.ts"
+    ],
+    "expectedTerms": ["ArticleEntity", "Comment", "UserEntity"],
+    "mcp": {
+      "tool": "analyze_structure",
+      "arguments": {
+        "analysis": "cycles",
+        "limit": 10
+      }
+    }
+  }
+]

@@ -106,7 +106,7 @@ describe('graph query MCP tools', () => {
     const text = getText(result.content);
 
     expect(text).toContain('UserService <user>');
-    expect(text).toContain('--uses-->');
+    expect(text).toContain('--depends_on-->');
     expect(text).toContain('--calls-->');
     expect(text).toContain('Logger <logger>');
   });
@@ -149,7 +149,7 @@ function createLogger(): Logger {
 
 function validGraph(): Record<string, unknown> {
   return {
-    version: 2,
+    version: 1,
     generatedAt: '2026-09-02T00:00:00.000Z',
     groups: [
       {
@@ -188,7 +188,9 @@ function validGraph(): Record<string, unknown> {
           {
             source: 'user',
             target: 'auth',
-            verb: 'uses',
+            verb: 'depends_on',
+            origin: 'agent',
+            confidence: 'review_required',
             evidence: [
               {
                 filePath: 'src/user.ts',
@@ -201,6 +203,8 @@ function validGraph(): Record<string, unknown> {
             source: 'auth',
             target: 'logger',
             verb: 'calls',
+            origin: 'agent',
+            confidence: 'review_required',
             evidence: [
               {
                 filePath: 'src/auth.ts',

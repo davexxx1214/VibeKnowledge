@@ -118,7 +118,7 @@ describe('structural condenser', () => {
     }
   });
 
-  it('expands a detailed scope through direct API, service, entity, and call paths', () => {
+  it('collapses a detailed scope to components and lifts method calls to their owners', () => {
     const structural = extractStructuralGraph({
       workspaceRoot: fixtureRoot,
       generatedAt,
@@ -135,27 +135,26 @@ describe('structural condenser', () => {
       expect.arrayContaining([
         'src/article/article.module.ts#ArticleModule',
         'src/article/article.controller.ts#ArticleController',
-        'src/article/article.controller.ts#ArticleController.list',
         'src/article/article.service.ts#ArticleService',
-        'src/article/article.service.ts#ArticleService.list',
         'src/article/article.entity.ts#ArticleEntity',
         'src/user/user.service.ts#UserService',
-        'src/user/user.service.ts#UserService.find',
+        'external:@nestjs/typeorm',
       ])
     );
+    expect(keys.some((key) => /\.(constructor|list|find)$/.test(key))).toBe(false);
     expect(keys.some((key) => key.includes('/tag/'))).toBe(false);
     expect(result.group.relations).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          source: 'src/article/article.service.ts#ArticleService.list',
-          target: 'src/user/user.service.ts#UserService.find',
+          source: 'src/article/article.service.ts#ArticleService',
+          target: 'src/user/user.service.ts#UserService',
           verb: 'calls',
         }),
       ])
     );
   });
 
-  it('refreshes one group while preserving stable curation and Agent-only semantics', () => {
+  it('refreshes one group while preserving prose and discarding unmatched old structure', () => {
     const structural = extractStructuralGraph({
       workspaceRoot: fixtureRoot,
       generatedAt,
@@ -198,7 +197,7 @@ describe('structural condenser', () => {
     articleGroup.entities.push({
       key: 'semantic:publish-policy',
       name: 'PublishPolicy',
-      type: 'other',
+      type: 'class',
       filePath: 'src/article/article.service.ts',
       startLine: 5,
       endLine: 14,
@@ -207,7 +206,7 @@ describe('structural condenser', () => {
     articleGroup.relations.push({
       source: service.key,
       target: 'semantic:publish-policy',
-      verb: 'uses',
+      verb: 'depends_on',
       origin: 'agent',
       confidence: 'review_required',
       description: '文章发布受业务策略约束。',
@@ -221,7 +220,15 @@ describe('structural condenser', () => {
     });
     const untouchedFramework = JSON.stringify(document.groups[0]);
 
-    const refreshed = mergeCuratedGroup(document, article, { generatedAt });
+    const regeneratedArticle = convergeStructuralGraph(structural, {
+      kind: 'feature',
+      scope: 'src/article',
+      key: 'article-management',
+      name: 'Article management',
+    }).group;
+    const refreshed = mergeCuratedGroup(document, regeneratedArticle, {
+      generatedAt,
+    });
     const refreshedArticle = refreshed.groups.find(
       (group) => group.key === 'article-management'
     )!;
@@ -232,23 +239,23 @@ describe('structural condenser', () => {
     expect(refreshedArticle.entities).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          key: 'SRC/article/article.service.ts#ArticleService',
-          name: '文章应用服务',
+          key: 'src/article/article.service.ts#ArticleService',
+          name: 'ArticleService',
+          type: 'service',
           description: '人工维护的职责说明。',
         }),
-        expect.objectContaining({ key: 'semantic:publish-policy' }),
       ])
     );
-    expect(refreshedArticle.relations).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          source: 'SRC/article/article.service.ts#ArticleService',
-          target: 'semantic:publish-policy',
-          origin: 'agent',
-          description: '文章发布受业务策略约束。',
-        }),
-      ])
-    );
+    expect(
+      refreshedArticle.entities.some(
+        (entity) => entity.key === 'semantic:publish-policy'
+      )
+    ).toBe(false);
+    expect(
+      refreshedArticle.relations.some(
+        (relation) => relation.target === 'semantic:publish-policy'
+      )
+    ).toBe(false);
   });
 });
 

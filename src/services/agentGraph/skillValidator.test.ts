@@ -44,7 +44,7 @@ function createFixture() {
 
 function graphWithEvidence(evidence: Array<Record<string, unknown>>) {
   return {
-    version: 2,
+    version: 1,
     generatedAt: '2026-08-21T12:00:00.000Z',
     scope: '.',
     groups: [
@@ -76,6 +76,8 @@ function graphWithEvidence(evidence: Array<Record<string, unknown>>) {
             source: 'src/a.ts#A',
             target: 'src/b.ts#B',
             verb: 'calls',
+            origin: 'agent',
+            confidence: 'review_required',
             evidence,
           },
         ],

@@ -210,7 +210,7 @@ describe('Formatters', () => {
       const relations: RelationRecord[] = [
         {
           id: 'r1',
-          verb: 'uses',
+          verb: 'references',
           createdAt: now,
           sourceEntityId: 'e1',
           sourceName: 'ServiceA',
@@ -225,13 +225,13 @@ describe('Formatters', () => {
 
       const result = formatRelationResults(relations);
 
-      expect(result).toContain('1. ServiceA [service] --uses--> ServiceB [service]');
+      expect(result).toContain('1. ServiceA [service] --references--> ServiceB [service]');
       expect(result).toContain('Source: /src/a.ts');
       expect(result).toContain('Target: /src/b.ts');
     });
 
     it('应该支持不同的关系动词', () => {
-      const verbs = ['uses', 'calls', 'extends', 'implements', 'depends_on'];
+      const verbs = ['references', 'calls', 'extends', 'implements', 'depends_on'];
 
       verbs.forEach((verb) => {
         const relations: RelationRecord[] = [

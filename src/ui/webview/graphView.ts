@@ -626,11 +626,6 @@ export class GraphView {
         }
 
         const uri = vscode.Uri.joinPath(workspaceFolders[0].uri, entity.filePath);
-        if (entity.type === 'directory') {
-            await vscode.commands.executeCommand('revealInExplorer', uri);
-            return;
-        }
-
         try {
             const document = await vscode.workspace.openTextDocument(uri);
             const editor = await vscode.window.showTextDocument(document);
@@ -1120,9 +1115,8 @@ export class GraphView {
             'component': '#E5C07B',
             'service': '#56B6C2',
             'api': '#D19A66',
-            'config': '#ABB2BF',
-            'external': '#888888',  // 外部模块使用灰色
-            'other': '#5C6370'
+            'file': '#ABB2BF',
+            'external': '#888888'  // 外部模块使用灰色
         };
 
         window.addEventListener('load', () => {
@@ -1369,7 +1363,7 @@ export class GraphView {
             const links = relations.map(r => ({
                 source: r.sourceId,
                 target: r.targetId,
-                sourceColor: typeColors[entityById.get(r.sourceId)?.type] || typeColors['other'],
+                sourceColor: typeColors[entityById.get(r.sourceId)?.type] || '#5C6370',
                 ...r
             }));
             
@@ -1437,7 +1431,7 @@ export class GraphView {
                 .attr('stroke-dasharray', d => d.isAgent ? '4, 4' : null)
                 .attr('class', d => d.isAgent ? 'link-flow' : null)
                 .attr('marker-end', d =>
-                    'url(#arrow-' + (entityById.get(d.sourceId)?.type || 'other') + ')'
+                    'url(#arrow-' + (entityById.get(d.sourceId)?.type || 'external') + ')'
                 );
 
             link.append('title').text(formatRelationTooltip);
@@ -1564,7 +1558,7 @@ export class GraphView {
             // Node circles
             node.append('circle')
                 .attr('r', 20)
-                .attr('fill', d => typeColors[d.type] || typeColors['other'])
+                .attr('fill', d => typeColors[d.type] || '#5C6370')
                 .attr('stroke', d => d.isAgent ? '#FFD166' : '#fff')
                 .attr('stroke-width', 1.5)
                 .attr('stroke-dasharray', d => d.isAgent ? '4, 2' : null)
@@ -1801,9 +1795,8 @@ export class GraphView {
                 'component': '◆',
                 'service': 'S',
                 'api': 'A',
-                'config': '⚙',
+                'file': 'F',
                 'external': '📦',  // 外部模块图标
-                'other': '?'
             };
             return icons[type] || '?';
         }

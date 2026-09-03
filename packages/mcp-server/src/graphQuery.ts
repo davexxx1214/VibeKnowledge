@@ -6,7 +6,6 @@ import type {
 import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
 
 export const GRAPH_RELATION_VERBS = [
-  'uses',
   'calls',
   'extends',
   'implements',
@@ -189,8 +188,16 @@ export class AgentGraphQueryEngine {
         (!normalizedFilePath ||
           normalize(entity.filePath).includes(normalizedFilePath))
     );
+    const directScores = new Map(
+      candidates.map((entity) => [entity.id, scoreEntity(entity, query)])
+    );
     const scored = candidates
-      .map((entity) => ({ entity, score: scoreEntity(entity, query) }))
+      .map((entity) => ({
+        entity,
+        score:
+          (directScores.get(entity.id) ?? 0) +
+          this.contextualSeedBoost(entity.id, query, directScores)
+      }))
       .filter((item) => item.score > 0)
       .sort(
         (left, right) =>
@@ -525,6 +532,19 @@ export class AgentGraphQueryEngine {
       .map((item) => item.entity);
   }
 
+  private contextualSeedBoost(
+    entityId: string,
+    query: string,
+    directScores: ReadonlyMap<string, number>
+  ): number {
+    const contributions = this.getAdjacency(entityId, 'both').map((entry) => {
+      const neighborScore = directScores.get(entry.neighborId) ?? 0;
+      const relationScore = scoreRelation(entry.relation, query);
+      return Math.floor(neighborScore * 0.55) + relationScore;
+    });
+    return contributions.sort((left, right) => right - left)[0] ?? 0;
+  }
+
   private getAdjacency(
     entityId: string,
     direction: GraphDirection
@@ -814,6 +834,21 @@ function scoreEntity(entity: AgentGraphEntityRecord, query: string): number {
   return score;
 }
 
+function scoreRelation(relation: AgentGraphRelationRecord, query: string): number {
+  const terms = queryTerms(query).filter((term) => term.length >= 3);
+  const value = normalize([
+    relation.sourceName,
+    relation.targetName,
+    relation.verb,
+    relation.description ?? '',
+    ...relation.evidence.map((item) => item.detail ?? '')
+  ].join(' '));
+  return terms.reduce(
+    (score, term) => score + (value.includes(term) ? 6 : 0),
+    0
+  );
+}
+
 function queryTerms(value: string): string[] {
   const normalizedValue = normalize(value);
   const terms = new Set<string>([normalizedValue]);
@@ -875,7 +910,7 @@ function formatRelationProvenance(relation: AgentGraphRelationRecord): string {
   if (!relation.origin && !relation.confidence) {
     return '';
   }
-  return ` [${relation.origin ?? 'unknown'}/${relation.confidence ?? 'unknown'}]`;
+  return ` [${relation.origin}/${relation.confidence}]`;
 }
 
 function formatEvidence(evidence: AgentGraphEvidence[]): string {

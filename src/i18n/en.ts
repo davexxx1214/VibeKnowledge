@@ -259,7 +259,7 @@ export const en = {
       namePrompt: 'Human-readable group name',
       progress: 'Refreshing structural facts and curating one graph group...',
       success: (name: string, entities: number, relations: number) =>
-        `Curated '${name}': ${entities} entities and ${relations} relations. Agent-authored semantics and unrelated groups were preserved.`,
+        `Curated '${name}': ${entities} entities and ${relations} relations. Matching prose and unrelated groups were preserved.`,
       openGraph: 'Open agent-graph.json',
       recoveryRequired: (error: string) =>
         `The existing structural graph could not be refreshed safely. Review the source changes before forcing a full rebuild.\n\n${error}`,
@@ -550,12 +550,11 @@ export const en = {
     component: { label: 'component', description: 'UI Component' },
     service: { label: 'service', description: 'Service class' },
     api: { label: 'api', description: 'API endpoint' },
-    config: { label: 'config', description: 'Configuration' },
-    other: { label: 'other', description: 'Other type' }
+    file: { label: 'file', description: 'Source file' },
+    external: { label: 'external', description: 'External system or dependency' }
   },
 
   relationTypes: {
-    uses: { label: 'uses', description: 'Uses or utilizes' },
     calls: { label: 'calls', description: 'Calls or invokes' },
     extends: { label: 'extends', description: 'Extends or inherits from' },
     implements: { label: 'implements', description: 'Implements an interface' },

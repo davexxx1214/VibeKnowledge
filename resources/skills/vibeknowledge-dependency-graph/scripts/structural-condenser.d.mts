@@ -16,7 +16,16 @@ export interface CuratedStructuralHop {
 export interface CuratedEntity {
   key: string;
   name: string;
-  type: string;
+  type:
+    | 'function'
+    | 'class'
+    | 'interface'
+    | 'variable'
+    | 'file'
+    | 'api'
+    | 'service'
+    | 'component'
+    | 'external';
   filePath: string;
   startLine: number;
   endLine: number;
@@ -26,7 +35,15 @@ export interface CuratedEntity {
 export interface CuratedRelation {
   source: string;
   target: string;
-  verb: string;
+  verb:
+    | 'imports'
+    | 'exports'
+    | 'contains'
+    | 'extends'
+    | 'implements'
+    | 'calls'
+    | 'references'
+    | 'depends_on';
   origin: 'ast' | 'resolver' | 'agent';
   confidence: 'extracted' | 'inferred' | 'review_required';
   description?: string;
@@ -51,7 +68,7 @@ export interface CuratedGroup {
 }
 
 export interface CuratedGraphDocument {
-  version: 2;
+  version: 1;
   generatedAt: string;
   scope?: string;
   groups: CuratedGroup[];

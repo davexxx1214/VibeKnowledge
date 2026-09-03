@@ -69,6 +69,66 @@ describe('AgentGraphQueryEngine', () => {
     ]);
   });
 
+  it('promotes graph neighbors of a strongly matched query entity into the seed set', () => {
+    const loginDto = makeEntity(
+      'user-management',
+      1,
+      'login-dto',
+      'LoginUserDto',
+      'src/user/dto/login-user.dto.ts'
+    );
+    const controller = makeEntity(
+      'user-management',
+      1,
+      'user-controller',
+      'UserController',
+      'src/user/user.controller.ts'
+    );
+    const service = makeEntity(
+      'user-management',
+      1,
+      'user-service',
+      'UserService',
+      'src/user/user.service.ts'
+    );
+    const relations = [
+      makeRelation(
+        'user-management',
+        1,
+        'controller-login-dto',
+        controller,
+        loginDto,
+        'references'
+      ),
+      makeRelation(
+        'user-management',
+        1,
+        'service-login-dto',
+        service,
+        loginDto,
+        'references'
+      )
+    ];
+    const engine = new AgentGraphQueryEngine(
+      [loginDto, controller, service],
+      relations
+    );
+
+    const result = engine.queryGraph({
+      query: 'Add an invalid password login regression test',
+      groupKey: 'user-management',
+      depth: 1
+    });
+
+    expect(result.entities.filter((item) => item.isSeed).map(
+      (item) => item.entity.name
+    )).toEqual(expect.arrayContaining([
+      'LoginUserDto',
+      'UserController',
+      'UserService'
+    ]));
+  });
+
   it('returns direction-aware neighbors', () => {
     const graph = sampleGraph();
     const engine = new AgentGraphQueryEngine(graph.entities, graph.relations);
@@ -240,7 +300,7 @@ describe('AgentGraphQueryEngine', () => {
           `hub-edge-${index}`,
           entities[1],
           entity,
-          'uses'
+          'depends_on'
         )
       );
     const engine = new AgentGraphQueryEngine(entities, relations);

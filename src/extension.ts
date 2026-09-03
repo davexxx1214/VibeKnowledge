@@ -175,10 +175,7 @@ export async function activate(context: vscode.ExtensionContext) {
       workspaceRoot,
       agentEntityOverrides
     );
-    const knowledgeGraphService = new KnowledgeGraphService(
-      entityService,
-      agentGraphService
-    );
+    const knowledgeGraphService = new KnowledgeGraphService(agentGraphService);
     const agentSkillService = new AgentSkillService(context.extensionPath);
     const structuralGraphService = new StructuralGraphService(workspaceRoot);
     const curatedGraphService = new CuratedGraphService(workspaceRoot);
@@ -304,24 +301,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // 注册命令
     console.log('Registering commands...');
-    context.subscriptions.push(
-      vscode.commands.registerCommand(
-        'knowledge.createEntity',
-        async () => {
-          try {
-            console.log('Executing: knowledge.createEntity');
-            await showAgentManagedGraphNotice();
-            // 刷新树视图和 CodeLens
-            treeDataProvider.refresh();
-            codeLensProvider.refresh();
-          } catch (error) {
-            console.error('Error in createEntity:', error);
-            vscode.window.showErrorMessage(`Error creating entity: ${error}`);
-          }
-        }
-      )
-    );
-
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'knowledge.addObservation',
@@ -597,24 +576,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
       vscode.commands.registerCommand(
-        'knowledge.addRelation',
-        async () => {
-          try {
-            console.log('Executing: knowledge.addRelation');
-            await showAgentManagedGraphNotice();
-            // 刷新树视图和 CodeLens 显示新的关系
-            treeDataProvider.refresh();
-            codeLensProvider.refresh();
-          } catch (error) {
-            console.error('Error in addRelation:', error);
-            vscode.window.showErrorMessage(`Error adding relation: ${error}`);
-          }
-        }
-      )
-    );
-
-    context.subscriptions.push(
-      vscode.commands.registerCommand(
         'knowledge.viewEntityDetails',
         async (entityId?: string) => {
           try {
@@ -660,60 +621,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
       vscode.commands.registerCommand(
-        'knowledge.deleteEntity',
-        async () => {
-          try {
-            console.log('Executing: knowledge.deleteEntity');
-            await showAgentManagedGraphNotice();
-            // 刷新树视图和 CodeLens
-            treeDataProvider.refresh();
-            codeLensProvider.refresh();
-          } catch (error) {
-            console.error('Error in deleteEntity:', error);
-            vscode.window.showErrorMessage(`Error deleting entity: ${error}`);
-          }
-        }
-      )
-    );
-
-    context.subscriptions.push(
-      vscode.commands.registerCommand(
-        'knowledge.deleteRelation',
-        async () => {
-          try {
-            console.log('Executing: knowledge.deleteRelation');
-            await showAgentManagedGraphNotice();
-            // 刷新树视图和 CodeLens
-            treeDataProvider.refresh();
-            codeLensProvider.refresh();
-          } catch (error) {
-            console.error('Error in deleteRelation:', error);
-            vscode.window.showErrorMessage(`Error deleting relation: ${error}`);
-          }
-        }
-      )
-    );
-
-    context.subscriptions.push(
-      vscode.commands.registerCommand(
-        'knowledge.deleteRelationFromTree',
-        async () => {
-          try {
-            console.log('Executing: knowledge.deleteRelationFromTree');
-            await showAgentManagedGraphNotice();
-            // 刷新树视图和 CodeLens
-            treeDataProvider.refresh();
-            codeLensProvider.refresh();
-          } catch (error) {
-            console.error('Error in deleteRelationFromTree:', error);
-            vscode.window.showErrorMessage(`Error deleting relation: ${error}`);
-          }
-        }
-      )
-    );
-
-    context.subscriptions.push(
-      vscode.commands.registerCommand(
         'knowledge.deleteObservation',
         async () => {
           try {
@@ -725,24 +632,6 @@ export async function activate(context: vscode.ExtensionContext) {
           } catch (error) {
             console.error('Error in deleteObservation:', error);
             vscode.window.showErrorMessage(`Error deleting observation: ${error}`);
-          }
-        }
-      )
-    );
-
-    context.subscriptions.push(
-      vscode.commands.registerCommand(
-        'knowledge.linkToEntity',
-        async () => {
-          try {
-            console.log('Executing: knowledge.linkToEntity');
-            await showAgentManagedGraphNotice();
-            // 刷新树视图和 CodeLens 显示新的关系
-            treeDataProvider.refresh();
-            codeLensProvider.refresh();
-          } catch (error) {
-            console.error('Error in linkToEntity:', error);
-            vscode.window.showErrorMessage(`Error linking to entity: ${error}`);
           }
         }
       )
@@ -768,24 +657,6 @@ export async function activate(context: vscode.ExtensionContext) {
         } catch (error) {
           console.error('Error in exportGraph:', error);
           vscode.window.showErrorMessage(`Error exporting graph: ${error}`);
-        }
-      })
-    );
-
-    context.subscriptions.push(
-      vscode.commands.registerCommand('knowledge.importGraph', () => {
-        vscode.window.showInformationMessage('Import Graph - Coming soon!');
-      })
-    );
-
-    context.subscriptions.push(
-      vscode.commands.registerCommand('knowledge.clearGraph', async () => {
-        const answer = await vscode.window.showWarningMessage(
-          'Are you sure you want to clear the entire knowledge graph?',
-          'Yes', 'No'
-        );
-        if (answer === 'Yes') {
-          vscode.window.showInformationMessage('Clear Graph - Coming soon!');
         }
       })
     );
@@ -1090,23 +961,15 @@ function isStructuralGraphRecoveryError(
  */
 function registerPlaceholderCommands(context: vscode.ExtensionContext) {
   const placeholderCommands = [
-    'knowledge.createEntity',
     'knowledge.addObservation',
-    'knowledge.addRelation',
     'knowledge.viewEntityDetails',
     'knowledge.jumpToEntity',
     'knowledge.searchGraph',
-    'knowledge.deleteEntity',
-    'knowledge.deleteRelation',
     'knowledge.deleteObservation',
-    'knowledge.linkToEntity',
     'knowledge.visualizeGraph',
     'knowledge.exportGraph',
-    'knowledge.importGraph',
-    'knowledge.clearGraph',
     'knowledge.settings',
     'knowledge.refresh',
-    'knowledge.deleteRelationFromTree',
     'knowledge.generateCursorRules',
     'knowledge.generateCopilotInstructions',
     'knowledge.generateAllAIConfigs',

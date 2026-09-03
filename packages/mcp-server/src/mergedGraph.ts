@@ -1,8 +1,6 @@
 import type {
-  EntityRecord,
   GraphDatabase,
   KnowledgeOverview,
-  RelationRecord,
   SearchEntitiesParams,
   SearchRelationsParams
 } from './database.js';
@@ -13,18 +11,8 @@ import type {
 } from './agentGraphStore.js';
 import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
 
-export interface ManualEntityRecord extends EntityRecord {
-  source: 'manual';
-}
-
-export interface ManualRelationRecord extends RelationRecord {
-  source: 'manual';
-}
-
-export type MergedEntityRecord = ManualEntityRecord | AgentGraphEntityRecord;
-export type MergedRelationRecord =
-  | ManualRelationRecord
-  | AgentGraphRelationRecord;
+export type MergedEntityRecord = AgentGraphEntityRecord;
+export type MergedRelationRecord = AgentGraphRelationRecord;
 
 export interface MergedKnowledgeOverview extends KnowledgeOverview {
   generation: {
@@ -123,61 +111,24 @@ export function getAgentDescriptionOverrides(
   db: GraphDatabase,
   agentGraph: AgentGraphStore
 ): Map<string, string> {
-  const overrides = new Map(db.getAgentEntityDescriptionOverrides());
-  const legacyDescriptions = new Map<string, string>();
-  for (const entity of db.listAllEntities()) {
-    if (entity.description !== null) {
-      legacyDescriptions.set(symbolIdentity(entity), entity.description);
-    }
-  }
-  for (const entity of agentGraph.listAllEntities()) {
-    if (overrides.has(entity.key)) {
-      continue;
-    }
-    const description = legacyDescriptions.get(symbolIdentity(entity));
-    if (description !== undefined) {
-      overrides.set(entity.key, description);
-    }
-  }
-  return overrides;
+  void agentGraph;
+  return new Map(db.getAgentEntityDescriptionOverrides());
 }
 
-function entityIdentityAliases(
-  entity: ManualEntityRecord | AgentGraphEntityRecord
-): string[] {
-  return entity.source === 'agent'
-    ? [`key:${canonicalizeEntityKey(entity.key)}`]
-    : [`key:${canonicalizeEntityKey(entity.id)}`];
+function entityIdentityAliases(entity: AgentGraphEntityRecord): string[] {
+  return [`key:${canonicalizeEntityKey(entity.key)}`];
 }
 
-function relationIdentityAliases(
-  relation: ManualRelationRecord | AgentGraphRelationRecord
-): string[] {
-  const sourceKey =
-    relation.source === 'manual'
-      ? relation.sourceEntityId
-      : relation.sourceKey;
-  const targetKey =
-    relation.source === 'manual'
-      ? relation.targetEntityId
-      : relation.targetKey;
-
+function relationIdentityAliases(relation: AgentGraphRelationRecord): string[] {
   return [
-    `relation-key:${canonicalizeEntityKey(sourceKey)}\u0000${normalize(
+    `relation-key:${canonicalizeEntityKey(relation.sourceKey)}\u0000${normalize(
       relation.verb
-    )}\u0000${canonicalizeEntityKey(targetKey)}`
+    )}\u0000${canonicalizeEntityKey(relation.targetKey)}`
   ];
 }
 
 function normalize(value: string): string {
   return value.trim().toLocaleLowerCase();
-}
-
-function symbolIdentity(entity: {
-  name: string;
-  filePath: string;
-}): string {
-  return canonicalizeEntityKey(`${entity.filePath}#${entity.name}`);
 }
 
 function clampLimit(limit?: number): number {

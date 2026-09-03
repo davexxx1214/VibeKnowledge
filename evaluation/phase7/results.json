@@ -1,0 +1,776 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-03T04:09:24.812Z",
+  "workspace": "D:/workspace/nestjs-realworld-example-app",
+  "methodology": {
+    "repeats": 5,
+    "sourceReadLimit": 5,
+    "tokenMetric": "conservative mixed CJK/ASCII estimate; not provider billing tokens",
+    "correctnessMetric": "evidence coverage proxy: 50% expected-file F1 + 50% expected-term recall",
+    "modes": {
+      "noGraph": "lexical source search plus at most five source reads",
+      "compact": "routing index plus one compact group and at most five source reads",
+      "mcp": "real in-memory MCP protocol call plus at most five source reads"
+    }
+  },
+  "graphState": {
+    "structuralGeneratedAt": "2026-09-03T03:42:42.068Z",
+    "curatedGeneratedAt": "2026-09-03T03:42:51.243Z",
+    "structuralFreshness": {
+      "fresh": true,
+      "changedFiles": [],
+      "missingFiles": []
+    },
+    "curatedFreshness": {
+      "fresh": true,
+      "referencedFileCount": 28,
+      "changedFiles": [],
+      "missingFiles": []
+    },
+    "structuralNewerThanCurated": false,
+    "completeMarkdownTokens": 10679
+  },
+  "tasks": [
+    {
+      "id": "locate-tag-sorting",
+      "category": "locate-feature",
+      "query": "Sort the tags returned by GET /tags and update the relevant unit test.",
+      "groupKey": "tag-management",
+      "expectedFiles": [
+        "src/tag/tag.controller.ts",
+        "src/tag/tag.service.ts",
+        "src/tag/tag.controller.spec.ts"
+      ],
+      "expectedTerms": [
+        "TagController",
+        "TagService",
+        "TagEntity",
+        "findAll"
+      ],
+      "mcp": {
+        "tool": "query_graph",
+        "arguments": {
+          "query": "Sort the tags returned by GET /tags and update the relevant unit test.",
+          "groupKey": "tag-management",
+          "depth": 2
+        }
+      }
+    },
+    {
+      "id": "test-invalid-login",
+      "category": "add-test",
+      "query": "Add a regression test for invalid password login returning HTTP 401.",
+      "groupKey": "user-management",
+      "expectedFiles": [
+        "src/user/user.controller.ts",
+        "src/user/user.service.ts",
+        "src/user/dto/login-user.dto.ts"
+      ],
+      "expectedTerms": [
+        "UserController",
+        "UserService",
+        "LoginUserDto",
+        "findOne",
+        "argon2"
+      ],
+      "mcp": {
+        "tool": "query_graph",
+        "arguments": {
+          "query": "Add a regression test for invalid password login returning HTTP 401.",
+          "groupKey": "user-management",
+          "depth": 2
+        }
+      }
+    },
+    {
+      "id": "modify-article-favorite",
+      "category": "modify-api",
+      "query": "Change the article favorite endpoint and assess persistence impact on users and articles.",
+      "groupKey": "article-management",
+      "expectedFiles": [
+        "src/article/article.controller.ts",
+        "src/article/article.service.ts",
+        "src/article/article.entity.ts",
+        "src/user/user.entity.ts"
+      ],
+      "expectedTerms": [
+        "ArticleController",
+        "ArticleService",
+        "favorite",
+        "ArticleEntity",
+        "UserEntity"
+      ],
+      "mcp": {
+        "tool": "query_graph",
+        "arguments": {
+          "query": "Change the article favorite endpoint and assess persistence impact on users and articles.",
+          "groupKey": "article-management",
+          "depth": 2
+        }
+      }
+    },
+    {
+      "id": "impact-auth-middleware",
+      "category": "impact-analysis",
+      "query": "Assess which routes and modules are affected if bearer-token parsing in the authentication middleware changes.",
+      "groupKey": "framework",
+      "expectedFiles": [
+        "src/user/auth.middleware.ts",
+        "src/user/user.module.ts",
+        "src/article/article.module.ts",
+        "src/profile/profile.module.ts"
+      ],
+      "expectedTerms": [
+        "AuthMiddleware",
+        "UserModule",
+        "ArticleModule",
+        "ProfileModule"
+      ],
+      "mcp": {
+        "tool": "analyze_impact",
+        "arguments": {
+          "selector": "src/user/auth.middleware.ts#AuthMiddleware",
+          "direction": "upstream",
+          "maxDepth": 3
+        }
+      }
+    },
+    {
+      "id": "trace-entity-cycle",
+      "category": "cycle-analysis",
+      "query": "Trace circular ORM entity relationships around articles, comments, and users before changing relation decorators.",
+      "groupKey": "article-management",
+      "expectedFiles": [
+        "src/article/article.entity.ts",
+        "src/article/comment.entity.ts",
+        "src/user/user.entity.ts"
+      ],
+      "expectedTerms": [
+        "ArticleEntity",
+        "Comment",
+        "UserEntity"
+      ],
+      "mcp": {
+        "tool": "analyze_structure",
+        "arguments": {
+          "analysis": "cycles",
+          "limit": 10
+        }
+      }
+    }
+  ],
+  "recommendedBudget": 600,
+  "summary": {
+    "noGraph": {
+      "taskCount": 5,
+      "averageCorrectness": 0.8555,
+      "averageOmissionRate": 0.07,
+      "averageInputTokens": 2783,
+      "averageRetrievalTokens": 144,
+      "averageFilesRead": 5,
+      "averageToolCalls": 6,
+      "medianElapsedMs": 5.529,
+      "truncatedTasks": 0
+    },
+    "compact": {
+      "taskCount": 5,
+      "averageCorrectness": 0.7255,
+      "averageOmissionRate": 0.252,
+      "averageInputTokens": 2426,
+      "averageRetrievalTokens": 855,
+      "averageFilesRead": 4.8,
+      "averageToolCalls": 6.8,
+      "medianElapsedMs": 0.79,
+      "truncatedTasks": 0
+    },
+    "mcp": {
+      "taskCount": 5,
+      "averageCorrectness": 0.9032,
+      "averageOmissionRate": 0.1,
+      "averageInputTokens": 1710,
+      "averageRetrievalTokens": 411,
+      "averageFilesRead": 3.6,
+      "averageToolCalls": 4.6,
+      "medianElapsedMs": 3.933,
+      "truncatedTasks": 3
+    }
+  },
+  "comparison": {
+    "mcpVsNoGraph": {
+      "correctnessDelta": 0.0477,
+      "omissionDelta": 0.03,
+      "inputTokenReduction": 1073,
+      "inputTokenReductionRate": 0.3856,
+      "filesReadReduction": 1.4,
+      "toolCallReduction": 1.4
+    },
+    "mcpVsCompact": {
+      "correctnessDelta": 0.1777,
+      "omissionDelta": -0.152,
+      "inputTokenReduction": 716,
+      "inputTokenReductionRate": 0.2951,
+      "filesReadReduction": 1.2,
+      "toolCallReduction": 2.2
+    },
+    "mcpRetrievalVsCompleteMarkdown": {
+      "tokenReduction": 10268,
+      "tokenReductionRate": 0.9615
+    }
+  },
+  "budgetSweep": [
+    {
+      "budget": 400,
+      "taskCount": 5,
+      "averageCorrectness": 0.9127,
+      "averageOmissionRate": 0.1,
+      "averageInputTokens": 1549,
+      "averageRetrievalTokens": 279,
+      "averageFilesRead": 3.4,
+      "averageToolCalls": 4.4,
+      "medianElapsedMs": 4.181,
+      "truncatedTasks": 5
+    },
+    {
+      "budget": 600,
+      "taskCount": 5,
+      "averageCorrectness": 0.9032,
+      "averageOmissionRate": 0.1,
+      "averageInputTokens": 1710,
+      "averageRetrievalTokens": 411,
+      "averageFilesRead": 3.6,
+      "averageToolCalls": 4.6,
+      "medianElapsedMs": 3.933,
+      "truncatedTasks": 3
+    },
+    {
+      "budget": 1000,
+      "taskCount": 5,
+      "averageCorrectness": 0.8655,
+      "averageOmissionRate": 0.1,
+      "averageInputTokens": 1957,
+      "averageRetrievalTokens": 572,
+      "averageFilesRead": 4.4,
+      "averageToolCalls": 5.4,
+      "medianElapsedMs": 3.898,
+      "truncatedTasks": 2
+    },
+    {
+      "budget": 1600,
+      "taskCount": 5,
+      "averageCorrectness": 0.8655,
+      "averageOmissionRate": 0.1,
+      "averageInputTokens": 2139,
+      "averageRetrievalTokens": 753,
+      "averageFilesRead": 4.4,
+      "averageToolCalls": 5.4,
+      "medianElapsedMs": 3.609,
+      "truncatedTasks": 2
+    }
+  ],
+  "results": {
+    "noGraph": [
+      {
+        "taskId": "locate-tag-sorting",
+        "mode": "no-graph",
+        "tool": "lexical-source-search",
+        "medianElapsedMs": 6.284,
+        "retrievalTokens": 110,
+        "sourceTokens": 2318,
+        "totalInputTokens": 2428,
+        "filesRead": 5,
+        "selectedFiles": [
+          "src/tag/tag.controller.spec.ts",
+          "src/tag/tag.controller.ts",
+          "src/article/article.service.ts",
+          "src/tag/tag.module.ts",
+          "src/tag/tag.service.ts"
+        ],
+        "toolCalls": 6,
+        "truncated": false,
+        "correctness": 0.875,
+        "omissionRate": 0,
+        "fileRecall": 1,
+        "filePrecision": 0.6,
+        "termRecall": 1,
+        "matchedTerms": [
+          "TagController",
+          "TagService",
+          "TagEntity",
+          "findAll"
+        ],
+        "missedFiles": []
+      },
+      {
+        "taskId": "test-invalid-login",
+        "mode": "no-graph",
+        "tool": "lexical-source-search",
+        "medianElapsedMs": 9.761,
+        "retrievalTokens": 148,
+        "sourceTokens": 2820,
+        "totalInputTokens": 2968,
+        "filesRead": 5,
+        "selectedFiles": [
+          "src/user/user.service.ts",
+          "src/user/user.controller.ts",
+          "src/profile/profile.service.ts",
+          "src/user/dto/login-user.dto.ts",
+          "package.json"
+        ],
+        "toolCalls": 6,
+        "truncated": false,
+        "correctness": 0.875,
+        "omissionRate": 0,
+        "fileRecall": 1,
+        "filePrecision": 0.6,
+        "termRecall": 1,
+        "matchedTerms": [
+          "UserController",
+          "UserService",
+          "LoginUserDto",
+          "findOne",
+          "argon2"
+        ],
+        "missedFiles": []
+      },
+      {
+        "taskId": "modify-article-favorite",
+        "mode": "no-graph",
+        "tool": "lexical-source-search",
+        "medianElapsedMs": 3.745,
+        "retrievalTokens": 158,
+        "sourceTokens": 3451,
+        "totalInputTokens": 3609,
+        "filesRead": 5,
+        "selectedFiles": [
+          "src/article/article.controller.ts",
+          "src/article/article.service.ts",
+          "src/article/article.module.ts",
+          "src/article/article.interface.ts",
+          "src/article/article.entity.ts"
+        ],
+        "toolCalls": 6,
+        "truncated": false,
+        "correctness": 0.8333,
+        "omissionRate": 0.15,
+        "fileRecall": 0.75,
+        "filePrecision": 0.6,
+        "termRecall": 1,
+        "matchedTerms": [
+          "ArticleController",
+          "ArticleService",
+          "favorite",
+          "ArticleEntity",
+          "UserEntity"
+        ],
+        "missedFiles": [
+          "src/user/user.entity.ts"
+        ]
+      },
+      {
+        "taskId": "impact-auth-middleware",
+        "mode": "no-graph",
+        "tool": "lexical-source-search",
+        "medianElapsedMs": 5.228,
+        "retrievalTokens": 155,
+        "sourceTokens": 1222,
+        "totalInputTokens": 1376,
+        "filesRead": 5,
+        "selectedFiles": [
+          "src/article/article.module.ts",
+          "src/profile/profile.module.ts",
+          "src/user/user.module.ts",
+          "src/user/auth.middleware.ts",
+          "src/tag/tag.module.ts"
+        ],
+        "toolCalls": 6,
+        "truncated": false,
+        "correctness": 0.9444,
+        "omissionRate": 0,
+        "fileRecall": 1,
+        "filePrecision": 0.8,
+        "termRecall": 1,
+        "matchedTerms": [
+          "AuthMiddleware",
+          "UserModule",
+          "ArticleModule",
+          "ProfileModule"
+        ],
+        "missedFiles": []
+      },
+      {
+        "taskId": "trace-entity-cycle",
+        "mode": "no-graph",
+        "tool": "lexical-source-search",
+        "medianElapsedMs": 5.529,
+        "retrievalTokens": 149,
+        "sourceTokens": 3385,
+        "totalInputTokens": 3534,
+        "filesRead": 5,
+        "selectedFiles": [
+          "src/article/comment.entity.ts",
+          "src/article/article.service.ts",
+          "src/article/article.module.ts",
+          "src/article/article.entity.ts",
+          "src/article/article.controller.ts"
+        ],
+        "toolCalls": 6,
+        "truncated": false,
+        "correctness": 0.75,
+        "omissionRate": 0.2,
+        "fileRecall": 0.6667,
+        "filePrecision": 0.4,
+        "termRecall": 1,
+        "matchedTerms": [
+          "ArticleEntity",
+          "Comment",
+          "UserEntity"
+        ],
+        "missedFiles": [
+          "src/user/user.entity.ts"
+        ]
+      }
+    ],
+    "compact": [
+      {
+        "taskId": "locate-tag-sorting",
+        "mode": "compact-markdown",
+        "tool": "read-index-and-group",
+        "medianElapsedMs": 0.35,
+        "retrievalTokens": 542,
+        "sourceTokens": 426,
+        "totalInputTokens": 969,
+        "filesRead": 4,
+        "selectedFiles": [
+          "src/tag/tag.service.ts",
+          "src/tag/tag.controller.ts",
+          "src/tag/tag.entity.ts",
+          "src/tag/tag.module.ts"
+        ],
+        "toolCalls": 6,
+        "truncated": false,
+        "correctness": 0.7857,
+        "omissionRate": 0.2,
+        "fileRecall": 0.6667,
+        "filePrecision": 0.5,
+        "termRecall": 1,
+        "matchedTerms": [
+          "TagController",
+          "TagService",
+          "TagEntity",
+          "findAll"
+        ],
+        "missedFiles": [
+          "src/tag/tag.controller.spec.ts"
+        ]
+      },
+      {
+        "taskId": "test-invalid-login",
+        "mode": "compact-markdown",
+        "tool": "read-index-and-group",
+        "medianElapsedMs": 0.79,
+        "retrievalTokens": 933,
+        "sourceTokens": 739,
+        "totalInputTokens": 1672,
+        "filesRead": 5,
+        "selectedFiles": [
+          "src/user/dto/login-user.dto.ts",
+          "src/article/article.entity.ts",
+          "src/user/auth.middleware.ts",
+          "src/shared/base.controller.ts",
+          "src/user/dto/create-user.dto.ts"
+        ],
+        "toolCalls": 7,
+        "truncated": false,
+        "correctness": 0.425,
+        "omissionRate": 0.56,
+        "fileRecall": 0.3333,
+        "filePrecision": 0.2,
+        "termRecall": 0.6,
+        "matchedTerms": [
+          "UserController",
+          "UserService",
+          "LoginUserDto"
+        ],
+        "missedFiles": [
+          "src/user/user.controller.ts",
+          "src/user/user.service.ts"
+        ]
+      },
+      {
+        "taskId": "modify-article-favorite",
+        "mode": "compact-markdown",
+        "tool": "read-index-and-group",
+        "medianElapsedMs": 0.808,
+        "retrievalTokens": 1046,
+        "sourceTokens": 3451,
+        "totalInputTokens": 4497,
+        "filesRead": 5,
+        "selectedFiles": [
+          "src/article/article.controller.ts",
+          "src/article/article.module.ts",
+          "src/article/article.service.ts",
+          "src/article/article.interface.ts",
+          "src/article/article.entity.ts"
+        ],
+        "toolCalls": 7,
+        "truncated": false,
+        "correctness": 0.8333,
+        "omissionRate": 0.15,
+        "fileRecall": 0.75,
+        "filePrecision": 0.6,
+        "termRecall": 1,
+        "matchedTerms": [
+          "ArticleController",
+          "ArticleService",
+          "favorite",
+          "ArticleEntity",
+          "UserEntity"
+        ],
+        "missedFiles": [
+          "src/user/user.entity.ts"
+        ]
+      },
+      {
+        "taskId": "impact-auth-middleware",
+        "mode": "compact-markdown",
+        "tool": "read-index-and-group",
+        "medianElapsedMs": 0.546,
+        "retrievalTokens": 706,
+        "sourceTokens": 1109,
+        "totalInputTokens": 1815,
+        "filesRead": 5,
+        "selectedFiles": [
+          "src/app.module.ts",
+          "src/article/article.module.ts",
+          "src/profile/profile.module.ts",
+          "src/tag/tag.module.ts",
+          "src/user/user.module.ts"
+        ],
+        "toolCalls": 7,
+        "truncated": false,
+        "correctness": 0.8333,
+        "omissionRate": 0.15,
+        "fileRecall": 0.75,
+        "filePrecision": 0.6,
+        "termRecall": 1,
+        "matchedTerms": [
+          "AuthMiddleware",
+          "UserModule",
+          "ArticleModule",
+          "ProfileModule"
+        ],
+        "missedFiles": [
+          "src/user/auth.middleware.ts"
+        ]
+      },
+      {
+        "taskId": "trace-entity-cycle",
+        "mode": "compact-markdown",
+        "tool": "read-index-and-group",
+        "medianElapsedMs": 0.996,
+        "retrievalTokens": 1046,
+        "sourceTokens": 2131,
+        "totalInputTokens": 3177,
+        "filesRead": 5,
+        "selectedFiles": [
+          "src/article/comment.entity.ts",
+          "src/article/article.interface.ts",
+          "src/article/dto/create-comment.ts",
+          "src/article/article.entity.ts",
+          "src/article/article.service.ts"
+        ],
+        "toolCalls": 7,
+        "truncated": false,
+        "correctness": 0.75,
+        "omissionRate": 0.2,
+        "fileRecall": 0.6667,
+        "filePrecision": 0.4,
+        "termRecall": 1,
+        "matchedTerms": [
+          "ArticleEntity",
+          "Comment",
+          "UserEntity"
+        ],
+        "missedFiles": [
+          "src/user/user.entity.ts"
+        ]
+      }
+    ],
+    "mcp": [
+      {
+        "taskId": "locate-tag-sorting",
+        "mode": "mcp-600",
+        "tool": "query_graph",
+        "medianElapsedMs": 4.704,
+        "retrievalTokens": 410,
+        "sourceTokens": 426,
+        "totalInputTokens": 836,
+        "filesRead": 4,
+        "selectedFiles": [
+          "src/tag/tag.service.ts",
+          "src/tag/tag.controller.ts",
+          "src/tag/tag.entity.ts",
+          "src/tag/tag.module.ts"
+        ],
+        "toolCalls": 5,
+        "truncated": true,
+        "correctness": 0.7857,
+        "omissionRate": 0.2,
+        "fileRecall": 0.6667,
+        "filePrecision": 0.5,
+        "termRecall": 1,
+        "matchedTerms": [
+          "TagController",
+          "TagService",
+          "TagEntity",
+          "findAll"
+        ],
+        "missedFiles": [
+          "src/tag/tag.controller.spec.ts"
+        ]
+      },
+      {
+        "taskId": "test-invalid-login",
+        "mode": "mcp-600",
+        "tool": "query_graph",
+        "medianElapsedMs": 4.339,
+        "retrievalTokens": 414,
+        "sourceTokens": 1452,
+        "totalInputTokens": 1866,
+        "filesRead": 3,
+        "selectedFiles": [
+          "src/user/dto/login-user.dto.ts",
+          "src/user/user.controller.ts",
+          "src/user/user.service.ts"
+        ],
+        "toolCalls": 4,
+        "truncated": true,
+        "correctness": 1,
+        "omissionRate": 0,
+        "fileRecall": 1,
+        "filePrecision": 1,
+        "termRecall": 1,
+        "matchedTerms": [
+          "UserController",
+          "UserService",
+          "LoginUserDto",
+          "findOne",
+          "argon2"
+        ],
+        "missedFiles": []
+      },
+      {
+        "taskId": "modify-article-favorite",
+        "mode": "mcp-600",
+        "tool": "query_graph",
+        "medianElapsedMs": 3.933,
+        "retrievalTokens": 419,
+        "sourceTokens": 2815,
+        "totalInputTokens": 3234,
+        "filesRead": 3,
+        "selectedFiles": [
+          "src/article/article.controller.ts",
+          "src/article/article.interface.ts",
+          "src/article/article.service.ts"
+        ],
+        "toolCalls": 4,
+        "truncated": true,
+        "correctness": 0.7857,
+        "omissionRate": 0.3,
+        "fileRecall": 0.5,
+        "filePrecision": 0.6667,
+        "termRecall": 1,
+        "matchedTerms": [
+          "ArticleController",
+          "ArticleService",
+          "favorite",
+          "ArticleEntity",
+          "UserEntity"
+        ],
+        "missedFiles": [
+          "src/article/article.entity.ts",
+          "src/user/user.entity.ts"
+        ]
+      },
+      {
+        "taskId": "impact-auth-middleware",
+        "mode": "mcp-600",
+        "tool": "analyze_impact",
+        "medianElapsedMs": 3.531,
+        "retrievalTokens": 434,
+        "sourceTokens": 1244,
+        "totalInputTokens": 1678,
+        "filesRead": 5,
+        "selectedFiles": [
+          "src/user/auth.middleware.ts",
+          "src/article/article.module.ts",
+          "src/profile/profile.module.ts",
+          "src/user/user.module.ts",
+          "src/app.module.ts"
+        ],
+        "toolCalls": 6,
+        "truncated": false,
+        "correctness": 0.9444,
+        "omissionRate": 0,
+        "fileRecall": 1,
+        "filePrecision": 0.8,
+        "termRecall": 1,
+        "matchedTerms": [
+          "AuthMiddleware",
+          "UserModule",
+          "ArticleModule",
+          "ProfileModule"
+        ],
+        "missedFiles": []
+      },
+      {
+        "taskId": "trace-entity-cycle",
+        "mode": "mcp-600",
+        "tool": "analyze_structure",
+        "medianElapsedMs": 2.458,
+        "retrievalTokens": 376,
+        "sourceTokens": 561,
+        "totalInputTokens": 937,
+        "filesRead": 3,
+        "selectedFiles": [
+          "src/article/article.entity.ts",
+          "src/article/comment.entity.ts",
+          "src/user/user.entity.ts"
+        ],
+        "toolCalls": 4,
+        "truncated": false,
+        "correctness": 1,
+        "omissionRate": 0,
+        "fileRecall": 1,
+        "filePrecision": 1,
+        "termRecall": 1,
+        "matchedTerms": [
+          "ArticleEntity",
+          "Comment",
+          "UserEntity"
+        ],
+        "missedFiles": []
+      }
+    ]
+  },
+  "staleScenario": {
+    "simulatedChangedFile": "src/tag/tag.service.ts",
+    "detected": true,
+    "fallbackMode": "no-graph",
+    "fallbackTriggered": true,
+    "fallbackEvidence": {
+      "correctness": 0.875,
+      "omissionRate": 0,
+      "fileRecall": 1,
+      "filePrecision": 0.6,
+      "termRecall": 1,
+      "matchedTerms": [
+        "TagController",
+        "TagService",
+        "TagEntity",
+        "findAll"
+      ],
+      "missedFiles": []
+    }
+  }
+}

@@ -261,9 +261,8 @@ export class ExportService {
       component: '🧩',
       service: '⚙️',
       api: '🌐',
-      config: '⚙️',
-      database: '🗄️',
-      other: '📄',
+      file: '📄',
+      external: '📦',
     };
     return icons[type] || '📄';
   }

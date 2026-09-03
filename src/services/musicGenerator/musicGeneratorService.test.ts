@@ -48,13 +48,13 @@ describe('MusicGeneratorService', () => {
         id: 'relation-1',
         sourceId: 'a',
         targetId: 'b',
-        verb: 'uses',
+        verb: 'depends_on',
       },
     ], 'manual');
 
     expect(result.stats).toMatchObject({
       totalRelations: 1,
-      relationsByVerb: { uses: 1 },
+      relationsByVerb: { depends_on: 1 },
       mode: 'manual',
     });
     expect(result.code).not.toContain('Relations Chord Progression');

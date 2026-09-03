@@ -379,11 +379,6 @@ export class EntityCommands {
     }
 
     const uri = vscode.Uri.joinPath(workspaceFolders[0].uri, entity.filePath);
-    if (entity.type === 'directory') {
-      await vscode.commands.executeCommand('revealInExplorer', uri);
-      return;
-    }
-    
     try {
       const document = await vscode.workspace.openTextDocument(uri);
       const editor = await vscode.window.showTextDocument(document);
@@ -499,12 +494,6 @@ export class EntityCommands {
 
     // 5. 选择关系类型
     const verbOptions: (vscode.QuickPickItem & { verb: string })[] = [
-      { 
-        label: 'uses', 
-        verb: 'uses',
-        description: 'Uses or utilizes',
-        detail: `${sourceEntity.name} uses ${selectedTarget.label}`
-      },
       { 
         label: 'calls', 
         verb: 'calls',
@@ -652,12 +641,6 @@ export class EntityCommands {
 
     // 4. 选择关系类型（Verb）
     const verbOptions: (vscode.QuickPickItem & { verb: string })[] = [
-      { 
-        label: 'uses', 
-        verb: 'uses',
-        description: 'Uses or utilizes',
-        detail: `${selectedSource.label} uses ${selectedTarget.label}`
-      },
       { 
         label: 'calls', 
         verb: 'calls',

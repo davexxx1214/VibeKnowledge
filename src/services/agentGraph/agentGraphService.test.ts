@@ -51,7 +51,7 @@ function relation(source: string, target: string, filePath: string) {
 
 function validDocument() {
   return {
-    version: 2,
+    version: 1,
     generatedAt: '2026-08-21T12:00:00.000Z',
     scope: 'src',
     groups: [
@@ -85,7 +85,7 @@ function validDocument() {
   };
 }
 
-function legacyDocument() {
+function flatUnpublishedDocument() {
   const document = validDocument();
   return {
     version: 1,
@@ -125,22 +125,19 @@ describe('parseAgentGraphDocument', () => {
     );
   });
 
-  it('normalizes a legacy v1 graph into the framework group', () => {
-    const graph = parseAgentGraphDocument(legacyDocument());
-
-    expect(graph.version).toBe(2);
-    expect(graph.groups).toEqual([
-      expect.objectContaining({
-        key: 'framework',
-        name: 'Framework',
-        kind: 'framework',
-        order: 0,
-      }),
-    ]);
+  it('rejects the unpublished flat manifest shape', () => {
+    expect(() => parseAgentGraphDocument(flatUnpublishedDocument())).toThrow(
+      'groups must be a non-empty array'
+    );
   });
 
-  it('accepts legacy v2 relations without provenance fields', () => {
+  it('rejects unsupported versions and missing provenance fields', () => {
     const document = cloneDocument();
+    document.version = 2;
+    expect(() => parseAgentGraphDocument(document)).toThrow(
+      'version must be 1'
+    );
+    document.version = 1;
     delete (document.groups[0].relations[0] as Partial<{
       origin: string;
       confidence: string;
@@ -150,17 +147,23 @@ describe('parseAgentGraphDocument', () => {
       confidence: string;
     }>).confidence;
 
-    const relation = parseAgentGraphDocument(document).groups[0].relations[0];
-    expect(relation.origin).toBeUndefined();
-    expect(relation.confidence).toBeUndefined();
+    expect(() => parseAgentGraphDocument(document)).toThrow();
   });
 
   it.each([
     [
-      'an unsupported verb',
+      'the removed uses verb',
       () => {
         const document = cloneDocument();
-        document.groups[0].relations[0].verb = 'guesses';
+        document.groups[0].relations[0].verb = 'uses';
+        return document;
+      },
+    ],
+    [
+      'a removed catch-all entity type',
+      () => {
+        const document = cloneDocument();
+        document.groups[0].entities[0].type = 'other';
         return document;
       },
     ],

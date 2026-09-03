@@ -110,7 +110,7 @@ export function analyzeStructuralImpact(graph, selector, options = {}) {
   }
   const direction = options.direction ?? 'both';
   const maxDepth = clampInteger(options.maxDepth, 1, 8, 3);
-  const relations = dependencyRelations(graph, options.relationVerbs);
+  const relations = traversableRelations(graph, options.relationVerbs);
   const entityByKey = entityMap(graph);
   const incoming = adjacencyFor(relations, 'incoming');
   const outgoing = adjacencyFor(relations, 'outgoing');
@@ -159,7 +159,7 @@ export function findStructuralPath(graph, sourceSelector, targetSelector, option
   if (!target) throw new Error(`Structural entity not found: ${targetSelector}`);
   const direction = options.direction ?? 'both';
   const maxDepth = clampInteger(options.maxDepth, 1, 20, 10);
-  const relations = dependencyRelations(graph, options.relationVerbs);
+  const relations = traversableRelations(graph, options.relationVerbs);
   const outgoing = adjacencyFor(relations, 'outgoing');
   const incoming = adjacencyFor(relations, 'incoming');
   const queue = [{ key: source.key, path: [] }];
@@ -466,6 +466,13 @@ export function boundaryForPath(filePath) {
 function dependencyRelations(graph, verbs) {
   const allowed = verbs ? new Set(verbs) : DEPENDENCY_VERBS;
   return graph.relations.filter((relation) => allowed.has(relation.verb));
+}
+
+function traversableRelations(graph, verbs) {
+  return uniqueRelations([
+    ...dependencyRelations(graph, verbs),
+    ...graph.relations.filter((relation) => relation.verb === 'contains')
+  ]);
 }
 
 function adjacencyFor(relations, direction) {

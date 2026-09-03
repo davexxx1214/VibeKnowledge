@@ -10,7 +10,7 @@ Maintain these generated artifacts:
 - `.vscode/.knowledge/structural-graph.json`: the version-1 deterministic code-fact graph. Treat it as an internal evidence source and do not load the complete file into Agent context by default.
 - `.vscode/.knowledge/structural-graph.previous.json`: the last structurally different valid snapshot, maintained automatically for graph diff. Treat it as internal evidence too.
 - `.vscode/.knowledge/cache/structural/`: portable per-file extraction cache and active index. Never edit cache entries by hand.
-- `.vscode/.knowledge/agent-graph.json`: the version-2 machine-readable source.
+- `.vscode/.knowledge/agent-graph.json`: the version-1 grouped machine-readable source. This is the only supported manifest shape.
 - `.vscode/.knowledge/knowledge-graph.md`: the complete deterministic audit report for humans. Do not load it into Agent context by default.
 - `.vscode/.knowledge/agent-context/index.md`: the compact routing index for Coding Agents.
 - `.vscode/.knowledge/agent-context/<group-key>.md`: one compact entity/path/relation view per group, without Evidence prose.
@@ -36,7 +36,7 @@ If the workspace cannot resolve the `typescript` package, ask the user to run **
 
 ## Generate or refresh one curated group
 
-Use the deterministic condenser before reading implementation details. It selects structural candidates, attaches Evidence and raw `structuralPath` hops, preserves stable keys and Agent-authored semantics, and atomically replaces only the target group.
+Use the deterministic condenser before reading implementation details. It selects structural candidates, attaches Evidence and raw `structuralPath` hops, preserves matching prose, removes stale unmatched structure, and atomically replaces only the target group.
 
 For the framework boundary view:
 
@@ -64,7 +64,7 @@ Do not manually reproduce imports, calls, containment, or source locations alrea
 ## Choose the target group
 
 1. Read the existing manifest when present.
-2. If it is version 1, migrate its contents into the `framework` group before doing other work. Preserve stable entity keys.
+2. Require the version-1 grouped schema. Do not migrate an older unpublished shape; regenerate the requested graph instead.
 3. Ensure the first group is always the framework boundary graph, never a whole-project call graph:
    - key: `framework`
    - name: a localized natural-language framework name, normally `Framework` or `框架层`
@@ -95,13 +95,19 @@ Boundary nodes and genuinely shared infrastructure may also appear in detailed g
 
 For an ordinary application, aim for roughly 8–15 entities and 10–20 relations in the framework group. These are readability targets, not validation limits. If a legitimate architecture exceeds them, collapse at the nearest stable boundary or add a missing module or feature group; never omit an architecturally important boundary solely to meet a count.
 
+## Keep detailed groups at component level
+
+Include the public module, controller or API, service/repository, entity/model, DTO/interface, exported symbol, direct cross-scope dependency, and important runtime integration needed to explain the named capability.
+
+Exclude method and constructor nodes, tests, framework decorators, lockfile packages, and compiler-only symbols. Lift implementation-level calls and references to the nearest selected owner. Do not expand through newly included cross-scope neighbors: detailed groups may reach one direct dependency hop outside their scope, but must not absorb that dependency's surrounding feature. Keep one strongest relation per ordered pair instead of parallel `calls` and `references` edges.
+
 ## Semantic review and update
 
 1. Confirm the requested group and run deterministic extraction and convergence when available.
 2. Inspect the target group only. Read its referenced public APIs, implementations, routes, data access, configuration, or tests only as needed to replace mechanical descriptions with business meaning or resolve a warning.
-3. Keep the condenser's high-signal selection. Remove a node only when it is clearly internal noise for the requested view; add a node only when a business concept cannot be represented from structural facts and has precise Evidence.
+3. Keep the condenser's high-signal component selection. Remove a node only when it is clearly noise; add a node only when the Skill can prove a business concept from precise Evidence. Human editing is prose-only and never creates structural nodes or relations.
 4. Keep direction `source -> target`: the source invokes, imports, contains, or otherwise depends on the target. Do not change an extracted relation to `origin: agent` merely because the Agent reviewed its wording.
-5. Preserve every unrelated group, its metadata, entities, relations, stable keys, and order. The condenser already performs this merge; edit only the refreshed target group afterward.
+5. Preserve every unrelated group. Within the refreshed group, generated entities, stable keys, types, paths, and relations are authoritative; preserve only matching group/entity/relation prose and discard unmatched old structure.
 6. Give file-backed entities concise responsibility prose suitable for the editor's `🧠 KG` hint. Human SQLite overrides remain authoritative and must never be written into `agent-graph.json`.
 7. Validate and render after semantic edits. Never write generated structure to `graph.sqlite`.
 
@@ -145,7 +151,7 @@ Resolve scripts relative to this `SKILL.md` when the skill is installed elsewher
 - Base relationships on code or configuration, not names alone.
 - Give every relation at least one precise evidence location and a short explanation of what it proves.
 - Use stable keys such as `src/auth/service.ts#AuthService`. Changing a key disconnects all occurrences from their shared human description override.
-- Treat canonical keys only as comparison aliases. Preserve the serialized key exactly when refreshing an existing entity; the validator rejects two keys in one group that differ only by path separators, Unicode compatibility forms, case, whitespace, or redundant punctuation.
+- Treat canonical keys only as comparison aliases. The generator's current stable key is authoritative; the validator rejects two keys in one group that differ only by path separators, Unicode compatibility forms, case, whitespace, or redundant punctuation.
 - Model direct relationships. Avoid transitive edges that duplicate paths already present.
 - Keep the framework group boundary-focused; completeness belongs to the detailed groups, not the overview.
 - Keep external packages only when architecturally important; lockfile entries are noise.

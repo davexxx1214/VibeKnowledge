@@ -1,6 +1,6 @@
 # VibeKnowledge 知识图谱改造计划
 
-状态：Phase 1、Phase 2、Phase 3、Phase 4、Phase 5、Phase 6 已实施，准备进入 Phase 7
+状态：Phase 1 至 Phase 6 已实施，Phase 7 首轮效果评测已完成，发布准备进行中
 最后更新：2026-09-03
 
 ## 目标
@@ -21,7 +21,7 @@
 1. **查询优先**：Agent 先查询局部子图，查询不足时才读取源码或完整审计报告。
 2. **事实与语义分离**：AST/编译器提取代码事实；Agent 负责业务边界、命名、描述和歧义判断。
 3. **原始图与视图图分离**：完整结构图用于检索和分析，精选分组图用于展示和上下文导航。
-4. **兼容优先**：现有 `agent-graph.json` v2、人工描述覆盖和已生成分组继续可用。
+4. **协议收敛**：发布前只保留 version-1 分组协议；当前生成结构为准，人工仅维护描述。
 5. **证据可审计**：Evidence 不删除；MCP 默认省略正文，用户或 Agent 可按需请求。
 6. **增量且安全**：只更新受影响文件；解析异常时不得把正常大图静默覆盖为空图或明显缩小的图。
 
@@ -41,7 +41,7 @@ Workspace source
                     │
                     └── boundary reducer + Agent semantic pass
                                 │
-                                └── agent-graph.json v2
+                                └── agent-graph.json v1 (grouped)
                                       ├── framework view
                                       ├── module/feature views
                                       ├── compact Agent context
@@ -59,7 +59,7 @@ Human descriptions ──────> graph.sqlite overrides
   - 不默认进入 Webview，也不默认注入 Agent 上下文。
 - `.vscode/.knowledge/agent-graph.json`
   - 继续作为精选框架/模块/功能视图的机器源；
-  - 保持 v2 可读，新增字段先采用可选、向后兼容方式。
+  - 仅接受 version-1 分组格式；关系来源和置信度必填。
 - `.vscode/.knowledge/knowledge-graph.md`
   - 保留完整人工审计报告，不默认注入 Agent 上下文。
 - `.vscode/.knowledge/agent-context/`
@@ -112,27 +112,27 @@ Phase 1 首轮测量结果：
 
 - [x] 新增唯一的 `canonicalizeEntityKey` 实现，统一用于验证器、Extension 和 MCP。
 - [x] 规范化需要处理路径分隔符、Unicode NFKC、大小写比较和冗余标点。
-- [x] 首期只把 canonical key 用作匹配别名，不批量改写已有序列化 key，避免断开人工描述覆盖。
-- [x] 为关系增加可选字段：
+- [x] 只把 canonical key 用作匹配别名；刷新时以当前生成器输出的 stable key 为准。
+- [x] 为关系增加必填字段：
   - `origin`: `ast | resolver | agent`；
   - `confidence`: `extracted | inferred | review_required`。
 - [x] 保留 Evidence 作为审计依据，不把 Evidence 与 confidence 混为一谈。
 - [x] 更新 schema、Zod 解析、验证脚本、Markdown 渲染器和 Webview tooltip。
-- [x] 为旧 v2 文件和缺少新字段的关系添加兼容测试。
+- [x] 未发布前收敛为唯一的 version-1 分组格式，拒绝旧 flat/v2 文件和缺少来源字段的关系。
 
 验收标准：
 
-- 旧 v1/v2 图谱仍可读取；
+- 仅 version-1 分组图谱可读取，旧的未发布格式明确失败并要求重新生成；
 - 同一符号的路径和大小写变体可匹配到同一内部身份；
 - 人工描述覆盖继续绑定原 stable key；
-- 新字段不会强制触发 `agent-graph.json` 大版本升级。
+- `origin`、`confidence` 与 Evidence 均为关系的强制审计字段。
 
 Phase 2 实施结果：
 
 - canonicalizer 的唯一可执行源位于 Skill 脚本目录；Extension 直接打包该实现，MCP 源码通过薄 re-export 使用它，发布构建将同一文件复制到 `dist`；
-- validator 会拒绝同一分组内 canonical alias 冲突，但 stable ID、序列化 key 和 SQLite 人工覆盖仍保留原 key；
+- validator 会拒绝同一分组内 canonical alias 冲突；stable ID 与 SQLite 人工覆盖绑定当前生成器输出的 key；
 - Extension 聚合、MCP 查询和人工描述回绑都支持 canonical alias，歧义人工覆盖不会被自动猜选；
-- `origin` 与 `confidence` 保持 v2 可选字段，旧 v1/v2 文件继续兼容，Evidence 仍为必填审计依据；
+- `origin` 与 `confidence` 在 version-1 分组格式中必填；确定性关系还必须保留 `structuralPath`；
 - 根项目 49 个测试和 MCP 80 个测试通过，Skill 校验、Extension 构建、MCP 构建和发布后 `dist` 模块加载均通过。
 
 ### Phase 3：实现 TypeScript/JavaScript 确定性结构提取
@@ -222,8 +222,9 @@ Phase 2 实施结果：
 
 - 新增确定性 `structural-condenser` 和 `curate-structural-graph` CLI；框架视图按启动、根模块、顶层边界、共享基础设施和重要外部系统收敛，同一方向的重复底层边被折叠为一条边界关系；
 - NestJS 验收 fixture 从 36 个结构实体、100 条结构关系收敛为 9 个框架实体、10 条框架关系，未把 Controller、Service 或 Entity 泄漏到框架层；
-- module/feature 范围会展开 NestJS Controller、路由、Service、Entity 和直接跨范围调用，并补全跨范围方法的所属容器；
-- 单组合并保留其他分组、分组顺序、canonical 匹配后的原 stable key、Agent 维护的名称/描述，以及仍有端点的 Agent-only 业务关系；
+- module/feature 范围保留模块、Controller/API、Service、Entity/DTO/接口和一跳直接依赖；方法、构造器、测试与实现细节折叠到所属组件；
+- 每个有向节点对只保留最强关系，避免同一对节点同时出现 `calls` 与 `references`；
+- 单组合并保留其他分组与匹配的人工 prose；当前生成器的 stable key、类型、路径和关系为准，旧的未匹配结构直接丢弃；
 - 每条确定性策展关系记录 Evidence 和 `structuralPath`；多跳路径带正反向 traversal，validator 会检查原始边匹配、路径连续性和起止端点；完整审计报告与显式 MCP Evidence 请求可展示路径，紧凑 Agent 视图继续省略 Evidence 和路径正文；
 - Extension 新增 **Knowledge: Curate Graph from Structure**，可交互生成框架、模块或功能视图；Skill 主流程改为“确定性收敛 → Agent 语义审查 → 校验渲染”，并保留明确的纯 Agent 降级流程；
 - 根项目 68 个测试、MCP 80 个测试、Extension/MCP 生产构建、Lint（0 error）、Skill 校验和 VSIX 文件清单检查均通过。
@@ -259,15 +260,27 @@ Phase 2 实施结果：
 
 目标：证明知识图谱确实提升 Coding Agent 效率，而不是只增加维护成本。
 
-- [ ] 建立固定任务集：定位功能、补测试、修改 API、评估变更影响、追踪循环依赖。
-- [ ] 比较三种模式：
+- [x] 建立固定任务集：定位功能、补测试、修改 API、评估变更影响、追踪循环依赖。
+- [x] 比较三种模式：
   1. 不使用知识图谱；
   2. 加载紧凑分组 Markdown；
   3. 使用 MCP 局部子图查询。
-- [ ] 记录指标：输入/输出 token、读取文件数、工具调用数、完成耗时、答案正确率和遗漏率。
-- [ ] 增加陈旧图谱场景，验证 Agent 是否能识别图谱时间戳并回退到源码。
-- [ ] 根据评测调整种子数量、遍历深度、hub 阈值和 token budget。
+- [x] 记录指标：输入/输出 token、读取文件数、工具调用数、完成耗时、答案正确率和遗漏率。
+- [x] 增加陈旧图谱场景，验证 Agent 是否能识别图谱时间戳并回退到源码。
+- [x] 根据评测调整种子数量、遍历深度、hub 阈值和 token budget。
 - [ ] 补齐迁移文档、CHANGELOG 和版本发布检查。
+
+收紧 schema 与详细分组后的评测结果（`nestjs-realworld-example-app`，5 个固定任务）：
+
+- 使用真实的进程内 MCP 协议调用，并与无图谱源码检索、紧凑分组 Markdown 做同任务对比；完整结果保存在 `evaluation/phase7/results.md` 和机器可读的 `results.json`；
+- 推荐 MCP 查询预算为 600 token；400 token 在全部任务中截断，1000/1600 token 未带来更好的证据覆盖，hub 阈值在本样例中无需调整；
+- MCP 相对无图谱检索平均减少 38.6% 输入上下文（每任务减少 1,073 个估算 token）、减少 1.4 个源码文件读取和 1.4 次工具调用，证据覆盖正确率代理提高 4.8 个百分点，遗漏率增加 3 个百分点；
+- MCP 相对紧凑 Markdown 平均减少 29.5% 输入上下文（每任务减少 716 个估算 token），证据覆盖正确率代理提高 17.8 个百分点；平均 MCP 检索载荷相对完整审计 Markdown 减少 96.2%（每任务少注入 10,268 个估算 token）；
+- 与收紧前基线相比，MCP 相对无图谱的输入节省率从 32.9% 提升到 38.6%，提高 5.7 个百分点；
+- 针对首轮薄弱项，查询种子加入关系邻居加权，结构影响/路径分析允许用 `contains` 作为文件与符号之间的导航桥；依赖循环和耦合统计仍排除 containment 噪声；
+- 结构图使用内容哈希判断新鲜度；精选图使用其引用源码的修改时间判断。结构图晚于精选图只作为生成顺序信息，不再误报精选图过期；模拟源码变更可触发哈希失配和源码检索回退；
+- 当前“正确率”和 token 均为可复现的检索层代理：前者衡量预期文件 F1 与预期术语召回，后者是中英文保守估算，不等同于真实模型答案评分或供应商账单 token。正式发布前仍需补充真实 Coding Agent 端到端试验。
+- 首轮实现后根项目 80 个测试、MCP 84 个测试、Extension/MCP 生产构建和 Lint（0 error）通过；测试样例的精选图与结构图均通过 schema、源码位置和结构路径校验。
 
 发布门槛：
 
@@ -276,15 +289,15 @@ Phase 2 实施结果：
 - 图谱过期或不完整时有明确提示和源码回退路径；
 - 新功能不破坏人工描述覆盖和现有分组展示。
 
-## 兼容与迁移策略
+## 协议策略
 
-- `agent-graph.json` 保持 v2；关系的新 provenance 字段先作为可选字段加入。
+- `agent-graph.json` 只接受 version-1 分组格式；不兼容未发布的 flat/v2 形状。
 - `structural-graph.json` 使用独立 schema 版本，避免与精选视图版本混淆。
-- 不自动重写已有 entity key；内部 canonical key 用于匹配和迁移别名。
+- 当前确定性生成器输出的 entity key 为准；内部 canonical key 只用于匹配人工描述。
 - MCP 新工具为增量新增，现有工具名和响应继续保留。
 - 没有结构图时，查询引擎直接使用现有 `agent-graph.json`。
 - 结构提取失败时，保留上一份有效图并显示诊断，不输出半成品覆盖它。
-- Agent Skill 在新引擎稳定前保留当前人工分析路径。
+- Agent Skill 保留提取器不可用时的明确降级路径，但仍输出同一严格 schema。
 
 ## 主要风险
 
@@ -325,7 +338,7 @@ schema、canonical key 规则和查询响应契约必须有共享 fixtures；在
 
 - 所有阶段对应的自动化测试通过；
 - 构建、Lint、Extension 测试和 MCP 测试通过；
-- 新旧图谱文件和人工覆盖数据兼容；
+- 唯一的 version-1 分组图谱格式通过严格校验，人工描述覆盖仍可重新绑定；
 - 默认 Agent 工作流不加载完整 `knowledge-graph.md`；
 - 查询结果受 token budget 控制，并能按需返回 Evidence；
 - 增量结果和全量重建结果通过一致性测试；

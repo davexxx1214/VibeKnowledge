@@ -16,14 +16,10 @@ export type EntityType =
   | 'interface'
   | 'variable'
   | 'file'
-  | 'directory'
   | 'api'
-  | 'config'
-  | 'database'
   | 'service'
   | 'component'
-  | 'external'  // 外部模块的类/接口
-  | 'other';
+  | 'external'; // 外部模块、运行时基础设施或外部系统
 
 /**
  * 实体
@@ -45,7 +41,6 @@ export interface Entity {
  * 关系动词类型
  */
 export type RelationVerb = 
-  | 'uses'
   | 'calls'
   | 'extends'
   | 'implements'

@@ -6,14 +6,14 @@ Write UTF-8 JSON to `<workspace>/.vscode/.knowledge/agent-graph.json`.
 
 ```json
 {
-  "version": 2,
+  "version": 1,
   "generatedAt": "2026-08-25T12:00:00.000Z",
   "scope": ".",
   "groups": []
 }
 ```
 
-- `version` must be `2`.
+- `version` must be `1`. This is the only supported grouped manifest shape; do not migrate or accept unpublished legacy shapes.
 - `generatedAt` must be an ISO-8601 timestamp.
 - `scope` is optional. Use `.` for the whole workspace or a normalized workspace-relative path for a narrower aggregate.
 - `groups` must be a non-empty array.
@@ -44,6 +44,12 @@ Write UTF-8 JSON to `<workspace>/.vscode/.knowledge/agent-graph.json`.
 - A symbol may appear in multiple groups. Use the same stable entity key in every occurrence. Keys need to be unique only inside one group.
 - A relation may connect only entities declared in its own group.
 
+### Detailed group semantics
+
+Module and feature groups are component-level dependency views. Include public modules, controllers or APIs, services, repositories, entities/models, DTOs, interfaces, exported functions or variables, direct cross-scope dependencies, and important runtime integrations.
+
+Do not serialize methods, constructors, tests, or compiler-only implementation details as nodes. Lift their calls and references to the nearest selected owning component. Keep at most one strongest relation per ordered entity pair: inheritance/implementation, import/export, containment, call, reference, then generic dependency.
+
 ### Framework group semantics
 
 The `framework` group is a boundary graph, not an aggregate call graph. Model startup, root composition, one stable node per top-level package or business module, direct dependencies between those boundaries, shared runtime infrastructure, and important external systems.
@@ -68,11 +74,11 @@ For an ordinary application, 8–15 framework entities and 10–20 framework rel
 
 Required fields are `key`, `name`, `type`, `filePath`, `startLine`, and `endLine`. `description` is schema-optional, but every file-backed entity should include concise responsibility prose for the editor's `🧠 KG` hint.
 
-- Prefer key `<workspace-relative-path>#<symbol>`; use the path alone for file, directory, database, or configuration nodes.
+- Prefer key `<workspace-relative-path>#<symbol>`; use the path alone only for a selected file node.
 - `filePath` uses `/`, is workspace-relative, and contains no empty, `.` or `..` segments.
 - Lines are one-based positive integers and `endLine >= startLine`.
 - Agent prose may change on refresh. VibeKnowledge reapplies a human override by entity key to every group occurrence.
-- `type` is one of `function`, `class`, `interface`, `variable`, `file`, `directory`, `api`, `config`, `database`, `service`, `component`, `external`, `other`.
+- `type` is one of `function`, `class`, `interface`, `variable`, `file`, `api`, `service`, `component`, `external`.
 - For a genuinely external entity, use a portable virtual path such as `external/postgresql`.
 
 ### Canonical comparison aliases
@@ -93,7 +99,7 @@ Maintainers can use [canonical-key-cases.json](canonical-key-cases.json) as the 
   "source": "src/auth/auth-service.ts#AuthService",
   "target": "src/users/user-repository.ts#UserRepository",
   "verb": "depends_on",
-  "origin": "agent",
+  "origin": "ast",
   "confidence": "extracted",
   "description": "Authentication loads a user before checking credentials.",
   "evidence": [
@@ -120,18 +126,18 @@ Maintainers can use [canonical-key-cases.json](canonical-key-cases.json) as the 
 
 - `source` and `target` reference entity keys in the same group and must differ.
 - `(source, target, verb)` is unique within the group. The same tuple may occur in another group.
-- `origin` is optional for backward compatibility and is one of:
+- `origin` is required and is one of:
   - `ast`: emitted directly by a syntax or compiler extractor;
   - `resolver`: produced by deterministic cross-file symbol resolution;
   - `agent`: selected or inferred by an Agent semantic pass.
-- `confidence` is optional for backward compatibility and is one of:
+- `confidence` is required and is one of:
   - `extracted`: the cited source directly proves the relation;
   - `inferred`: the relation is a deterministic or semantic synthesis of multiple facts;
   - `review_required`: the relation is useful but remains ambiguous and needs review.
 - `evidence` contains at least one item.
 - Evidence and confidence serve different purposes: Evidence records what can be audited; confidence states how directly that Evidence supports the relation. Never omit Evidence because confidence is present.
 - Evidence paths and lines follow the entity rules, resolve to an existing workspace file, and stay inside that file. `endLine` and `detail` are optional.
-- `structuralPath` is optional for backward compatibility and for genuinely Agent-only business relations. When present, it is a non-empty ordered list of raw structural edges from `structural-graph.json`.
+- `structuralPath` is optional only for genuinely Agent-only business relations. Deterministically generated relations must include a non-empty ordered list of raw structural edges from `structural-graph.json`.
 - Every structural hop requires `source`, `target`, `verb`, `filePath`, `startLine`, and `endLine`, and must exactly match one raw relation and its location. `traversal` is optional and is `forward` or `reverse`; generated multi-hop paths use it to record how the raw edge is traversed. A collapsed boundary relation may contain several ordered hops.
 - Deterministic condenser output must keep `structuralPath`; Agents must not fabricate or rewrite its hops. The compact Markdown view omits it, while the full audit report retains it.
 - `verb` is one of:
@@ -142,14 +148,13 @@ Maintainers can use [canonical-key-cases.json](canonical-key-cases.json) as the 
   - `exports`: source exports target.
   - `contains`: source structurally owns target.
   - `references`: source directly references target without a stronger verb.
-  - `uses`: source uses target in a broader runtime interaction.
   - `depends_on`: source cannot fulfill its responsibility without target and no more specific verb applies.
 
 ## Complete example
 
 ```json
 {
-  "version": 2,
+  "version": 1,
   "generatedAt": "2026-08-25T12:00:00.000Z",
   "scope": "src",
   "groups": [
@@ -184,7 +189,7 @@ Maintainers can use [canonical-key-cases.json](canonical-key-cases.json) as the 
           "source": "src/app.ts#Application",
           "target": "src/auth/auth-module.ts#AuthModule",
           "verb": "imports",
-          "origin": "agent",
+          "origin": "ast",
           "confidence": "extracted",
           "description": "The application assembles the authentication boundary.",
           "evidence": [
@@ -229,7 +234,7 @@ Maintainers can use [canonical-key-cases.json](canonical-key-cases.json) as the 
           "source": "src/auth/auth-service.ts#AuthService",
           "target": "src/users/user-repository.ts#UserRepository",
           "verb": "depends_on",
-          "origin": "agent",
+          "origin": "ast",
           "confidence": "extracted",
           "description": "Authentication requires persisted user records.",
           "evidence": [

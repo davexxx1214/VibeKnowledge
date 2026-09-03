@@ -1221,9 +1221,7 @@ function collectImportBindings(sourceFile) {
 }
 
 function decoratorsForNode(node, sourceFile) {
-  const decorators = ts.canHaveDecorators(node)
-    ? ts.getDecorators(node) ?? []
-    : [];
+  const decorators = decoratorsOf(node);
   return decorators.map((decorator) => {
     const expression = decorator.expression;
     const call = ts.isCallExpression(expression) ? expression : undefined;
@@ -1239,9 +1237,7 @@ function decoratorsForNode(node, sourceFile) {
 }
 
 function decoratorCall(node, expectedName) {
-  const decorators = ts.canHaveDecorators(node)
-    ? ts.getDecorators(node) ?? []
-    : [];
+  const decorators = decoratorsOf(node);
   for (const decorator of decorators) {
     const expression = decorator.expression;
     if (
@@ -1252,6 +1248,16 @@ function decoratorCall(node, expectedName) {
     }
   }
   return undefined;
+}
+
+function decoratorsOf(node) {
+  if (
+    typeof ts.canHaveDecorators === 'function' &&
+    typeof ts.getDecorators === 'function'
+  ) {
+    return ts.canHaveDecorators(node) ? ts.getDecorators(node) ?? [] : [];
+  }
+  return node.decorators ? [...node.decorators] : [];
 }
 
 function decoratorExpressionName(expression, sourceFile) {

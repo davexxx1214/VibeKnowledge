@@ -83,7 +83,7 @@ describe('GraphDatabase', () => {
     realDb.prepare(`
       INSERT INTO relations (id, source_entity_id, target_entity_id, verb, created_at, metadata)
       VALUES (?, ?, ?, ?, ?, ?)
-    `).run('rel-1', 'entity-1', 'entity-2', 'uses', now, null);
+    `).run('rel-1', 'entity-1', 'entity-2', 'references', now, null);
 
     realDb.prepare(`
       INSERT INTO relations (id, source_entity_id, target_entity_id, verb, created_at, metadata)
@@ -280,9 +280,9 @@ describe('GraphDatabase', () => {
     });
 
     it('应该按动词过滤', () => {
-      const results = db.searchRelations({ verb: 'uses' });
+      const results = db.searchRelations({ verb: 'references' });
       expect(results.length).toBe(1);
-      expect(results[0].verb).toBe('uses');
+      expect(results[0].verb).toBe('references');
     });
 
     it('应该按源实体名称搜索', () => {

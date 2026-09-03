@@ -147,14 +147,10 @@ export class KnowledgeTreeItem extends vscode.TreeItem {
       interface: 'symbol-interface',
       variable: 'symbol-variable',
       file: 'file',
-      directory: 'folder',
       api: 'globe',
-      config: 'settings-gear',
-      database: 'database',
       service: 'server',
       component: 'symbol-module',
       external: 'package',
-      other: 'symbol-misc',
     };
     return iconMap[type];
   }
@@ -211,12 +207,6 @@ export class KnowledgeTreeDataProvider
     }
     if (element.type === 'category' && element.entityType) {
       return Promise.resolve(this.getEntities(element.entityType, element));
-    }
-    if (
-      element.type === 'entity' &&
-      element.entity?.origin === 'manual'
-    ) {
-      return Promise.resolve(this.getObservations(element.entity, element));
     }
     return Promise.resolve([]);
   }

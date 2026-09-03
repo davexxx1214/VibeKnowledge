@@ -91,7 +91,7 @@
    - 分析底层影响：`@mcp vibeknowledge tool analyze_impact {"selector": "UserService", "direction": "both", "maxDepth": 3}`
    - 查找底层跨模块路径：`@mcp vibeknowledge tool find_structural_path {"source": "UserController", "target": "ArticleEntity"}`
    - 查询观察记录：`@mcp vibeknowledge tool search_observations {"limit": 5}`
-   - 查询关系：`@mcp vibeknowledge tool knowledge://relations {"verb": "uses", "limit": 5}`（返回数据来源与 Agent 证据）
+   - 查询关系：`@mcp vibeknowledge tool knowledge://relations {"verb": "depends_on", "limit": 5}`（返回数据来源与 Agent 证据）
    - RAG 问答：`@mcp vibeknowledge tool ask_question {"question": "项目的数据库连接数是多少？"}`
 
 ---
@@ -152,7 +152,7 @@
 | Prompt | `get_observations` | 引导 AI 调用 `search_observations` 工具 |
 | Tool | `ask_question` | 自动根据 `rag.mode` 调用本地或云端 RAG，并附带引用文件 |
 
-知识图谱结构来自目标工作区的 `.vscode/.knowledge/agent-graph.json`。可以先在 VS Code 中运行 **Knowledge: Install Dependency Graph Agent Skill**，再由 Agent 或 **Knowledge: Curate Graph from Structure** 先生成框架层、后按模块或功能追加平行分组；Skill 同时生成 `.vscode/.knowledge/knowledge-graph.md` 汇总文档。同一实体可以出现在多个分组中，MCP 搜索结果会标明所属分组，而总览统计会按稳定实体去重。实体匹配会使用 canonical alias 兼容路径分隔符、Unicode NFKC、大小写和冗余标点，但不会改写原 stable key。关系可携带 `origin`（`ast | resolver | agent`）、`confidence`（`extracted | inferred | review_required`）和可选的底层 `structuralPath`；旧 v1/v2 图谱缺少这些字段时仍可读取。SQLite 只提供人工描述覆盖和 RAG 数据，不再提供实体或关系结构；人工描述在 MCP 查询时始终优先。MCP Server 全程只读，因此不会与扩展的 SQL.js 保存流程争抢数据库写入。
+知识图谱结构来自目标工作区的 `.vscode/.knowledge/agent-graph.json`。可以先在 VS Code 中运行 **Knowledge: Install Dependency Graph Agent Skill**，再由 Agent 或 **Knowledge: Curate Graph from Structure** 先生成框架层、后按模块或功能追加平行分组；Skill 同时生成 `.vscode/.knowledge/knowledge-graph.md` 汇总文档。同一实体可以出现在多个分组中，MCP 搜索结果会标明所属分组，而总览统计会按稳定实体去重。实体匹配会使用 canonical alias 兼容路径分隔符、Unicode NFKC、大小写和冗余标点。关系必须携带 `origin`（`ast | resolver | agent`）和 `confidence`（`extracted | inferred | review_required`）；确定性关系还包含底层 `structuralPath`。仅支持 version-1 分组清单。SQLite 只提供人工描述覆盖和 RAG 数据，不提供实体或关系结构；人工描述在 MCP 查询时始终优先。MCP Server 全程只读，因此不会与扩展的 SQL.js 保存流程争抢数据库写入。
 
 ### 局部图查询
 
