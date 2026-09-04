@@ -20,6 +20,7 @@ import {
 import { MusicGeneratorService } from '../../services/musicGenerator';
 import type { EntityType, RelationVerb } from '../../utils/types';
 import { GRAPH_RELATION_TOOLTIP_SCRIPT } from './graphWebviewClientScript';
+import { GRAPH_PERFORMANCE_SCRIPT } from './graphPerformanceScript';
 import { StrudelView } from './strudelView';
 import { t } from '../../i18n/i18nService';
 
@@ -146,13 +147,22 @@ export class GraphView {
 
         // 监听面板关闭
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+        vscode.workspace.onDidChangeConfiguration(event => {
+            if (event.affectsConfiguration('knowledgeGraph.visualization.performanceMode')) {
+                this._sendPerformanceMode();
+            }
+        }, null, this._disposables);
     }
 
     public static createOrShow(extensionUri: vscode.Uri) {
         // 如果已经存在，则更新数据并显示
         if (GraphView.currentPanel) {
             GraphView.currentPanel._panel.reveal(vscode.ViewColumn.One);
-            GraphView.currentPanel._update();
+            if (GraphView.currentPanel._panel.title !== t().graphView.title) {
+                GraphView.currentPanel._update();
+            } else {
+                GraphView.currentPanel._sendGraphData();
+            }
             return;
         }
 
@@ -196,7 +206,11 @@ export class GraphView {
         switch (message.type) {
             case 'ready':
                 // Webview 准备好了，发送图谱数据
+                this._sendPerformanceMode();
                 this._sendGraphData();
+                break;
+            case 'setPerformanceMode':
+                void this._setPerformanceMode(message.mode);
                 break;
             case 'jumpToEntity':
                 // 跳转到实体位置
@@ -281,6 +295,30 @@ export class GraphView {
                 bpm: music.bpm,
             },
         });
+    }
+
+    private _getPerformanceMode(): 'low' | 'high' {
+        return vscode.workspace.getConfiguration('knowledgeGraph.visualization')
+            .get<string>('performanceMode', 'low') === 'high' ? 'high' : 'low';
+    }
+
+    private _sendPerformanceMode() {
+        this._panel.webview.postMessage({ type: 'performanceMode', mode: this._getPerformanceMode() });
+    }
+
+    private async _setPerformanceMode(mode: unknown) {
+        if (mode !== 'low' && mode !== 'high') {
+            return;
+        }
+        try {
+            // This is a machine preference, not project data or a workspace edit.
+            await vscode.workspace.getConfiguration('knowledgeGraph.visualization')
+                .update('performanceMode', mode, vscode.ConfigurationTarget.Global);
+        } catch (error) {
+            void vscode.window.showErrorMessage(`Could not save graph display mode: ${error}`);
+        } finally {
+            this._sendPerformanceMode();
+        }
     }
 
     private _sendStructuralOverview(level: 'boundary' | 'file' | 'community' = 'boundary') {
@@ -826,7 +864,7 @@ export class GraphView {
             cursor: grab;
         }
 
-        #structuralLevel {
+        #structuralLevel, #performanceMode {
             height: 36px;
             color: var(--vscode-dropdown-foreground);
             background: var(--vscode-dropdown-background);
@@ -1038,14 +1076,28 @@ export class GraphView {
         .beat-sync {
             animation-duration: 1s !important;
         }
+
+        body.low-performance *, body.graph-paused * {
+            animation: none !important;
+            transition: none !important;
+        }
+        body.low-performance .nodes circle { filter: none !important; }
+        body.low-performance .nodes text { text-shadow: none !important; }
+        body.low-performance button:hover { box-shadow: none; transform: none; }
+        #toolbar { max-width: calc(100% - 245px); flex-wrap: wrap; justify-content: flex-end; }
+        @media (max-width: 700px) { #toolbar { max-width: calc(100% - 205px); } }
     </style>
 </head>
-<body>
+<body class="${this._getPerformanceMode() === 'low' ? 'low-performance' : ''}">
     <aside id="group-sidebar">
         <div id="group-sidebar-title">${groupTranslations.title}</div>
         <div id="group-list"></div>
     </aside>
     <div id="toolbar">
+        <select id="performanceMode" aria-label="${translations.toolbar.performance}" title="${translations.toolbar.performance}">
+            <option value="low">${translations.toolbar.lowPerformance}</option>
+            <option value="high">${translations.toolbar.highPerformance}</option>
+        </select>
         <select id="structuralLevel" title="Raw structural graph aggregation">
             <option value="boundary">Boundary</option>
             <option value="community">Community</option>
@@ -1084,6 +1136,14 @@ export class GraphView {
 
     <script nonce="${nonce}">
         const vscode = acquireVsCodeApi();
+        ${GRAPH_PERFORMANCE_SCRIPT}
+        let performanceMode = ${JSON.stringify(this._getPerformanceMode())};
+        const layoutCache = createLayoutCache();
+        let staticLayout = null;
+        let saveCurrentLayout = () => {};
+        let redrawNode = () => {};
+        let fitTimer = 0;
+        let allowAutoFit = true;
         let simulation, svg, g, zoom;
         let width, height;
         let graphGroups = [];
@@ -1162,7 +1222,11 @@ export class GraphView {
                 
                 if (simulation) {
                     simulation.force('center', d3.forceCenter(width / 2, height / 2));
-                    simulation.alpha(0.15).restart();
+                    if (performanceMode === 'low') {
+                        fitGraph();
+                    } else if (!document.hidden) {
+                        simulation.alpha(0.15).restart();
+                    }
                 }
             }
         }
@@ -1180,7 +1244,7 @@ export class GraphView {
         function startParticleAnimation(callback) {
             stopParticleAnimation();
             resumeParticleAnimation = () => {
-                if (!particleAnimationFrame && !document.hidden) {
+                if (!particleAnimationFrame && !document.hidden && performanceMode === 'high') {
                     particleAnimationFrame = requestAnimationFrame(callback);
                 }
             };
@@ -1188,21 +1252,38 @@ export class GraphView {
         }
 
         document.addEventListener('visibilitychange', () => {
+            document.body.classList.toggle('graph-paused', document.hidden);
             if (document.hidden) {
                 stopParticleAnimation(false);
+                staticLayout?.pause();
+                simulation?.stop();
+                svg?.interrupt();
+                g?.selectAll('*').interrupt();
+                window.clearTimeout(fitTimer);
+                window.clearTimeout(resizeTimer);
+                saveCurrentLayout();
             } else {
+                if (performanceMode === 'low') staticLayout?.resume();
+                else if (simulation && simulation.alpha() > simulation.alphaMin()) simulation.restart();
                 resumeParticleAnimation?.();
             }
         });
 
         window.addEventListener('beforeunload', () => {
             stopParticleAnimation();
+            staticLayout?.stop();
             simulation?.stop();
+            window.clearTimeout(fitTimer);
+            window.clearTimeout(resizeTimer);
         });
         
         window.addEventListener('message', event => {
             const message = event.data;
             switch (message.type) {
+                case 'performanceMode':
+                    applyPerformanceMode(message.mode);
+                    document.getElementById('performanceMode').disabled = false;
+                    break;
                 case 'graphData':
                     setGraphGroups(message.data.groups || []);
                     break;
@@ -1220,6 +1301,7 @@ export class GraphView {
         });
 
         function initGraph() {
+            document.body.classList.toggle('graph-paused', document.hidden);
             const container = d3.select('#graph-container');
             const containerNode = container.node();
             width = containerNode.clientWidth;
@@ -1277,6 +1359,9 @@ export class GraphView {
             
             zoom = d3.zoom()
                 .scaleExtent([0.1, 4])
+                .on('start', (event) => {
+                    if (event.sourceEvent) allowAutoFit = false;
+                })
                 .on('zoom', (event) => {
                     g.attr('transform', event.transform);
                 });
@@ -1293,7 +1378,14 @@ export class GraphView {
             if (graphGroups.length === 0) {
                 selectedGroupKey = null;
                 stopParticleAnimation();
+                staticLayout?.stop();
                 simulation?.stop();
+                staticLayout = null;
+                simulation = null;
+                redrawNode = () => {};
+                window.clearTimeout(fitTimer);
+                saveCurrentLayout = () => {};
+                layoutCache.clear();
                 g?.selectAll('*').remove();
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('render-error').classList.add('hidden');
@@ -1372,7 +1464,9 @@ export class GraphView {
 
         function showRenderError(error) {
             stopParticleAnimation();
+            staticLayout?.stop();
             simulation?.stop();
+            window.clearTimeout(fitTimer);
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('empty-state').classList.add('hidden');
             const errorState = document.getElementById('render-error');
@@ -1386,7 +1480,16 @@ export class GraphView {
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('render-error').classList.add('hidden');
             stopParticleAnimation();
+            staticLayout?.stop();
             simulation?.stop();
+            saveCurrentLayout();
+            staticLayout = null;
+            simulation = null;
+            saveCurrentLayout = () => {};
+            redrawNode = () => {};
+            window.clearTimeout(fitTimer);
+            svg.interrupt();
+            g.selectAll('*').interrupt();
             g.selectAll('*').remove();
             
             const { entities, relations } = data;
@@ -1450,12 +1553,30 @@ export class GraphView {
                 ...e
             }));
 
+            const cachedLayout = layoutCache.get(data.key, nodes, links);
+            if (cachedLayout) {
+                nodes.forEach(n => Object.assign(n, cachedLayout.positions.get(n.id)));
+                const { x, y, k } = cachedLayout.transform;
+                svg.call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(k));
+            } else {
+                svg.call(zoom.transform, d3.zoomIdentity);
+            }
+            allowAutoFit = cachedLayout ? cachedLayout.autoFit : true;
+
             // Simulation
             simulation = d3.forceSimulation(nodes)
                 .force('link', d3.forceLink(links).id(d => d.id).distance(200)) // Increased distance
                 .force('charge', d3.forceManyBody().strength(-500))
                 .force('center', d3.forceCenter(width / 2, height / 2))
                 .force('collide', d3.forceCollide().radius(50));
+            if (performanceMode === 'low' || cachedLayout?.settled || document.hidden) simulation.stop();
+            if (cachedLayout) simulation.alpha(cachedLayout.alpha);
+            const groupSimulation = simulation;
+            saveCurrentLayout = () => layoutCache.set(data.key, nodes, links, d3.zoomTransform(svg.node()), {
+                settled: groupSimulation.alpha() <= groupSimulation.alphaMin(),
+                alpha: groupSimulation.alpha(),
+                autoFit: allowAutoFit
+            });
 
             // Links (Paths instead of Lines)
             const linkGroup = g.append('g')
@@ -1470,7 +1591,7 @@ export class GraphView {
                 .attr('stroke-opacity', d => d.isAgent ? 0.75 : 0.4)
                 .attr('stroke-width', d => d.isAgent ? 2.5 : 1.5)
                 .attr('stroke-dasharray', d => d.isAgent ? '4, 4' : null)
-                .attr('class', d => d.isAgent ? 'link-flow' : null)
+                .attr('class', d => d.isAgent && performanceMode === 'high' ? 'link-flow' : null)
                 .attr('marker-end', d =>
                     'url(#arrow-' + (entityById.get(d.sourceId)?.type || 'external') + ')'
                 );
@@ -1495,7 +1616,7 @@ export class GraphView {
             
             // Create particles for each link
             const particles = particleGroup.selectAll('circle')
-                .data(links)
+                .data(performanceMode === 'high' ? links : [])
                 .join('circle')
                 .attr('r', 2)
                 .attr('class', 'particle');
@@ -1510,7 +1631,7 @@ export class GraphView {
             let lastParticleFrame = 0;
             function animateParticles(timestamp) {
                 particleAnimationFrame = 0;
-                if (document.hidden) return;
+                if (document.hidden || performanceMode !== 'high') return;
                 if (timestamp - lastParticleFrame < particleFrameInterval) {
                     resumeParticleAnimation?.();
                     return;
@@ -1531,7 +1652,7 @@ export class GraphView {
                 });
                 resumeParticleAnimation?.();
             }
-            if (links.length > 0) {
+            if (links.length > 0 && performanceMode === 'high') {
                 startParticleAnimation(animateParticles);
             }
 
@@ -1544,7 +1665,7 @@ export class GraphView {
                 .join('g');
             
             // Label background (halo) to make text readable over lines
-            linkLabel.append('text')
+            linkLabel.filter(() => performanceMode === 'high').append('text')
                 .text(d => d.verb)
                 .attr('font-size', 10)
                 .attr('text-anchor', 'middle')
@@ -1603,10 +1724,11 @@ export class GraphView {
                 .attr('stroke', d => d.isAgent ? '#FFD166' : '#fff')
                 .attr('stroke-width', 1.5)
                 .attr('stroke-dasharray', d => d.isAgent ? '4, 2' : null)
-                .style('filter', 'url(#glow)')
+                .style('filter', performanceMode === 'high' ? 'url(#glow)' : null)
                 .style('cursor', 'pointer')
                 .on('mouseover', function(event, d) {
-                    d3.select(this).transition().duration(200).attr('r', 25);
+                    const circle = d3.select(this);
+                    (performanceMode === 'low' ? circle : circle.transition().duration(200)).attr('r', 25);
                     showTooltip(event, d);
                     
                     // Highlight connected nodes
@@ -1626,7 +1748,8 @@ export class GraphView {
                     linkLabel.classed('text-dimmed', l => l.sourceId !== d.id && l.targetId !== d.id);
                 })
                 .on('mouseout', function(event, d) {
-                    d3.select(this).transition().duration(200).attr('r', 20);
+                    const circle = d3.select(this);
+                    (performanceMode === 'low' ? circle : circle.transition().duration(200)).attr('r', 20);
                     hideTooltip();
                     
                     // Reset highlight
@@ -1684,7 +1807,7 @@ export class GraphView {
                 .attr('font-size', 14)
                 .attr('font-weight', 'bold')
                 .style('pointer-events', 'none')
-                .style('text-shadow', '1px 1px 2px #000');
+                .style('text-shadow', performanceMode === 'high' ? '1px 1px 2px #000' : null);
 
             // Icon/Text inside node
             node.append('text')
@@ -1697,9 +1820,10 @@ export class GraphView {
                 .attr('font-weight', 'bold')
                 .style('pointer-events', 'none');
 
-            simulation.on('tick', () => {
+            function updateGeometry(movedNode) {
                 settledLengthById.clear();
-                link.attr('d', d => {
+                const incident = d => !movedNode || d.sourceId === movedNode.id || d.targetId === movedNode.id;
+                link.filter(incident).attr('d', d => {
                     const x1 = d.source.x;
                     const y1 = d.source.y;
                     const x2 = d.target.x;
@@ -1722,7 +1846,7 @@ export class GraphView {
                         const normY = dx;
                         
                         // Normalize
-                        const len = Math.sqrt(normX * normX + normY * normY);
+                        const len = Math.sqrt(normX * normX + normY * normY) || 1;
                         const nx = normX / len;
                         const ny = normY / len;
                         
@@ -1746,7 +1870,7 @@ export class GraphView {
                     }
                 });
 
-                linkLabel.attr('transform', d => {
+                linkLabel.filter(incident).attr('transform', d => {
                     if (d.linkCount > 1) {
                         const x1 = d.source.x;
                         const y1 = d.source.y;
@@ -1761,7 +1885,7 @@ export class GraphView {
                         
                         const normX = -dy;
                         const normY = dx;
-                        const len = Math.sqrt(normX * normX + normY * normY);
+                        const len = Math.sqrt(normX * normX + normY * normY) || 1;
                         const nx = normX / len;
                         const ny = normY / len;
                         
@@ -1789,42 +1913,50 @@ export class GraphView {
                     }
                 });
 
-                node
+                node.filter(d => !movedNode || d.id === movedNode.id)
                     .attr('transform', d => \`translate(\${d.x},\${d.y})\`);
-            });
+            }
+            redrawNode = updateGeometry;
+            simulation.on('tick', () => updateGeometry());
 
             simulation.on('end', () => {
-                pathById.forEach((path, id) => {
-                    settledLengthById.set(id, path.getTotalLength());
-                });
+                if (performanceMode === 'high') {
+                    pathById.forEach((path, id) => {
+                        settledLengthById.set(id, path.getTotalLength());
+                    });
+                }
+                saveCurrentLayout();
             });
-            
-            // Initial fit
-            setTimeout(fitGraph, 1000);
+
+            updateGeometry();
+            staticLayout = null;
+            if (performanceMode === 'low' && !cachedLayout?.settled) {
+                staticLayout = createStaticLayout(simulation, updateGeometry, () => {
+                    if (allowAutoFit) fitGraph();
+                    allowAutoFit = false;
+                    saveCurrentLayout();
+                }, showRenderError);
+                staticLayout.resume();
+            } else if (performanceMode === 'high' && allowAutoFit) {
+                fitTimer = window.setTimeout(() => {
+                    if (allowAutoFit && !document.hidden) {
+                        fitGraph();
+                        allowAutoFit = false;
+                    }
+                }, 1000);
+            }
         }
 
         function drag(simulation) {
-            function dragstarted(event) {
-                if (!event.active) simulation.alphaTarget(0.3).restart();
-                event.subject.fx = event.subject.x;
-                event.subject.fy = event.subject.y;
-            }
-            
-            function dragged(event) {
-                event.subject.fx = event.x;
-                event.subject.fy = event.y;
-            }
-            
-            function dragended(event) {
-                if (!event.active) simulation.alphaTarget(0);
-                event.subject.fx = null;
-                event.subject.fy = null;
-            }
-            
+            const handlers = createGraphDragHandlers(simulation,
+                () => performanceMode === 'low',
+                () => staticLayout?.stop(),
+                movedNode => redrawNode(movedNode),
+                () => saveCurrentLayout());
             return d3.drag()
-                .on('start', dragstarted)
-                .on('drag', dragged)
-                .on('end', dragended);
+                .on('start', event => { allowAutoFit = false; handlers.start(event); })
+                .on('drag', handlers.drag)
+                .on('end', handlers.end);
         }
 
         function getIconForType(type) {
@@ -1930,17 +2062,25 @@ ${GRAPH_RELATION_TOOLTIP_SCRIPT}
             const width = bounds.width;
             const height = bounds.height;
             
-            if (width === 0 || height === 0) return;
+            if (width === 0 || height === 0 || fullWidth === 0 || fullHeight === 0) return;
             
             const midX = bounds.x + width / 2;
             const midY = bounds.y + height / 2;
             
-            const scale = 0.85 / Math.max(width / fullWidth, height / fullHeight);
+            const scale = Math.max(0.1, Math.min(4, 0.85 / Math.max(width / fullWidth, height / fullHeight)));
             const translate = [fullWidth / 2 - scale * midX, fullHeight / 2 - scale * midY];
             
-            svg.transition()
-                .duration(750)
+            (performanceMode === 'low' ? svg.interrupt() : svg.transition().duration(750))
                 .call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+        }
+
+        function applyPerformanceMode(mode) {
+            const nextMode = normalizePerformanceMode(mode);
+            document.getElementById('performanceMode').value = nextMode;
+            document.body.classList.toggle('low-performance', nextMode === 'low');
+            if (nextMode === performanceMode) return;
+            performanceMode = nextMode;
+            if (g && selectedGroupKey) selectGraphGroup(selectedGroupKey);
         }
 
         function refreshGraph() {
@@ -2033,6 +2173,13 @@ ${GRAPH_RELATION_TOOLTIP_SCRIPT}
         document.getElementById('structuralBtn').addEventListener('click', openStructuralGraph);
         document.getElementById('fitBtn').addEventListener('click', fitGraph);
         document.getElementById('refreshBtn').addEventListener('click', refreshGraph);
+        const performanceSelect = document.getElementById('performanceMode');
+        performanceSelect.value = performanceMode;
+        performanceSelect.addEventListener('change', () => {
+            applyPerformanceMode(performanceSelect.value);
+            performanceSelect.disabled = true;
+            vscode.postMessage({ type: 'setPerformanceMode', mode: performanceMode });
+        });
     </script>
 </body>
 </html>`;

@@ -374,6 +374,9 @@ export interface LanguagePack {
     toolbar: {
       fit: string;
       refresh: string;
+      performance: string;
+      lowPerformance: string;
+      highPerformance: string;
     };
     groups: {
       title: string;

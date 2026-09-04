@@ -568,7 +568,10 @@ export const zh = {
     title: '知识图谱可视化',
     toolbar: {
       fit: '适应窗口',
-      refresh: '刷新'
+      refresh: '刷新',
+      performance: '显示模式（仅影响可视化，不改变图谱数据）',
+      lowPerformance: '低性能模式',
+      highPerformance: '高性能模式'
     },
     groups: {
       title: '图谱分组',

@@ -569,7 +569,10 @@ export const en = {
     title: 'Knowledge Graph Visualization',
     toolbar: {
       fit: 'Fit to window',
-      refresh: 'Refresh'
+      refresh: 'Refresh',
+      performance: 'Display mode (visualization only; graph data is unchanged)',
+      lowPerformance: 'Low-performance mode',
+      highPerformance: 'High-performance mode'
     },
     groups: {
       title: 'Graphs',

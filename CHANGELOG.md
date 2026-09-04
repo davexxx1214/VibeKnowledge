@@ -4,6 +4,10 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 ## [Unreleased]
 
+### Added
+
+- Default low-performance graph display mode with a toolbar switch to high-performance effects and a machine-local persisted setting. Low mode uses budgeted static layout, bounded geometry caching, and local drag redraws without removing graph facts.
+
 ### Changed
 
 - Separated exact, case-sensitive graph identity from fuzzy search aliases across validation, curation, description overrides, extension snapshots and MCP queries. Ambiguous selectors require an exact key for traversal.
@@ -11,6 +15,8 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 - Taught the bundled dependency-graph Skill to scope on-demand page and cross-page feature graphs, including help-center content, scattered frontend/backend code, and Markdown/MDX limitations.
 
 ### Fixed
+
+- Paused graph animation and layout work while hidden, cancelled replaced layouts, and reused the existing Webview document when reopening the graph panel.
 
 - Recognized React/Vite HTML and mount entries, JSX composition, routers and root layouts; excluded development artifacts from framework candidates while retaining reachable generated API clients.
 - Extracted literal dynamic imports and invalidated their dependants incrementally; HTML entry changes now invalidate extraction caches and trigger background refresh.

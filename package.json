@@ -264,6 +264,18 @@
     "configuration": {
       "title": "Knowledge Graph",
       "properties": {
+        "knowledgeGraph.visualization.performanceMode": {
+          "type": "string",
+          "enum": ["low", "high"],
+          "default": "low",
+          "scope": "machine",
+          "enumDescriptions": [
+            "低性能模式：静态布局，关闭粒子、流动虚线和发光 / Low-performance mode: static layout without animated effects",
+            "高性能模式：完整动画和交互式力导向布局 / High-performance mode: full effects and interactive force layout"
+          ],
+          "description": "图谱显示模式，可在图谱工具栏切换；不改变图谱数据 / Graph display mode, also switchable in the graph toolbar; does not change graph data",
+          "order": 0
+        },
         "knowledgeGraph.gemini.apiKey": {
           "type": "string",
           "default": "",
