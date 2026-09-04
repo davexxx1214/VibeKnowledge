@@ -4,6 +4,13 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-04
+
+### Upgrade notes
+
+- Development tools and the standalone MCP server now require Node.js `>=26.1.0 <27` (default: 26.1.0). Reinstall dependencies after changing Node, especially the native `better-sqlite3` module, and restart MCP clients. VS Code still manages its own extension-host runtime.
+- The MCP tool `knowledge://relations` is now `list_relations`; restart the MCP server and refresh clients' cached tool lists. Graph identifiers are now exact and case-sensitive; ambiguous fuzzy selectors require an exact entity key.
+
 ### Added
 
 - Default low-performance graph display mode with a toolbar switch to high-performance effects and a machine-local persisted setting. Low mode uses budgeted static layout, bounded geometry caching, and local drag redraws without removing graph facts.
