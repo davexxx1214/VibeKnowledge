@@ -44,8 +44,8 @@ export function registerMcpSetupCommands(context: vscode.ExtensionContext): void
       const accepted = await vscode.window.showInformationMessage(
         text('为此工程安装 VibeKnowledge MCP？', 'Install VibeKnowledge MCP for this project?'),
         { modal: true, detail: text(
-          `目标工程：${workspace}\n配置：${targetConfig}\n\n将下载并运行锁定依赖的安装脚本，启用安全审计，验证连接。仅替换 vibeknowledge 配置项并备份原文件；不会安装依赖到业务工程，也不会重新生成图谱。首次使用会初始化缺失的图谱数据库。`,
-          `Project: ${workspace}\nConfig: ${targetConfig}\n\nDownloads locked dependencies and runs their install scripts with auditing enabled, then verifies the connection. Only replaces the vibeknowledge entry, with a backup. Does not install into the business project or regenerate graphs. Initializes the graph database if missing.`
+          `目标工程：${workspace}\n配置：${targetConfig}\n\n将下载锁定依赖，不运行依赖的安装生命周期脚本；启用安全审计并验证连接。仅替换 vibeknowledge 配置项并备份原文件；不会安装依赖到业务工程，也不会重新生成图谱。首次使用会初始化缺失的图谱数据库。`,
+          `Project: ${workspace}\nConfig: ${targetConfig}\n\nDownloads locked dependencies without running dependency lifecycle scripts, with auditing enabled, then verifies the connection. Only replaces the vibeknowledge entry, with a backup. Does not install into the business project or regenerate graphs. Initializes the graph database if missing.`
         ) }, confirm
       );
       if (accepted !== confirm) {return;}
@@ -67,6 +67,7 @@ export function registerMcpSetupCommands(context: vscode.ExtensionContext): void
             workspacePath: workspace,
             nodePath: config.get<string>('nodePath', 'node').trim() || 'node',
             npmCliPath: config.get<string>('npmCliPath', '').trim() || undefined,
+            auditTimeoutSeconds: config.get<number>('auditTimeoutSeconds', 60),
             client, signal: controller.signal,
             log: message => { output.append(message); progress.report({ message: message.split('\n')[0].slice(0, 120) }); },
             ensureDatabase: async () => {
@@ -89,8 +90,8 @@ export function registerMcpSetupCommands(context: vscode.ExtensionContext): void
       output.appendLine(message);
       const settings = text('打开 MCP 设置', 'Open MCP settings');
       const action = await vscode.window.showErrorMessage(text(
-        'MCP 安装未完成，原配置未替换。请查看 VibeKnowledge MCP Setup 日志；审计/网络失败不会按成功处理，原生依赖失败请检查公司下载与安装脚本策略。',
-        'MCP setup did not finish; previous configuration was preserved. See VibeKnowledge MCP Setup. Audit/network failures are not treated as success; check download/install-script policy for native dependency failures.'
+        'MCP 安装未完成，原配置未替换。请查看 VibeKnowledge MCP Setup 日志；审计/网络失败不会按成功处理，SQLite 加载失败请检查平台是否受预编译包支持及依赖下载是否完整。',
+        'MCP setup did not finish; previous configuration was preserved. See VibeKnowledge MCP Setup. Audit/network failures are not treated as success; for SQLite loading failures, check prebuilt platform support and dependency download integrity.'
       ), settings);
       if (action === settings) {await vscode.commands.executeCommand('workbench.action.openSettings', 'knowledgeGraph.mcp');}
     } finally { active = undefined; selecting = false; }
@@ -101,7 +102,7 @@ export function registerMcpSetupCommands(context: vscode.ExtensionContext): void
     vscode.commands.registerCommand('knowledge.settings', async () => {
       const selection = await vscode.window.showQuickPick([
         { label: text('$(plug) 一键安装 / 重新配置 MCP', '$(plug) Install / reconfigure MCP'), action: 'install' },
-        { label: text('$(settings-gear) MCP 设置（Workspace / Node / 客户端）', '$(settings-gear) MCP settings (Workspace / Node / client)'), action: 'mcp' },
+        { label: text('$(settings-gear) MCP 设置（Workspace / Node / 客户端 / 审计超时）', '$(settings-gear) MCP settings (Workspace / Node / client / audit timeout)'), action: 'mcp' },
         { label: text('$(settings-gear) 全部 Knowledge 设置', '$(settings-gear) All Knowledge settings'), action: 'all' },
       ], { title: 'Knowledge: Settings' });
       if (selection?.action === 'install') {await install();}

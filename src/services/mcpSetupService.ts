@@ -11,6 +11,7 @@ export interface McpSetupOptions {
   workspacePath: string;
   nodePath: string;
   npmCliPath?: string;
+  auditTimeoutSeconds?: number;
   client: McpClient;
   log: (message: string) => void;
   signal: AbortSignal;
@@ -146,6 +147,10 @@ async function readConfig(file: string): Promise<string> {
 /** Isolated, versioned installs: never runs npm in the user's business project. */
 export async function setupMcp(options: McpSetupOptions, run: ProcessRunner = runProcess): Promise<string> {
   const { log, signal } = options;
+  const auditTimeoutSeconds = options.auditTimeoutSeconds ?? 60;
+  if (!Number.isInteger(auditTimeoutSeconds) || auditTimeoutSeconds < 10 || auditTimeoutSeconds > 120) {
+    throw new Error('MCP auditTimeoutSeconds must be an integer from 10 to 120.');
+  }
   const workspace = await fs.realpath(options.workspacePath);
   if (!(await fs.stat(workspace)).isDirectory()) {throw new Error('Workspace must be a directory');}
   const file = configPath(workspace, options.client);
@@ -172,13 +177,22 @@ export async function setupMcp(options: McpSetupOptions, run: ProcessRunner = ru
       await fs.cp(path.join(options.bundlePath, entry), path.join(directory, entry), { recursive: true, errorOnExist: true, force: false });
     }
     const stepOptions = { ...processOptions, cwd: directory, env };
-    log('Installing locked MCP runtime dependencies (audit enabled)…\n');
+    log('Installing locked MCP runtime dependencies (audit enabled, dependency lifecycle scripts disabled)…\n');
     const shellArgs = process.platform === 'win32'
       ? [`--script-shell=${path.join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'cmd.exe')}`] : [];
-    await run(node, [npm, 'ci', '--omit=dev', '--audit', '--foreground-scripts', ...shellArgs], stepOptions);
+    // SQLite 13 ships N-API binaries; no dependency build scripts are needed.
+    // Explicitly prevent npm's lockfile-driven implicit node-gyp rebuild (npm/cli#9859).
+    await run(node, [npm, 'ci', '--omit=dev', '--audit', '--ignore-scripts', ...shellArgs], stepOptions);
     signal.throwIfAborted();
     log('Auditing production dependencies; high/critical vulnerabilities or unavailable audit service block setup…\n');
-    await run(node, [path.join(directory, 'audit-dependencies.cjs'), npm], stepOptions);
+    const auditEnv = { ...env };
+    auditEnv.VIBEKNOWLEDGE_AUDIT_TIMEOUT_MS = String(auditTimeoutSeconds * 1000);
+    await run(node, [path.join(directory, 'audit-dependencies.cjs'), npm], {
+      ...stepOptions,
+      env: auditEnv,
+      // Three process limits, 2s/4s backoff, bounded diagnostics and shutdown margin.
+      timeoutMs: 3 * (auditTimeoutSeconds * 1000 + 15000) + 45000,
+    });
     signal.throwIfAborted();
     await options.ensureDatabase();
     log('Checking native SQLite and MCP protocol/tools (RAG disabled)…\n');

@@ -17,6 +17,13 @@ describe('packaged MCP runtime', () => {
       expect(files).not.toContain('node_modules');
       expect(files).not.toContain('src');
       expect(await readFile(path.join(directory, 'package-lock.json'), 'utf8')).toBe(await readFile('packages/mcp-server/package-lock.json', 'utf8'));
+      const lock = JSON.parse(await readFile(path.join(directory, 'package-lock.json'), 'utf8'));
+      expect(lock.packages['node_modules/better-sqlite3'].version).toMatch(/^13\./);
+      expect(lock.packages['node_modules/prebuild-install']).toBeUndefined();
+      const npmrc = await readFile(path.join(directory, '.npmrc'), 'utf8');
+      expect(npmrc).toContain('ignore-scripts=true');
+      expect(npmrc).toContain('audit=true');
+      expect(await readFile(path.join(directory, 'audit-dependencies.cjs'), 'utf8')).toBe(await readFile('scripts/audit-dependencies.cjs', 'utf8'));
       expect(await readFile(path.join(directory, 'dist', 'config.js'), 'utf8')).toContain('import packageJson from "../package.json"');
       expect(await readFile(path.join(directory, 'dist', 'structural-analysis.mjs'), 'utf8')).not.toContain('../../../resources');
       expect(await readFile(path.join(directory, 'dist', 'server.js'), 'utf8')).toContain('@modelcontextprotocol/sdk/server/mcp.js');

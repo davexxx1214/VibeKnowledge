@@ -83,9 +83,12 @@ describe('isolated one-click MCP setup', () => {
     const result = await setupMcp(options, run);
     expect(result).toBe(file);
     const commands = run.mock.calls.map(call => call[1]);
-    expect(commands[2]).toEqual(expect.arrayContaining(['ci', '--omit=dev', '--audit', '--foreground-scripts']));
+    expect(commands[2]).toEqual(expect.arrayContaining(['ci', '--omit=dev', '--audit', '--ignore-scripts']));
+    expect(commands[2]).not.toContain('--foreground-scripts');
     expect(commands[3][0]).toMatch(/audit-dependencies\.cjs$/);
     expect(commands[3][1]).toBe(options.npmCliPath);
+    expect(run.mock.calls[3][2].env?.VIBEKNOWLEDGE_AUDIT_TIMEOUT_MS).toBe('60000');
+    expect(run.mock.calls[3][2].timeoutMs).toBe(270000);
     expect(commands[4][0]).toMatch(/health-check\.mjs$/);
     expect(commands.flat().join(' ')).not.toMatch(/no-audit|powershell|run build/);
     for (const call of run.mock.calls.slice(2)) {
@@ -116,6 +119,22 @@ describe('isolated one-click MCP setup', () => {
     expect(await readdir(options.storagePath)).toEqual(['previous-install']);
     if (stage !== 'health') expect(options.ensureDatabase).not.toHaveBeenCalled();
     if (stage === 'install') expect(run.mock.calls.some(([, args]) => args.includes('audit'))).toBe(false);
+  });
+
+  it('honors the configured audit timeout without the old five-minute cap', async () => {
+    options.auditTimeoutSeconds = 120;
+    await setupMcp(options, run);
+    const auditOptions = run.mock.calls[3][2];
+    expect(auditOptions.env?.VIBEKNOWLEDGE_AUDIT_TIMEOUT_MS).toBe('120000');
+    expect(auditOptions.timeoutMs).toBe(450000);
+    expect(run.mock.calls[2][2].env?.VIBEKNOWLEDGE_AUDIT_TIMEOUT_MS).toBe(process.env.VIBEKNOWLEDGE_AUDIT_TIMEOUT_MS);
+  });
+
+  it.each([0, 9, 121, 30.5, NaN])('rejects invalid audit timeout %s before running processes', async timeout => {
+    options.auditTimeoutSeconds = timeout;
+    await expect(setupMcp(options, run)).rejects.toThrow('auditTimeoutSeconds');
+    expect(run).not.toHaveBeenCalled();
+    expect(await readFile(file, 'utf8')).toBe(previous);
   });
 
   it('preserves concurrent client/user edits', async () => {
