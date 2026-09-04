@@ -2,6 +2,41 @@
 
 All notable changes to VibeKnowledge are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+## [0.5.0] - 2026-09-04
+
+### Added
+
+- Standalone `vibeknowledge-query` Agent Skill with a portable read-only CLI, token-bounded dependency/impact/path queries, built-in SQLite description reads, and a separate VS Code installation command. No MCP, RAG, API key, or consumer npm installation is needed.
+- Reproducible nine-query Skill/MCP parity and text-token evaluation, reporting both discovery-loaded and warm-session costs rather than assuming the Skill always saves tokens.
+- Source-backed page/feature briefs with capabilities, entry points, dependency roles and consumers, relevant frameworks, test references and constraints. The generation Skill publishes briefs on demand; queries check cited-file fingerprints and withhold stale facts without regenerating or modifying the workspace.
+- Feature discovery and bounded brief retrieval, plus task-context queries combining dependency direction, evidence locations, candidate tests and extraction blind spots. Briefs need neither MCP nor SQLite and prioritize distinct fact kinds before repeated detail, reporting any omitted kinds.
+
+### Evaluation and documentation
+
+- Published the full Skill evaluation history, including failed pilots, independent source-backed grading, numeric usage, artifact hashes and an accounting audit; linked the reports from both READMEs and the MCP guide.
+- Three fresh matched pairs on two VibeKnowledge feature-analysis tasks passed the predefined warm-reuse efficiency gate: median actual tool text decreased 24.4% (74,789 to 56,572), and uncached input plus output decreased 21.9% (104,756 to 81,771). Both arms scored 17/17 critical items with no major false claims in all pairs; accuracy improvement was not demonstrated.
+- Kept generation cost separate: two briefs cost 90,480 uncached-input-plus-output tokens, so first use did not save net tokens. The result tests feature briefs plus selective access, not an isolated graph-algorithm or MCP advantage, and is limited to the measured source snapshot and tasks.
+- Excluded evaluation logs and local attachments from distributable packages; ignored local attachments in Git without deleting them.
+
+### MCP setup
+
+- Configurable MCP audit request timeout in native settings (10–120 seconds, default 60), with the matching `VIBEKNOWLEDGE_AUDIT_TIMEOUT_MS` option for command-line audits and CI.
+- Bounded 2s/4s audit retry backoff, failure categories, redacted registry/ping diagnostics, and distinct blocking exit codes for vulnerabilities, unavailable reports and invalid configuration. MCP setup's outer timeout now accounts for the configured audit budget.
+
+### Changed
+
+- Upgraded ESLint from 8.57.1 to 10.9.1 and migrated to `eslint.config.cjs` using native flat configs, preserving TypeScript rules, severities and fixture exclusions without the legacy compatibility layer.
+- Upgraded the standalone MCP runtime from `better-sqlite3` 12.11.1 to 13.0.3, adopting its N-API binaries distributed in the npm package and removing the MCP dependency on `prebuild-install`.
+- Pinned `encoding-sniffer` 1.0.2 only in the `@vscode/vsce → cheerio` development dependency chain, replacing deprecated `whatwg-encoding` with `@exodus/bytes`; added CommonJS, encoding/stream and packaging regressions. Kept `node-domexception` 1.x after a 2.0.2 trial broke `fetch-blob`'s DOMException constructor contract.
+- Kept Node.js defaults at 26.1.0 and the supported range at `>=26.1.0 <27`. Existing MCP installations must be reconfigured through one-click setup to use the updated runtime.
+
+### Fixed
+
+- Preserved original parse errors as `Error.cause` when reading structural/curated graphs and removed an unused entity-selection initializer exposed by ESLint 10's recommended rules.
+- Prevented npm's implicit `node-gyp` rebuild of SQLite 13 on clean lockfile installs by disabling dependency lifecycle scripts only for the MCP package and isolated setup; dependency auditing and SQLite/protocol health checks remain required.
+
 ## [0.4.0] - 2026-09-04
 
 ### Added
