@@ -52,7 +52,7 @@ const structuralGraphSchema = z.object({
   generatedAt: z.string().min(1),
   scope: z.string(),
   extractor: z.object({
-    name: z.string().min(1),
+    name: z.literal('typescript-compiler-api'),
     version: z.number().int().positive(),
     typescriptVersion: z.string().min(1)
   }),

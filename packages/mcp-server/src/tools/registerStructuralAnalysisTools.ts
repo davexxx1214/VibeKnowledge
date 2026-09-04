@@ -136,7 +136,7 @@ export function registerStructuralAnalysisTools(
   );
 }
 
-function formatCycles(cycles: any[], generatedAt: string): string[] {
+function formatCycles(cycles: ReturnType<typeof findStructuralCycles>, generatedAt: string): string[] {
   const lines = [`Structural cycles | generated ${generatedAt} | ${cycles.length} found`];
   for (const cycle of cycles) {
     lines.push(`C ${cycle.id} | ${cycle.entityKeys.join(' -> ')}`);
@@ -145,7 +145,7 @@ function formatCycles(cycles: any[], generatedAt: string): string[] {
   return lines;
 }
 
-function formatCoupling(records: any[], generatedAt: string): string[] {
+function formatCoupling(records: ReturnType<typeof reportStructuralCoupling>, generatedAt: string): string[] {
   return [
     `High coupling | generated ${generatedAt} | ${records.length} shown`,
     ...records.map((record) =>
@@ -154,7 +154,7 @@ function formatCoupling(records: any[], generatedAt: string): string[] {
   ];
 }
 
-function formatCrossBoundary(records: any[], generatedAt: string): string[] {
+function formatCrossBoundary(records: ReturnType<typeof reportCrossBoundaryConnections>, generatedAt: string): string[] {
   const lines = [`Cross-boundary connections | generated ${generatedAt} | ${records.length} shown`];
   for (const record of records) {
     lines.push(`B ${record.sourceBoundary} -> ${record.targetBoundary} | ${record.count} edges | ${JSON.stringify(record.verbs)}`);
@@ -163,7 +163,7 @@ function formatCrossBoundary(records: any[], generatedAt: string): string[] {
   return lines;
 }
 
-function formatCommunities(records: any[], generatedAt: string): string[] {
+function formatCommunities(records: ReturnType<typeof suggestStructuralCommunities>, generatedAt: string): string[] {
   const lines = [`Community suggestions | generated ${generatedAt} | suggestions only; curated groups unchanged`];
   for (const record of records) {
     lines.push(`G ${record.suggestedKey} | scope ${record.scope} | ${record.files.length} files | ${record.relationCount} internal edges`);
@@ -172,7 +172,7 @@ function formatCommunities(records: any[], generatedAt: string): string[] {
   return lines;
 }
 
-function formatDiff(diff: any): string[] {
+function formatDiff(diff: ReturnType<typeof diffStructuralGraphs>): string[] {
   if (!diff.available) {
     return ['Structural diff unavailable: no previous structurally different valid snapshot exists.'];
   }
@@ -189,9 +189,9 @@ function formatDiff(diff: any): string[] {
   return lines;
 }
 
-function formatImpact(result: any): string[] {
+function formatImpact(result: ReturnType<typeof analyzeStructuralImpact>): string[] {
   const lines = [`Impact | ${result.seed.name} <${result.seed.key}> | depth ${result.maxDepth}`];
-  for (const direction of ['upstream', 'downstream']) {
+  for (const direction of ['upstream', 'downstream'] as const) {
     const slice = result[direction];
     lines.push(`${direction} | ${slice.entities.length} entities | ${slice.relations.length} relations`);
     for (const entity of slice.entities) lines.push(`N d${entity.depth} ${entity.name} <${entity.key}> | ${entity.filePath}:${entity.startLine}`);
@@ -200,20 +200,20 @@ function formatImpact(result: any): string[] {
   return lines;
 }
 
-function formatPath(result: any): string[] {
+function formatPath(result: ReturnType<typeof findStructuralPath>): string[] {
   const lines = [`Structural path | ${result.source.name} <${result.source.key}> -> ${result.target.name} <${result.target.key}>`];
   if (!result.found) return [...lines, 'No path found within the requested depth.'];
-  result.steps.forEach((step: any, index: number) => {
+  result.steps.forEach((step, index) => {
     lines.push(`${index + 1}. ${step.from} ${step.traversal === 'reverse' ? '<--' : '--'}${step.relation.verb}${step.traversal === 'reverse' ? '--' : '-->'} ${step.to} | ${location(step.relation)}`);
   });
   return lines;
 }
 
-function relationLine(relation: any): string {
+function relationLine(relation: ReturnType<typeof findStructuralCycles>[number]['relations'][number]): string {
   return `R ${relation.source} --${relation.verb}--> ${relation.target} | ${location(relation)} | ${relation.confidence}`;
 }
 
-function location(relation: any): string {
+function location(relation: ReturnType<typeof findStructuralCycles>[number]['relations'][number]): string {
   return `${relation.location.filePath}:${relation.location.startLine}-${relation.location.endLine}`;
 }
 

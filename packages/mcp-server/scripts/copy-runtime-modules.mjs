@@ -15,7 +15,10 @@ const skillScripts = resolve(
 
 for (const fileName of [
   'canonicalize-entity-key.mjs',
-  'structural-analysis.mjs'
+  'canonicalize-entity-key.d.mts',
+  'structural-analysis.mjs',
+  'structural-analysis.d.mts',
+  'structural-extractor.d.mts'
 ]) {
   const destination = resolve(packageRoot, 'dist', fileName);
   mkdirSync(dirname(destination), { recursive: true });

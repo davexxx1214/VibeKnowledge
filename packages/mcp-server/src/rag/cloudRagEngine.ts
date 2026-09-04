@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type Database from 'better-sqlite3';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, type GenerateContentResponse } from '@google/genai';
+import { z } from 'zod';
 import type { CloudRagSettings } from '../config.js';
 import type { RagAnswer, RagEngine, RagSource } from './ragEngine.js';
 
@@ -82,7 +83,7 @@ export class CloudRagEngine implements RagEngine {
         config: {
           tools: [{ fileSearch: { fileSearchStoreNames: [this.storeName] } }]
         }
-      } as any);
+      });
 
       this.logger.debug?.(
         '[CloudRagEngine] raw response snippet:',
@@ -90,8 +91,8 @@ export class CloudRagEngine implements RagEngine {
       );
 
       const answer =
-        (response as any).candidates?.[0]?.content?.parts?.[0]?.text ??
-        (response as any).text ??
+        response.candidates?.[0]?.content?.parts?.[0]?.text ??
+        response.text ??
         '未能从云端知识库中获取答案。';
       const sources = this.extractSources(response);
 
@@ -146,8 +147,8 @@ export class CloudRagEngine implements RagEngine {
     });
   }
 
-  private extractSources(response: unknown): RagSource[] {
-    const groundingMetadata = (response as any)?.candidates?.[0]?.groundingMetadata;
+  private extractSources(response: GenerateContentResponse): RagSource[] {
+    const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
     
     // Debug: log the full grounding metadata structure
     this.logger.debug?.(
@@ -197,19 +198,19 @@ export class CloudRagEngine implements RagEngine {
       
       const uri: string | undefined = chunk?.retrievedContext?.uri;
       const title: string | undefined = chunk?.retrievedContext?.title;
-      const contentParts: Array<{ text?: string }> =
-        chunk?.retrievedContext?.content?.parts ?? [];
-      const snippet = contentParts
-        .map((part) => part.text || '')
-        .join('\n')
-        .trim();
+      const legacy = legacyContextSchema.safeParse(chunk.retrievedContext);
+      const snippet = (chunk.retrievedContext?.text ?? (legacy.success
+        ? legacy.data.content?.parts?.map(part => part.text ?? '').join('\n')
+        : undefined) ?? '').trim();
 
       // Get relevance score from multiple possible locations:
       // 1. Direct score on chunk (chunk.score, chunk.relevanceScore, chunk.confidence)
       // 2. From groundingSupports (Google Search grounding)
       // 3. Fallback: use position-based implicit relevance (1.0, 0.9, 0.8, ...)
       //    since Gemini returns results ordered by relevance
-      const chunkScore = chunk?.score ?? chunk?.relevanceScore ?? chunk?.confidence;
+      const chunkScore = ('score' in chunk ? chunk.score : undefined)
+        ?? ('relevanceScore' in chunk ? chunk.relevanceScore : undefined)
+        ?? ('confidence' in chunk ? chunk.confidence : undefined);
       const supportScore = chunkScores.get(chunkIndex);
       
       let relevance: number;
@@ -249,6 +250,11 @@ export class CloudRagEngine implements RagEngine {
     return dedupeSources(sources);
   }
 }
+
+// Older responses used content.parts; validate those optional extension fields.
+const legacyContextSchema = z.object({
+  content: z.object({ parts: z.array(z.object({ text: z.string().optional() })).optional() }).optional(),
+});
 
 function createStoreId(workspaceRoot: string): string {
   return createHash('md5').update(workspaceRoot).digest('hex').substring(0, 8);
