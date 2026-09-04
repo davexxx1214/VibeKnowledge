@@ -14,7 +14,7 @@
     "url": "https://github.com/davexxx1214/VibeKnowledge/issues"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=26.1.0 <27"
   },
   "type": "module",
   "main": "dist/index.js",

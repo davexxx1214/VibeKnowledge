@@ -85,12 +85,12 @@ calls  extends  implements  depends_on  contains  references  imports  exports
 
 ### 从源码运行扩展
 
-建议使用 Node.js 20；VS Code 要求 1.80 或更高版本。
+项目默认版本和两个 CI 任务统一使用 Node.js **26.1.0**，由根目录 `.nvmrc` 固定。包的兼容范围为 `>=26.1.0 <27`，允许本机使用 26.8.1。版本文件不会自动修改系统 Node；需要复现 CI 时，通过版本管理器选择 26.1.0。VS Code 要求 1.80 或更高版本，其扩展宿主运行时由 VS Code 管理，不受 `.nvmrc` 控制。
 
 ```bash
 git clone https://github.com/davexxx1214/VibeKnowledge.git
 cd VibeKnowledge
-npm ci
+npm ci --no-audit
 npm run compile
 code .
 ```
@@ -139,7 +139,7 @@ node .agents/skills/vibeknowledge-dependency-graph/scripts/curate-structural-gra
 
 ```bash
 cd packages/mcp-server
-npm ci
+npm ci --no-audit
 npm run build
 node dist/index.js --workspace /path/to/project
 ```

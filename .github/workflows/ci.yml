@@ -22,12 +22,16 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: package-lock.json
-      - run: npm ci
+      - name: Show runtime versions
+        run: |
+          node --version
+          npm --version
+      # Dependency auditing is temporarily paused while npm audit endpoints are unreliable.
+      - run: npm ci --no-audit
       - run: npm run check
-      - run: npm audit --omit=dev --audit-level=high
       - run: npm run package -- --out vibe-knowledge.vsix
 
   mcp-server:
@@ -41,10 +45,14 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: packages/mcp-server/package-lock.json
-      - run: npm ci
+      - name: Show runtime versions
+        run: |
+          node --version
+          npm --version
+      # Dependency auditing is temporarily paused while npm audit endpoints are unreliable.
+      - run: npm ci --no-audit
       - run: npm run build
       - run: npm test
-      - run: npm audit --omit=dev --audit-level=high

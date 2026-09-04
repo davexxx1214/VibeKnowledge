@@ -10,6 +10,8 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 ### Changed
 
+- Pinned the project and both CI jobs to Node.js 26.1.0 via `.nvmrc`, with package engine ranges `>=26.1.0 <27` so local Node 26.8.1 remains allowed; documented native MCP dependency reinstallation after runtime changes.
+- Temporarily paused dependency vulnerability audits in both CI jobs after npm audit endpoint failures: installation uses `npm ci --no-audit`, and standalone audit steps are removed. Build, test, and extension packaging checks remain enabled.
 - Separated exact, case-sensitive graph identity from fuzzy search aliases across validation, curation, description overrides, extension snapshots and MCP queries. Ambiguous selectors require an exact key for traversal.
 - Documented failure handling in the dependency-graph Skill: graph generation does not authorize editing installed tools, and readability counts must not drive removal of real dependencies.
 - Taught the bundled dependency-graph Skill to scope on-demand page and cross-page feature graphs, including help-center content, scattered frontend/backend code, and Markdown/MDX limitations.

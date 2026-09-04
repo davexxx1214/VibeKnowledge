@@ -6,14 +6,16 @@ Thank you for helping improve VibeKnowledge. Bug fixes, documentation updates, t
 
 Requirements:
 
-- Node.js 20 or newer
+- Node.js 26.1.0 (project/CI default in `.nvmrc`; compatible local versions: `>=26.1.0 <27`)
 - VS Code 1.80 or newer
 - Git
+
+Both CI jobs read the root `.nvmrc` with `actions/setup-node`. A version manager can use the same file locally, but adding it does not switch the system Node. Local Node 26.8.1 can remain installed; select 26.1.0 when reproducing CI. After changing Node, reinstall dependencies for both packages and restart the MCP client because `better-sqlite3` contains a native binary.
 
 Install and validate the extension:
 
 ```bash
-npm ci
+npm ci --no-audit
 npm run check
 ```
 
@@ -23,7 +25,7 @@ The MCP server is a separate package:
 
 ```bash
 cd packages/mcp-server
-npm ci
+npm ci --no-audit
 npm run build
 npm test
 ```

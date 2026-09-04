@@ -85,12 +85,12 @@ There is no manual structural graph. Regeneration discards nodes and relations t
 
 ### Run the extension from source
 
-Requirements: Node.js 20 is recommended, and VS Code 1.80 or newer is required.
+The project default and both CI jobs use Node.js **26.1.0**, pinned in the root `.nvmrc`. Package engines allow `>=26.1.0 <27`, including a locally installed 26.8.1. The version file does not change your system Node automatically; select 26.1.0 with your version manager when reproducing CI. VS Code 1.80 or newer is required; its extension-host runtime is managed by VS Code, not `.nvmrc`.
 
 ```bash
 git clone https://github.com/davexxx1214/VibeKnowledge.git
 cd VibeKnowledge
-npm ci
+npm ci --no-audit
 npm run compile
 code .
 ```
@@ -139,7 +139,7 @@ Build and start the standalone server against a generated workspace:
 
 ```bash
 cd packages/mcp-server
-npm ci
+npm ci --no-audit
 npm run build
 node dist/index.js --workspace /path/to/project
 ```

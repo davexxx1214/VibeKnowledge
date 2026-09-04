@@ -6,13 +6,15 @@
 
 ## 1. 启动 MCP Server
 
+项目默认版本及 CI 使用根目录 `.nvmrc` 中的 Node.js **26.1.0**；MCP 兼容范围为 `>=26.1.0 <27`，本机可保留 26.8.1。`.nvmrc` 不会自动切换系统 Node，需要复现 CI 时请通过版本管理器选择 26.1.0。更换 Node 后重新安装 MCP 原生依赖并重启客户端。
+
 1. 进入仓库根目录：
    ```bash
    cd D:/workspace/VibeKnowledge
    ```
 2. 安装独立 MCP 包的依赖并构建（首次使用、换机器或切换 Node.js 后先重新安装）：
    ```bash
-   npm --prefix packages/mcp-server ci
+   npm --prefix packages/mcp-server ci --no-audit
    npm --prefix packages/mcp-server run build
    ```
    仓库根目录和 MCP 包各自维护 `package-lock.json`，没有声明 npm workspaces。根目录的 `npm ci` 不会安装 MCP 包依赖，请使用 `--prefix` 或先进入 `packages/mcp-server` 再执行命令。
@@ -138,7 +140,7 @@ Cursor 的项目配置文件是 `.cursor/mcp.json`，顶层键为 `mcpServers`�
 |------|------|
 | `graph.sqlite` 找不到 | 需先在对应项目中运行 VibeKnowledge VS Code 插件以生成 `.vscode/.knowledge/graph.sqlite` |
 | 想切换到其他项目 | 停止当前 server，重新以新的 `--workspace` 路径启动 |
-| 无法连接 | 检查 `mcp.json` 路径、命令参数及 Node.js 版本（≥ 20） |
+| 无法连接 | 检查 `mcp.json` 路径、命令参数及 Node.js 版本（`>=26.1.0 <27`；默认 26.1.0） |
 | `No workspaces found` | 根目录没有 npm workspaces 声明；使用 `npm --prefix packages/mcp-server run build` |
 | `NODE_MODULE_VERSION` 不一致 / `ERR_DLOPEN_FAILED` | 确认入口指向当前 VibeKnowledge 仓库，使用与客户端相同的 Node.js 执行 `npm --prefix packages/mcp-server ci` 后重新构建，再重启 MCP；不要复制别台机器的 `node_modules` |
 | VS Code 找不到已配置的服务器 | `.vscode/mcp.json` 使用 `servers`；Cursor 的 `.cursor/mcp.json` 使用 `mcpServers` |

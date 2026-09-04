@@ -24,6 +24,7 @@
     "developer-tools"
   ],
   "engines": {
+    "node": ">=26.1.0 <27",
     "vscode": "^1.80.0"
   },
   "categories": [
