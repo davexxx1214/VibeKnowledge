@@ -90,7 +90,7 @@ calls  extends  implements  depends_on  contains  references  imports  exports
 ```bash
 git clone https://github.com/davexxx1214/VibeKnowledge.git
 cd VibeKnowledge
-npm ci --no-audit
+npm ci
 npm run compile
 code .
 ```
@@ -135,11 +135,29 @@ node .agents/skills/vibeknowledge-dependency-graph/scripts/curate-structural-gra
 
 ## MCP Server
 
-针对已经生成图谱的工作区构建并启动独立 Server：
+扩展构建现已先执行 `tsc --noEmit` 严格类型检查，再打包。MCP 源码构建会先校验本地 TypeScript 和 SDK 声明文件，避免声明缺失后产生大量隐式 `any` 错误；不会通过关闭 `strict` 或增加无类型的 `declare module` 绕过检查。
+
+打开 **Knowledge: Settings → 一键安装 / 重新配置 MCP**，或点击 Knowledge Explorer 上的插头按钮，选择目标工程并确认安装。F5 和 VSIX 安装均可用，不需要用户输入命令或运行 TypeScript build。
+
+`knowledgeGraph.mcp` 下提供以下设置：
+
+| 设置 | 用途 |
+| --- | --- |
+| `workspacePath` | 目标业务工程的绝对路径；留空时选择目录，不是 VibeKnowledge 源码目录。 |
+| `nodePath` | 外部 Node 可执行文件，默认 `node`，支持 `>=26.1.0 <27`。 |
+| `npmCliPath` | 可选；非标准安装可填写 `npm-cli.js` 的绝对路径。 |
+| `client` | `auto` 自动识别当前编辑器，或指定 `vscode` / `cursor`。 |
+
+扩展内置预编译 MCP 和锁文件，依赖安装到扩展独立存储目录，不动业务工程的 `node_modules`。安装时启用审计，并验证原生 SQLite、MCP 握手和工具；全部通过后才备份配置并更新 `vibeknowledge`，保留其他 MCP 和 JSONC 注释。失败不会替换旧配置；之前成功安装的运行目录会保留，避免影响仍在运行的客户端。使用外部 Node，Windows 依赖脚本通过 CMD 执行，不调用 PowerShell，也不修改公司源、证书或脚本策略。
+
+完成后在客户端确认信任并启动/重启服务。默认配置为纯图谱查询（`--rag-mode none`），RAG 可另行开启。首次使用会初始化缺失的 SQLite 数据库，但不会生成或刷新知识图谱，图谱仍由 Skill 生成。目标路径保存在本机设置中；切换工程时修改或清空 `workspacePath`。
+
+仅在**开发独立 MCP 源码**时，仍可手动安装与构建：
 
 ```bash
 cd packages/mcp-server
-npm ci --no-audit
+npm ci --include=dev
+npm run audit:dependencies
 npm run build
 node dist/index.js --workspace /path/to/project
 ```
@@ -149,6 +167,8 @@ MCP 提供紧凑的实体与关系查询，以及结构环、耦合、边界、�
 Cursor 和 GitHub Copilot 的配置示例见 [MCP 使用指南](./MCP_USAGE.md)。
 
 MCP 包是独立 npm 项目，不是 npm workspace。在仓库根目录使用 `npm --prefix packages/mcp-server ci` 和 `npm --prefix packages/mcp-server run build`。VS Code 的 `.vscode/mcp.json` 使用 `servers`，Cursor 的 `.cursor/mcp.json` 使用 `mcpServers`。入口需指向当前仓库，安装原生依赖的 Node.js 必须与 MCP 客户端使用的运行时兼容。关系列表工具名为 `list_relations`。
+
+两个 npm 项目及 CI 已恢复审计。CI 在 Node 26.1.0 上固定 npm 11.19.0，避免回退到已退役的 Quick Audit 接口。`npm run audit:dependencies` 检查生产依赖：高危/严重漏洞立即阻断；接口异常最多尝试三次，仍失败则明确报错，绝不把网络失败当作零漏洞，也无需添加 `--no-audit`。公司 npm 源、代理和 CA 配置需允许安装依赖及访问 Bulk Advisory 接口；外部服务故障仍需恢复后才能通过。
 
 ## 可选 RAG
 

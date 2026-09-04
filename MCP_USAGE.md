@@ -4,7 +4,19 @@
 
 ---
 
-## 1. 启动 MCP Server
+## 1. 一键安装并配置 MCP（推荐）
+
+在扩展中打开 **Knowledge: Settings**，选择 **一键安装 / 重新配置 MCP**，或运行 **Knowledge: Install / Configure MCP**（Explorer 插头按钮）。选择目标业务工程并确认即可，不需要手动执行 npm/build 命令。
+
+设置入口提供 `knowledgeGraph.mcp.workspacePath`（目标工程）、`nodePath`（外部 Node，默认 `node`）、`npmCliPath`（可选的 `npm-cli.js` 绝对路径）和 `client`（`auto` / `vscode` / `cursor`）。这些路径保存在本机设置中；切换目标工程时修改或清空 `workspacePath`。
+
+安装使用扩展携带的预编译 MCP 与锁文件，不依赖 VibeKnowledge 源码路径；不会在用户工程运行 npm 或编译 TypeScript。依赖位于扩展独立存储目录，每次重新安装都保留上一版运行目录，避免破坏其他客户端进程。安装、审计、SQLite 和 MCP 协议检查全部通过后，才备份并更新客户端配置中的 `vibeknowledge`，保留其他服务器及注释。进度和错误在 **Output → VibeKnowledge MCP Setup** 查看，支持取消。
+
+安装使用同一个外部 Node，Windows 安装脚本明确使用 CMD。不会关闭审计、绕过证书或调整公司脚本策略。审计服务异常会有限重试，无法得到有效报告或发现高危/严重漏洞时停止安装，保留旧配置。请让公司允许的 npm 源/代理提供 Bulk Advisory 审计接口。
+
+完成后在客户端确认信任，启动/重启 `vibeknowledge`。默认关闭 RAG，只提供图谱工具；要启用 RAG，可调整生成配置中的 `--rag-mode`。缺失的 SQLite 数据库会初始化，但安装不会生成知识图谱，请继续用 Skill 生成。
+
+### 从源码启动（开发者）
 
 项目默认版本及 CI 使用根目录 `.nvmrc` 中的 Node.js **26.1.0**；MCP 兼容范围为 `>=26.1.0 <27`，本机可保留 26.8.1。`.nvmrc` 不会自动切换系统 Node，需要复现 CI 时请通过版本管理器选择 26.1.0。更换 Node 后重新安装 MCP 原生依赖并重启客户端。
 
@@ -14,10 +26,12 @@
    ```
 2. 安装独立 MCP 包的依赖并构建（首次使用、换机器或切换 Node.js 后先重新安装）：
    ```bash
-   npm --prefix packages/mcp-server ci --no-audit
+   npm --prefix packages/mcp-server ci --include=dev
+   npm --prefix packages/mcp-server run audit:dependencies
    npm --prefix packages/mcp-server run build
    ```
    仓库根目录和 MCP 包各自维护 `package-lock.json`，没有声明 npm workspaces。根目录的 `npm ci` 不会安装 MCP 包依赖，请使用 `--prefix` 或先进入 `packages/mcp-server` 再执行命令。
+   `--include=dev` 属于安装命令；把它加在 `run build` 后面并不会安装 TypeScript/SDK 声明文件。遇到 TS7016 时先检查安装结果，不要通过 `any` 或关闭严格检查掩盖依赖缺失。
 
 3. （可选）手动启动服务器（一般用于本地调试；若通过 Cursor / Copilot 配置则无需手工保持进程）：
    ```bash

@@ -90,7 +90,7 @@ The project default and both CI jobs use Node.js **26.1.0**, pinned in the root 
 ```bash
 git clone https://github.com/davexxx1214/VibeKnowledge.git
 cd VibeKnowledge
-npm ci --no-audit
+npm ci
 npm run compile
 code .
 ```
@@ -135,11 +135,27 @@ A `🧠 KG` CodeLens displays a source entity's current description. Human edits
 
 ## MCP server
 
-Build and start the standalone server against a generated workspace:
+Use **Knowledge: Settings → Install / reconfigure MCP**, or the plug button in the Knowledge Explorer. Select the target project and confirm installation. No terminal commands or user-side TypeScript build are required, including when the extension is installed from a VSIX.
+
+Optional settings under `knowledgeGraph.mcp`:
+
+| Setting | Purpose |
+| --- | --- |
+| `workspacePath` | Target project absolute path; empty opens a folder picker. Not the VibeKnowledge source directory. |
+| `nodePath` | External Node executable, defaults to `node`; requires `>=26.1.0 <27`. |
+| `npmCliPath` | Optional absolute `npm-cli.js` path for nonstandard Node installations. |
+| `client` | `auto` (current editor), `vscode`, or `cursor`. |
+
+The extension ships precompiled MCP JavaScript and its lockfile. Setup installs production dependencies in isolated extension storage, with auditing enabled; checks native SQLite and the MCP handshake/tools; then backs up and updates only the `vibeknowledge` entry in the target client's configuration. Existing servers and JSONC comments are preserved. Failed installations do not replace the previous configuration. Older successful runtime directories remain available to running clients. Setup uses external Node directly and CMD for Windows dependency scripts, not PowerShell; it does not alter company registry, certificate, or script policies.
+
+Confirm trust and start/restart the server in your MCP client after setup. Generated configuration starts in graph-only mode (`--rag-mode none`); enable RAG separately if wanted. A missing SQLite database is initialized, but graph generation remains a separate Skill operation. `workspacePath` is saved as a machine setting; clear or change it when switching projects.
+
+For standalone **source development**, manual installation remains available:
 
 ```bash
 cd packages/mcp-server
-npm ci --no-audit
+npm ci --include=dev
+npm run audit:dependencies
 npm run build
 node dist/index.js --workspace /path/to/project
 ```
@@ -168,15 +184,21 @@ The relevant settings are:
 
 | Command | Purpose |
 | --- | --- |
-| `npm run compile` | Bundle the extension into `dist/extension.js`. |
+| `npm run compile` | Strict typecheck, then bundle the extension and portable MCP runtime. |
+| `npm run typecheck` | Check production TypeScript without emitting files (test fixtures are excluded). |
 | `npm run watch` | Rebuild on source changes. |
 | `npm run lint` | Run ESLint. |
 | `npm test` | Run the root Vitest suite. |
 | `npm run check` | Compile, lint, and test. |
+| `npm run audit:dependencies` | Audit production dependencies; fail on high/critical vulnerabilities or an unavailable audit service. |
 | `npm run test:coverage` | Generate V8 coverage. |
 | `npm run package` | Build a VSIX. |
 
+Auditing is enabled in both npm projects and CI. CI pins npm 11.19.0 alongside Node 26.1.0, avoiding the retired Quick Audit fallback. The security gate retries unavailable/invalid reports at most three times and never treats network failure as zero vulnerabilities. It does not require `--no-audit`. Corporate npm registry/proxy/CA settings must allow dependency installation and the Bulk Advisory API; service outages still need to recover before the gate can pass.
+
 The MCP package has its own build and test commands:
+
+MCP source builds first check that the local compiler and SDK declaration files are installed. Missing declarations are reported before cascading implicit-`any` errors. Strict checking remains enabled in both projects; MCP structural-analysis and Gemini responses use concrete types rather than `any` shims.
 
 ```bash
 cd packages/mcp-server
