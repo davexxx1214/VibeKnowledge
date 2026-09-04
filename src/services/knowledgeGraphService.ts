@@ -236,7 +236,7 @@ export class KnowledgeGraphService {
       snapshot.entities.map((entity) => [entity.id, entity])
     );
 
-    return snapshot.relations.flatMap((relation) => {
+    return snapshot.relations.flatMap<KnowledgeRelatedEntity>((relation) => {
       if (relation.sourceEntityId === entityId) {
         const entity = entitiesById.get(relation.targetEntityId);
         return entity

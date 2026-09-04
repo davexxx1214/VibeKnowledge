@@ -28,12 +28,14 @@ import { GraphView } from './ui/webview/graphView';
 import { I18nService } from './i18n/i18nService';
 import { Language } from './i18n/types';
 import { t } from './i18n/i18nService';
+import { registerMcpSetupCommands } from './commands/mcpSetupCommands';
 
 /**
  * 插件激活时调用
  */
 export async function activate(context: vscode.ExtensionContext) {
   console.log('Knowledge Graph extension is now active');
+  registerMcpSetupCommands(context);
 
   // 初始化 ScenarioManager 并设置扩展路径
   const scenarioManager = ScenarioManager.getInstance();
@@ -401,17 +403,17 @@ export async function activate(context: vscode.ExtensionContext) {
                 {
                   label: translations.frameworkKind,
                   description: translations.frameworkDescription,
-                  kind: 'framework' as const,
+                  groupKind: 'framework' as const,
                 },
                 {
                   label: translations.moduleKind,
                   description: translations.moduleDescription,
-                  kind: 'module' as const,
+                  groupKind: 'module' as const,
                 },
                 {
                   label: translations.featureKind,
                   description: translations.featureDescription,
-                  kind: 'feature' as const,
+                  groupKind: 'feature' as const,
                 },
               ],
               { placeHolder: translations.kindPlaceholder }
@@ -423,7 +425,7 @@ export async function activate(context: vscode.ExtensionContext) {
             let scope: string | undefined;
             let key: string | undefined;
             let name: string | undefined;
-            if (selection.kind !== 'framework') {
+            if (selection.groupKind !== 'framework') {
               const activeRelativePath = vscode.window.activeTextEditor
                 ? vscode.workspace
                     .asRelativePath(
@@ -491,7 +493,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 async () => {
                   const graph = structuralGraphService.generate({ force });
                   return curatedGraphService.curate(graph, {
-                    kind: selection.kind,
+                    kind: selection.groupKind,
                     scope,
                     key,
                     name,
@@ -658,12 +660,6 @@ export async function activate(context: vscode.ExtensionContext) {
           console.error('Error in exportGraph:', error);
           vscode.window.showErrorMessage(`Error exporting graph: ${error}`);
         }
-      })
-    );
-
-    context.subscriptions.push(
-      vscode.commands.registerCommand('knowledge.settings', () => {
-        vscode.window.showInformationMessage('Settings - Coming soon!');
       })
     );
 
@@ -968,7 +964,6 @@ function registerPlaceholderCommands(context: vscode.ExtensionContext) {
     'knowledge.deleteObservation',
     'knowledge.visualizeGraph',
     'knowledge.exportGraph',
-    'knowledge.settings',
     'knowledge.refresh',
     'knowledge.generateCursorRules',
     'knowledge.generateCopilotInstructions',

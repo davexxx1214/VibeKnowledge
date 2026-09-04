@@ -406,10 +406,7 @@ export class CloudRAGProvider implements IRAGProvider {
       }
 
       const geminiFileUri =
-        operation.response?.documentName ||
-        operation.result?.name ||
-        operation.result?.documentName ||
-        null;
+        operation.response?.documentName;
 
       if (!geminiFileUri) {
         console.error('[CloudRAG] Failed to obtain Gemini file URI after upload, aborting index.');
@@ -504,7 +501,7 @@ export class CloudRAGProvider implements IRAGProvider {
     let targetDocumentName = geminiFileUri;
 
     if (!targetDocumentName || !targetDocumentName.startsWith('fileSearchStores/')) {
-      targetDocumentName = await this.findDocumentName(relativePath, fileName);
+      targetDocumentName = await this.findDocumentName(relativePath, fileName) ?? undefined;
       if (!targetDocumentName) {
         console.warn(`[CloudRAG] Unable to resolve cloud document for ${relativePath || fileName || 'unknown file'}, skip deletion.`);
         return;
@@ -512,14 +509,14 @@ export class CloudRAGProvider implements IRAGProvider {
     }
 
     try {
-      const deleteParams: any = {
+      const deleteParams = {
         name: targetDocumentName,
         config: { force: true },
       };
       await client.fileSearchStores.documents.delete(deleteParams);
       console.log(`[CloudRAG] Deleted cloud document: ${targetDocumentName}`);
-    } catch (error: any) {
-      if (error.status === 404) {
+    } catch (error) {
+      if (error && typeof error === 'object' && 'status' in error && error.status === 404) {
         console.warn(`[CloudRAG] Cloud document already removed: ${targetDocumentName}`);
       } else {
         console.error(`[CloudRAG] Failed to delete cloud document ${targetDocumentName}:`, error);

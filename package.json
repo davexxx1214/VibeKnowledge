@@ -68,6 +68,11 @@
         "title": "Knowledge: Settings"
       },
       {
+        "command": "knowledge.setupMcp",
+        "title": "Knowledge: Install / Configure MCP",
+        "icon": "$(plug)"
+      },
+      {
         "command": "knowledge.refresh",
         "title": "Knowledge: Refresh",
         "icon": "$(refresh)"
@@ -201,6 +206,11 @@
       ],
       "view/title": [
         {
+          "command": "knowledge.setupMcp",
+          "when": "view == knowledgeGraphExplorer",
+          "group": "navigation@0.7"
+        },
+        {
           "command": "knowledge.expandAll",
           "when": "view == knowledgeGraphExplorer",
           "group": "navigation@0"
@@ -265,9 +275,41 @@
     "configuration": {
       "title": "Knowledge Graph",
       "properties": {
+        "knowledgeGraph.mcp.workspacePath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "MCP 目标工程的绝对路径；留空时选择当前工作区或其他文件夹。不是 VibeKnowledge 源码目录 / Target project, not the VibeKnowledge checkout; empty prompts for a folder."
+        },
+        "knowledgeGraph.mcp.nodePath": {
+          "type": "string",
+          "default": "node",
+          "scope": "machine",
+          "description": "外部 Node 26 可执行文件（>=26.1.0 <27）；安装和运行使用同一个 Node，不使用扩展宿主的 Electron / External Node executable for both installation and MCP execution."
+        },
+        "knowledgeGraph.mcp.npmCliPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "可选：npm-cli.js 的绝对路径。默认从选定的 Node 安装中查找；不是 npm.cmd/npm.ps1 / Optional absolute npm-cli.js path; normally discovered beside Node."
+        },
+        "knowledgeGraph.mcp.client": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "vscode",
+            "cursor"
+          ],
+          "default": "auto",
+          "scope": "machine",
+          "description": "写入 MCP 配置的客户端；auto 根据当前编辑器识别 VS Code/Cursor / MCP configuration target; auto detects VS Code/Cursor."
+        },
         "knowledgeGraph.visualization.performanceMode": {
           "type": "string",
-          "enum": ["low", "high"],
+          "enum": [
+            "low",
+            "high"
+          ],
           "default": "low",
           "scope": "machine",
           "enumDescriptions": [
@@ -387,16 +429,18 @@
     "viewsWelcome": [
       {
         "view": "knowledgeGraphExplorer",
-        "contents": "暂无知识图谱数据。\n\n[安装知识图谱 Agent Skill](command:knowledge.installDependencyGraphSkill)\n\n[从结构图策展](command:knowledge.curateStructuralGraph)\n\n先生成框架层，再按模块或功能继续生成。"
+        "contents": "暂无知识图谱数据。\n\n[安装知识图谱 Agent Skill](command:knowledge.installDependencyGraphSkill)\n\n[一键安装 / 配置 MCP](command:knowledge.setupMcp)\n\n[从结构图策展](command:knowledge.curateStructuralGraph)\n\n先生成框架层，再按模块或功能继续生成。"
       }
     ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile -- --production",
-    "compile": "node esbuild.js",
+    "compile": "npm run typecheck && node esbuild.js",
+    "typecheck": "tsc --noEmit",
     "watch": "node esbuild.js --watch",
     "lint": "eslint src --ext ts",
     "check": "npm run compile && npm run lint && npm test",
+    "audit:dependencies": "node scripts/audit-dependencies.cjs",
     "package": "vsce package",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -404,8 +448,10 @@
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.8",
+    "@types/mime-types": "^3.0.1",
     "@types/node": "^20.0.0",
     "@types/pdf-parse": "^1.1.5",
+    "@types/sql.js": "^1.4.11",
     "@types/vscode": "1.80.0",
     "@typescript-eslint/eslint-plugin": "^8.67.0",
     "@typescript-eslint/parser": "^8.67.0",
@@ -418,6 +464,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.29.1",
+    "jsonc-parser": "^3.3.1",
     "mammoth": "^1.11.0",
     "mime-types": "^3.0.2",
     "pdf-parse": "^1.1.1",

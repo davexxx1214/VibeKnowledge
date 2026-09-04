@@ -25,12 +25,14 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: package-lock.json
+      # npm 11 uses the Bulk Advisory API, without the retired Quick Audit fallback.
+      - run: npm install --global npm@11.19.0
       - name: Show runtime versions
         run: |
           node --version
           npm --version
-      # Dependency auditing is temporarily paused while npm audit endpoints are unreliable.
-      - run: npm ci --no-audit
+      - run: npm ci
+      - run: npm run audit:dependencies
       - run: npm run check
       - run: npm run package -- --out vibe-knowledge.vsix
 
@@ -48,11 +50,12 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: packages/mcp-server/package-lock.json
+      - run: npm install --global npm@11.19.0
       - name: Show runtime versions
         run: |
           node --version
           npm --version
-      # Dependency auditing is temporarily paused while npm audit endpoints are unreliable.
-      - run: npm ci --no-audit
+      - run: npm ci
+      - run: npm run audit:dependencies
       - run: npm run build
       - run: npm test

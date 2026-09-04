@@ -1,6 +1,7 @@
 const esbuild = require('esbuild');
 const fs = require('fs/promises');
 const path = require('path');
+const { buildMcpRuntime } = require('./scripts/build-mcp-runtime.cjs');
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -10,6 +11,7 @@ async function copyRuntimeAssets() {
   const d3Entry = require.resolve('d3');
   await fs.mkdir(distDir, { recursive: true });
   await Promise.all([
+    buildMcpRuntime(__dirname, path.join(distDir, 'mcp-server')),
     fs.copyFile(
       require.resolve('sql.js/dist/sql-wasm.wasm'),
       path.join(distDir, 'sql-wasm.wasm')
@@ -34,6 +36,8 @@ async function main() {
     platform: 'node',
     outfile: path.join(distDir, 'extension.js'),
     external: ['vscode', 'better-sqlite3'],
+    // The UMD entry contains runtime-relative require() calls; bundle its ESM entry.
+    alias: { 'jsonc-parser': require.resolve('jsonc-parser/lib/esm/main.js') },
     logLevel: 'info',
     plugins: [],
   });

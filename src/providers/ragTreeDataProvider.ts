@@ -100,13 +100,15 @@ export class RAGTreeDataProvider implements vscode.TreeDataProvider<RAGTreeItem>
         // 使用缓存的文件夹节点引用
         for (const folderNode of this.cachedFolderNodes) {
           console.log(`RAG: Attempting to expand folder: ${folderNode.label}`);
-          await this.treeView?.reveal(folderNode, { 
-            expand: 1,
-            select: false, 
-            focus: false 
-          }).catch((err) => {
-            console.log(`RAG: Failed to expand folder node ${folderNode.label}:`, err.message);
-          });
+          try {
+            await this.treeView?.reveal(folderNode, {
+              expand: 1,
+              select: false,
+              focus: false
+            });
+          } catch (error) {
+            console.log(`RAG: Failed to expand folder node ${folderNode.label}:`, error);
+          }
         }
         console.log('RAG: Finished expanding all folders');
       } catch (error) {

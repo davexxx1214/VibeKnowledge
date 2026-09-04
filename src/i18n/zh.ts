@@ -1,7 +1,9 @@
 /**
  * Chinese language pack (Simplified)
  */
-export const zh = {
+import type { LanguagePack } from './types';
+
+export const zh: LanguagePack = {
   extension: {
     name: '知识图谱',
     description: '将工作区转化为智能知识网络的 VS Code 插件',
@@ -57,6 +59,7 @@ export const zh = {
   commands: {
     agentManagedStructure: '知识图谱结构由 Agent Skill 生成；你可以在这里编辑实体描述。',
     createEntity: {
+      placeholder: '实体名称',
       title: '知识图谱: 从选择创建实体',
       prompt: '输入实体名称',
       validateEmpty: '名称不能为空',
@@ -364,6 +367,7 @@ export const zh = {
     },
 
     viewIndexedDocuments: {
+      error: (error: string) => `读取已索引文档失败：${error}`,
       title: '知识图谱: 查看已索引文档',
       noDocuments: '没有已索引的文档。请在 Knowledge/ 文件夹中添加文档。',
       placeholder: (count: number) => `已索引 ${count} 个文档`,

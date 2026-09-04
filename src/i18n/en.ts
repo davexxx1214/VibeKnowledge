@@ -60,6 +60,7 @@ export const en = {
     createEntity: {
       title: 'Knowledge: Create Entity from Selection',
       prompt: 'Enter entity name',
+      placeholder: 'Entity name',
       validateEmpty: 'Name cannot be empty',
       success: (name: string) => `Entity "${name}" created successfully`,
       error: (error: string) => `Failed to create entity: ${error}`
@@ -366,6 +367,7 @@ export const en = {
 
     viewIndexedDocuments: {
       title: 'Knowledge: View Indexed Documents',
+      error: (error: string) => `Failed to list indexed documents: ${error}`,
       noDocuments: 'No indexed documents. Please add documents to the Knowledge/ folder.',
       placeholder: (count: number) => `Indexed ${count} documents`,
       sizeKB: (size: number) => `Size: ${size.toFixed(2)} KB`,
@@ -405,7 +407,7 @@ export const en = {
         checkingCloud: '\n**Querying cloud status...**\n',
         cloudData: '### Cloud Real-time Data\n',
         activeDocuments: (count: number) => `Active documents: ${count}`,
-        pendingDocuments: (n) => `Processing documents: ${n}`,
+        pendingDocuments: (n: number) => `Processing documents: ${n}`,
         failedDocuments: (count: number) => `Failed documents: ${count}`,
         totalDocuments: (total: number) => `Total: ${total}`,
         noActiveDocuments: '⚠️ **Hint**: No active documents in cloud. Please add documents to `Knowledge/` folder',

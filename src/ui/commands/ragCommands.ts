@@ -109,14 +109,7 @@ export class RAGCommands {
     if (result.citations.length > 0) {
       markdown += translations.result.citationsLabel;
       result.citations.forEach((citation) => {
-        if (typeof citation === 'string') {
-          markdown += `> ${citation}\n\n`;
-        } else if (citation) {
-          const fileName = citation.fileName || 'unknown';
-          const snippet = citation.snippet || '';
-          markdown += `**${fileName}**:\n`;
-          markdown += snippet ? `> ${snippet}\n\n` : '\n';
-        }
+        markdown += `> ${citation}\n\n`;
       });
     }
 

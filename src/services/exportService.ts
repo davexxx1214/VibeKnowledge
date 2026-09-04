@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { EntityService } from './entityService';
 import { RelationService } from './relationService';
 import { ObservationService } from './observationService';
-import { DependencyAnalyzer } from './dependencyAnalyzer';
+import { DependencyAnalyzer, CircularDependency } from './dependencyAnalyzer';
 import { Entity, Relation, Observation } from '../utils/types';
 import type { KnowledgeGraphService } from './knowledgeGraphService';
 import { t, getLocale } from '../i18n/i18nService';
@@ -378,7 +378,7 @@ export class ExportService {
    */
   private detectAllCircularDependencies() {
     const entities = this.getEntities();
-    const allCircular = new Map<string, any>();
+    const allCircular = new Map<string, CircularDependency>();
 
     for (const entity of entities) {
       const circular = this.dependencyAnalyzer.detectCircularDependencies(entity.id);
