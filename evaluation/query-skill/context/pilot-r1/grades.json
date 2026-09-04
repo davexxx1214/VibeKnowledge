@@ -1,0 +1,965 @@
+{
+  "schema_version": 1,
+  "scope": "development rubric only",
+  "rubric": ".vscode-test/task-context-ab-9W8uP7/rubric.md",
+  "snapshot": ".vscode-test/task-context-ab-9W8uP7/snapshot",
+  "candidate_files": {
+    "X": ".vscode-test/task-context-ab-9W8uP7/candidate-X.md",
+    "Y": ".vscode-test/task-context-ab-9W8uP7/candidate-Y.md"
+  },
+  "scoring": {
+    "critical_max": 24,
+    "supplemental_max": 4,
+    "values": [
+      0,
+      0.5,
+      1
+    ],
+    "major_claims_separate": true
+  },
+  "interpretation_notes": [
+    "Only reports, frozen development rubric and relevant snapshot source/tests were used. Arm directories, observations, metrics and method artifacts were not inspected. Incidental self-labels and process claims inside reports were not scored.",
+    "A report is read as a whole: already-established lifecycle facts and tests can support a later task's mapping without repetition. Tasks retain independent item scores and totals.",
+    "Equivalent source-backed test evidence is accepted. Y's taskContext.test.ts:54 staleness test is accepted for T2 C8 instead of requiring the rubric's exact structural CLI test citation.",
+    "Exact prose and every reference anchor are not required. X's MCP description identifies client-config publication causally without spelling both mcp.json filenames; this does not reduce T3 C7."
+  ],
+  "rubric_flaws": [
+    {
+      "id": "R1",
+      "issue": "Several nominally independent items bundle multiple subfacts and overlap other items; particularly T2 C2 reuses T1 lifecycle content. The rubric does not specify whether cross-section evidence counts.",
+      "handling": "Applied one whole-report evidence policy to both candidates; no new requirement to repeat facts or point weights added."
+    },
+    {
+      "id": "R2",
+      "issue": "The rubric gives no operational severity threshold for imprecise extra consumer names, and T2 C6's required examples are GraphView/MCP rather than CLI command spelling.",
+      "handling": "Used the existing zero-for-material-error rule for Y's actual CLI data-source claim and recorded the literal-versus-shorthand ambiguity for independent audit; did not add a CLI coverage requirement."
+    },
+    {
+      "id": "R3",
+      "issue": "T2 C8's at-minimum named test list could be read as exact-test matching despite the global allowance for alternative evidence.",
+      "handling": "Accepted Y's independently source-checked stale-file test as equivalent staleness evidence, retaining full C8 credit."
+    }
+  ],
+  "candidates": {
+    "X": {
+      "tasks": {
+        "T1": {
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Default delay",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:7"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:12"
+              ],
+              "rationale": "Correct 500 ms default; explicit production value is extra context."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Already-chained versus unflushed work",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:7",
+                "candidate-X.md:9",
+                "candidate-X.md:11"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:31"
+              ],
+              "rationale": "Explains snapshot/clear, Promise chaining and serialization."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Pending paths and timer discarded",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:9"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:49"
+              ],
+              "rationale": "Correctly limits disposal of unflushed work."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Already-chained callback survives disposal",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:9"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:43"
+              ],
+              "rationale": "Explicitly includes callbacks not started yet and the missing disposed check."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Running callback not aborted or awaited",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:9"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:49"
+              ],
+              "rationale": "Explicit non-abort/non-await lifecycle explanation."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Calls after disposal",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:9"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:17"
+              ],
+              "rationale": "notify is ignored; flush returns existing running Promise without scheduling."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Existing tests and coverage limits",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:11"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.test.ts:9"
+              ],
+              "rationale": "Maps both tests to custom-delay/coalescing/serialization; identifies missing lifecycle/default checks."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Batch ordering and rejection recovery",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:7"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:21"
+              ],
+              "rationale": "Explains trailing reset, deduplication, sorting and recovery from earlier rejection."
+            }
+          ],
+          "totals": {
+            "critical": 7,
+            "critical_max": 7,
+            "supplemental": 1,
+            "supplemental_max": 1
+          },
+          "major_false_claim_ids": [],
+          "omissions": "No material omission under the frozen checklist."
+        },
+        "T2": {
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Watcher registration and filters",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:17"
+              ],
+              "source_evidence": [
+                "src/extension.ts:205"
+              ],
+              "rationale": "Correct first-root watcher types, create/change/delete route, normalization, filtering and subscriptions."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Scheduling and lifecycle boundary",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:7",
+                "candidate-X.md:9",
+                "candidate-X.md:17",
+                "candidate-X.md:18"
+              ],
+              "source_evidence": [
+                "src/extension.ts:184"
+              ],
+              "rationale": "Explicit production delay and established debounce/serialization/disposal mechanics connect to subscribed updater."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Background callback policy",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:18",
+                "candidate-X.md:26"
+              ],
+              "source_evidence": [
+                "src/extension.ts:185"
+              ],
+              "rationale": "No bootstrap, changed paths only logged, no force or automatic retry; existence gate explained."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Generation owner and persisted artifacts",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:19",
+                "candidate-X.md:20"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/structuralGraphService.ts:82"
+              ],
+              "rationale": "Correct synchronous service-to-extractor delegation, output/cache and internally computed changes."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Safety versus staleness",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:26",
+                "candidate-X.md:27",
+                "candidate-X.md:29"
+              ],
+              "source_evidence": [
+                "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs:119"
+              ],
+              "rationale": "Protected graph/cache/source/shrink failures, retained stale snapshots and explicit modal force recovery distinguished."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Direct structural consumers",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:29",
+                "candidate-X.md:33"
+              ],
+              "source_evidence": [
+                "packages/mcp-server/src/tools/registerStructuralAnalysisTools.ts:48"
+              ],
+              "rationale": "Correct raw GraphView/MCP on-demand reads and previous snapshot; see Y's command-routing contradiction."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Curated/UI freshness boundary",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:35"
+              ],
+              "source_evidence": [
+                "src/extension.ts:266"
+              ],
+              "rationale": "Separates curation/agent-graph watcher from raw background generation; explains idle-view staleness."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Regression tests mapped to risks",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:11",
+                "candidate-X.md:39",
+                "candidate-X.md:40",
+                "candidate-X.md:42",
+                "candidate-X.md:43",
+                "candidate-X.md:45"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/structuralGraphIncremental.test.ts:40"
+              ],
+              "rationale": "Maps scheduling, incremental/deletion/rename, guarded failures and staleness; does not claim end-to-end watcher coverage."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Cache compatibility and importer closure",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:20",
+                "candidate-X.md:40"
+              ],
+              "source_evidence": [
+                "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs:1990"
+              ],
+              "rationale": "Describes compatible reuse and old/current reverse dependencies; includes deletion/rename consequences."
+            },
+            {
+              "id": "S2",
+              "classification": "supplemental",
+              "title": "Per-file publication and previous identity",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:28"
+              ],
+              "source_evidence": [
+                "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs:2189"
+              ],
+              "rationale": "Correct write order, no multi-file transaction, late I/O failure and structural-not-time snapshot rotation."
+            }
+          ],
+          "totals": {
+            "critical": 8,
+            "critical_max": 8,
+            "supplemental": 2,
+            "supplemental_max": 2
+          },
+          "major_false_claim_ids": [],
+          "omissions": "No material omission under the frozen checklist."
+        },
+        "T3": {
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Command-to-installer registration",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:51"
+              ],
+              "source_evidence": [
+                "src/extension.ts:843"
+              ],
+              "rationale": "Contributed command/menu, query-specific service construction and returned-file opening traced."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Authoring, built source and installed target",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:55",
+                "candidate-X.md:56",
+                "candidate-X.md:57",
+                "candidate-X.md:58",
+                "candidate-X.md:59",
+                "candidate-X.md:65"
+              ],
+              "source_evidence": [
+                "src/services/agentSkillService.ts:15"
+              ],
+              "rationale": "Correctly separates all path roles and returned SKILL.md."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Shared target helper scope",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:59",
+                "candidate-X.md:61",
+                "candidate-X.md:65"
+              ],
+              "source_evidence": [
+                "src/services/agentSkillService.ts:23"
+              ],
+              "rationale": "Explains why an unconditional helper edit moves both Skills and does not require relocating bundle sources."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Detection, overwrite and relocation consequences",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:51",
+                "candidate-X.md:61",
+                "candidate-X.md:79"
+              ],
+              "source_evidence": [
+                "src/services/agentSkillService.ts:36"
+              ],
+              "rationale": "Directory-based detection/update/cancel/open chain and absent old-location migration explained; partial installation acknowledged."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Complete bundle contract",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:61",
+                "candidate-X.md:71",
+                "candidate-X.md:79"
+              ],
+              "source_evidence": [
+                "src/services/agentSkillService.ts:40"
+              ],
+              "rationale": "Requires SKILL.md plus query.cjs, recursively copies complete built assets and rejects incomplete bundles; no install-time build."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Build and packaging chain",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:55",
+                "candidate-X.md:56",
+                "candidate-X.md:65"
+              ],
+              "source_evidence": [
+                "scripts/build-query-skill.cjs:5"
+              ],
+              "rationale": "Correct resource-copy and CLI bundle entry, esbuild/prepublish integration and raw-source packaging exclusions."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "MCP setup separation",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:73",
+                "candidate-X.md:75",
+                "candidate-X.md:81"
+              ],
+              "source_evidence": [
+                "src/commands/mcpSetupCommands.ts:64"
+              ],
+              "rationale": "Separate registration, dist/mcp-server, global-storage installs, dependency/audit/health/config stages and no graph regeneration."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Query copy versus graph generation",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:71",
+                "candidate-X.md:75",
+                "candidate-X.md:79",
+                "candidate-X.md:80"
+              ],
+              "source_evidence": [
+                "src/services/agentSkillService.test.ts:42"
+              ],
+              "rationale": "Independent query installation and read-only existing-artifact behavior distinguished from generation tooling/commands."
+            },
+            {
+              "id": "C9",
+              "classification": "critical",
+              "title": "Installation/portability regressions and gaps",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:79",
+                "candidate-X.md:80",
+                "candidate-X.md:81",
+                "candidate-X.md:83"
+              ],
+              "source_evidence": [
+                "tests/querySkill.test.ts:22"
+              ],
+              "rationale": "Connects service path/overwrite/partial tests and copied runtime/read-only tests; distinguishes MCP and untested VSIX/UI contracts."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Portable runtime boundaries",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:65",
+                "candidate-X.md:80"
+              ],
+              "source_evidence": [
+                "scripts/build-query-skill.cjs:8"
+              ],
+              "rationale": "CJS Node 26/root Zod/forbidden dependencies/licenses and copied no-node_modules Unicode/space portability covered."
+            }
+          ],
+          "totals": {
+            "critical": 9,
+            "critical_max": 9,
+            "supplemental": 1,
+            "supplemental_max": 1
+          },
+          "major_false_claim_ids": [],
+          "omissions": "No material omission under the frozen checklist."
+        }
+      },
+      "totals": {
+        "critical": 24,
+        "critical_max": 24,
+        "supplemental": 4,
+        "supplemental_max": 4,
+        "major_false_claim_count": 0
+      },
+      "major_false_claims": []
+    },
+    "Y": {
+      "tasks": {
+        "T1": {
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Default delay",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:7"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:12"
+              ],
+              "rationale": "Correct 500 ms default; explicit production value is extra context."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Already-chained versus unflushed work",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:7",
+                "candidate-Y.md:9",
+                "candidate-Y.md:11"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:31"
+              ],
+              "rationale": "Explains snapshot/clear, Promise chaining and serialization."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Pending paths and timer discarded",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:9"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:49"
+              ],
+              "rationale": "Correctly limits disposal of unflushed work."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Already-chained callback survives disposal",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:9"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:43"
+              ],
+              "rationale": "Explicitly includes callbacks not started yet and the missing disposed check."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Running callback not aborted or awaited",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:9"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:49"
+              ],
+              "rationale": "Explicit non-abort/non-await lifecycle explanation."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Calls after disposal",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:9"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:17"
+              ],
+              "rationale": "notify is ignored; flush returns existing running Promise without scheduling."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Existing tests and coverage limits",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:11"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.test.ts:9"
+              ],
+              "rationale": "Maps both tests to custom-delay/coalescing/serialization; identifies missing lifecycle/default checks."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Batch ordering and rejection recovery",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:7"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts:21"
+              ],
+              "rationale": "Explains trailing reset, deduplication, sorting and recovery from earlier rejection."
+            }
+          ],
+          "totals": {
+            "critical": 7,
+            "critical_max": 7,
+            "supplemental": 1,
+            "supplemental_max": 1
+          },
+          "major_false_claim_ids": [],
+          "omissions": "No material omission under the frozen checklist."
+        },
+        "T2": {
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Watcher registration and filters",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:17"
+              ],
+              "source_evidence": [
+                "src/extension.ts:205"
+              ],
+              "rationale": "Correct first-root watcher types, create/change/delete route, normalization, filtering and subscriptions."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Scheduling and lifecycle boundary",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:7",
+                "candidate-Y.md:9",
+                "candidate-Y.md:17",
+                "candidate-Y.md:19"
+              ],
+              "source_evidence": [
+                "src/extension.ts:184"
+              ],
+              "rationale": "Explicit production delay and established debounce/serialization/disposal mechanics connect to subscribed updater."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Background callback policy",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:19",
+                "candidate-Y.md:27"
+              ],
+              "source_evidence": [
+                "src/extension.ts:185"
+              ],
+              "rationale": "No bootstrap, changed paths only logged, no force or automatic retry; existence gate explained."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Generation owner and persisted artifacts",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:19",
+                "candidate-Y.md:21",
+                "candidate-Y.md:23"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/structuralGraphService.ts:82"
+              ],
+              "rationale": "Correct synchronous service-to-extractor delegation, output/cache and internally computed changes."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Safety versus staleness",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:27",
+                "candidate-Y.md:30"
+              ],
+              "source_evidence": [
+                "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs:119"
+              ],
+              "rationale": "Protected graph/cache/source/shrink failures, retained stale snapshots and explicit modal force recovery distinguished."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Direct structural consumers",
+              "score": 0,
+              "candidate_evidence": [
+                "candidate-Y.md:23",
+                "candidate-Y.md:27",
+                "candidate-Y.md:29"
+              ],
+              "source_evidence": [
+                "packages/mcp-server/src/tools/registerStructuralAnalysisTools.ts:48"
+              ],
+              "rationale": "Materially incorrect extra raw-consumer route under the literal reading recorded in Y-T2-M1. Required GraphView/MCP discussion is otherwise correct; rubric assigns zero to a materially wrong/contradicted item."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Curated/UI freshness boundary",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:29"
+              ],
+              "source_evidence": [
+                "src/extension.ts:266"
+              ],
+              "rationale": "Separates curation/agent-graph watcher from raw background generation; explains idle-view staleness."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Regression tests mapped to risks",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:11",
+                "candidate-Y.md:34",
+                "candidate-Y.md:36"
+              ],
+              "source_evidence": [
+                "src/services/structuralGraph/structuralGraphIncremental.test.ts:40"
+              ],
+              "rationale": "Maps scheduling, incremental/deletion/rename, guarded failures and staleness; does not claim end-to-end watcher coverage."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Cache compatibility and importer closure",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:21",
+                "candidate-Y.md:34"
+              ],
+              "source_evidence": [
+                "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs:1990"
+              ],
+              "rationale": "Describes compatible reuse and old/current reverse dependencies; includes deletion/rename consequences."
+            },
+            {
+              "id": "S2",
+              "classification": "supplemental",
+              "title": "Per-file publication and previous identity",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:23",
+                "candidate-Y.md:28"
+              ],
+              "source_evidence": [
+                "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs:2189"
+              ],
+              "rationale": "Correct write order, no multi-file transaction, late I/O failure and structural-not-time snapshot rotation."
+            }
+          ],
+          "totals": {
+            "critical": 7,
+            "critical_max": 8,
+            "supplemental": 2,
+            "supplemental_max": 2
+          },
+          "major_false_claim_ids": [
+            "Y-T2-M1"
+          ],
+          "omissions": "No core coverage omission; replace the unqualified CLI path label with structural-path to avoid assigning the curated path query to raw structural refresh."
+        },
+        "T3": {
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Command-to-installer registration",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:42"
+              ],
+              "source_evidence": [
+                "src/extension.ts:843"
+              ],
+              "rationale": "Contributed command/menu, query-specific service construction and returned-file opening traced."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Authoring, built source and installed target",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:48",
+                "candidate-Y.md:49",
+                "candidate-Y.md:50",
+                "candidate-Y.md:52",
+                "candidate-Y.md:54"
+              ],
+              "source_evidence": [
+                "src/services/agentSkillService.ts:15"
+              ],
+              "rationale": "Correctly separates all path roles and returned SKILL.md."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Shared target helper scope",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:52",
+                "candidate-Y.md:56"
+              ],
+              "source_evidence": [
+                "src/services/agentSkillService.ts:23"
+              ],
+              "rationale": "Explains why an unconditional helper edit moves both Skills and does not require relocating bundle sources."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Detection, overwrite and relocation consequences",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:42",
+                "candidate-Y.md:52",
+                "candidate-Y.md:56",
+                "candidate-Y.md:66"
+              ],
+              "source_evidence": [
+                "src/services/agentSkillService.ts:36"
+              ],
+              "rationale": "Directory-based detection/update/cancel/open chain and absent old-location migration explained; partial installation acknowledged."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Complete bundle contract",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:52",
+                "candidate-Y.md:60",
+                "candidate-Y.md:66"
+              ],
+              "source_evidence": [
+                "src/services/agentSkillService.ts:40"
+              ],
+              "rationale": "Requires SKILL.md plus query.cjs, recursively copies complete built assets and rejects incomplete bundles; no install-time build."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Build and packaging chain",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:54"
+              ],
+              "source_evidence": [
+                "scripts/build-query-skill.cjs:5"
+              ],
+              "rationale": "Correct resource-copy and CLI bundle entry, esbuild/prepublish integration and raw-source packaging exclusions."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "MCP setup separation",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:62",
+                "candidate-Y.md:68"
+              ],
+              "source_evidence": [
+                "src/commands/mcpSetupCommands.ts:64"
+              ],
+              "rationale": "Separate registration, dist/mcp-server, global-storage installs, dependency/audit/health/config stages and no graph regeneration."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Query copy versus graph generation",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:60",
+                "candidate-Y.md:66",
+                "candidate-Y.md:67"
+              ],
+              "source_evidence": [
+                "src/services/agentSkillService.test.ts:42"
+              ],
+              "rationale": "Independent query installation and read-only existing-artifact behavior distinguished from generation tooling/commands."
+            },
+            {
+              "id": "C9",
+              "classification": "critical",
+              "title": "Installation/portability regressions and gaps",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:66",
+                "candidate-Y.md:67",
+                "candidate-Y.md:68"
+              ],
+              "source_evidence": [
+                "tests/querySkill.test.ts:22"
+              ],
+              "rationale": "Connects service path/overwrite/partial tests and copied runtime/read-only tests; distinguishes MCP and untested VSIX/UI contracts."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Portable runtime boundaries",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:54",
+                "candidate-Y.md:67"
+              ],
+              "source_evidence": [
+                "scripts/build-query-skill.cjs:8"
+              ],
+              "rationale": "CJS Node 26/root Zod/forbidden dependencies/licenses and copied no-node_modules Unicode/space portability covered."
+            }
+          ],
+          "totals": {
+            "critical": 9,
+            "critical_max": 9,
+            "supplemental": 1,
+            "supplemental_max": 1
+          },
+          "major_false_claim_ids": [],
+          "omissions": "No material omission under the frozen checklist."
+        }
+      },
+      "totals": {
+        "critical": 23,
+        "critical_max": 24,
+        "supplemental": 4,
+        "supplemental_max": 4,
+        "major_false_claim_count": 1
+      },
+      "major_false_claims": [
+        {
+          "id": "Y-T2-M1",
+          "task": "T2",
+          "criterion": "C6",
+          "severity": "major",
+          "candidate_evidence": "candidate-Y.md:23",
+          "quote": "CLI context/impact/path/structure and MCP structural-analysis tools also read it; diff reads the previous snapshot.",
+          "finding": "Read literally as the named CLI commands, this routes plain path to the raw structural snapshot. The raw command is structural-path; plain path uses the AgentGraphStore-backed engine. This can misidentify which consumer becomes current after background structural refresh.",
+          "evidence": [
+            {
+              "source": "packages/mcp-server/src/queryCli.ts:74",
+              "fact": "Only impact, structural-path and structure enter this raw structural branch."
+            },
+            {
+              "source": "packages/mcp-server/src/queryCli.ts:97",
+              "fact": "The remaining commands use AgentGraphStore and require agent-graph.json."
+            },
+            {
+              "source": "packages/mcp-server/src/queryCli.ts:125",
+              "fact": "Plain path invokes shortestPath on the AgentGraphStore-backed engine."
+            }
+          ],
+          "audit_note": "The word path is not backticked and may have been intended as shorthand for structural-path. This grader reads the slash-delimited CLI list literally because path is itself a distinct real command. The rest of Y's raw/curated explanation is correct. This single literal-versus-shorthand decision accounts for the entire score difference and major-claim flag."
+        }
+      ]
+    }
+  }
+}

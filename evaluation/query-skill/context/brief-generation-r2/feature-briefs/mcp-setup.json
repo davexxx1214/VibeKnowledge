@@ -1,0 +1,335 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-04T12:38:30.429Z",
+  "key": "mcp-setup",
+  "name": "Isolated MCP installation and client configuration",
+  "summary": "Installs a bundled MCP runtime in extension storage, gates publication on dependency audit and health checks, and updates only the selected project's VibeKnowledge MCP configuration entry.",
+  "keywords": [
+    "MCP setup",
+    "knowledge.setupMcp",
+    "knowledge.settings",
+    "Node 26",
+    "audit",
+    "Cursor",
+    "mcp.json"
+  ],
+  "entries": [
+    {
+      "filePath": "src/extension.ts",
+      "startLine": 36,
+      "endLine": 38
+    },
+    {
+      "filePath": "src/commands/mcpSetupCommands.ts",
+      "startLine": 100,
+      "endLine": 111
+    }
+  ],
+  "limitations": [
+    "Reviewed setup orchestration, configuration editing, audit policy, build wiring and selected tests, not the full MCP server/tool/RAG implementation or external registry state.",
+    "The build references packages/mcp-server/scripts/health-check.mjs, but that file was absent in this isolated source copy. Its actual protocol/native-SQLite assertions and end-to-end bundle completeness could not be verified.",
+    "Tests were inspected, not run. No dependencies were installed, no audit/network request or native runtime handshake was executed, and no user MCP configuration was changed."
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "knowledge.setupMcp and the Knowledge settings menu are registered before workspace/database initialization. Installation requires workspace trust, uses a configured absolute target or a local-folder chooser, confirms project/configuration paths modally, and reports cancellable progress through an output channel. Concurrent invocations only show that channel while selection/installation is active.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 36,
+          "endLine": 54
+        },
+        {
+          "filePath": "src/commands/mcpSetupCommands.ts",
+          "startLine": 8,
+          "endLine": 64
+        },
+        {
+          "filePath": "src/commands/mcpSetupCommands.ts",
+          "startLine": 100,
+          "endLine": 111
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "Machine-scoped knowledgeGraph.mcp settings select workspacePath, external nodePath, optional absolute npm-cli.js, client and audit timeout. Auto client detection checks vscode.env.appName for Cursor. The resolved external Node must be >=26.1.0 <27 (no prerelease); npm must be 11+. Setup uses that Node's execPath and prepends its directory to subprocess PATH.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "package.json",
+          "startLine": 288,
+          "endLine": 323
+        },
+        {
+          "filePath": "src/commands/mcpSetupCommands.ts",
+          "startLine": 39,
+          "endLine": 42
+        },
+        {
+          "filePath": "src/services/mcpSetupService.ts",
+          "startLine": 91,
+          "endLine": 115
+        },
+        {
+          "filePath": "src/services/mcpSetupService.ts",
+          "startLine": 162,
+          "endLine": 170
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "The UI passes extension/dist/mcp-server as bundle and globalStorageUri/mcp as storage to setupMcp. esbuild's asset phase builds portable Node-26 ESM server files, copies runtime metadata/lock/config and shared graph modules, plus audit and health-check helpers. The server package declares MCP SDK ^1.22.0 and better-sqlite3 ^13.0.3; these are external runtime dependencies, unlike the extension's sql.js database initializer.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/commands/mcpSetupCommands.ts",
+          "startLine": 64,
+          "endLine": 78
+        },
+        {
+          "filePath": "esbuild.js",
+          "startLine": 11,
+          "endLine": 25
+        },
+        {
+          "filePath": "scripts/build-mcp-runtime.cjs",
+          "startLine": 5,
+          "endLine": 36
+        },
+        {
+          "filePath": "packages/mcp-server/package.json",
+          "startLine": 44,
+          "endLine": 49
+        },
+        {
+          "filePath": "src/services/database.ts",
+          "startLine": 1,
+          "endLine": 4
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "setupMcp resolves the target directory and validates its existing JSONC before running downloads. Each attempt gets a unique staging directory under extension storage, with an identity derived from lock bytes and Node/platform/architecture. It copies the bundle and runs npm ci --omit=dev --audit --ignore-scripts there, never in the business project.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/mcpSetupService.ts",
+          "startLine": 148,
+          "endLine": 185
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "A separate production audit gates setup: only a complete valid report with zero high/critical findings and successful process status counts as clean. Unavailable service, malformed output and timeouts are not success. The validated per-request timeout is 10–120 seconds (default 60); retryable failures get at most three attempts with 2/4-second backoff, under a larger enclosing process limit.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/mcpSetupService.ts",
+          "startLine": 150,
+          "endLine": 153
+        },
+        {
+          "filePath": "src/services/mcpSetupService.ts",
+          "startLine": 187,
+          "endLine": 195
+        },
+        {
+          "filePath": "scripts/audit-dependencies.cjs",
+          "startLine": 3,
+          "endLine": 12
+        },
+        {
+          "filePath": "scripts/audit-dependencies.cjs",
+          "startLine": 56,
+          "endLine": 71
+        },
+        {
+          "filePath": "scripts/audit-dependencies.cjs",
+          "startLine": 121,
+          "endLine": 146
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "After audit, the UI-provided ensureDatabase creates graph.sqlite only if missing, via DatabaseService.initialize/close. setupMcp then invokes health-check.mjs with the workspace and a 45-second timeout before configuration publication. Setup does not generate graphs, and the generated server arguments disable RAG; users still must trust/start or restart the server in their MCP client.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/commands/mcpSetupCommands.ts",
+          "startLine": 47,
+          "endLine": 48
+        },
+        {
+          "filePath": "src/commands/mcpSetupCommands.ts",
+          "startLine": 73,
+          "endLine": 86
+        },
+        {
+          "filePath": "src/services/mcpSetupService.ts",
+          "startLine": 132,
+          "endLine": 139
+        },
+        {
+          "filePath": "src/services/mcpSetupService.ts",
+          "startLine": 196,
+          "endLine": 200
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "jsonc-parser (root dependency ^3.3.1) edits only servers.vibeknowledge for .vscode/mcp.json or mcpServers.vibeknowledge for .cursor/mcp.json. VS Code adds type: stdio; both use the resolved Node, staged dist/index.js, --workspace and --rag-mode none. Parsing allows comments/trailing commas, rejects malformed roots/server maps, and preserves surrounding fields/comments with JSONC edits.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "package.json",
+          "startLine": 492,
+          "endLine": 498
+        },
+        {
+          "filePath": "src/services/mcpSetupService.ts",
+          "startLine": 118,
+          "endLine": 139
+        },
+        {
+          "filePath": "tests/mcpSetup.test.ts",
+          "startLine": 9,
+          "endLine": 31
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Immediately before publication, setup compares mcp.json to its initial text and refuses detected concurrent edits. A nonempty prior config gets a timestamped .bak; replacement uses a unique temporary file and rename. Failed attempts remove only their staging directory; successful/older installs remain so existing processes keep working. Preserved MCP config does not imply zero side effects: the chosen workspace setting is saved earlier and a missing database may already have been initialized.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/mcpSetupService.ts",
+          "startLine": 197,
+          "endLine": 218
+        },
+        {
+          "filePath": "src/commands/mcpSetupCommands.ts",
+          "startLine": 52,
+          "endLine": 53
+        },
+        {
+          "filePath": "src/commands/mcpSetupCommands.ts",
+          "startLine": 73,
+          "endLine": 78
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "Process execution uses spawn with argument arrays, shell:false and windowsHide:true. AbortSignal/timeouts terminate the child tree (taskkill on Windows, process-group signals elsewhere); output is bounded and common credential forms are redacted. UI cancellation/disposal aborts the active controller, and errors direct users to setup logs/settings.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/mcpSetupService.ts",
+          "startLine": 31,
+          "endLine": 88
+        },
+        {
+          "filePath": "src/commands/mcpSetupCommands.ts",
+          "startLine": 13,
+          "endLine": 13
+        },
+        {
+          "filePath": "src/commands/mcpSetupCommands.ts",
+          "startLine": 57,
+          "endLine": 62
+        },
+        {
+          "filePath": "src/commands/mcpSetupCommands.ts",
+          "startLine": 88,
+          "endLine": 97
+        }
+      ]
+    },
+    {
+      "kind": "test",
+      "text": "MCP setup tests assert JSONC preservation/client shapes, Node bounds, isolated process arguments/order, backups, timeout propagation, stage-failure cleanup, concurrent-edit refusal and cancellation. Most orchestration uses an injected mocked process runner; separate tests exercise real argument passing/process cancellation. Command tests assert early registration, workspace trust blocking and audit-timeout forwarding; bundle tests assert expected helper/assets and no shipped node_modules/src.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "tests/mcpSetup.test.ts",
+          "startLine": 8,
+          "endLine": 43
+        },
+        {
+          "filePath": "tests/mcpSetup.test.ts",
+          "startLine": 73,
+          "endLine": 178
+        },
+        {
+          "filePath": "tests/mcpSetupCommands.test.ts",
+          "startLine": 53,
+          "endLine": 80
+        },
+        {
+          "filePath": "tests/mcpRuntimeBundle.test.ts",
+          "startLine": 11,
+          "endLine": 29
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "filePath": "esbuild.js",
+      "contentHash": "28a264c597fa75ef6b9225ffe56a022044c6ab6b895f1a578a5351cd2b29f4c2"
+    },
+    {
+      "filePath": "package.json",
+      "contentHash": "9bed5299dba555ce210e465c12dabb3de4df2595c9c69864fbd6592feabbd972"
+    },
+    {
+      "filePath": "packages/mcp-server/package.json",
+      "contentHash": "dc7eeee1336d9447db629fd82aa53d130c9e64339e822327a0e90c1fc6d3bcb0"
+    },
+    {
+      "filePath": "scripts/audit-dependencies.cjs",
+      "contentHash": "b637173084e4616ac5a8239b3eb80227392617fd055e06315a0e5d30db420cf3"
+    },
+    {
+      "filePath": "scripts/build-mcp-runtime.cjs",
+      "contentHash": "9d884536489b6de2c6eb744b3ee526cb36db27525814ab829e8dc877c497fa8d"
+    },
+    {
+      "filePath": "src/commands/mcpSetupCommands.ts",
+      "contentHash": "1d11dce6e16297a960d689bd300b4e5fee15e8ce1dfa0be9f9369ee818886560"
+    },
+    {
+      "filePath": "src/extension.ts",
+      "contentHash": "db5e3187dc656a9bf36915521d3205c25c71cfcce18a489129b621155ac8c42f"
+    },
+    {
+      "filePath": "src/services/database.ts",
+      "contentHash": "baba1ffd4d9c4c1e2ae0e38b741514a16973d423c6df186ef729fe44d93339ff"
+    },
+    {
+      "filePath": "src/services/mcpSetupService.ts",
+      "contentHash": "db27d776399e35c095af7d05b0476643a22fcb8385b09534e9273bbb419a0ade"
+    },
+    {
+      "filePath": "tests/mcpRuntimeBundle.test.ts",
+      "contentHash": "3604f2b6a4086d7667d2fbc03a3ce08e8c62097024036a6f1c618e8b855d63c5"
+    },
+    {
+      "filePath": "tests/mcpSetup.test.ts",
+      "contentHash": "eeb25aeddbf9081b911153dcb2eed4aeccaf752419ce6bb9ce84f1124f6e4351"
+    },
+    {
+      "filePath": "tests/mcpSetupCommands.test.ts",
+      "contentHash": "4611542832a30fa774d8f0b761134f4b9f4005cc7772ba249a24def7e18c6822"
+    }
+  ]
+}

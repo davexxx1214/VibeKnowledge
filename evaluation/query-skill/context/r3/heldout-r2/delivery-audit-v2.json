@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "createdAt": "2026-09-04T13:28:24.496Z",
+  "arms": {
+    "A": {
+      "sessionId": "01a06c91-89a5-7c22-b88e-fdb40621b360",
+      "agentPath": "/root/facet_heldout_2a",
+      "observations": 56,
+      "matchedPublicToolOutput": 56,
+      "unmatchedObservationIndexes": [],
+      "toolOutputTruncationMarkers": 0
+    },
+    "B": {
+      "sessionId": "01a06c95-75da-7fe3-87ee-6a20671dbac7",
+      "agentPath": "/root/facet_heldout_2b",
+      "observations": 49,
+      "matchedPublicToolOutput": 45,
+      "unmatchedObservationIndexes": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "toolOutputTruncationMarkers": 1
+    }
+  },
+  "passed": false,
+  "note": "Multiplicity-aware public-tool substring matching, not call-identity proof. Supports function/custom tool outputs. Numerical model usage separately includes actual model input/output."
+}

@@ -1,0 +1,426 @@
+{
+  "generatedAt": "2026-09-04T10:46:28.906Z",
+  "source": "D:\\workspace\\nestjs-realworld-example-app",
+  "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\query-skill-evaluation-ZkSE2U",
+  "node": "v26.1.0",
+  "budget": 1200,
+  "tokenizer": {
+    "encoding": "o200k_base",
+    "tiktokenVersion": "0.12.0",
+    "billingTelemetry": false
+  },
+  "graphHashes": {
+    "agent-graph.json": "23918aad4c0684e162493151f09d5eb51cc7371710c08a32073476758bfe9f96",
+    "structural-graph.json": "0c271a26ae17e67dad63f006c22a3529544b1a4c31a018caa9b9a2feeedf5372"
+  },
+  "graphCounts": {
+    "curated": [
+      {
+        "key": "framework",
+        "entities": 9,
+        "relations": 21
+      },
+      {
+        "key": "user-management",
+        "entities": 16,
+        "relations": 22
+      },
+      {
+        "key": "article-management",
+        "entities": 16,
+        "relations": 27
+      },
+      {
+        "key": "tag-management",
+        "entities": 5,
+        "relations": 7
+      }
+    ],
+    "structuralEntities": 160
+  },
+  "setup": {
+    "mcpStartupMs": 231,
+    "notes": "Fresh CLI process per call; one warm MCP session. Construction/generation/install costs excluded from query token totals."
+  },
+  "rows": [
+    {
+      "id": "locate-tag-sorting",
+      "tool": "query_graph",
+      "equal": true,
+      "mcpMs": 19,
+      "cliMs": 119,
+      "files": [
+        "src/tag/tag.service.ts",
+        "src/tag/tag.controller.ts",
+        "src/tag/tag.entity.ts",
+        "src/tag/tag.module.ts"
+      ],
+      "expectedFiles": [
+        "src/tag/tag.controller.ts",
+        "src/tag/tag.service.ts",
+        "src/tag/tag.controller.spec.ts"
+      ],
+      "missedExpectedFiles": [
+        "src/tag/tag.controller.spec.ts"
+      ],
+      "truncated": false,
+      "cliArguments": [
+        "query",
+        "--query",
+        "Sort the tags returned by GET /tags and update the relevant unit test.",
+        "--group",
+        "tag-management",
+        "--depth",
+        "2",
+        "--budget",
+        "1200"
+      ],
+      "resultTokens": 599,
+      "mcpCallTokens": 41,
+      "cliCallTokens": 63,
+      "singleToolSchemaTokens": 328
+    },
+    {
+      "id": "test-invalid-login",
+      "tool": "query_graph",
+      "equal": true,
+      "mcpMs": 12,
+      "cliMs": 114,
+      "files": [
+        "src/user/dto/login-user.dto.ts",
+        "src/user/user.controller.ts",
+        "src/user/user.service.ts",
+        "src/user/auth.middleware.ts",
+        "src/shared/base.controller.ts",
+        "src/shared/pipes/validation.pipe.ts",
+        "src/user/dto/create-user.dto.ts",
+        "src/user/dto/update-user.dto.ts",
+        "src/user/user.decorator.ts",
+        "src/user/user.interface.ts"
+      ],
+      "expectedFiles": [
+        "src/user/user.controller.ts",
+        "src/user/user.service.ts",
+        "src/user/dto/login-user.dto.ts"
+      ],
+      "missedExpectedFiles": [],
+      "truncated": true,
+      "cliArguments": [
+        "query",
+        "--query",
+        "Add a regression test for invalid password login returning HTTP 401.",
+        "--group",
+        "user-management",
+        "--depth",
+        "2",
+        "--budget",
+        "1200"
+      ],
+      "resultTokens": 762,
+      "mcpCallTokens": 39,
+      "cliCallTokens": 61,
+      "singleToolSchemaTokens": 328
+    },
+    {
+      "id": "modify-article-favorite",
+      "tool": "query_graph",
+      "equal": true,
+      "mcpMs": 10,
+      "cliMs": 117,
+      "files": [
+        "src/article/article.controller.ts",
+        "src/article/article.interface.ts",
+        "src/article/article.service.ts",
+        "src/article/dto/create-article.dto.ts",
+        "src/article/dto/create-comment.ts",
+        "src/user/user.decorator.ts",
+        "src/article/article.entity.ts",
+        "src/article/comment.entity.ts"
+      ],
+      "expectedFiles": [
+        "src/article/article.controller.ts",
+        "src/article/article.service.ts",
+        "src/article/article.entity.ts",
+        "src/user/user.entity.ts"
+      ],
+      "missedExpectedFiles": [
+        "src/user/user.entity.ts"
+      ],
+      "truncated": true,
+      "cliArguments": [
+        "query",
+        "--query",
+        "Change the article favorite endpoint and assess persistence impact on users and articles.",
+        "--group",
+        "article-management",
+        "--depth",
+        "2",
+        "--budget",
+        "1200"
+      ],
+      "resultTokens": 685,
+      "mcpCallTokens": 40,
+      "cliCallTokens": 62,
+      "singleToolSchemaTokens": 328
+    },
+    {
+      "id": "impact-auth-middleware",
+      "tool": "analyze_impact",
+      "equal": true,
+      "mcpMs": 8,
+      "cliMs": 101,
+      "files": [
+        "src/user/auth.middleware.ts",
+        "src/article/article.module.ts",
+        "src/profile/profile.module.ts",
+        "src/user/user.module.ts",
+        "src/app.module.ts",
+        "src/tag/tag.module.ts"
+      ],
+      "expectedFiles": [
+        "src/user/auth.middleware.ts",
+        "src/user/user.module.ts",
+        "src/article/article.module.ts",
+        "src/profile/profile.module.ts"
+      ],
+      "missedExpectedFiles": [],
+      "truncated": false,
+      "cliArguments": [
+        "impact",
+        "--selector",
+        "src/user/auth.middleware.ts#AuthMiddleware",
+        "--direction",
+        "upstream",
+        "--depth",
+        "3",
+        "--budget",
+        "1200"
+      ],
+      "resultTokens": 529,
+      "mcpCallTokens": 37,
+      "cliCallTokens": 54,
+      "singleToolSchemaTokens": 191
+    },
+    {
+      "id": "trace-entity-cycle",
+      "tool": "analyze_structure",
+      "equal": true,
+      "mcpMs": 7,
+      "cliMs": 103,
+      "files": [
+        "src/article/article.entity.ts",
+        "src/article/comment.entity.ts",
+        "src/user/user.entity.ts"
+      ],
+      "expectedFiles": [
+        "src/article/article.entity.ts",
+        "src/article/comment.entity.ts",
+        "src/user/user.entity.ts"
+      ],
+      "missedExpectedFiles": [],
+      "truncated": false,
+      "cliArguments": [
+        "structure",
+        "--analysis",
+        "cycles",
+        "--limit",
+        "10",
+        "--budget",
+        "1200"
+      ],
+      "resultTokens": 349,
+      "mcpCallTokens": 23,
+      "cliCallTokens": 44,
+      "singleToolSchemaTokens": 185
+    },
+    {
+      "id": "entity-user-service",
+      "tool": "get_entity",
+      "equal": true,
+      "mcpMs": 6,
+      "cliMs": 108,
+      "files": [
+        "src/user/user.service.ts"
+      ],
+      "expectedFiles": [],
+      "missedExpectedFiles": [],
+      "truncated": false,
+      "cliArguments": [
+        "entity",
+        "--selector",
+        "src/user/user.service.ts#UserService",
+        "--group",
+        "user-management",
+        "--budget",
+        "1200"
+      ],
+      "resultTokens": 90,
+      "mcpCallTokens": 31,
+      "cliCallTokens": 51,
+      "singleToolSchemaTokens": 181
+    },
+    {
+      "id": "neighbors-tag",
+      "tool": "get_neighbors",
+      "equal": true,
+      "mcpMs": 8,
+      "cliMs": 153,
+      "files": [
+        "src/tag/tag.service.ts",
+        "src/tag/tag.entity.ts"
+      ],
+      "expectedFiles": [],
+      "missedExpectedFiles": [],
+      "truncated": false,
+      "cliArguments": [
+        "neighbors",
+        "--selector",
+        "src/tag/tag.service.ts#TagService",
+        "--group",
+        "tag-management",
+        "--direction",
+        "outgoing",
+        "--depth",
+        "1",
+        "--budget",
+        "1200"
+      ],
+      "resultTokens": 262,
+      "mcpCallTokens": 40,
+      "cliCallTokens": 58,
+      "singleToolSchemaTokens": 308
+    },
+    {
+      "id": "path-tag-controller",
+      "tool": "shortest_path",
+      "equal": true,
+      "mcpMs": 7,
+      "cliMs": 160,
+      "files": [
+        "src/tag/tag.controller.ts",
+        "src/tag/tag.service.ts"
+      ],
+      "expectedFiles": [],
+      "missedExpectedFiles": [],
+      "truncated": false,
+      "cliArguments": [
+        "path",
+        "--source",
+        "src/tag/tag.controller.ts#TagController",
+        "--target",
+        "src/tag/tag.service.ts#TagService",
+        "--group",
+        "tag-management",
+        "--direction",
+        "outgoing",
+        "--budget",
+        "1200"
+      ],
+      "resultTokens": 91,
+      "mcpCallTokens": 48,
+      "cliCallTokens": 64,
+      "singleToolSchemaTokens": 338
+    },
+    {
+      "id": "raw-path-tag",
+      "tool": "find_structural_path",
+      "equal": true,
+      "mcpMs": 12,
+      "cliMs": 151,
+      "files": [
+        "src/tag/tag.controller.ts",
+        "src/tag/tag.service.ts"
+      ],
+      "expectedFiles": [],
+      "missedExpectedFiles": [],
+      "truncated": false,
+      "cliArguments": [
+        "structural-path",
+        "--source",
+        "src/tag/tag.controller.ts#TagController",
+        "--target",
+        "src/tag/tag.service.ts#TagService",
+        "--direction",
+        "outgoing",
+        "--budget",
+        "1200"
+      ],
+      "resultTokens": 93,
+      "mcpCallTokens": 43,
+      "cliCallTokens": 61,
+      "singleToolSchemaTokens": 204
+    }
+  ],
+  "tokenCounts": {
+    "mcp_all_definitions": 2194,
+    "mcp_dependency_definitions": 2055,
+    "skill_entry": 602,
+    "skill_advanced": 580,
+    "whole_curated_graph": 26422,
+    "whole_structural_graph": 105489,
+    "skill_overview": 92,
+    "locate-tag-sorting:result": 599,
+    "locate-tag-sorting:question": 15,
+    "locate-tag-sorting:mcp_call": 41,
+    "locate-tag-sorting:cli_call": 63,
+    "locate-tag-sorting:mcp_selected_definition": 328,
+    "test-invalid-login:result": 762,
+    "test-invalid-login:question": 13,
+    "test-invalid-login:mcp_call": 39,
+    "test-invalid-login:cli_call": 61,
+    "test-invalid-login:mcp_selected_definition": 328,
+    "modify-article-favorite:result": 685,
+    "modify-article-favorite:question": 14,
+    "modify-article-favorite:mcp_call": 40,
+    "modify-article-favorite:cli_call": 62,
+    "modify-article-favorite:mcp_selected_definition": 328,
+    "impact-auth-middleware:result": 529,
+    "impact-auth-middleware:question": 17,
+    "impact-auth-middleware:mcp_call": 37,
+    "impact-auth-middleware:cli_call": 54,
+    "impact-auth-middleware:mcp_selected_definition": 191,
+    "trace-entity-cycle:result": 349,
+    "trace-entity-cycle:question": 17,
+    "trace-entity-cycle:mcp_call": 23,
+    "trace-entity-cycle:cli_call": 44,
+    "trace-entity-cycle:mcp_selected_definition": 185,
+    "entity-user-service:result": 90,
+    "entity-user-service:question": 4,
+    "entity-user-service:mcp_call": 31,
+    "entity-user-service:cli_call": 51,
+    "entity-user-service:mcp_selected_definition": 181,
+    "neighbors-tag:result": 262,
+    "neighbors-tag:question": 7,
+    "neighbors-tag:mcp_call": 40,
+    "neighbors-tag:cli_call": 58,
+    "neighbors-tag:mcp_selected_definition": 308,
+    "path-tag-controller:result": 91,
+    "path-tag-controller:question": 8,
+    "path-tag-controller:mcp_call": 48,
+    "path-tag-controller:cli_call": 64,
+    "path-tag-controller:mcp_selected_definition": 338,
+    "raw-path-tag:result": 93,
+    "raw-path-tag:question": 10,
+    "raw-path-tag:mcp_call": 43,
+    "raw-path-tag:cli_call": 61,
+    "raw-path-tag:mcp_selected_definition": 204
+  },
+  "totals": {
+    "skillLoadedOnce": 5265,
+    "mcpAllDefinitionsOnce": 6101,
+    "mcpDependencyDefinitionsOnce": 5962,
+    "mcpUsedDefinitionsOnce": 5642,
+    "warmSkill": 4083,
+    "warmMcp": 3907
+  },
+  "limitations": [
+    "Tokenizer counts of explicit text, not provider billing or an end-to-end LLM coding evaluation.",
+    "Result payloads must be byte-identical; reduced payload is not attributed to the transport.",
+    "MCP discovery is client-dependent. Compare all/used definitions and warm/no-discovery cases separately.",
+    "CLI counts example shell arguments; hidden shell tool schema/wrappers, MCP wrappers, caching, reasoning and source reads are not measured.",
+    "Skill entry and advanced reference each counted once per nine-query session. Optional overview adds its call/result tokens.",
+    "Curated graphs exclude tests. Missed expected test files require targeted source search, in both modes.",
+    "The budget uses the existing approximate estimator; actual tokenizer counts can exceed that number.",
+    "Input project is copied and graphs regenerated in an isolated workspace. Original project remains untouched."
+  ]
+}

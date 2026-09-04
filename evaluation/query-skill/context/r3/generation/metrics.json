@@ -1,0 +1,30 @@
+{
+  "sessionId": "01a06c8b-f785-7f53-b1b5-4b6640335e42",
+  "agentPath": "/root/brief_author_r3",
+  "model": "gpt-5.6-sol",
+  "effort": "xhigh",
+  "elapsedMs": 328077,
+  "responses": 18,
+  "observedTextTokens": 56639,
+  "usage": {
+    "input_tokens": 1271982,
+    "cached_input_tokens": 1192576,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 11074,
+    "reasoning_output_tokens": 1298,
+    "total_tokens": 1283056,
+    "uncachedInput": 79406,
+    "uncachedInputPlusOutput": 90480
+  },
+  "artifactHashes": {
+    "copilot-instructions.json": "bb773390dfcffbcbd1904921e8e47bf9f1cd7d530f466ce6b05bb2db382951cd",
+    "graph-visualization.json": "546ff9f6a2a8e32f5b6962ac9d0c0b4791ecd67186e25d5b87de77a8f6a07052",
+    "index.json": "1796438945bee6dc28e44792d0f6ba9d236c74eb97ebaf7dae3f98c5e99bd1da"
+  },
+  "sourceHashMismatches": [],
+  "limitations": [
+    "Generation cost, not warm query cost.",
+    "Only numeric session telemetry exported; no private reasoning or system instructions.",
+    "Selected feature areas known to author; future task prompts/rubrics/results not provided."
+  ]
+}

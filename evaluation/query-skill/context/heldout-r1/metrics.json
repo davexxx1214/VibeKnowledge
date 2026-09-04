@@ -1,0 +1,688 @@
+{
+  "generatedAt": "2026-09-04T12:55:11.254Z",
+  "run": "D:\\workspace\\VibeKnowledge\\.vscode-test\\feature-heldout-r1-GO62UG",
+  "graphPreparation": {
+    "files": 156,
+    "entities": 1117,
+    "relations": 10250,
+    "diagnostics": 47,
+    "elapsedMs": 5453
+  },
+  "tokenizer": {
+    "encoding": "o200k_base",
+    "version": "0.12.0"
+  },
+  "bundleSha256": "9771d4346a15fc723b99475ac70f0d2561a5e4be4e0b43b2619c0e9c01f06427",
+  "arms": {
+    "A": {
+      "sessionId": "01a06c76-194d-7043-8530-92ee400790f4",
+      "agentPath": "/root/brief_heldout_1a",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "responses": 17,
+      "elapsedMs": 382389,
+      "usage": {
+        "input_tokens": 1081682,
+        "cached_input_tokens": 998144,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 9945,
+        "reasoning_output_tokens": 975,
+        "total_tokens": 1091627,
+        "uncachedInput": 83538,
+        "uncachedInputPlusOutput": 93483
+      },
+      "sourceHashMismatches": [],
+      "artifactHashMismatches": [],
+      "queries": 0,
+      "phases": {
+        "descriptions": {
+          "observations": 47,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "src/ui/commands/entityCommands.ts",
+              "start": 210,
+              "end": 310
+            },
+            {
+              "file": "src/services/knowledgeGraphService.ts",
+              "start": 1,
+              "end": 309
+            },
+            {
+              "file": "src/services/agentGraph/agentEntityOverrideService.ts",
+              "start": 1,
+              "end": 101
+            },
+            {
+              "file": "src/services/agentGraph/agentGraphService.ts",
+              "start": 1,
+              "end": 330
+            },
+            {
+              "file": "src/services/agentGraph/agentGraphService.ts",
+              "start": 537,
+              "end": 617
+            },
+            {
+              "file": "src/services/database.ts",
+              "start": 1,
+              "end": 175
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 65,
+              "end": 150
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 205,
+              "end": 285
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 540,
+              "end": 583
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 37,
+              "end": 66
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 171,
+              "end": 188
+            },
+            {
+              "file": "src/services/database.ts",
+              "start": 165,
+              "end": 196
+            },
+            {
+              "file": "packages/mcp-server/src/mergedGraph.ts",
+              "start": 1,
+              "end": 135
+            },
+            {
+              "file": "src/providers/codeLensProvider.ts",
+              "start": 1,
+              "end": 78
+            },
+            {
+              "file": "src/providers/hoverProvider.ts",
+              "start": 1,
+              "end": 91
+            },
+            {
+              "file": "src/providers/treeDataProvider.ts",
+              "start": 164,
+              "end": 187
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 115,
+              "end": 128
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 331,
+              "end": 410
+            },
+            {
+              "file": "packages/mcp-server/src/database.ts",
+              "start": 110,
+              "end": 165
+            },
+            {
+              "file": "packages/mcp-server/src/database.ts",
+              "start": 375,
+              "end": 447
+            },
+            {
+              "file": "packages/mcp-server/src/agentGraphStore.ts",
+              "start": 291,
+              "end": 355
+            },
+            {
+              "file": "packages/mcp-server/src/agentGraphStore.ts",
+              "start": 411,
+              "end": 437
+            },
+            {
+              "file": "packages/mcp-server/src/agentGraphStore.ts",
+              "start": 564,
+              "end": 617
+            },
+            {
+              "file": "src/services/agentGraph/agentEntityOverrideService.test.ts",
+              "start": 1,
+              "end": 78
+            },
+            {
+              "file": "src/ui/commands/entityCommands.ts",
+              "start": 29,
+              "end": 78
+            },
+            {
+              "file": "src/services/aiIntegrationService.ts",
+              "start": 40,
+              "end": 67
+            },
+            {
+              "file": "src/services/exportService.ts",
+              "start": 680,
+              "end": 722
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 436,
+              "end": 486
+            },
+            {
+              "file": "packages/mcp-server/src/queryCli.ts",
+              "start": 78,
+              "end": 117
+            },
+            {
+              "file": "packages/mcp-server/src/tools/registerGraphQueryTools.ts",
+              "start": 246,
+              "end": 265
+            },
+            {
+              "file": "src/services/knowledgeGraphService.test.ts",
+              "start": 131,
+              "end": 168
+            },
+            {
+              "file": "src/services/agentGraph/agentGraphService.test.ts",
+              "start": 371,
+              "end": 433
+            },
+            {
+              "file": "package.json",
+              "start": 194,
+              "end": 214
+            },
+            {
+              "file": "packages/mcp-server/src/queryCli.ts",
+              "start": 130,
+              "end": 169
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 615,
+              "end": 644
+            },
+            {
+              "file": "packages/mcp-server/src/queryCli.ts",
+              "start": 42,
+              "end": 67
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 263,
+              "end": 280
+            },
+            {
+              "file": "packages/mcp-server/tests/mergedGraph.test.ts",
+              "start": 77,
+              "end": 104
+            }
+          ],
+          "observedTextTokens": 38456,
+          "tokensByKind": {
+            "rg": 13221,
+            "source": 25235
+          }
+        },
+        "setup": {
+          "observations": 18,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "src/commands/mcpSetupCommands.ts",
+              "start": 1,
+              "end": 113
+            },
+            {
+              "file": "src/services/mcpSetupService.ts",
+              "start": 1,
+              "end": 221
+            },
+            {
+              "file": "scripts/build-mcp-runtime.cjs",
+              "start": 1,
+              "end": 40
+            },
+            {
+              "file": "scripts/audit-dependencies.cjs",
+              "start": 1,
+              "end": 167
+            },
+            {
+              "file": "tests/mcpSetup.test.ts",
+              "start": 1,
+              "end": 182
+            },
+            {
+              "file": "tests/mcpSetupCommands.test.ts",
+              "start": 1,
+              "end": 83
+            },
+            {},
+            {
+              "file": "packages/mcp-server/src/index.ts",
+              "start": 1,
+              "end": 68
+            },
+            {
+              "file": "packages/mcp-server/src/config.ts",
+              "start": 1,
+              "end": 232
+            },
+            {
+              "file": "packages/mcp-server/package.json",
+              "start": 1,
+              "end": 60
+            },
+            {
+              "file": "package.json",
+              "start": 286,
+              "end": 329
+            },
+            {
+              "file": "packages/mcp-server/.npmrc",
+              "start": 1,
+              "end": 7
+            },
+            {
+              "file": "tests/mcpRuntimeBundle.test.ts",
+              "start": 1,
+              "end": 46
+            },
+            {
+              "file": "packages/mcp-server/tests/nativeRuntime.test.ts",
+              "start": 1,
+              "end": 44
+            },
+            {
+              "file": "tests/dependencyAudit.test.ts",
+              "start": 1,
+              "end": 162
+            },
+            {
+              "file": "packages/mcp-server/src/server.ts",
+              "start": 1,
+              "end": 48
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 33,
+              "end": 65
+            }
+          ],
+          "observedTextTokens": 22806,
+          "tokensByKind": {
+            "source": 21595,
+            "rg": 1211
+          }
+        }
+      },
+      "observedTextTokens": 61262,
+      "reportTokens": 3972
+    },
+    "B": {
+      "sessionId": "01a06c76-446b-7be3-9b8a-b3bab50a48a4",
+      "agentPath": "/root/brief_heldout_1b",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "responses": 19,
+      "elapsedMs": 231376,
+      "usage": {
+        "input_tokens": 1008895,
+        "cached_input_tokens": 941056,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 7902,
+        "reasoning_output_tokens": 1241,
+        "total_tokens": 1016797,
+        "uncachedInput": 67839,
+        "uncachedInputPlusOutput": 75741
+      },
+      "sourceHashMismatches": [],
+      "artifactHashMismatches": [],
+      "queries": 4,
+      "phases": {
+        "descriptions": {
+          "observations": 62,
+          "queries": 2,
+          "reads": [
+            {
+              "file": ".agents/skills/vibeknowledge-query/SKILL.md",
+              "start": 1,
+              "end": 30
+            },
+            {
+              "file": "src/ui/commands/entityCommands.ts",
+              "start": 205,
+              "end": 300
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 530,
+              "end": 590
+            },
+            {
+              "file": "src/services/knowledgeGraphService.ts",
+              "start": 180,
+              "end": 295
+            },
+            {
+              "file": "src/services/agentGraph/agentGraphService.ts",
+              "start": 1,
+              "end": 180
+            },
+            {
+              "file": "src/services/agentGraph/agentEntityOverrideService.ts",
+              "start": 1,
+              "end": 101
+            },
+            {
+              "file": "src/services/database.ts",
+              "start": 1,
+              "end": 55
+            },
+            {
+              "file": "src/services/database.ts",
+              "start": 110,
+              "end": 185
+            },
+            {
+              "file": "src/services/agentGraph/agentGraphService.ts",
+              "start": 230,
+              "end": 270
+            },
+            {
+              "file": "src/services/agentGraph/agentGraphService.ts",
+              "start": 530,
+              "end": 600
+            },
+            {
+              "file": "src/services/knowledgeGraphService.ts",
+              "start": 45,
+              "end": 170
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 48,
+              "end": 78
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 170,
+              "end": 185
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 235,
+              "end": 290
+            },
+            {
+              "file": "src/providers/hoverProvider.ts",
+              "start": 1,
+              "end": 85
+            },
+            {
+              "file": "src/providers/codeLensProvider.ts",
+              "start": 15,
+              "end": 78
+            },
+            {
+              "file": "packages/mcp-server/src/database.ts",
+              "start": 60,
+              "end": 165
+            },
+            {
+              "file": "packages/mcp-server/src/database.ts",
+              "start": 370,
+              "end": 410
+            },
+            {
+              "file": "src/providers/treeDataProvider.ts",
+              "start": 60,
+              "end": 85
+            },
+            {
+              "file": "src/providers/treeDataProvider.ts",
+              "start": 160,
+              "end": 180
+            },
+            {
+              "file": "src/providers/treeDataProvider.ts",
+              "start": 330,
+              "end": 354
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 118,
+              "end": 130
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 290,
+              "end": 325
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 450,
+              "end": 485
+            },
+            {
+              "file": "packages/mcp-server/src/mergedGraph.ts",
+              "start": 1,
+              "end": 140
+            },
+            {
+              "file": "packages/mcp-server/src/agentGraphStore.ts",
+              "start": 300,
+              "end": 360
+            },
+            {
+              "file": "packages/mcp-server/src/agentGraphStore.ts",
+              "start": 550,
+              "end": 605
+            },
+            {
+              "file": "packages/mcp-server/src/queryCli.ts",
+              "start": 38,
+              "end": 62
+            },
+            {
+              "file": "packages/mcp-server/src/queryCli.ts",
+              "start": 90,
+              "end": 132
+            },
+            {
+              "file": "src/ui/commands/entityCommands.ts",
+              "start": 323,
+              "end": 358
+            },
+            {
+              "file": "src/services/exportService.ts",
+              "start": 680,
+              "end": 720
+            },
+            {
+              "file": "packages/mcp-server/src/server.ts",
+              "start": 1,
+              "end": 48
+            },
+            {
+              "file": "src/services/agentGraph/agentGraphService.test.ts",
+              "start": 393,
+              "end": 433
+            },
+            {
+              "file": "src/services/agentGraph/agentEntityOverrideService.test.ts",
+              "start": 1,
+              "end": 78
+            },
+            {
+              "file": "tests/querySkill.test.ts",
+              "start": 78,
+              "end": 100
+            },
+            {
+              "file": "packages/mcp-server/src/tools/registerGraphQueryTools.ts",
+              "start": 245,
+              "end": 265
+            },
+            {
+              "file": "packages/mcp-server/src/resources/registerResources.ts",
+              "start": 1,
+              "end": 36
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 224,
+              "end": 270
+            },
+            {
+              "file": "src/ui/commands/entityCommands.ts",
+              "start": 18,
+              "end": 38
+            },
+            {
+              "file": "package.json",
+              "start": 195,
+              "end": 214
+            },
+            {
+              "file": "packages/mcp-server/src/agentGraphStore.ts",
+              "start": 510,
+              "end": 550
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1270,
+              "end": 1320
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1440,
+              "end": 1510
+            },
+            {
+              "file": "src/ui/webview/graphPerformanceScript.test.ts",
+              "start": 94,
+              "end": 123
+            },
+            {
+              "file": "src/providers/knowledgeCodeLensModel.ts",
+              "start": 30,
+              "end": 57
+            },
+            {
+              "file": "src/ui/commands/entityCommands.ts",
+              "start": 355,
+              "end": 372
+            }
+          ],
+          "observedTextTokens": 31557,
+          "tokensByKind": {
+            "skill": 782,
+            "query": 1235,
+            "source": 23210,
+            "rg": 6330
+          }
+        },
+        "setup": {
+          "observations": 18,
+          "queries": 2,
+          "reads": [
+            {
+              "file": "src/commands/mcpSetupCommands.ts",
+              "start": 1,
+              "end": 113
+            },
+            {
+              "file": "src/services/mcpSetupService.ts",
+              "start": 1,
+              "end": 221
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 26,
+              "end": 58
+            },
+            {
+              "file": "package.json",
+              "start": 288,
+              "end": 327
+            },
+            {
+              "file": "scripts/audit-dependencies.cjs",
+              "start": 1,
+              "end": 167
+            },
+            {
+              "file": "scripts/build-mcp-runtime.cjs",
+              "start": 1,
+              "end": 40
+            },
+            {
+              "file": "esbuild.js",
+              "start": 1,
+              "end": 60
+            },
+            {
+              "file": "tests/mcpSetup.test.ts",
+              "start": 1,
+              "end": 182
+            },
+            {
+              "file": "tests/mcpSetupCommands.test.ts",
+              "start": 45,
+              "end": 83
+            },
+            {},
+            {
+              "file": "packages/mcp-server/package.json",
+              "start": 1,
+              "end": 60
+            },
+            {
+              "file": "packages/mcp-server/.npmrc",
+              "start": 1,
+              "end": 7
+            },
+            {
+              "file": "tests/mcpRuntimeBundle.test.ts",
+              "start": 1,
+              "end": 46
+            },
+            {
+              "file": "src/services/database.ts",
+              "start": 181,
+              "end": 199
+            }
+          ],
+          "observedTextTokens": 17009,
+          "tokensByKind": {
+            "query": 1579,
+            "source": 15269,
+            "rg": 161
+          }
+        }
+      },
+      "observedTextTokens": 48566,
+      "reportTokens": 3454
+    }
+  },
+  "limitations": [
+    "Pilot is descriptive, not a final gate. Quality needs separate source-backed grading.",
+    "Total input includes cache/replay; usage is not a monetary invoice.",
+    "Generation/update cost separate; these are warm graph queries.",
+    "Raw private reasoning/system instructions are not exported."
+  ]
+}

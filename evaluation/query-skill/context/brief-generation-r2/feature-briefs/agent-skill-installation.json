@@ -1,0 +1,287 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-04T12:38:25.247Z",
+  "key": "agent-skill-installation",
+  "name": "Dependency graph and query Skill installation",
+  "summary": "Installs two independent, bundled project Skills: graph generation and read-only graph querying, with explicit update confirmation and different packaging requirements.",
+  "keywords": [
+    "install Skill",
+    "dependency graph",
+    "query Skill",
+    "knowledge.installDependencyGraphSkill",
+    "knowledge.installQuerySkill",
+    ".agents"
+  ],
+  "entries": [
+    {
+      "filePath": "src/extension.ts",
+      "startLine": 843,
+      "endLine": 881
+    },
+    {
+      "filePath": "package.json",
+      "startLine": 164,
+      "endLine": 173
+    }
+  ],
+  "limitations": [
+    "Covers installation, bundle ownership and the installed Skills' distinct contracts, not a complete generator/condenser or query-command reference.",
+    "Tests were inspected, not run; no actual package build, consumer installation, graph generation or Agent-host Skill discovery was exercised."
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "Knowledge: Install Dependency Graph Agent Skill and Knowledge: Install Graph Query Agent Skill are separate commands and Explorer title actions. Both use the first workspace root chosen during activation; in the no-workspace path they are placeholder commands that warn to open a folder.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "package.json",
+          "startLine": 164,
+          "endLine": 173
+        },
+        {
+          "filePath": "package.json",
+          "startLine": 223,
+          "endLine": 232
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 48,
+          "endLine": 58
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 843,
+          "endLine": 866
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 986,
+          "endLine": 998
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "AgentSkillService allows only vibeknowledge-dependency-graph and vibeknowledge-query. Generation assets come from extension/resources/skills; query assets come from extension/dist/skills. Both copy recursively to <workspace>/.agents/skills/<name>, returning the installed SKILL.md path. Installing one does not install the other.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/agentSkillService.ts",
+          "startLine": 4,
+          "endLine": 34
+        },
+        {
+          "filePath": "src/services/agentSkillService.ts",
+          "startLine": 40,
+          "endLine": 81
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 843,
+          "endLine": 846
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "Existing target directories trigger a modal Update/Cancel choice. On acceptance the service overwrites bundled files, then offers to open SKILL.md; errors are reported through localized messages. Installation itself copies assets, without executing graph generation, querying or MCP setup.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 849,
+          "endLine": 879
+        },
+        {
+          "filePath": "src/services/agentSkillService.ts",
+          "startLine": 40,
+          "endLine": 81
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Installed means target-directory existence, not a version or integrity check, so a partial directory also requires update confirmation. Source SKILL.md is mandatory; query additionally requires scripts/query.cjs. Copying is direct per file, skips non-file/non-directory entries, and does not remove extra target files or provide transactional rollback of a partial copy.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/agentSkillService.ts",
+          "startLine": 36,
+          "endLine": 81
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "The extension build calls buildQuerySkill to copy query instructions and bundle packages/mcp-server/src/queryCliEntry.ts into scripts/query.cjs. esbuild targets Node 26 CommonJS, resolves root zod, includes licenses and rejects bundles containing better-sqlite3, MCP SDK or Google dependencies. The root package declares esbuild ^0.28.2 and zod ^3.25.76.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "esbuild.js",
+          "startLine": 11,
+          "endLine": 25
+        },
+        {
+          "filePath": "scripts/build-query-skill.cjs",
+          "startLine": 5,
+          "endLine": 19
+        },
+        {
+          "filePath": "package.json",
+          "startLine": 480,
+          "endLine": 483
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "The generation Skill's documented role is refreshing deterministic structural facts and focused framework/module/feature groups, validating manifests and rendering audit/context views. It keeps generated structure in sidecars and explicitly excludes writing graph.sqlite human overrides. Its scripts share the TypeScript extractor used by the extension's StructuralGraphService.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "resources/skills/vibeknowledge-dependency-graph/SKILL.md",
+          "startLine": 8,
+          "endLine": 35
+        },
+        {
+          "filePath": "resources/skills/vibeknowledge-dependency-graph/SKILL.md",
+          "startLine": 39,
+          "endLine": 55
+        },
+        {
+          "filePath": "resources/skills/vibeknowledge-dependency-graph/SKILL.md",
+          "startLine": 160,
+          "endLine": 179
+        },
+        {
+          "filePath": "src/services/structuralGraph/structuralGraphService.ts",
+          "startLine": 1,
+          "endLine": 9
+        },
+        {
+          "filePath": "src/services/structuralGraph/structuralGraphService.ts",
+          "startLine": 82,
+          "endLine": 98
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "The query Skill runs with Node >=26.1 <27 and documents no npm install, MCP server or API-key prerequisite. The CLI validates command-specific flags with zod before file access. Context/impact/structural-path/structure read structural artifacts, while curated queries read AgentGraphStore and use AgentGraphQueryEngine; installation alone supplies none of those project graph artifacts.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "resources/skills/vibeknowledge-query/SKILL.md",
+          "startLine": 15,
+          "endLine": 27
+        },
+        {
+          "filePath": "packages/mcp-server/src/queryCli.ts",
+          "startLine": 19,
+          "endLine": 39
+        },
+        {
+          "filePath": "packages/mcp-server/src/queryCli.ts",
+          "startLine": 62,
+          "endLine": 112
+        },
+        {
+          "filePath": "src/services/agentSkillService.ts",
+          "startLine": 40,
+          "endLine": 55
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Queries use existing snapshots, not a live generation service. Missing/corrupt graph artifacts fail explicitly. Optional human descriptions are read from graph.sqlite using built-in node:sqlite in read-only mode; absent databases/tables mean no overrides, while database errors are not silently discarded. The query Skill directs users to targeted source verification for stale facts and dynamic/configuration gaps.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "packages/mcp-server/src/queryCli.ts",
+          "startLine": 41,
+          "endLine": 60
+        },
+        {
+          "filePath": "packages/mcp-server/src/queryCli.ts",
+          "startLine": 97,
+          "endLine": 109
+        },
+        {
+          "filePath": "resources/skills/vibeknowledge-query/SKILL.md",
+          "startLine": 21,
+          "endLine": 27
+        }
+      ]
+    },
+    {
+      "kind": "test",
+      "text": "AgentSkillService tests assert independent query installation, rejected unknown/partial bundles, recursive generation assets, explicit overwrite and recovery from partial target directories. Query integration tests build/copy the bundle and assert no node_modules dependency, Unicode/space paths, read-only graph queries, invalid-input failures and unchanged SQLite bytes when applying human prose.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/agentSkillService.test.ts",
+          "startLine": 41,
+          "endLine": 120
+        },
+        {
+          "filePath": "tests/querySkill.test.ts",
+          "startLine": 22,
+          "endLine": 35
+        },
+        {
+          "filePath": "tests/querySkill.test.ts",
+          "startLine": 39,
+          "endLine": 98
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "filePath": "esbuild.js",
+      "contentHash": "28a264c597fa75ef6b9225ffe56a022044c6ab6b895f1a578a5351cd2b29f4c2"
+    },
+    {
+      "filePath": "package.json",
+      "contentHash": "9bed5299dba555ce210e465c12dabb3de4df2595c9c69864fbd6592feabbd972"
+    },
+    {
+      "filePath": "packages/mcp-server/src/queryCli.ts",
+      "contentHash": "e7fa9dd635406722447a9da0ad38522b01c6ef859c484550d1700f84061fb5f2"
+    },
+    {
+      "filePath": "resources/skills/vibeknowledge-dependency-graph/SKILL.md",
+      "contentHash": "fd95aa1d650c257665534b2332db1c0e2cba6494f9b1095c7e4b553a8c7efed1"
+    },
+    {
+      "filePath": "resources/skills/vibeknowledge-query/SKILL.md",
+      "contentHash": "41ac16fccf9f73040e0402d5f9e0dd4b6eff4059df5cae7ca93143bd4d71fdd9"
+    },
+    {
+      "filePath": "scripts/build-query-skill.cjs",
+      "contentHash": "bdf14ebc41ff63bb26b30e794db2a786570fb6e268eb41b0572052181495abf7"
+    },
+    {
+      "filePath": "src/extension.ts",
+      "contentHash": "db5e3187dc656a9bf36915521d3205c25c71cfcce18a489129b621155ac8c42f"
+    },
+    {
+      "filePath": "src/services/agentSkillService.test.ts",
+      "contentHash": "be39c8c5750815c26e2fcd1974f982840529108cac4fd2a2feef13ae34bc67b2"
+    },
+    {
+      "filePath": "src/services/agentSkillService.ts",
+      "contentHash": "ba23225bcb2677a8dfae26cb0aa7905f386c4e51e74932927a61c07d30a37121"
+    },
+    {
+      "filePath": "src/services/structuralGraph/structuralGraphService.ts",
+      "contentHash": "0cf75fe65ace67a6121a8bafbe7ebaedc4b4649a46f54a9ef9378b8bb63d8967"
+    },
+    {
+      "filePath": "tests/querySkill.test.ts",
+      "contentHash": "72bbecd8f936f983efcb8944ea9cbd40c3b5e20dd04e5c28f4ee001aaf5af2f5"
+    }
+  ]
+}

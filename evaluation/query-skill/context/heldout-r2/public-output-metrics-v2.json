@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "createdAt": "2026-09-04T13:03:08.242Z",
+  "tokenizer": "o200k_base",
+  "arms": {
+    "A": {
+      "sessionId": "01a06c7a-270b-7d70-ba07-a908c78cea40",
+      "agentPath": "/root/brief_heldout_2a",
+      "toolCalls": 15,
+      "textBlocks": 68,
+      "truncationMarkers": 0,
+      "publicToolOutputTokens": 72365
+    },
+    "B": {
+      "sessionId": "01a06c7a-59b5-79e0-baa9-020b438e5298",
+      "agentPath": "/root/brief_heldout_2b",
+      "toolCalls": 16,
+      "textBlocks": 94,
+      "truncationMarkers": 1,
+      "publicToolOutputTokens": 68728
+    }
+  },
+  "note": "Actual public tool-text blocks, after any tool-layer truncation, including wrapper formatting/errors; not observer stdout before delivery. No private content exported. Model token telemetry is a separate measure."
+}

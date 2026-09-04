@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-04T12:59:22.211Z",
+  "arms": {
+    "A": {
+      "observations": 52,
+      "matchedPublicToolOutput": 52,
+      "unmatchedObservationIndexes": [],
+      "toolOutputTruncationMarkers": 0
+    },
+    "B": {
+      "observations": 83,
+      "matchedPublicToolOutput": 76,
+      "unmatchedObservationIndexes": [
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70
+      ],
+      "toolOutputTruncationMarkers": 1
+    }
+  },
+  "passed": false,
+  "note": "Observer text verified as present in public tool outputs; tokenizer counts still exclude wrapper overhead. Numerical model usage separately includes actual model input/output."
+}

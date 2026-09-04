@@ -1,0 +1,556 @@
+{
+  "generatedAt": "2026-09-04T12:17:46.557Z",
+  "run": "D:\\workspace\\VibeKnowledge\\.vscode-test\\task-context-ab-9W8uP7",
+  "graphPreparation": {
+    "files": 156,
+    "entities": 1117,
+    "relations": 10250,
+    "diagnostics": 47,
+    "elapsedMs": 5453
+  },
+  "tokenizer": {
+    "encoding": "o200k_base",
+    "version": "0.12.0"
+  },
+  "bundleSha256": "ddb1716a02e292d84387a1f865be949ec43f57d5a985e19fd3ce13d1db88848c",
+  "arms": {
+    "A": {
+      "sessionId": "01a06c54-5538-7233-b0ba-41bc037451f7",
+      "agentPath": "/root/context_pilot_a",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "responses": 19,
+      "elapsedMs": 373562,
+      "usage": {
+        "input_tokens": 1215068,
+        "cached_input_tokens": 1133056,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 10855,
+        "reasoning_output_tokens": 1062,
+        "total_tokens": 1225923,
+        "uncachedInput": 82012,
+        "uncachedInputPlusOutput": 92867
+      },
+      "sourceHashMismatches": [],
+      "queries": 0,
+      "phases": {
+        "local": {
+          "observations": 3,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts",
+              "start": 1,
+              "end": 58
+            },
+            {
+              "file": "src/services/structuralGraph/debouncedStructuralGraphUpdater.test.ts",
+              "start": 1,
+              "end": 55
+            }
+          ],
+          "observedTextTokens": 1220,
+          "tokensByKind": {
+            "rg": 222,
+            "source": 998
+          }
+        },
+        "refresh": {
+          "observations": 33,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "src/extension.ts",
+              "start": 1,
+              "end": 320
+            },
+            {
+              "file": "src/services/structuralGraph/structuralGraphService.ts",
+              "start": 1,
+              "end": 124
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 1,
+              "end": 265
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 1990,
+              "end": 2085
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 2189,
+              "end": 2376
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 320,
+              "end": 515
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 100,
+              "end": 165
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 295,
+              "end": 450
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 650,
+              "end": 750
+            },
+            {
+              "file": "src/services/structuralGraph/structuralGraphIncremental.test.ts",
+              "start": 1,
+              "end": 280
+            },
+            {
+              "file": "src/services/structuralGraph/structuralGraphService.test.ts",
+              "start": 145,
+              "end": 197
+            },
+            {
+              "file": "src/services/knowledgeGraphService.ts",
+              "start": 1,
+              "end": 175
+            },
+            {
+              "file": "src/services/structuralGraph/curatedGraphService.ts",
+              "start": 1,
+              "end": 100
+            },
+            {
+              "file": "src/services/structuralGraph/structuralGraphCli.test.ts",
+              "start": 45,
+              "end": 102
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 293,
+              "end": 373
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 1586,
+              "end": 1645
+            },
+            {
+              "file": "src/services/structuralGraph/frontendGraph.test.ts",
+              "start": 77,
+              "end": 94
+            },
+            {
+              "file": "packages/mcp-server/src/structuralGraphStore.ts",
+              "start": 1,
+              "end": 134
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 175,
+              "end": 254
+            },
+            {
+              "file": "packages/mcp-server/tests/structuralAnalysisTools.test.ts",
+              "start": 1,
+              "end": 108
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 1264,
+              "end": 1302
+            },
+            {
+              "file": "packages/mcp-server/src/tools/registerStructuralAnalysisTools.ts",
+              "start": 20,
+              "end": 185
+            },
+            {
+              "file": "packages/mcp-server/src/queryCli.ts",
+              "start": 1,
+              "end": 125
+            }
+          ],
+          "observedTextTokens": 40601,
+          "tokensByKind": {
+            "source": 30001,
+            "rg": 10600
+          }
+        },
+        "install": {
+          "observations": 22,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "src/services/agentSkillService.ts",
+              "start": 1,
+              "end": 83
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 837,
+              "end": 888
+            },
+            {
+              "file": "scripts/build-query-skill.cjs",
+              "start": 1,
+              "end": 26
+            },
+            {
+              "file": "src/services/agentSkillService.test.ts",
+              "start": 1,
+              "end": 123
+            },
+            {
+              "file": "tests/querySkill.test.ts",
+              "start": 1,
+              "end": 100
+            },
+            {
+              "file": ".vscodeignore",
+              "start": 1,
+              "end": 26
+            },
+            {
+              "file": "package.json",
+              "start": 147,
+              "end": 237
+            },
+            {
+              "file": "src/commands/mcpSetupCommands.ts",
+              "start": 1,
+              "end": 113
+            },
+            {
+              "file": "esbuild.js",
+              "start": 1,
+              "end": 63
+            },
+            {
+              "file": "package.json",
+              "start": 454,
+              "end": 485
+            },
+            {
+              "file": "src/services/mcpSetupService.ts",
+              "start": 147,
+              "end": 221
+            },
+            {
+              "file": "scripts/build-mcp-runtime.cjs",
+              "start": 1,
+              "end": 40
+            },
+            {
+              "file": "tests/mcpRuntimeBundle.test.ts",
+              "start": 1,
+              "end": 46
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 958,
+              "end": 1008
+            },
+            {
+              "file": "packages/mcp-server/src/queryCliEntry.ts",
+              "start": 1,
+              "end": 7
+            },
+            {
+              "file": "src/i18n/en.ts",
+              "start": 219,
+              "end": 240
+            },
+            {
+              "file": "src/i18n/zh.ts",
+              "start": 220,
+              "end": 241
+            }
+          ],
+          "observedTextTokens": 16667,
+          "tokensByKind": {
+            "source": 12908,
+            "rg": 3759
+          }
+        }
+      },
+      "observedTextTokens": 58488,
+      "reportTokens": 4795
+    },
+    "B": {
+      "sessionId": "01a06c54-894c-72a0-be99-fb475c1465d0",
+      "agentPath": "/root/context_pilot_b",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "responses": 20,
+      "elapsedMs": 371857,
+      "usage": {
+        "input_tokens": 1138273,
+        "cached_input_tokens": 1054464,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 11891,
+        "reasoning_output_tokens": 1215,
+        "total_tokens": 1150164,
+        "uncachedInput": 83809,
+        "uncachedInputPlusOutput": 95700
+      },
+      "sourceHashMismatches": [],
+      "queries": 2,
+      "phases": {
+        "local": {
+          "observations": 4,
+          "queries": 0,
+          "reads": [
+            {
+              "file": ".agents/skills/vibeknowledge-query/SKILL.md",
+              "start": 1,
+              "end": 28
+            },
+            {
+              "file": "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts",
+              "start": 1,
+              "end": 58
+            },
+            {
+              "file": "src/services/structuralGraph/debouncedStructuralGraphUpdater.test.ts",
+              "start": 1,
+              "end": 55
+            }
+          ],
+          "observedTextTokens": 1890,
+          "tokensByKind": {
+            "skill": 660,
+            "rg": 232,
+            "source": 998
+          }
+        },
+        "refresh": {
+          "observations": 34,
+          "queries": 1,
+          "reads": [
+            {
+              "file": "src/extension.ts",
+              "start": 1,
+              "end": 285
+            },
+            {
+              "file": "src/services/structuralGraph/index.ts",
+              "start": 1,
+              "end": 21
+            },
+            {
+              "file": "src/services/structuralGraph/structuralGraphService.ts",
+              "start": 1,
+              "end": 124
+            },
+            {
+              "file": "src/services/structuralGraph/structuralGraphIncremental.test.ts",
+              "start": 1,
+              "end": 280
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 105,
+              "end": 210
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 300,
+              "end": 458
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 1,
+              "end": 285
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 1540,
+              "end": 1684
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 1975,
+              "end": 2097
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 2210,
+              "end": 2380
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 2186,
+              "end": 2216
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 340,
+              "end": 405
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 480,
+              "end": 565
+            },
+            {
+              "file": "src/services/structuralGraph/structuralGraphService.test.ts",
+              "start": 149,
+              "end": 186
+            },
+            {
+              "file": "src/services/structuralGraph/frontendGraph.test.ts",
+              "start": 75,
+              "end": 116
+            },
+            {
+              "file": "src/services/structuralGraph/curatedGraphService.ts",
+              "start": 1,
+              "end": 100
+            },
+            {
+              "file": "packages/mcp-server/src/structuralGraphStore.ts",
+              "start": 80,
+              "end": 134
+            },
+            {
+              "file": "packages/mcp-server/src/queryCli.ts",
+              "start": 1,
+              "end": 140
+            },
+            {
+              "file": "packages/mcp-server/src/tools/registerStructuralAnalysisTools.ts",
+              "start": 1,
+              "end": 105
+            },
+            {
+              "file": "tests/taskContext.test.ts",
+              "start": 48,
+              "end": 112
+            },
+            {
+              "file": "src/services/structuralGraph/structuralAnalysis.test.ts",
+              "start": 14,
+              "end": 95
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 293,
+              "end": 348
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+              "start": 1264,
+              "end": 1339
+            }
+          ],
+          "observedTextTokens": 35077,
+          "tokensByKind": {
+            "query": 674,
+            "source": 27651,
+            "rg": 6752
+          }
+        },
+        "install": {
+          "observations": 22,
+          "queries": 1,
+          "reads": [
+            {
+              "file": "src/services/agentSkillService.ts",
+              "start": 1,
+              "end": 83
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 835,
+              "end": 890
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 975,
+              "end": 1006
+            },
+            {
+              "file": "scripts/build-query-skill.cjs",
+              "start": 1,
+              "end": 26
+            },
+            {
+              "file": "src/services/agentSkillService.test.ts",
+              "start": 1,
+              "end": 123
+            },
+            {
+              "file": "tests/querySkill.test.ts",
+              "start": 1,
+              "end": 100
+            },
+            {
+              "file": ".vscodeignore",
+              "start": 1,
+              "end": 26
+            },
+            {
+              "file": "src/commands/mcpSetupCommands.ts",
+              "start": 1,
+              "end": 113
+            },
+            {
+              "file": "esbuild.js",
+              "start": 1,
+              "end": 63
+            },
+            {
+              "file": "packages/mcp-server/src/queryCliEntry.ts",
+              "start": 1,
+              "end": 7
+            },
+            {
+              "file": "src/i18n/en.ts",
+              "start": 210,
+              "end": 238
+            },
+            {
+              "file": "src/i18n/zh.ts",
+              "start": 211,
+              "end": 239
+            },
+            {
+              "file": "src/services/mcpSetupService.ts",
+              "start": 147,
+              "end": 221
+            },
+            {
+              "file": "tests/mcpRuntimeBundle.test.ts",
+              "start": 1,
+              "end": 46
+            },
+            {
+              "file": "packages/mcp-server/src/queryCli.ts",
+              "start": 139,
+              "end": 169
+            }
+          ],
+          "observedTextTokens": 15232,
+          "tokensByKind": {
+            "query": 268,
+            "source": 11762,
+            "rg": 3202
+          }
+        }
+      },
+      "observedTextTokens": 52199,
+      "reportTokens": 5626
+    }
+  },
+  "limitations": [
+    "Pilot is descriptive, not a final gate. Quality needs separate source-backed grading.",
+    "Total input includes cache/replay; usage is not a monetary invoice.",
+    "Generation/update cost separate; these are warm graph queries.",
+    "Raw private reasoning/system instructions are not exported."
+  ]
+}

@@ -1,0 +1,74 @@
+# R3 held-out pair 2 — blind grades
+
+Frozen rubric: `evaluation/query-skill/context/r3/rubric-heldout.md`. Source: `.vscode-test/feature-r3-heldout-2-YJAoel/snapshot`. Only anonymous reports and source/test text were examined; no tested code was executed. Method self-labels were ignored.
+
+| Candidate | Visualization critical | Visualization supplemental | Instructions critical | Instructions supplemental | Total critical | Total supplemental | Major false claims |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| X | 9/9 | 2/2 | 8/8 | 1/1 | 17/17 | 3/3 | 0 |
+| Y | 9/9 | 2/2 | 8/8 | 1/1 | 17/17 | 3/3 | 0 |
+
+Both reports meet every frozen causal item. Additional drilldown/scenario details and report length receive no extra credit.
+
+## Candidate X
+
+| Item | Score | Report evidence | Causal judgment | Snapshot evidence |
+| --- | --- | --- | --- | --- |
+| V.C1 | 1 | `candidate-X.md:9-13` | Connects public registration and injected graph services to the singleton retained panel, ready messages, and same-title reveal without HTML replacement. | `src/extension.ts:643`; `src/ui/webview/graphView.ts:157` |
+| V.C2 | 1 | `candidate-X.md:17-19`; `candidate-X.md:49`; `candidate-X.md:55` | Connects independent group collection to sorted one-group rendering, saved selected-key fallback, and the empty-list cleanup; distinguishes selection from durable mode and geometry state. | `src/ui/webview/graphView.ts:456`; `src/ui/webview/graphView.ts:1372` |
+| V.C3 | 1 | `candidate-X.md:21-23`; `candidate-X.md:32`; `candidate-X.md:52` | Explains explicit existing-structural-data aggregation, temporary replacement/selection, later curated-list removal, and warning/status failure without generating a saved group. | `src/ui/webview/graphView.ts:324`; `src/ui/webview/graphView.ts:1401` |
+| V.C4 | 1 | `candidate-X.md:36`; `candidate-X.md:49-54` | Identifies low default, machine/global scope, reread acknowledgement and Settings synchronization; persistence differs from group data and per-document geometry. | `package.json:325`; `src/ui/webview/graphView.ts:300` |
+| V.C5 | 1 | `candidate-X.md:36`; `candidate-X.md:65-66` | Traces optimistic rerender/disable/post, validated global save and actual-value response, including rollback/re-enable after failure. | `src/ui/webview/graphView.ts:309`; `src/ui/webview/graphView.ts:2176` |
+| V.C6 | 1 | `candidate-X.md:38-43` | Explains same semantic graph, yielding finite static D3 work and low node-only drag, contrasted with high physics/effects and settled-cache stopping; avoids claiming a hard deadline. | `src/ui/webview/graphPerformanceScript.ts:48`; `src/ui/webview/graphPerformanceScript.ts:91` |
+| V.C7 | 1 | `candidate-X.md:50`; `candidate-X.md:53-54`; `candidate-X.md:59`; `candidate-X.md:67` | Explains stopping/saving replaced layouts, explicit hidden pause/stop and visible conditional resume, plus disposal lifetime and stale-callback risks. Explicit unload-event naming is not needed to establish this lifecycle boundary. | `src/ui/webview/graphView.ts:1254`; `src/ui/webview/graphView.ts:1479` |
+| V.C8 | 1 | `candidate-X.md:49-54` | Connects group/topology signature to fresh semantic payload plus reused geometry/zoom and the new-document cache boundary. | `src/ui/webview/graphPerformanceScript.ts:7`; `src/ui/webview/graphView.ts:1556` |
+| V.C9 | 1 | `candidate-X.md:65-69`; `candidate-X.md:72` | Maps host settings, layout lifecycle, and topology/revisit tests to their risks; explicitly limits mocked host/emitted helper coverage rather than claiming full D3/DOM integration. | `src/ui/webview/graphView.test.ts:79`; `src/ui/webview/graphPerformanceScript.test.ts:49`; `src/ui/webview/graphPerformanceScript.test.ts:105` |
+| V.S1 | 1 | `candidate-X.md:43`; `candidate-X.md:50`; `candidate-X.md:53`; `candidate-X.md:68` | Relates cached alpha/settled/auto-fit to unfinished-layout restoration and user-input suppression of auto-fit; distinguishes storage coverage from full rapid-switch integration. | `src/ui/webview/graphPerformanceScript.ts:24`; `src/ui/webview/graphPerformanceScript.test.ts:133` |
+| V.S2 | 1 | `candidate-X.md:51`; `candidate-X.md:68` | Explains finite-coordinate/size admission and LRU group/total-node bounds, separate from semantic graph/render data. | `src/ui/webview/graphPerformanceScript.ts:24`; `src/ui/webview/graphPerformanceScript.test.ts:119` |
+| I.C1 | 1 | `candidate-X.md:78-80`; `candidate-X.md:114-115` | Traces contribution/registration, first-workspace method and activation guards, delegated writer, and returned-path open/reveal actions. | `src/extension.ts:680`; `src/ui/commands/entityCommands.ts:1255` |
+| I.C2 | 1 | `candidate-X.md:82-89`; `candidate-X.md:98` | Traces snapshot/observation collection before the call, ignored _graphData and static builder, and the consequential pre-write cost/failure despite unchanged text. | `src/ui/commands/entityCommands.ts:43`; `src/services/aiIntegrationService.ts:71` |
+| I.C3 | 1 | `candidate-X.md:108-115` | Explains recursive directory creation, UTF-8 synchronous direct overwrite, absence of preservation/atomic rollback, and propagated failure with possible existing side effects. | `src/services/aiIntegrationService.ts:71`; `src/ui/commands/entityCommands.ts:1282` |
+| I.C4 | 1 | `candidate-X.md:84`; `candidate-X.md:89-98` | Identifies the literal-English compact shared builder and shows why dormant graph/tech-stack/scenario/template paths do not affect active content. | `src/services/aiIntegrationService.ts:404`; `src/services/aiIntegrationService.ts:432` |
+| I.C5 | 1 | `candidate-X.md:102`; `candidate-X.md:140` | Explains conditional focused MCP access, local expansion/selective evidence, one-group fallback, known-file skip and source verification as the compact output contract. | `src/services/aiIntegrationService.ts:435` |
+| I.C6 | 1 | `candidate-X.md:94`; `candidate-X.md:102-104` | Separates guidance text from actual generator work; no execution/installation/artifact generation or downstream availability/consumption validation is inferred. | `src/services/aiIntegrationService.ts:71`; `src/services/aiIntegrationService.ts:411` |
+| I.C7 | 1 | `candidate-X.md:120-126` | Connects shared Cursor helper to cross-product change scope and both sequential bulk orchestrations to partial writes. Also correctly identifies the Cursor locale mismatch, which is extra detail beyond the critical shared-dependency relationship. | `src/services/aiIntegrationService.ts:89`; `src/services/aiIntegrationService.ts:101`; `src/ui/commands/entityCommands.ts:1307` |
+| I.C8 | 1 | `candidate-X.md:130-140` | Maps positive compact-routing and negative template/dump assertions, shared Cursor risk, and temporary-service/helper limits; marks proposed command/failure/input/bulk coverage as gaps. | `src/services/aiIntegrationService.test.ts:68`; `src/services/aiIntegrationService.test.ts:100` |
+| I.S1 | 1 | `candidate-X.md:114-115` | Explains that dismissal leaves the output and that open/reveal failure inside the same catch can be reported after a successful file write. | `src/ui/commands/entityCommands.ts:1269` |
+
+Omissions: no material omission in either task against the frozen finite items. Major false claims: none.
+
+## Candidate Y
+
+| Item | Score | Report evidence | Causal judgment | Snapshot evidence |
+| --- | --- | --- | --- | --- |
+| V.C1 | 1 | `candidate-Y.md:9-13` | Connects registration/injection to singleton retained host, ready mode/group messages, and conditional same-title reuse versus HTML rebuild. | `src/extension.ts:643`; `src/ui/webview/graphView.ts:157` |
+| V.C2 | 1 | `candidate-Y.md:17-19`; `candidate-Y.md:43-48` | Explains independent curated groups, sorted one-group selection, selected-key persistence/fallback, empty cleanup, and distinct geometry/global-setting lifetime. | `src/ui/webview/graphView.ts:456`; `src/ui/webview/graphView.ts:1372` |
+| V.C3 | 1 | `candidate-Y.md:21`; `candidate-Y.md:29`; `candidate-Y.md:46` | Traces explicit structural read/aggregate message, synthetic replacement and selection, later ordinary-data loss and warning/status failures; not permanent/generated data. | `src/ui/webview/graphView.ts:324`; `src/ui/webview/graphView.ts:1401` |
+| V.C4 | 1 | `candidate-Y.md:33`; `candidate-Y.md:43`; `candidate-Y.md:48` | Identifies machine/global low default and effective host authority on initialization, settings changes and acknowledgement, not graph selection/data. | `package.json:325`; `src/ui/webview/graphView.ts:300` |
+| V.C5 | 1 | `candidate-Y.md:33`; `candidate-Y.md:60` | Explains immediate rerender, disable/post, validated write/finally acknowledgement, failed-save rollback and selector re-enable. | `src/ui/webview/graphView.ts:309`; `src/ui/webview/graphView.ts:2176` |
+| V.C6 | 1 | `candidate-Y.md:33-37` | Connects unchanged graph input to finite yielding low D3 layout and direct-node drag versus high animated/reheatable behavior; cooled high physics is not infinite. | `src/ui/webview/graphPerformanceScript.ts:48`; `src/ui/webview/graphPerformanceScript.ts:91` |
+| V.C7 | 1 | `candidate-Y.md:50`; `candidate-Y.md:52`; `candidate-Y.md:56` | Traces old-work cancellation/save, hidden pause/stop/timer cleanup, conditional resume and unload, with causal stale/duplicate-work risks. | `src/ui/webview/graphView.ts:1254`; `src/ui/webview/graphView.ts:1479` |
+| V.C8 | 1 | `candidate-Y.md:44-50` | Explains topology/prose distinction, fresh semantics versus cached positions/zoom and new-document/disposal cache lifetime. | `src/ui/webview/graphPerformanceScript.ts:7`; `src/ui/webview/graphView.ts:1556` |
+| V.C9 | 1 | `candidate-Y.md:60-65` | Covers all three required test-risk families with behavior and source anchors, and distinguishes emitted-helper/mock-host assertions from real-browser integration/performance. | `src/ui/webview/graphView.test.ts:79`; `src/ui/webview/graphPerformanceScript.test.ts:49`; `src/ui/webview/graphPerformanceScript.test.ts:105` |
+| V.S1 | 1 | `candidate-Y.md:45`; `candidate-Y.md:50`; `candidate-Y.md:52`; `candidate-Y.md:61` | Connects pending settled/alpha/auto-fit storage to avoiding frozen revisits and manual-input suppression of automatic fit. | `src/ui/webview/graphPerformanceScript.ts:24`; `src/ui/webview/graphPerformanceScript.test.ts:133` |
+| V.S2 | 1 | `candidate-Y.md:50`; `candidate-Y.md:61`; `candidate-Y.md:65` | Explains size/nonfinite admission and LRU group/total-node eviction with bounded retention rather than source-graph limits. | `src/ui/webview/graphPerformanceScript.ts:24`; `src/ui/webview/graphPerformanceScript.test.ts:119` |
+| I.C1 | 1 | `candidate-Y.md:71-75` | Connects public command/dependencies to first-workspace delegation, both activation/method guards, returned-path UI actions and dismissal. | `src/extension.ts:680`; `src/ui/commands/entityCommands.ts:1255` |
+| I.C2 | 1 | `candidate-Y.md:83-95` | Explains real deduplicated-snapshot/observation precollection and failure before a static, graph-argument-ignoring writer; does not incorrectly erase the UI dependency. | `src/ui/commands/entityCommands.ts:43`; `src/services/aiIntegrationService.ts:71` |
+| I.C3 | 1 | `candidate-Y.md:75`; `candidate-Y.md:89`; `candidate-Y.md:111-115` | Traces destination and sync UTF-8 overwrite without backup/merge/atomic rollback, service error propagation and non-guaranteed preservation. | `src/services/aiIntegrationService.ts:71`; `src/ui/commands/entityCommands.ts:1282` |
+| I.C4 | 1 | `candidate-Y.md:85-95` | Explains fixed-English Copilot routing and unreachable rich/template/tech-stack helpers rather than treating available imports as active dependencies. | `src/services/aiIntegrationService.ts:404`; `src/services/aiIntegrationService.ts:432` |
+| I.C5 | 1 | `candidate-Y.md:105` | Explains conditional focused query, local expansion/selective evidence, bounded one-group fallback, known-file skip and current-source verification. | `src/services/aiIntegrationService.ts:435` |
+| I.C6 | 1 | `candidate-Y.md:88`; `candidate-Y.md:107` | Separates writing consumer guidance from tools/server/model execution, referenced artifact creation/validation and actual Copilot consumption. | `src/services/aiIntegrationService.ts:71`; `src/services/aiIntegrationService.ts:411` |
+| I.C7 | 1 | `candidate-Y.md:101-103`; `candidate-Y.md:115` | Connects shared Cursor builder and both sequential bulk paths to cross-product impact and retained first output on second-stage failure. The locale-dependent shorthand is qualified separately as a frozen-rubric ambiguity, not a material shared-routing error. | `src/services/aiIntegrationService.ts:89`; `src/services/aiIntegrationService.ts:101`; `src/ui/commands/entityCommands.ts:1307` |
+| I.C8 | 1 | `candidate-Y.md:119-123` | Maps actual compact Copilot positive/negative assertions and Cursor shared risk, distinguishing service fixture/helper coverage from arbitrary GraphData, UI, overwrite, bulk and assistant integration. | `src/services/aiIntegrationService.test.ts:68`; `src/services/aiIntegrationService.test.ts:100` |
+| I.S1 | 1 | `candidate-Y.md:73`; `candidate-Y.md:113` | Distinguishes completed file write from optional dismissed/open/reveal presentation, including a later presentation error caught as generation failure. | `src/ui/commands/entityCommands.ts:1269` |
+
+Omissions: no material omission in either task against the frozen finite items. Major false claims: none.
+
+## Consequential judgments and rubric concern
+
+- I.C7 says Cursor is “locale-aware there.” In this snapshot the wrapper compares `getLocale()` with `zh` (`src/services/aiIntegrationService.ts:101-108`), but the provider returns `zh-CN` / `en-US` (`src/i18n/i18nService.ts:126-127,148-149`); the effective current Cursor branch is English. Copilot is separately fixed English. This is a rubric precision flaw, not grounds to rewrite the frozen shared-builder/batch item.
+- X:122 correctly identifies that mismatch. Y:101 says “calls the same router with a locale-dependent title/language”; this is apparent-branch shorthand, not an accurate effective-locale claim. It is recorded as non-major imprecision, not a material false routing claim: Y correctly explains Copilot's fixed English, the shared dependency and both sequential partial-failure paths. No extra credit or deduction is introduced by the rubric flaw.
+- X's lifecycle explanation connects replacement, hidden pause/stop, conditional resume, disposal and stale-callback risk (X:50,53-54,59,67), although it does not separately name `beforeunload`. Under the frozen non-exhaustive instruction, that event spelling is not an additional mandatory sub-item.
+- Both reports correctly limit service/helper/mock tests; neither converts read-only inspection into claimed end-to-end or runtime proof.
+
+The JSON contains per-item rationales/evidence and separate empty major-false-claim arrays. Frozen rules were not changed.
+

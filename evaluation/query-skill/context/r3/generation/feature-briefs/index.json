@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "features": [
+    {
+      "key": "copilot-instructions",
+      "name": "Generate Copilot Instructions",
+      "summary": "Generate a compact repository-level Copilot instruction file that routes knowledge-graph work to focused MCP queries and optional group context.",
+      "keywords": [
+        "Copilot Instructions",
+        "knowledge.generateCopilotInstructions",
+        "copilot-instructions.md",
+        "Generate All AI Configs",
+        "agent knowledge router"
+      ],
+      "contentHash": "bb773390dfcffbcbd1904921e8e47bf9f1cd7d530f466ce6b05bb2db382951cd"
+    },
+    {
+      "key": "graph-visualization",
+      "name": "Knowledge Graph visualization",
+      "summary": "VS Code graph page for independent knowledge groups, on-demand structural views, source navigation, and low/high performance display modes.",
+      "keywords": [
+        "Knowledge: Visualize Graph",
+        "knowledge.visualizeGraph",
+        "graph page",
+        "groups",
+        "structural overview",
+        "performance mode"
+      ],
+      "contentHash": "546ff9f6a2a8e32f5b6962ac9d0c0b4791ecd67186e25d5b87de77a8f6a07052"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "sessionId": "01a06c66-2da3-7d92-9f5f-e6ac3498718e",
+  "agentPath": "/root/brief_author",
+  "model": "gpt-5.6-sol",
+  "effort": "xhigh",
+  "elapsedMs": 508632,
+  "responses": 24,
+  "observedTextTokens": 63049,
+  "usage": {
+    "input_tokens": 1802564,
+    "cached_input_tokens": 1708928,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 16444,
+    "reasoning_output_tokens": 1226,
+    "total_tokens": 1819008,
+    "uncachedInput": 93636,
+    "uncachedInputPlusOutput": 110080
+  },
+  "artifactHashes": {
+    "agent-skill-installation.json": "4fa6c6fba135a012154c99a43e744eb92e682b949ce78ac0f9dde77345e8b0f5",
+    "entity-description-editing.json": "354fad5ab7213aa792f698c502b8e2b6681abc72949fea6161904a4e7ebcc485",
+    "graph-refresh.json": "b4a3b8b7ebf030c74bba8df8b11dfea94174e6d0fa48f106ec9b7b67d2cf288f",
+    "index.json": "f69d4c5bacfc0906c685e059ba646e5923193414afd675344ba98f60710861e4",
+    "mcp-setup.json": "5f3a9f3b7ead0bfc26adf6bc554e769e18bb709ac9e8b133bc3044b8769f44f8"
+  },
+  "sourceHashMismatches": [],
+  "limitations": [
+    "Generation cost, not warm query cost.",
+    "Only numeric session telemetry exported; no private reasoning or system instructions.",
+    "Selected feature areas known to author; future task prompts/rubrics/results not provided."
+  ]
+}

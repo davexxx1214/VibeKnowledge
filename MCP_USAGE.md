@@ -2,6 +2,10 @@
 
 本指南记录了当前阶段（示例目录：`D:/workspace/VibeKnowledge`）如何启动 VibeKnowledge MCP Server，并将其接入 Cursor 与 GitHub Copilot。随着功能迭代，文档会持续更新。
 
+仅需理解代码依赖而不使用 MCP 时，可运行 **Knowledge: Install Graph Query Agent Skill**。该 Skill 自带只读 Node 查询脚本，无需 npm 安装、MCP 或 API Key，不提供 RAG/观察记录检索。分析页面/功能时优先读取对应功能简报，再按缺口查询图谱或源码；不会默认注入完整图谱。参见 [查询 Skill 使用方式](README_ZH.md#不使用-mcp-查询依赖) 和 [0.5.0 评测索引](evaluation/query-skill/README.md)。
+
+最新三组 A/B 与“不使用 Skill”比较，复用功能简报时实际工具文本中位数少 24.4%，未缓存输入加输出少 21.9%，双方关键项均为 17/17；这不是“比 MCP 省 24.4%”，也不包含简报生成成本。[Skill/MCP 历史实测](evaluation/query-skill/results.md)中的九个查询结果逐字一致，不能与本轮完整任务指标混为一谈。
+
 ---
 
 ## 1. 一键安装并配置 MCP（推荐）
@@ -10,15 +14,23 @@
 
 设置入口提供 `knowledgeGraph.mcp.workspacePath`（目标工程）、`nodePath`（外部 Node，默认 `node`）、`npmCliPath`（可选的 `npm-cli.js` 绝对路径）和 `client`（`auto` / `vscode` / `cursor`）。这些路径保存在本机设置中；切换目标工程时修改或清空 `workspacePath`。
 
+审计等待可通过 `knowledgeGraph.mcp.auditTimeoutSeconds` 设置：默认 60 秒，范围 10–120 秒。网络超时或无效报告最多尝试三次，重试前等待 2 秒、4 秒；证书、权限及已识别的本地输入错误立即停止。高危/严重漏洞也立即停止，不能通过重试忽略。每次 npm 进程另有 15 秒余量，一键安装的总超时会同步调整，不会在配置较长等待时间时被旧的五分钟限制提前结束。
+
+审计失败时日志会输出错误类别、每次耗时及连通性诊断。`npm ping: OK` 仅表示源可访问，不表示 Bulk Advisory 的 POST 请求成功；仍需有效审计报告才能更新客户端配置。诊断使用同一个 npm、源、代理和 CA，不修改公司配置，日志中的凭据会脱敏。命令行/CI 对应环境变量为 `VIBEKNOWLEDGE_AUDIT_TIMEOUT_MS`（`10000`–`120000`，默认 `60000`）；一键安装使用 UI 设置覆盖该变量。退出码 1 为高危/严重漏洞，2 为未获取有效审计结果，3 为调用/超时配置错误，均不放行。可在另一条获准网络或 CI 运行相同的 `npm run audit:dependencies` 对照，不需要删除锁文件或关闭审计。
+
 安装使用扩展携带的预编译 MCP 与锁文件，不依赖 VibeKnowledge 源码路径；不会在用户工程运行 npm 或编译 TypeScript。依赖位于扩展独立存储目录，每次重新安装都保留上一版运行目录，避免破坏其他客户端进程。安装、审计、SQLite 和 MCP 协议检查全部通过后，才备份并更新客户端配置中的 `vibeknowledge`，保留其他服务器及注释。进度和错误在 **Output → VibeKnowledge MCP Setup** 查看，支持取消。
 
-安装使用同一个外部 Node，Windows 安装脚本明确使用 CMD。不会关闭审计、绕过证书或调整公司脚本策略。审计服务异常会有限重试，无法得到有效报告或发现高危/严重漏洞时停止安装，保留旧配置。请让公司允许的 npm 源/代理提供 Bulk Advisory 审计接口。
+安装使用同一个外部 Node，不运行依赖安装生命周期脚本，不触发 PowerShell 或本地 C++ 编译。不会关闭审计、绕过证书或调整公司脚本策略。审计服务异常会有限重试，无法得到有效报告或发现高危/严重漏洞时停止安装，保留旧配置。请让公司允许的 npm 源/代理提供 Bulk Advisory 审计接口。
+
+当前 MCP 使用 `better-sqlite3` 13，支持平台的 N-API 预编译文件直接包含在 npm 包内，安装不再依赖 `prebuild-install` 的独立下载。更新扩展不会改动之前已安装的 MCP 目录；请重新执行一键安装，并重启客户端以使用新版。根项目打包工具 `vsce → keytar` 仍可能提示 `prebuild-install` 弃用，这与 MCP 的依赖树不同。
+
+MCP 子项目的 `.npmrc` 已设置 `ignore-scripts=true`，一键安装也显式传入该选项，用于规避 [npm 锁文件安装仍触发 node-gyp 的问题](https://github.com/WiseLibs/better-sqlite3/issues/1516)。当前 MCP 依赖所需运行文件已包含在 npm 包中，无需安装脚本生成；`npm run build` / `npm test` 仍可正常执行，审计保持启用。此设置不修改全局 npm 配置或根项目依赖安装。后续升级依赖需重新验证无安装脚本的全新安装；不支持的预编译平台会在 SQLite 健康检查时失败，不会自动尝试源码编译。
 
 完成后在客户端确认信任，启动/重启 `vibeknowledge`。默认关闭 RAG，只提供图谱工具；要启用 RAG，可调整生成配置中的 `--rag-mode`。缺失的 SQLite 数据库会初始化，但安装不会生成知识图谱，请继续用 Skill 生成。
 
 ### 从源码启动（开发者）
 
-项目默认版本及 CI 使用根目录 `.nvmrc` 中的 Node.js **26.1.0**；MCP 兼容范围为 `>=26.1.0 <27`，本机可保留 26.8.1。`.nvmrc` 不会自动切换系统 Node，需要复现 CI 时请通过版本管理器选择 26.1.0。更换 Node 后重新安装 MCP 原生依赖并重启客户端。
+项目默认版本及 CI 使用根目录 `.nvmrc` 中的 Node.js **26.1.0**；MCP 兼容范围为 `>=26.1.0 <27`，本机可保留 26.8.1。`.nvmrc` 不会自动切换系统 Node，需要复现 CI 时请通过版本管理器选择 26.1.0。SQLite 13 的 N-API 绑定可在受支持的 Node 版本间复用；更换机器、操作系统或 CPU 架构后仍应重新安装依赖，切换运行时后重启客户端。
 
 1. 进入仓库根目录：
    ```bash

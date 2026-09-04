@@ -1,0 +1,777 @@
+{
+  "schema_version": 1,
+  "evaluation": "heldout-r2",
+  "scope": "Frozen held-out rubric only; anonymous candidates and snapshot source.",
+  "rubric": "D:/workspace/VibeKnowledge/evaluation/query-skill/context/rubric-heldout.md",
+  "snapshot": "D:/workspace/VibeKnowledge/.vscode-test/feature-heldout-r2-mJTREr/snapshot",
+  "scoring": {
+    "critical_max": 17,
+    "supplemental_max": 3,
+    "item_values": [
+      0,
+      0.5,
+      1
+    ],
+    "method_labels_ignored": true,
+    "tests_executed": false
+  },
+  "interpretation_notes": [
+    "All item scores use the frozen 0/0.5/1 rule; critical and supplemental totals are separate.",
+    "Whole-report causal evidence counts; an implementation explanation need not be repeated in every section.",
+    "H1.C8 requires service-delegation, cross-group/latest-prose reset and a consumer regression. A CLI override/no-mutation regression is a valid alternative to the example MCP/CodeLens consumer tests.",
+    "H2.C9 explicitly defines its minimum as examples tied to preparation, publication failure and safe retry, not every named test. Missing an individual UI/audit/runtime test name does not alone reduce credit when those risks are mapped.",
+    "No extra credit for report length, file lists, method labels, unrelated details or alleged execution. No arm/mapping/metrics/observation/generation material was inspected."
+  ],
+  "source_verification": [
+    "Both snapshots were checked directly for packages/mcp-server/scripts/health-check.mjs; the file is absent in both.",
+    "Thirteen relevant source/test files were SHA-256 compared across the two snapshots and were identical; claim checks used those snapshot paths only.",
+    "Override key lookup/delete, direct database save, snapshot invalidation, nullable command behavior and regression assertions were read.",
+    "MCP UI/setup/audit source and selected setup/UI/audit test assertions were read; no tests or helper processes were executed."
+  ],
+  "rubric_flaws": [],
+  "rubric_interpretation_concerns": [
+    "H1.C8 has specific regression relationships but open-ended consumer examples. Alternative consumer coverage is accepted; source-only implementation traces are not substitutes for tests.",
+    "H2.C9 enumerates many tests but explicitly narrows full-credit requirements to risk-linked examples. That minimum, rather than exhaustive test-name recall, was applied identically across both pairs."
+  ],
+  "audit_notes": [
+    {
+      "candidate": "X",
+      "item": "H1.C8",
+      "score": 1,
+      "quote": "delegation",
+      "candidate_evidence": "candidate-X.md:27",
+      "judgment": "The cited service-delegation, cross-group/latest-prose and CLI overlay consumer tests cover all three required regression relationships. CLI is a legitimate alternative consumer, not merely an extra filename.",
+      "source_evidence": [
+        "src/services/knowledgeGraphService.test.ts:131",
+        "src/services/agentGraph/agentGraphService.test.ts:393",
+        "tests/querySkill.test.ts:86"
+      ]
+    },
+    {
+      "candidate": "Y",
+      "item": "H1.C8",
+      "score": 0.5,
+      "quote": "The regeneration/reset test expressly asserts two different restored descriptions",
+      "candidate_evidence": "candidate-Y.md:11",
+      "judgment": "Credits the cross-group/latest-prose test. Canonical-key test at Y:12 does not supply the missing service-delegation or description-consumer regression.",
+      "source_evidence": [
+        "src/services/knowledgeGraphService.test.ts:131",
+        "src/services/agentGraph/agentGraphService.test.ts:393",
+        "packages/mcp-server/tests/mergedGraph.test.ts:77"
+      ]
+    },
+    {
+      "candidate": "Y",
+      "item": "H2.C9",
+      "score": 1,
+      "candidate_evidence": "candidate-Y.md:47, 53–55",
+      "judgment": "Install/audit/health failure preservation and cleanup, concurrent edits/cancellation and audit retry tests meet the explicit preparation/publication-failure/safe-retry minimum. Not every UI/runtime test is required.",
+      "source_evidence": [
+        "tests/mcpSetup.test.ts:110",
+        "tests/mcpSetup.test.ts:140",
+        "tests/mcpSetup.test.ts:150",
+        "tests/dependencyAudit.test.ts:35"
+      ]
+    },
+    {
+      "candidate": "Y",
+      "item": "H2.C8",
+      "score": 1,
+      "quote": "retry at most three times with 2s/4s backoff",
+      "candidate_evidence": "candidate-Y.md:45",
+      "judgment": "Loose use of 'retry' is read in the context of two delays and the correctly explained bounded policy, not as an explicit assertion of four total attempts. Source permits three total attempts. No material retry-routing or safety error.",
+      "source_evidence": [
+        "scripts/audit-dependencies.cjs:3",
+        "scripts/audit-dependencies.cjs:121",
+        "scripts/audit-dependencies.cjs:136"
+      ]
+    },
+    {
+      "candidate": "X",
+      "item": "H2.C5",
+      "score": 1,
+      "candidate_evidence": "candidate-X.md:36, 41, 44, 46",
+      "judgment": "The process-control paragraph omits the phrase 'nonzero exits reject', but the report connects a failed/missing health helper to blocked config publication and cites the full process implementation. Unlike an independent absent contract, this causal consequence is explained elsewhere.",
+      "source_evidence": [
+        "src/services/mcpSetupService.ts:82",
+        "src/services/mcpSetupService.ts:199"
+      ]
+    }
+  ],
+  "candidates": {
+    "X": {
+      "report": "D:/workspace/VibeKnowledge/.vscode-test/feature-heldout-r2-mJTREr/candidate-X.md",
+      "tasks": {
+        "H1": {
+          "title": "Entity descriptions",
+          "critical": 8,
+          "critical_max": 8,
+          "supplemental": 2,
+          "supplemental_max": 2,
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "UI edit/reset route, cancellation and empty input",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:9–10, 16"
+              ],
+              "source_evidence": [
+                "src/ui/commands/entityCommands.ts:225",
+                "src/services/knowledgeGraphService.ts:261"
+              ],
+              "rationale": "Command resolution, edit picker/cancel/empty and Agent-only reset connect to injected service chain."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Stable-key durable SQL overlay, not generated JSON editing",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:10–11"
+              ],
+              "source_evidence": [
+                "src/services/agentGraph/agentEntityOverrideService.ts:47",
+                "src/services/database.ts:165"
+              ],
+              "rationale": "Stable-key override SQL upsert/delete, workspace SQL.js export/save and no generated JSON edits."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Cross-group workspace scope and latest-generated reset",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:12, 27"
+              ],
+              "source_evidence": [
+                "src/services/agentGraph/agentGraphService.ts:143",
+                "src/services/agentGraph/agentGraphService.ts:537"
+              ],
+              "rationale": "Shared key across group IDs, empty override and latest per-group reset, supported by cross-group regeneration test."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Explicit refresh versus manifest-signature caching",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:16, 24"
+              ],
+              "source_evidence": [
+                "src/services/agentGraph/agentGraphService.ts:108",
+                "src/services/agentGraph/agentGraphService.ts:232"
+              ],
+              "rationale": "Explains explicit signature clearing versus manifest mtime/size and absent external SQL reload."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Tree/GraphView/CodeLens invalidation and pull consumers",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:16–17"
+              ],
+              "source_evidence": [
+                "src/extension.ts:548",
+                "src/providers/treeDataProvider.ts:172",
+                "src/providers/hoverProvider.ts:25"
+              ],
+              "rationale": "Three wrapper refreshes and shared-data consumers are connected, with subsequent-request versus already-rendered distinction."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "MCP read-side overlay affects descriptions and search",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:18, 24"
+              ],
+              "source_evidence": [
+                "packages/mcp-server/src/mergedGraph.ts:26",
+                "packages/mcp-server/src/tools/registerGraphQueryTools.ts:251"
+              ],
+              "rationale": "MCP override merge before search/query construction is explained without treating fresh SELECTs as a concurrency guarantee."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Nullable/malformed input and nontransactional save failures",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:22–24"
+              ],
+              "source_evidence": [
+                "src/services/agentGraph/agentGraphService.ts:148",
+                "src/services/agentGraph/agentGraphService.ts:232",
+                "src/services/database.ts:165"
+              ],
+              "rationale": "Concrete null/invalid snapshot and failed SQL save cases are tied to reported success/error, cache and durability consequences."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Delegation, regeneration/reset and consumer regression coverage",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:27"
+              ],
+              "source_evidence": [
+                "src/services/knowledgeGraphService.test.ts:131",
+                "src/services/agentGraph/agentGraphService.test.ts:393",
+                "packages/mcp-server/tests/mergedGraph.test.ts:77",
+                "tests/querySkill.test.ts:86"
+              ],
+              "rationale": "Maps service delegation, cross-group regeneration/latest-prose reset and CLI human-override/no-mutation consumer test. CLI is a valid alternative consumer anchor."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Exact-first and unambiguous case-safe identity fallback",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:12, 25, 27"
+              ],
+              "source_evidence": [
+                "src/services/agentGraph/agentEntityOverrideService.ts:22",
+                "src/services/agentGraph/agentEntityOverrideService.ts:61",
+                "src/services/agentGraph/agentEntityOverrideService.ts:78"
+              ],
+              "rationale": "Explains exact-first unique fallback and case-safe portable identity; alias/reset consequence is accurate."
+            },
+            {
+              "id": "S2",
+              "classification": "supplemental",
+              "title": "Reset success ignores result; normal no-op returns still refresh",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:16, 22"
+              ],
+              "source_evidence": [
+                "src/ui/commands/entityCommands.ts:248",
+                "src/ui/commands/entityCommands.ts:273",
+                "src/extension.ts:553"
+              ],
+              "rationale": "Explicit normal no-op refresh, unchecked reset result and exception bypass of wrapper refresh."
+            }
+          ],
+          "major_false_claims": [],
+          "omissions": []
+        },
+        "H2": {
+          "title": "MCP setup",
+          "critical": 9,
+          "critical_max": 9,
+          "supplemental": 1,
+          "supplemental_max": 1,
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Early shared registration, trust, overlap and abort gating",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:33, 41"
+              ],
+              "source_evidence": [
+                "src/extension.ts:36",
+                "src/commands/mcpSetupCommands.ts:8",
+                "src/commands/mcpSetupCommands.ts:53"
+              ],
+              "rationale": "Early shared setup/settings registration, trust and overlapping-run guard connect to cancellation/disposal controller."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Configured/local workspace, client, confirmation and validation",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:33–34"
+              ],
+              "source_evidence": [
+                "src/commands/mcpSetupCommands.ts:23",
+                "src/commands/mcpSetupCommands.ts:52",
+                "src/services/mcpSetupService.ts:154"
+              ],
+              "rationale": "Configured/local/other folder selection, client preview/global persistence, canonical directory and JSONC preflight."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Resolved external Node and npm/runtime environment consistency",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:34–35, 37"
+              ],
+              "source_evidence": [
+                "src/services/mcpSetupService.ts:91",
+                "src/services/mcpSetupService.ts:98",
+                "src/services/mcpSetupService.ts:162"
+              ],
+              "rationale": "Same resolved supported Node and absolute npm with PATH precede published Node entry; correctly notes malformed npm output loophole."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Isolated install, audit, database, health, then publication",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:35–37"
+              ],
+              "source_evidence": [
+                "src/commands/mcpSetupCommands.ts:64",
+                "src/services/mcpSetupService.ts:171",
+                "src/services/mcpSetupService.ts:185",
+                "src/services/mcpSetupService.ts:197"
+              ],
+              "rationale": "Unique global-storage stage with locked npm, audit, missing DB and health before publication; no graph generation. Missing helper gate is qualified."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Shell-free child arguments, bounded errors and cancellation",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:36, 41, 44, 46"
+              ],
+              "source_evidence": [
+                "src/services/mcpSetupService.ts:37",
+                "src/services/mcpSetupService.ts:48",
+                "src/services/mcpSetupService.ts:82"
+              ],
+              "rationale": "Shell-free argument/process control, bounded/redacted output and abort/tree kill are explained; failed/missing-helper process blocks publication. Evidence spans the gate and error sections, not only the child-control bullet."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Client-specific scoped JSONC publication, backup and conflict check",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:37, 43–44"
+              ],
+              "source_evidence": [
+                "src/services/mcpSetupService.ts:118",
+                "src/services/mcpSetupService.ts:122",
+                "src/services/mcpSetupService.ts:201"
+              ],
+              "rationale": "Client-specific JSONC entry/arguments, detected concurrent edit rejection, backup/temp rename and race caveat."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Failed-stage cleanup, fresh retry and manual client start",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:33, 37, 43–44"
+              ],
+              "source_evidence": [
+                "src/services/mcpSetupService.ts:213",
+                "src/commands/mcpSetupCommands.ts:82",
+                "src/commands/mcpSetupCommands.ts:88"
+              ],
+              "rationale": "Connects fresh retry and saved selection to failed-stage cleanup/retained prior install, UI error path and manual start."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Bounded fail-closed audit retries, distinct from whole setup",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:36, 42"
+              ],
+              "source_evidence": [
+                "scripts/audit-dependencies.cjs:3",
+                "scripts/audit-dependencies.cjs:63",
+                "scripts/audit-dependencies.cjs:74",
+                "scripts/audit-dependencies.cjs:113"
+              ],
+              "rationale": "Fail-closed valid audit, three selective attempts/backoff, nonretryable security/local errors and no bypass."
+            },
+            {
+              "id": "C9",
+              "classification": "critical",
+              "title": "Preparation/publication-failure/safe-retry tests and mocked limits",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:46"
+              ],
+              "source_evidence": [
+                "tests/mcpSetup.test.ts:82",
+                "tests/mcpSetup.test.ts:110",
+                "tests/mcpSetup.test.ts:140",
+                "tests/mcpSetup.test.ts:167",
+                "tests/dependencyAudit.test.ts:35"
+              ],
+              "rationale": "Maps isolated mocked order/preparation, stage cleanup/config failure/cancel and real process/UI tests; no live connection claim."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Preservation is not a transaction or cross-process lock",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:43–44"
+              ],
+              "source_evidence": [
+                "src/commands/mcpSetupCommands.ts:52",
+                "src/services/mcpSetupService.ts:197",
+                "src/services/mcpSetupService.ts:201",
+                "src/services/mcpSetupService.ts:213"
+              ],
+              "rationale": "Surviving selection/DB, late cancel/edit race and post-rename cleanup window qualify preservation."
+            }
+          ],
+          "major_false_claims": [],
+          "omissions": []
+        }
+      },
+      "totals": {
+        "critical": 17,
+        "critical_max": 17,
+        "supplemental": 3,
+        "supplemental_max": 3,
+        "major_false_claim_count": 0
+      },
+      "major_false_claims": []
+    },
+    "Y": {
+      "report": "D:/workspace/VibeKnowledge/.vscode-test/feature-heldout-r2-mJTREr/candidate-Y.md",
+      "tasks": {
+        "H1": {
+          "title": "Entity descriptions",
+          "critical": 7.5,
+          "critical_max": 8,
+          "supplemental": 2,
+          "supplemental_max": 2,
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "UI edit/reset route, cancellation and empty input",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:9–10, 19"
+              ],
+              "source_evidence": [
+                "src/ui/commands/entityCommands.ts:225",
+                "src/services/knowledgeGraphService.ts:261"
+              ],
+              "rationale": "Command resolution/cancel/empty/Agent-only reset and Knowledge/Agent delegation are causally connected."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Stable-key durable SQL overlay, not generated JSON editing",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:10"
+              ],
+              "source_evidence": [
+                "src/services/agentGraph/agentEntityOverrideService.ts:47",
+                "src/services/database.ts:165"
+              ],
+              "rationale": "Stable-key override SQL plus workspace SQL.js save, explicitly distinct from generated JSON."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Cross-group workspace scope and latest-generated reset",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:11, 20"
+              ],
+              "source_evidence": [
+                "src/services/agentGraph/agentGraphService.ts:143",
+                "src/services/agentGraph/agentGraphService.ts:537"
+              ],
+              "rationale": "Cross-group stable identity, empty override, regeneration survival and latest per-group generated reset."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Explicit refresh versus manifest-signature caching",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:18, 30"
+              ],
+              "source_evidence": [
+                "src/services/agentGraph/agentGraphService.ts:108",
+                "src/services/agentGraph/agentGraphService.ts:232"
+              ],
+              "rationale": "Explicit cache clearing versus manifest-only signature and external in-memory SQLite reload boundary."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Tree/GraphView/CodeLens invalidation and pull consumers",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:19–21"
+              ],
+              "source_evidence": [
+                "src/extension.ts:548",
+                "src/providers/treeDataProvider.ts:172",
+                "src/providers/hoverProvider.ts:25"
+              ],
+              "rationale": "Main three invalidations feed shared prose; later hover/details/export reads are distinguished from existing output."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "MCP read-side overlay affects descriptions and search",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:22, 30"
+              ],
+              "source_evidence": [
+                "packages/mcp-server/src/mergedGraph.ts:26",
+                "packages/mcp-server/src/tools/registerGraphQueryTools.ts:251"
+              ],
+              "rationale": "MCP fresh override table/read-side merge before filtering and engine creation, with concurrency caveat."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Nullable/malformed input and nontransactional save failures",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:9, 27–30"
+              ],
+              "source_evidence": [
+                "src/services/agentGraph/agentGraphService.ts:148",
+                "src/services/agentGraph/agentGraphService.ts:232",
+                "src/services/database.ts:165"
+              ],
+              "rationale": "Null/stale IDs, malformed empty snapshot and nontransactional disk failure connect to UI/cache/persisted effects."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Delegation, regeneration/reset and consumer regression coverage",
+              "score": 0.5,
+              "candidate_evidence": [
+                "candidate-Y.md:11–12"
+              ],
+              "source_evidence": [
+                "src/services/knowledgeGraphService.test.ts:131",
+                "src/services/agentGraph/agentGraphService.test.ts:393",
+                "packages/mcp-server/tests/mergedGraph.test.ts:77",
+                "tests/querySkill.test.ts:86"
+              ],
+              "rationale": "Maps the cross-group regeneration/latest-reset and identity tests, but supplies neither service-delegation nor description-consumer regression evidence. Correct implementation traces elsewhere are not test coverage."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Exact-first and unambiguous case-safe identity fallback",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:12, 29"
+              ],
+              "source_evidence": [
+                "src/services/agentGraph/agentEntityOverrideService.ts:22",
+                "src/services/agentGraph/agentEntityOverrideService.ts:61",
+                "src/services/agentGraph/agentEntityOverrideService.ts:78"
+              ],
+              "rationale": "Exact-first, unique normalized fallback/deletion and case-safe normalization with alias ambiguity consequences."
+            },
+            {
+              "id": "S2",
+              "classification": "supplemental",
+              "title": "Reset success ignores result; normal no-op returns still refresh",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:9, 19, 28"
+              ],
+              "source_evidence": [
+                "src/ui/commands/entityCommands.ts:248",
+                "src/ui/commands/entityCommands.ts:273",
+                "src/extension.ts:553"
+              ],
+              "rationale": "Unchecked reset success and refresh after normally returned handlers, including cancellation/no-op described in the route."
+            }
+          ],
+          "major_false_claims": [],
+          "omissions": [
+            "C8: Maps the cross-group regeneration/latest-reset and identity tests, but supplies neither service-delegation nor description-consumer regression evidence. Correct implementation traces elsewhere are not test coverage."
+          ]
+        },
+        "H2": {
+          "title": "MCP setup",
+          "critical": 9,
+          "critical_max": 9,
+          "supplemental": 1,
+          "supplemental_max": 1,
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Early shared registration, trust, overlap and abort gating",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:37–38, 46–47"
+              ],
+              "source_evidence": [
+                "src/extension.ts:36",
+                "src/commands/mcpSetupCommands.ts:8",
+                "src/commands/mcpSetupCommands.ts:53"
+              ],
+              "rationale": "Early shared commands, trust/duplicate guards, cancellable progress/disposal and cleared guards."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Configured/local workspace, client, confirmation and validation",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:38"
+              ],
+              "source_evidence": [
+                "src/commands/mcpSetupCommands.ts:23",
+                "src/commands/mcpSetupCommands.ts:52",
+                "src/services/mcpSetupService.ts:154"
+              ],
+              "rationale": "Configured/local/other project precedence, absolute/client/modal/global selection and directory/JSONC validation."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Resolved external Node and npm/runtime environment consistency",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:39, 41"
+              ],
+              "source_evidence": [
+                "src/services/mcpSetupService.ts:91",
+                "src/services/mcpSetupService.ts:98",
+                "src/services/mcpSetupService.ts:162"
+              ],
+              "rationale": "Resolved supported external Node, absolute npm and inherited PATH connect to config; correctly notes numeric npm lower-bound weakness."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Isolated install, audit, database, health, then publication",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:39–40, 53–55"
+              ],
+              "source_evidence": [
+                "src/commands/mcpSetupCommands.ts:64",
+                "src/services/mcpSetupService.ts:171",
+                "src/services/mcpSetupService.ts:185",
+                "src/services/mcpSetupService.ts:197"
+              ],
+              "rationale": "Isolated locked installation, explicit audit, missing DB and health gate before publication; graph generation is separate, absent helper qualified."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Shell-free child arguments, bounded errors and cancellation",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:46"
+              ],
+              "source_evidence": [
+                "src/services/mcpSetupService.ts:37",
+                "src/services/mcpSetupService.ts:48",
+                "src/services/mcpSetupService.ts:82"
+              ],
+              "rationale": "Array arguments/no shell, hidden windows, nonzero/spawn rejection, bounded/redacted diagnostics and abort/tree kill are explicit."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Client-specific scoped JSONC publication, backup and conflict check",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:38, 41, 49"
+              ],
+              "source_evidence": [
+                "src/services/mcpSetupService.ts:118",
+                "src/services/mcpSetupService.ts:122",
+                "src/services/mcpSetupService.ts:201"
+              ],
+              "rationale": "Previewed client target, correct distinct keys and runtime/workspace args, preserved unrelated JSONC, concurrent check, backup/temp rename."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Failed-stage cleanup, fresh retry and manual client start",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:41, 47–49"
+              ],
+              "source_evidence": [
+                "src/services/mcpSetupService.ts:213",
+                "src/commands/mcpSetupCommands.ts:82",
+                "src/commands/mcpSetupCommands.ts:88"
+              ],
+              "rationale": "Retained old installs and unique cleanup permit fresh guarded retries after correction; user still trusts/starts client."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Bounded fail-closed audit retries, distinct from whole setup",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:45, 47–48"
+              ],
+              "source_evidence": [
+                "scripts/audit-dependencies.cjs:3",
+                "scripts/audit-dependencies.cjs:63",
+                "scripts/audit-dependencies.cjs:74",
+                "scripts/audit-dependencies.cjs:113"
+              ],
+              "rationale": "Fail-closed selective bounded audit and no security bypass; two backoffs and source define three total attempts despite loose 'retry ... three times' phrasing."
+            },
+            {
+              "id": "C9",
+              "classification": "critical",
+              "title": "Preparation/publication-failure/safe-retry tests and mocked limits",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:47, 53–55"
+              ],
+              "source_evidence": [
+                "tests/mcpSetup.test.ts:82",
+                "tests/mcpSetup.test.ts:110",
+                "tests/mcpSetup.test.ts:140",
+                "tests/mcpSetup.test.ts:167",
+                "tests/dependencyAudit.test.ts:35"
+              ],
+              "rationale": "Maps install/audit/health failure and cleanup, concurrent config/cancel and audit retry tests to preparation/publication/safe retry; mocks do not prove connection. Frozen minimum does not require every UI/runtime test."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Preservation is not a transaction or cross-process lock",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:48–49"
+              ],
+              "source_evidence": [
+                "src/commands/mcpSetupCommands.ts:52",
+                "src/services/mcpSetupService.ts:197",
+                "src/services/mcpSetupService.ts:201",
+                "src/services/mcpSetupService.ts:213"
+              ],
+              "rationale": "Surviving preference/DB and optimistic/post-rename failure windows are explicitly not universal rollback."
+            }
+          ],
+          "major_false_claims": [],
+          "omissions": []
+        }
+      },
+      "totals": {
+        "critical": 16.5,
+        "critical_max": 17,
+        "supplemental": 3,
+        "supplemental_max": 3,
+        "major_false_claim_count": 0
+      },
+      "major_false_claims": []
+    }
+  }
+}

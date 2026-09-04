@@ -1,0 +1,215 @@
+{
+  "createdAt": "2026-09-04T13:36:02.161Z",
+  "bundleSha256": "c5f78528aa8c3479b66a2d7aab97aa655c2a42a6d17fb1fbd15bd1bb0f01aa25",
+  "model": "gpt-5.6-sol",
+  "effort": "xhigh",
+  "pairs": [
+    {
+      "pair": 1,
+      "scores": {
+        "A": {
+          "critical": 17,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 0
+        },
+        "B": {
+          "critical": 17,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 0
+        }
+      },
+      "arms": {
+        "A": {
+          "observedTextTokens": 64440,
+          "publicToolOutputTokens": 74789,
+          "usage": {
+            "input_tokens": 1144828,
+            "cached_input_tokens": 1053312,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 13240,
+            "reasoning_output_tokens": 1521,
+            "total_tokens": 1158068,
+            "uncachedInput": 91516,
+            "uncachedInputPlusOutput": 104756
+          },
+          "elapsedMs": 409619,
+          "queries": 0
+        },
+        "B": {
+          "observedTextTokens": 50445,
+          "publicToolOutputTokens": 58869,
+          "usage": {
+            "input_tokens": 1012818,
+            "cached_input_tokens": 937088,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 12804,
+            "reasoning_output_tokens": 1654,
+            "total_tokens": 1025622,
+            "uncachedInput": 75730,
+            "uncachedInputPlusOutput": 88534
+          },
+          "elapsedMs": 367736,
+          "queries": 4
+        }
+      }
+    },
+    {
+      "pair": 2,
+      "scores": {
+        "A": {
+          "critical": 17,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 0
+        },
+        "B": {
+          "critical": 17,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 0
+        }
+      },
+      "arms": {
+        "A": {
+          "observedTextTokens": 60867,
+          "publicToolOutputTokens": 69358,
+          "usage": {
+            "input_tokens": 1103216,
+            "cached_input_tokens": 1018880,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 10567,
+            "reasoning_output_tokens": 869,
+            "total_tokens": 1113783,
+            "uncachedInput": 84336,
+            "uncachedInputPlusOutput": 94903
+          },
+          "elapsedMs": 250246,
+          "queries": 0
+        },
+        "B": {
+          "observedTextTokens": 48371,
+          "publicToolOutputTokens": 56420,
+          "usage": {
+            "input_tokens": 1086555,
+            "cached_input_tokens": 1015680,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 10896,
+            "reasoning_output_tokens": 1034,
+            "total_tokens": 1097451,
+            "uncachedInput": 70875,
+            "uncachedInputPlusOutput": 81771
+          },
+          "elapsedMs": 339925,
+          "queries": 4
+        }
+      }
+    },
+    {
+      "pair": 3,
+      "scores": {
+        "A": {
+          "critical": 17,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 0
+        },
+        "B": {
+          "critical": 17,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 0
+        }
+      },
+      "arms": {
+        "A": {
+          "observedTextTokens": 66837,
+          "publicToolOutputTokens": 77606,
+          "usage": {
+            "input_tokens": 1175699,
+            "cached_input_tokens": 1076480,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 17968,
+            "reasoning_output_tokens": 1185,
+            "total_tokens": 1193667,
+            "uncachedInput": 99219,
+            "uncachedInputPlusOutput": 117187
+          },
+          "elapsedMs": 437992,
+          "queries": 0
+        },
+        "B": {
+          "observedTextTokens": 49366,
+          "publicToolOutputTokens": 56572,
+          "usage": {
+            "input_tokens": 1011710,
+            "cached_input_tokens": 939776,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 9376,
+            "reasoning_output_tokens": 648,
+            "total_tokens": 1021086,
+            "uncachedInput": 71934,
+            "uncachedInputPlusOutput": 81310
+          },
+          "elapsedMs": 233330,
+          "queries": 5
+        }
+      }
+    }
+  ],
+  "medians": {
+    "A": {
+      "observedTextTokens": 64440,
+      "uncachedInputPlusOutput": 104756,
+      "cachedInput": 1053312,
+      "totalTokens": 1158068,
+      "outputTokens": 13240,
+      "elapsedMs": 409619,
+      "publicToolOutputTokens": 74789
+    },
+    "B": {
+      "observedTextTokens": 49366,
+      "uncachedInputPlusOutput": 81771,
+      "cachedInput": 939776,
+      "totalTokens": 1025622,
+      "outputTokens": 10896,
+      "elapsedMs": 339925,
+      "publicToolOutputTokens": 56572
+    }
+  },
+  "savedFractions": {
+    "observedTextTokens": 0.23392302917442587,
+    "uncachedInputPlusOutput": 0.21941463973423958,
+    "cachedInput": 0.10778952485113624,
+    "totalTokens": 0.11436806819634082,
+    "outputTokens": 0.17703927492447125,
+    "elapsedMs": 0.17014347478998781,
+    "publicToolOutputTokens": 0.24357860113118235
+  },
+  "gates": {
+    "efficiency": true,
+    "quality": false,
+    "noQualityLoss": true,
+    "noExtraMajorClaims": true,
+    "missedRequiredFacts": {
+      "A": 0,
+      "B": 0
+    },
+    "strictImprovements": 0
+  },
+  "limitations": [
+    "Three pairs on two prompts in one repository, not independent repositories or a statistical guarantee.",
+    "Warm artifact reuse; generation/update cost is additional.",
+    "Pilot-r2 had a development-task coverage loss and remains part of the evidence.",
+    "Observer-emitted text can be truncated by the outer tool layer; actual public tool-text counts are also reported and gated.",
+    "Uncached input plus output is an explicit token metric, not a monetary bill.",
+    "Finite rubric coverage is not complete factual correctness."
+  ]
+}

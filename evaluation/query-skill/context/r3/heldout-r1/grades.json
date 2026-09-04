@@ -1,0 +1,712 @@
+{
+  "schema_version": 1,
+  "evaluation": "r3-heldout-r1",
+  "scope": "Anonymous frozen-r3-rubric grading only.",
+  "rubric": "D:/workspace/VibeKnowledge/evaluation/query-skill/context/r3/rubric-heldout.md",
+  "snapshot": "D:/workspace/VibeKnowledge/.vscode-test/feature-r3-heldout-1-k4B58P/snapshot",
+  "scoring": {
+    "item_values": [
+      0,
+      0.5,
+      1
+    ],
+    "critical_max": 17,
+    "supplemental_max": 3,
+    "method_labels_ignored": true,
+    "tests_executed": false
+  },
+  "interpretation_notes": [
+    "Whole-report causal coverage counts; no length/file-list/method credit.",
+    "No material frozen-item omission in either report; full scores are coverage scores, not certification of every extra sentence.",
+    "Incidental placeholder/locale details do not replace the core command-scope/shared-builder requirements.",
+    "No rubric text or scoring criterion was altered."
+  ],
+  "source_verification": [
+    "Read this run's helper cache/layout/drag code and GraphView persistence/selection/transient-view/lifecycle source.",
+    "Read this run's setting/helper regression assertions and instruction writer/caller/content/batch/tests.",
+    "Verified the Cursor locale mismatch directly against this run's i18n getLocale/getLocaleCode and writer comparison."
+  ],
+  "rubric_flaws": [
+    {
+      "item": "I.C7",
+      "status": "Recorded separately; no retroactive scoring change",
+      "description": "The parenthetical 'locale-aware there' is overbroad if read as effective Chinese localization. buildCursorRulesContent compares getLocale() with 'zh', but getLocale returns 'zh-CN' or 'en-US', so the public current Cursor path chooses English. Shared builder and sequential batch facts remain correct.",
+      "source_evidence": [
+        "src/services/aiIntegrationService.ts:101",
+        "src/i18n/i18nService.ts:126",
+        "src/i18n/i18nService.ts:148"
+      ]
+    }
+  ],
+  "audit_notes": [
+    {
+      "candidate": "X",
+      "item": "I.C7",
+      "quote": "Cursor uses `getLocale()` and supplies a localized title/language to the same router builder.",
+      "candidate_evidence": "candidate-X.md:105",
+      "judgment": "Overbroad shorthand about effective localization, not a major Copilot-language or shared-routing false claim. X correctly keeps Copilot English and explains shared/batch impact. The frozen rubric has the same parenthetical imprecision; no post-hoc deduction.",
+      "source_evidence": [
+        "src/services/aiIntegrationService.ts:101",
+        "src/i18n/i18nService.ts:126",
+        "src/i18n/i18nService.ts:148"
+      ]
+    },
+    {
+      "candidate": "Y",
+      "item": "I.C7",
+      "quote": "it compares `getLocale()` with `'zh'`, but that helper returns `'zh-CN'` or `'en-US'`",
+      "candidate_evidence": "candidate-Y.md:106",
+      "judgment": "Correctly identifies the real source mismatch. Full shared-builder credit remains; no extra points beyond the frozen item.",
+      "source_evidence": [
+        "src/services/aiIntegrationService.ts:104",
+        "src/i18n/i18nService.ts:127"
+      ]
+    },
+    {
+      "candidate": "both",
+      "item": "V.C9 / I.C8",
+      "judgment": "Both map the required test families and clearly distinguish VM/mocked/service assertions from browser/command/end-to-end guarantees. Additional files earn no bonus.",
+      "source_evidence": [
+        "src/ui/webview/graphView.test.ts:79",
+        "src/ui/webview/graphPerformanceScript.test.ts:105",
+        "src/services/aiIntegrationService.test.ts:68"
+      ]
+    }
+  ],
+  "candidates": {
+    "X": {
+      "report": "D:/workspace/VibeKnowledge/.vscode-test/feature-r3-heldout-1-k4B58P/candidate-X.md",
+      "tasks": {
+        "visualization": {
+          "id": "V",
+          "title": "visualization",
+          "critical": 9,
+          "critical_max": 9,
+          "supplemental": 2,
+          "supplemental_max": 2,
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Command/host dependencies and retained single-panel lifecycle",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:9–13"
+              ],
+              "source_evidence": [
+                "src/extension.ts:643",
+                "src/ui/webview/graphView.ts:157"
+              ],
+              "rationale": "Connects contributed command, injected services, singleton/reveal, retained page and ready/data message path."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Independent selected group, key state, fallback and empty state",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:17–19, 51, 57, 61"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphView.ts:456",
+                "src/ui/webview/graphView.ts:1372"
+              ],
+              "rationale": "Independent groups render singly; sorting, remembered key/fallback, serialized key and empty clearing are explained."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "On-demand transient structural view and error boundary",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:21, 58, 69"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphView.ts:324",
+                "src/ui/webview/graphView.ts:1401"
+              ],
+              "rationale": "Explicit existing-graph aggregation creates a replaceable transient group; ordinary replacement drops it and structural errors preserve the displayed view."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Low-default machine/global performance authority",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:36, 51, 60"
+              ],
+              "source_evidence": [
+                "package.json:325",
+                "src/ui/webview/graphView.ts:300"
+              ],
+              "rationale": "Correct low default, low/high machine scope, Global persistence and separation from semantic graph data."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Optimistic mode, host persistence acknowledgement and rollback",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:36, 75"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphView.ts:309",
+                "src/ui/webview/graphView.ts:2176"
+              ],
+              "rationale": "Complete optimistic apply/disable/post/validate/save/finally-authoritative-mode/re-enable round trip and failed-save consequence."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Bounded low layout/drag versus high animation/physics",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:40–47"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphPerformanceScript.ts:48",
+                "src/ui/webview/graphPerformanceScript.ts:91"
+              ],
+              "rationale": "Same semantic graph, finite yielding static layout, interactive low drag and high effects/physics with settled-cache and time-budget qualifications."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Replacement/hidden/unload rendering-work lifecycle",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:55, 59, 65, 69"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphView.ts:1254",
+                "src/ui/webview/graphView.ts:1479"
+              ],
+              "rationale": "Stops old work, saves layout, pauses hidden work and resumes eligible work; unload cleanup and delayed-fit caveat are tied to lifecycle."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Group/topology-aware geometry cache and document lifetime",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:51, 55–60"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphPerformanceScript.ts:7",
+                "src/ui/webview/graphView.ts:1556"
+              ],
+              "rationale": "Separates webview key/global mode/document-memory geometry, explains endpoint/verb topology signature and prose reuse versus misses."
+            },
+            {
+              "id": "C9",
+              "classification": "critical",
+              "title": "Settings, layout-lifecycle and cache regression families",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:73–77, 82"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphView.test.ts:79",
+                "src/ui/webview/graphPerformanceScript.test.ts:49",
+                "src/ui/webview/graphPerformanceScript.test.ts:105"
+              ],
+              "rationale": "Maps all three required settings/layout/cache test families and accurately limits mocked VM/host coverage."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Unfinished alpha/settled/auto-fit state survives revisits",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:55–56, 65, 77"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphPerformanceScript.ts:24",
+                "src/ui/webview/graphPerformanceScript.test.ts:133"
+              ],
+              "rationale": "Preserved pending alpha/settled/auto-fit avoids freezing unfinished layout; user interaction controls auto-fit."
+            },
+            {
+              "id": "S2",
+              "classification": "supplemental",
+              "title": "Bounded geometry admission and LRU eviction",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:47, 56, 77"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphPerformanceScript.ts:24",
+                "src/ui/webview/graphPerformanceScript.test.ts:119"
+              ],
+              "rationale": "Explains geometry-only admission, nonfinite/oversize rejection, LRU and total-node bounds without treating them as rendering caps."
+            }
+          ],
+          "major_false_claims": [],
+          "omissions": []
+        },
+        "instructions": {
+          "id": "I",
+          "title": "instructions",
+          "critical": 8,
+          "critical_max": 8,
+          "supplemental": 1,
+          "supplemental_max": 1,
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Contributed command, first workspace, writer and returned-path actions",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:88–94"
+              ],
+              "source_evidence": [
+                "src/extension.ts:680",
+                "src/ui/commands/entityCommands.ts:1255"
+              ],
+              "rationale": "Correct contribution/dispatch, first-root missing-workspace guard and returned-path open/reveal completion. Separate activation placeholder detail is not necessary to establish this scope/outcome."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Real caller precollection but ignored writer GraphData",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:90, 101–102, 110"
+              ],
+              "source_evidence": [
+                "src/ui/commands/entityCommands.ts:43",
+                "src/services/aiIntegrationService.ts:71"
+              ],
+              "rationale": "Explains real unified snapshot/observation collection, ignored service parameter and prewrite collection failure dependency."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Destination, direct overwrite and nontransactional failure",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:92, 125–129"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.ts:71",
+                "src/ui/commands/entityCommands.ts:1282"
+              ],
+              "rationale": "Exact UTF-8 synchronous destination creation/replacement, no confirmation/merge/backup/atomic rollback and propagated failures."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Fixed English compact active builder, not dormant rich/template paths",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:92, 103–108"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.ts:404",
+                "src/services/aiIntegrationService.ts:432"
+              ],
+              "rationale": "Fixed English router dispatch is distinguished from dormant template/tech-stack code; no project or UI-locale personalization."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Conditional focused query, bounded fallback and source verification",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:133, 149"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.ts:435"
+              ],
+              "rationale": "Correct conditional focused MCP query, local expansion, single-group fallback, full-report avoidance and current-source verification."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Writing instructions is not executing downstream tools or creating graph artifacts",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:106, 135"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.ts:71",
+                "src/services/aiIntegrationService.ts:411"
+              ],
+              "rationale": "Separates generated instructions from tool execution, artifact creation/validation and proof of downstream consumption."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Shared Cursor builder and sequential partial-failure batch impact",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:114–121, 129"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.ts:89",
+                "src/services/aiIntegrationService.ts:101",
+                "src/ui/commands/entityCommands.ts:1307"
+              ],
+              "rationale": "Shared builder and both independent sequential Cursor-then-Copilot callers, including partial outputs on failure; locale wording is separately qualified as a rubric-side issue."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Copilot/ Cursor compact-router tests and unproved integration variants",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:141–147"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.test.ts:68",
+                "src/services/aiIntegrationService.test.ts:100"
+              ],
+              "rationale": "Maps positive/negative Copilot and sibling Cursor assertions, omitted GraphData fixture and mocked/service/UI/locale/failure gaps."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Post-write presentation failure differs from file completion",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-X.md:94, 127, 129"
+              ],
+              "source_evidence": [
+                "src/ui/commands/entityCommands.ts:1269"
+              ],
+              "rationale": "Dismissal leaves the file; open/reveal errors occur after writing inside the same catch, so an error need not undo output."
+            }
+          ],
+          "major_false_claims": [],
+          "omissions": []
+        }
+      },
+      "totals": {
+        "critical": 17,
+        "critical_max": 17,
+        "supplemental": 3,
+        "supplemental_max": 3,
+        "major_false_claim_count": 0
+      },
+      "major_false_claims": []
+    },
+    "Y": {
+      "report": "D:/workspace/VibeKnowledge/.vscode-test/feature-r3-heldout-1-k4B58P/candidate-Y.md",
+      "tasks": {
+        "visualization": {
+          "id": "V",
+          "title": "visualization",
+          "critical": 9,
+          "critical_max": 9,
+          "supplemental": 2,
+          "supplemental_max": 2,
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Command/host dependencies and retained single-panel lifecycle",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:9–15"
+              ],
+              "source_evidence": [
+                "src/extension.ts:643",
+                "src/ui/webview/graphView.ts:157"
+              ],
+              "rationale": "Contributed command/injected services, early placeholder boundary, singleton retained panel and ready/data handshake are linked."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Independent selected group, key state, fallback and empty state",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:19–21, 56"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphView.ts:456",
+                "src/ui/webview/graphView.ts:1372"
+              ],
+              "rationale": "Independent groups, sorting/single render, key persistence/fallback and zero-list/group empty states are explicit."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "On-demand transient structural view and error boundary",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:23–25, 34, 55"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphView.ts:324",
+                "src/ui/webview/graphView.ts:1401"
+              ],
+              "rationale": "Explicit existing raw aggregation and temporary group replacement; ordinary re-reveal payload discards advanced selection, and failure only reports status."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Low-default machine/global performance authority",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:38, 57"
+              ],
+              "source_evidence": [
+                "package.json:325",
+                "src/ui/webview/graphView.ts:300"
+              ],
+              "rationale": "Correct default, accepted modes, machine/global storage and host effective value, separate from graph data."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Optimistic mode, host persistence acknowledgement and rollback",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:38, 68"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphView.ts:309",
+                "src/ui/webview/graphView.ts:2176"
+              ],
+              "rationale": "Complete optimistic disable/host validation/global write/authoritative acknowledgement rollback and external Settings synchronization."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Bounded low layout/drag versus high animation/physics",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:40–46"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphPerformanceScript.ts:48",
+                "src/ui/webview/graphPerformanceScript.ts:91"
+              ],
+              "rationale": "Same graph model, bounded/yielding low ticks, low direct drag, high effects/physics and cached-settled qualification."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Replacement/hidden/unload rendering-work lifecycle",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:52, 54, 57, 59"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphView.ts:1254",
+                "src/ui/webview/graphView.ts:1479"
+              ],
+              "rationale": "Group replacement stops/saves old work; hidden/unload pause/stop and conditional resume are explained, including cancelled fit timer."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Group/topology-aware geometry cache and document lifetime",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:52–57"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphPerformanceScript.ts:7",
+                "src/ui/webview/graphView.ts:1556"
+              ],
+              "rationale": "Group/topology-aware current-object geometry cache, prose reuse and new-document/close limits are distinguished from serialized key and global mode."
+            },
+            {
+              "id": "C9",
+              "classification": "critical",
+              "title": "Settings, layout-lifecycle and cache regression families",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:67–70, 75"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphView.test.ts:79",
+                "src/ui/webview/graphPerformanceScript.test.ts:49",
+                "src/ui/webview/graphPerformanceScript.test.ts:105"
+              ],
+              "rationale": "Maps settings, bounded/lifecycle helper and topology/cache risk families without claiming real DOM/D3/end-to-end proof."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Unfinished alpha/settled/auto-fit state survives revisits",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:46, 52, 70"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphPerformanceScript.ts:24",
+                "src/ui/webview/graphPerformanceScript.test.ts:133"
+              ],
+              "rationale": "Alpha/settled/auto-fit metadata preserves unfinished layout across revisits; user interaction disables auto-fit."
+            },
+            {
+              "id": "S2",
+              "classification": "supplemental",
+              "title": "Bounded geometry admission and LRU eviction",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:53, 70"
+              ],
+              "source_evidence": [
+                "src/ui/webview/graphPerformanceScript.ts:24",
+                "src/ui/webview/graphPerformanceScript.test.ts:119"
+              ],
+              "rationale": "Geometry admission rejects nonfinite/oversized entries; bounded LRU total count is not a render limit."
+            }
+          ],
+          "major_false_claims": [],
+          "omissions": []
+        },
+        "instructions": {
+          "id": "I",
+          "title": "instructions",
+          "critical": 8,
+          "critical_max": 8,
+          "supplemental": 1,
+          "supplemental_max": 1,
+          "items": [
+            {
+              "id": "C1",
+              "classification": "critical",
+              "title": "Contributed command, first workspace, writer and returned-path actions",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:9, 81–87"
+              ],
+              "source_evidence": [
+                "src/extension.ts:680",
+                "src/ui/commands/entityCommands.ts:1255"
+              ],
+              "rationale": "Contribution/dispatch, first workspace and both placeholder/method guards; correct output path and optional completion actions."
+            },
+            {
+              "id": "C2",
+              "classification": "critical",
+              "title": "Real caller precollection but ignored writer GraphData",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:83, 94–95, 101"
+              ],
+              "source_evidence": [
+                "src/ui/commands/entityCommands.ts:43",
+                "src/services/aiIntegrationService.ts:71"
+              ],
+              "rationale": "Real graph/observation collection is passed but ignored for content, retaining upstream cost/failure and construction dependencies."
+            },
+            {
+              "id": "C3",
+              "classification": "critical",
+              "title": "Destination, direct overwrite and nontransactional failure",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:85, 112–120"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.ts:71",
+                "src/ui/commands/entityCommands.ts:1282"
+              ],
+              "rationale": "Synchronous UTF-8 direct replacement and directory creation; no merge/confirmation/backup/rollback, with concrete partial-failure consequences."
+            },
+            {
+              "id": "C4",
+              "classification": "critical",
+              "title": "Fixed English compact active builder, not dormant rich/template paths",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:85, 96–102, 106"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.ts:404",
+                "src/services/aiIntegrationService.ts:432"
+              ],
+              "rationale": "Fixed English Copilot builder, inactive rich/template helpers and actual Cursor locale mismatch are correctly distinguished."
+            },
+            {
+              "id": "C5",
+              "classification": "critical",
+              "title": "Conditional focused query, bounded fallback and source verification",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:126"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.ts:435"
+              ],
+              "rationale": "Complete focused conditional query, bounded single-group fallback, full-report avoidance, small-task skip and source-verification purpose."
+            },
+            {
+              "id": "C6",
+              "classification": "critical",
+              "title": "Writing instructions is not executing downstream tools or creating graph artifacts",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:99, 128"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.ts:71",
+                "src/services/aiIntegrationService.ts:411"
+              ],
+              "rationale": "Text-only generation does not execute/query/install/validate downstream facilities or prove assistant compliance."
+            },
+            {
+              "id": "C7",
+              "classification": "critical",
+              "title": "Shared Cursor builder and sequential partial-failure batch impact",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:105–108, 120"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.ts:89",
+                "src/services/aiIntegrationService.ts:101",
+                "src/ui/commands/entityCommands.ts:1307"
+              ],
+              "rationale": "Shared router, independently implemented UI/service sequential batches and partial output are connected; locale mismatch is independently verified."
+            },
+            {
+              "id": "C8",
+              "classification": "critical",
+              "title": "Copilot/ Cursor compact-router tests and unproved integration variants",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:134–147"
+              ],
+              "source_evidence": [
+                "src/services/aiIntegrationService.test.ts:68",
+                "src/services/aiIntegrationService.test.ts:100"
+              ],
+              "rationale": "Maps compact Copilot and Cursor tests plus negative markers/headings and distinguishes omitted payload/UI/failure/batch/locale variants."
+            },
+            {
+              "id": "S1",
+              "classification": "supplemental",
+              "title": "Post-write presentation failure differs from file completion",
+              "score": 1,
+              "candidate_evidence": [
+                "candidate-Y.md:87, 114, 119"
+              ],
+              "source_evidence": [
+                "src/ui/commands/entityCommands.ts:1269"
+              ],
+              "rationale": "Dismissing completion leaves output; presentation failure shares the generation catch after a successful write."
+            }
+          ],
+          "major_false_claims": [],
+          "omissions": []
+        }
+      },
+      "totals": {
+        "critical": 17,
+        "critical_max": 17,
+        "supplemental": 3,
+        "supplemental_max": 3,
+        "major_false_claim_count": 0
+      },
+      "major_false_claims": []
+    }
+  }
+}

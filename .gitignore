@@ -4,6 +4,7 @@ dist
 coverage/
 *.vsix
 .vscode-test/
+.codex-remote-attachments/
 *.log
 .DS_Store
 

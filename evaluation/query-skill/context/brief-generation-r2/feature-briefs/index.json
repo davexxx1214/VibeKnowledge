@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "features": [
+    {
+      "key": "agent-skill-installation",
+      "name": "Dependency graph and query Skill installation",
+      "summary": "Installs two independent, bundled project Skills: graph generation and read-only graph querying, with explicit update confirmation and different packaging requirements.",
+      "keywords": [
+        "install Skill",
+        "dependency graph",
+        "query Skill",
+        "knowledge.installDependencyGraphSkill",
+        "knowledge.installQuerySkill",
+        ".agents"
+      ],
+      "contentHash": "4fa6c6fba135a012154c99a43e744eb92e682b949ce78ac0f9dde77345e8b0f5"
+    },
+    {
+      "key": "entity-description-editing",
+      "name": "Human entity descriptions and restoring Agent prose",
+      "summary": "Edits human-owned entity descriptions independently of generated graph structure and restores the newest generated prose by removing the override.",
+      "keywords": [
+        "entity description",
+        "human override",
+        "restore Agent description",
+        "knowledge.editEntityDescription",
+        "knowledge.resetEntityDescription",
+        "CodeLens",
+        "graph.sqlite"
+      ],
+      "contentHash": "354fad5ab7213aa792f698c502b8e2b6681abc72949fea6161904a4e7ebcc485"
+    },
+    {
+      "key": "graph-refresh",
+      "name": "Graph refresh and freshness boundaries",
+      "summary": "Reloads generated Knowledge Graph data for editor surfaces and separately maintains an existing deterministic structural graph after source changes.",
+      "keywords": [
+        "refresh",
+        "knowledge.refresh",
+        "sidecar",
+        "file watcher",
+        "structural graph",
+        "CodeLens",
+        "webview"
+      ],
+      "contentHash": "b4a3b8b7ebf030c74bba8df8b11dfea94174e6d0fa48f106ec9b7b67d2cf288f"
+    },
+    {
+      "key": "mcp-setup",
+      "name": "Isolated MCP installation and client configuration",
+      "summary": "Installs a bundled MCP runtime in extension storage, gates publication on dependency audit and health checks, and updates only the selected project's VibeKnowledge MCP configuration entry.",
+      "keywords": [
+        "MCP setup",
+        "knowledge.setupMcp",
+        "knowledge.settings",
+        "Node 26",
+        "audit",
+        "Cursor",
+        "mcp.json"
+      ],
+      "contentHash": "5f3a9f3b7ead0bfc26adf6bc554e769e18bb709ac9e8b133bc3044b8769f44f8"
+    }
+  ]
+}

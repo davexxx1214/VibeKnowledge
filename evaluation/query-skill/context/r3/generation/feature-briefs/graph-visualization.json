@@ -1,0 +1,454 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-04T13:16:39.315Z",
+  "key": "graph-visualization",
+  "name": "Knowledge Graph visualization",
+  "summary": "VS Code graph page for independent knowledge groups, on-demand structural views, source navigation, and low/high performance display modes.",
+  "keywords": [
+    "Knowledge: Visualize Graph",
+    "knowledge.visualizeGraph",
+    "graph page",
+    "groups",
+    "structural overview",
+    "performance mode"
+  ],
+  "entries": [
+    {
+      "filePath": "src/extension.ts",
+      "startLine": 642,
+      "endLine": 652
+    },
+    {
+      "filePath": "src/ui/webview/graphView.ts",
+      "startLine": 157,
+      "endLine": 183
+    }
+  ],
+  "limitations": [
+    "Covers the graph page's host/client interaction and selected direct services, not all graph-generation, extraction, curation or persistence internals.",
+    "Music is included only as a consumer of group selection; sound generation and Strudel playback are outside this card.",
+    "No browser session, extension launch, installed-version check, test execution or hardware performance measurement was performed.",
+    "No existing .vscode/.knowledge graph was available in the inspected workspace for a matching group key; graph-visualization is a feature-name key."
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "The visualize command opens a singleton, script-enabled Webview retained while hidden. Reopening reveals it and resends data; HTML is regenerated when its translated title changes. The ready message requests performance mode and graph data.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 157,
+          "endLine": 183
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 205,
+          "endLine": 222
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "GraphView consumes KnowledgeGraphService.getGroups() plus entity observations. Groups preserve repeated symbols across framework/module/feature views; the aggregate snapshot instead deduplicates them. AgentGraphService reads .vscode/.knowledge/agent-graph.json, not raw structural JSON, for these curated groups.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 456,
+          "endLine": 490
+        },
+        {
+          "filePath": "src/services/knowledgeGraphService.ts",
+          "startLine": 147,
+          "endLine": 173
+        },
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.ts",
+          "startLine": 87,
+          "endLine": 118
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "Groups sort by order then name; the sidebar shows kind and entity/relation counts. Only the selected group renders. Its key is stored in Webview state and reused if still present, otherwise the first group wins. Empty data stops layout/animations, clears geometry cache and shows the empty state.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1149,
+          "endLine": 1154
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1372,
+          "endLine": 1399
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1423,
+          "endLine": 1462
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "The page embeds browser helper strings and uses D3 SVG, zoom and force simulation. It loads extension-local dist/d3.min.js under a nonce-based CSP. package.json declares D3 ^7.9.0 and VS Code ^1.80.0; these are declared ranges, not verified installed/runtime versions.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 718,
+          "endLine": 754
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1137,
+          "endLine": 1141
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1566,
+          "endLine": 1573
+        },
+        {
+          "filePath": "package.json",
+          "startLine": 26,
+          "endLine": 29
+        },
+        {
+          "filePath": "package.json",
+          "startLine": 479,
+          "endLine": 482
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "Node hover highlights neighbors; curated-node double-click opens source, while Shift-double-click requests structural neighbors. Aggregate-node double-click opens raw structure; structural-node double-click jumps to source. Relationship tooltips expose provenance, confidence and evidence; a relationship with structuralPath supports double-click drilldown.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1599,
+          "endLine": 1611
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1729,
+          "endLine": 1789
+        },
+        {
+          "filePath": "src/ui/webview/graphWebviewClientScript.ts",
+          "startLine": 8,
+          "endLine": 36
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "Advanced boundary/community/file views read StructuralGraphService and use structural-analysis aggregate/impact helpers. StructuralGraphService validates structural-graph.json and throws if missing. Errors become Webview structural status plus a VS Code warning. A new structural view replaces prior __structural_ groups; normal graph-data refresh replaces that temporary view with curated groups.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 324,
+          "endLine": 377
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 446,
+          "endLine": 454
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1372,
+          "endLine": 1413
+        },
+        {
+          "filePath": "src/services/structuralGraph/structuralGraphService.ts",
+          "startLine": 63,
+          "endLine": 69
+        },
+        {
+          "filePath": "src/services/structuralGraph/structuralGraphService.ts",
+          "startLine": 101,
+          "endLine": 111
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Structural overview requests at most 80 aggregate nodes. Entity-neighbor drilldown is depth 1 in both directions, capped at 80 entities/120 relations; aggregate drilldown has the same caps. Aggregation excludes within-group edges and retains at most eight raw relationship samples per aggregate edge, so its drilldown is not the complete counted relationship set.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 330,
+          "endLine": 333
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 374,
+          "endLine": 401
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 433,
+          "endLine": 439
+        },
+        {
+          "filePath": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-analysis.mjs",
+          "startLine": 416,
+          "endLine": 427
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 549,
+          "endLine": 559
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Performance defaults to low and is machine-scoped. UI selection applies immediately, disables the selector while saving, and persists globally. Only low/high are accepted; Settings changes synchronize into the page. After a failed save the host reports the error and resends the actual preference, restoring the UI.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "package.json",
+          "startLine": 325,
+          "endLine": 338
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 150,
+          "endLine": 154
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 300,
+          "endLine": 321
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1283,
+          "endLine": 1285
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 2176,
+          "endLine": 2182
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "Low mode performs static layout in short animation-frame batches, stopping after cooling, 120 ticks or 600 ms accumulated compute time; dragging directly moves the selected node without restarting physics. High mode retains interactive force layout, particles, flow and glow. Switching mode rerenders the selected group without requesting different graph data.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/webview/graphPerformanceScript.ts",
+          "startLine": 46,
+          "endLine": 118
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1591,
+          "endLine": 1594
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1617,
+          "endLine": 1656
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1721,
+          "endLine": 1727
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 2077,
+          "endLine": 2084
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Layout cache stores geometry, transform and settling state, not source/evidence objects. Node IDs and edge endpoint/verb topology determine validity, so prose changes reuse layout. Defaults bound the LRU cache to eight groups and 2,000 total nodes. Hidden pages pause layout, simulation and particles; unloading stops work and clears timers.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/webview/graphPerformanceScript.ts",
+          "startLine": 7,
+          "endLine": 43
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1254,
+          "endLine": 1278
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Missing or unreadable/invalid Agent sidecar data yields an empty Agent snapshot; the graph-data path sends groups without a generation-error field. Rendering exceptions have a separate error panel. Curated source navigation is rooted in workspaceFolders[0] and external entities are not opened as files.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.ts",
+          "startLine": 232,
+          "endLine": 260
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 263,
+          "endLine": 274
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 1465,
+          "endLine": 1476
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 648,
+          "endLine": 683
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "Extension activation injects the knowledge and structural services. Agent sidecar create/change/delete notifications refresh the tree, open graph page and CodeLens together. The music action is another group-data consumer: it sends the selected key, but the host resolves it only among curated groups, falling back to the first group before generating code for StrudelView.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 242,
+          "endLine": 243
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 265,
+          "endLine": 281
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 253,
+          "endLine": 258
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 279,
+          "endLine": 297
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 2115,
+          "endLine": 2119
+        }
+      ]
+    },
+    {
+      "kind": "test",
+      "text": "graphView.test.ts asserts the low machine default, both localized choices, valid inline JavaScript, global persistence/reopening without document reload, Settings synchronization, failed-save rollback and invalid-mode rejection. These assertions were inspected, not executed.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/webview/graphView.test.ts",
+          "startLine": 57,
+          "endLine": 109
+        }
+      ]
+    },
+    {
+      "kind": "test",
+      "text": "graphPerformanceScript.test.ts executes the shipped helper string in a mocked VM and asserts bounded/yielding layout, pause/resume/failure cleanup, cache topology invalidation/LRU/pending-state retention, and low-versus-high dragging. It is not a real-browser performance measurement; tests were not run during brief generation.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/webview/graphPerformanceScript.test.ts",
+          "startLine": 5,
+          "endLine": 38
+        },
+        {
+          "filePath": "src/ui/webview/graphPerformanceScript.test.ts",
+          "startLine": 49,
+          "endLine": 165
+        }
+      ]
+    },
+    {
+      "kind": "test",
+      "text": "KnowledgeGraphService tests assert repeated symbols remain in independent visualization groups and group-specific IDs still resolve. The tooltip helper test asserts provenance, evidence line ranges and structural-path affordance text. Both test sources were inspected without execution.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/knowledgeGraphService.test.ts",
+          "startLine": 60,
+          "endLine": 100
+        },
+        {
+          "filePath": "src/ui/webview/graphWebviewClientScript.test.ts",
+          "startLine": 30,
+          "endLine": 38
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "filePath": "package.json",
+      "contentHash": "9bed5299dba555ce210e465c12dabb3de4df2595c9c69864fbd6592feabbd972"
+    },
+    {
+      "filePath": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-analysis.mjs",
+      "contentHash": "15ea10c05e59ef88ba608fd7ffa1577aae61adff93e8889324edb11653a2850c"
+    },
+    {
+      "filePath": "src/extension.ts",
+      "contentHash": "db5e3187dc656a9bf36915521d3205c25c71cfcce18a489129b621155ac8c42f"
+    },
+    {
+      "filePath": "src/services/agentGraph/agentGraphService.ts",
+      "contentHash": "c8ef0f2fe13a64f37214176c4a7e84094a0187dc7ad76acafdfe26e662051a3c"
+    },
+    {
+      "filePath": "src/services/knowledgeGraphService.test.ts",
+      "contentHash": "36c5e4a27afb80a4ce09bbd5d0946e2eabc962115ab1c9941b7e09477d904629"
+    },
+    {
+      "filePath": "src/services/knowledgeGraphService.ts",
+      "contentHash": "3ffc28d552c3ca653b574988cce617e7421c1e81ef2afcc150758dc28ac849b5"
+    },
+    {
+      "filePath": "src/services/structuralGraph/structuralGraphService.ts",
+      "contentHash": "0cf75fe65ace67a6121a8bafbe7ebaedc4b4649a46f54a9ef9378b8bb63d8967"
+    },
+    {
+      "filePath": "src/ui/webview/graphPerformanceScript.test.ts",
+      "contentHash": "50e8b08634e3cace3f83c98d58cbef28e719a061f0854ceaf8a07ecdf02c270b"
+    },
+    {
+      "filePath": "src/ui/webview/graphPerformanceScript.ts",
+      "contentHash": "8702cd44c3ea332dc23b175c1cfe5c96e4aa3617b0579d17ce27abbd3d2a1380"
+    },
+    {
+      "filePath": "src/ui/webview/graphView.test.ts",
+      "contentHash": "9c7a9f3f9f2398a37057a6d94bba68d7202129ad7293f7610389ae56685e1756"
+    },
+    {
+      "filePath": "src/ui/webview/graphView.ts",
+      "contentHash": "295ff9c35b0e3402ed6219ed10c9a3ed36be4ddf1be9ed5aaa1e9fe8d6342b91"
+    },
+    {
+      "filePath": "src/ui/webview/graphWebviewClientScript.test.ts",
+      "contentHash": "0c712c8dab5c8735f62e336f0c90542b3ed37658793fcf40edb50f8fb915ec93"
+    },
+    {
+      "filePath": "src/ui/webview/graphWebviewClientScript.ts",
+      "contentHash": "c53f75ec1093a945ed2b1d7619f6cd610c4905523c5bc6d4aa50f07b65643d26"
+    }
+  ]
+}

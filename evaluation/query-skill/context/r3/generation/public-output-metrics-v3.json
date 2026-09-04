@@ -1,0 +1,25 @@
+{
+  "version": 3,
+  "createdAt": "2026-09-04T13:18:34.671Z",
+  "tokenizer": "o200k_base",
+  "freshSingleTaskValidated": true,
+  "arms": {
+    "A": {
+      "sessionId": "01a06c8b-f785-7f53-b1b5-4b6640335e42",
+      "agentPath": "/root/brief_author_r3",
+      "toolOutputItems": 17,
+      "textBlocks": 60,
+      "truncationMarkers": 1,
+      "publicToolOutputTokens": 64769
+    },
+    "B": {
+      "sessionId": "01a06c8b-f785-7f53-b1b5-4b6640335e42",
+      "agentPath": "/root/brief_author_r3",
+      "toolOutputItems": 17,
+      "textBlocks": 60,
+      "truncationMarkers": 1,
+      "publicToolOutputTokens": 64769
+    }
+  },
+  "note": "Actual public tool-text blocks, after any tool-layer truncation, including wrapper formatting/errors; not observer stdout before delivery. No private content exported. Model token telemetry is a separate measure."
+}

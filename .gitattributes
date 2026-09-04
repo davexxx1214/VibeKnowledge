@@ -1,0 +1,2 @@
+# Preserve archived experiment bytes and their recorded content fingerprints.
+evaluation/query-skill/** -text

@@ -1,0 +1,284 @@
+{
+  "generatedAt": "2026-09-04T11:20:32.552Z",
+  "run": "D:\\workspace\\VibeKnowledge\\.vscode-test\\query-skill-ab-xOz4a1",
+  "source": "D:\\workspace\\nestjs-realworld-example-app",
+  "design": "One independent agent per arm, same two tasks in the same order; no history fork; same model and effort. Not replicated or randomized.",
+  "tokenizer": {
+    "encoding": "o200k_base",
+    "version": "0.12.0"
+  },
+  "originalSourceHashMismatches": [],
+  "arms": {
+    "A": {
+      "method": "source-only",
+      "sessionId": "01a06c21-728b-7202-9084-bee1b023f652",
+      "model": "gpt-5.6-sol",
+      "reasoningEffort": "xhigh",
+      "modelResponses": 8,
+      "elapsedMs": 152362,
+      "actualUsage": {
+        "input_tokens": 257226,
+        "cached_input_tokens": 232192,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 6188,
+        "reasoning_output_tokens": 677,
+        "total_tokens": 263414,
+        "uncached_input_tokens": 25034
+      },
+      "aggregateValidated": true,
+      "toolCalls": 7,
+      "changedOriginalSourceFiles": [
+        "src/tag/tag.controller.spec.ts",
+        "src/tag/tag.service.ts"
+      ],
+      "addedSourceFiles": [
+        "src/tag/tag.service.spec.ts"
+      ],
+      "phases": {
+        "tags": {
+          "observations": 7,
+          "queryCalls": 0,
+          "searchCalls": 1,
+          "testRuns": 1,
+          "readFiles": [
+            "src/tag/tag.service.ts",
+            "src/tag/tag.controller.ts",
+            "src/tag/tag.controller.spec.ts",
+            "src/tag/tag.entity.ts",
+            "package.json"
+          ],
+          "displayedSourceLines": 93,
+          "observedTextTokens": 1961
+        },
+        "relations": {
+          "observations": 6,
+          "queryCalls": 0,
+          "searchCalls": 1,
+          "testRuns": 0,
+          "readFiles": [
+            "src/article/article.entity.ts",
+            "src/article/comment.entity.ts",
+            "src/user/user.entity.ts",
+            "src/article/article.service.ts",
+            "src/user/user.service.ts"
+          ],
+          "displayedSourceLines": 435,
+          "observedTextTokens": 5354
+        }
+      },
+      "verification": {
+        "acceptance": {
+          "passedTests": 6,
+          "failedTests": 0,
+          "totalTests": 6,
+          "runtimeErrorSuites": 0,
+          "success": true,
+          "cases": [
+            {
+              "name": "Independent tag sorting acceptance delegates ordering to repository and preserves normal result",
+              "status": "passed"
+            },
+            {
+              "name": "Independent tag sorting acceptance delegates ordering to repository and preserves empty result",
+              "status": "passed"
+            },
+            {
+              "name": "Independent tag sorting acceptance delegates ordering to repository and preserves duplicate names result",
+              "status": "passed"
+            },
+            {
+              "name": "Independent tag sorting acceptance repository rejection is not swallowed",
+              "status": "passed"
+            },
+            {
+              "name": "Independent tag sorting acceptance controller delegates exactly once and keeps the array response shape",
+              "status": "passed"
+            },
+            {
+              "name": "Independent tag sorting acceptance controller propagates service errors",
+              "status": "passed"
+            }
+          ]
+        },
+        "mutation": {
+          "passedTests": 3,
+          "failedTests": 3,
+          "totalTests": 6,
+          "runtimeErrorSuites": 0,
+          "success": false,
+          "cases": [
+            {
+              "name": "TagService requests ascending tag order from the repository and returns its entities unchanged",
+              "status": "failed"
+            },
+            {
+              "name": "TagService requests ascending tag order and returns an empty repository array unchanged",
+              "status": "failed"
+            },
+            {
+              "name": "TagService propagates repository errors",
+              "status": "failed"
+            },
+            {
+              "name": "TagController returns the service array and tag entities unchanged",
+              "status": "passed"
+            },
+            {
+              "name": "TagController returns an empty service array unchanged",
+              "status": "passed"
+            },
+            {
+              "name": "TagController propagates service errors",
+              "status": "passed"
+            }
+          ]
+        }
+      },
+      "observedTextTokens": 7315,
+      "reportTextTokens": 1841
+    },
+    "B": {
+      "method": "query-skill",
+      "sessionId": "01a06c21-b8b2-7572-bea6-c46a07521b4d",
+      "model": "gpt-5.6-sol",
+      "reasoningEffort": "xhigh",
+      "modelResponses": 13,
+      "elapsedMs": 176750,
+      "actualUsage": {
+        "input_tokens": 432259,
+        "cached_input_tokens": 408192,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 7632,
+        "reasoning_output_tokens": 1201,
+        "total_tokens": 439891,
+        "uncached_input_tokens": 24067
+      },
+      "aggregateValidated": true,
+      "toolCalls": 12,
+      "changedOriginalSourceFiles": [
+        "src/tag/tag.controller.spec.ts",
+        "src/tag/tag.service.ts"
+      ],
+      "addedSourceFiles": [
+        "src/tag/tag.service.spec.ts"
+      ],
+      "phases": {
+        "tags": {
+          "observations": 12,
+          "queryCalls": 2,
+          "searchCalls": 1,
+          "testRuns": 1,
+          "readFiles": [
+            ".agents/skills/vibeknowledge-query/SKILL.md",
+            "src/tag/tag.service.ts",
+            "src/tag/tag.controller.ts",
+            "src/tag/tag.entity.ts",
+            "src/tag/tag.controller.spec.ts",
+            "src/tag/tag.service.spec.ts"
+          ],
+          "displayedSourceLines": 211,
+          "observedTextTokens": 3418
+        },
+        "relations": {
+          "observations": 8,
+          "queryCalls": 2,
+          "searchCalls": 1,
+          "testRuns": 0,
+          "readFiles": [
+            "src/article/article.entity.ts",
+            "src/article/comment.entity.ts",
+            "src/user/user.entity.ts",
+            "src/article/article.service.ts",
+            "src/user/user.service.ts"
+          ],
+          "displayedSourceLines": 362,
+          "observedTextTokens": 5348
+        }
+      },
+      "verification": {
+        "acceptance": {
+          "passedTests": 6,
+          "failedTests": 0,
+          "totalTests": 6,
+          "runtimeErrorSuites": 0,
+          "success": true,
+          "cases": [
+            {
+              "name": "Independent tag sorting acceptance delegates ordering to repository and preserves normal result",
+              "status": "passed"
+            },
+            {
+              "name": "Independent tag sorting acceptance delegates ordering to repository and preserves empty result",
+              "status": "passed"
+            },
+            {
+              "name": "Independent tag sorting acceptance delegates ordering to repository and preserves duplicate names result",
+              "status": "passed"
+            },
+            {
+              "name": "Independent tag sorting acceptance repository rejection is not swallowed",
+              "status": "passed"
+            },
+            {
+              "name": "Independent tag sorting acceptance controller delegates exactly once and keeps the array response shape",
+              "status": "passed"
+            },
+            {
+              "name": "Independent tag sorting acceptance controller propagates service errors",
+              "status": "passed"
+            }
+          ]
+        },
+        "mutation": {
+          "passedTests": 3,
+          "failedTests": 3,
+          "totalTests": 6,
+          "runtimeErrorSuites": 0,
+          "success": false,
+          "cases": [
+            {
+              "name": "TagService requests ascending tag text ordering and preserves the repository array",
+              "status": "failed"
+            },
+            {
+              "name": "TagService requests ordering and preserves an empty repository array",
+              "status": "failed"
+            },
+            {
+              "name": "TagService propagates repository errors",
+              "status": "failed"
+            },
+            {
+              "name": "TagController returns the nonempty entity array from the service unchanged",
+              "status": "passed"
+            },
+            {
+              "name": "TagController returns an empty array from the service unchanged",
+              "status": "passed"
+            },
+            {
+              "name": "TagController propagates service errors",
+              "status": "passed"
+            }
+          ]
+        }
+      },
+      "observedTextTokens": 8766,
+      "reportTextTokens": 1915
+    }
+  },
+  "reductionsPercent": {
+    "observedText": -19.8,
+    "input": -68,
+    "uncachedInput": 3.9,
+    "output": -23.3,
+    "total": -67
+  },
+  "limits": [
+    "Runtime telemetry is model-reported usage, not a monetary invoice. Input includes replay/cache; reasoning_output_tokens is a subset of output_tokens.",
+    "Observed text is counted once as displayed by the common wrapper; includes Skill docs/query results/tests, excludes hidden context and replay.",
+    "Setup/generation/dependency installation and parent grading excluded from both arms.",
+    "Unit tests run without MySQL using identical Jest25 isolated transpilation and a Node26 legacy util compatibility shim. No DB integration or whole-project typecheck is claimed.",
+    "One pair is descriptive evidence only; task selection, caching and agent trajectory may dominate. No statistical or cross-project generalization."
+  ]
+}

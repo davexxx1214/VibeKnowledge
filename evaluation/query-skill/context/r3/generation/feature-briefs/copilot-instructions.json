@@ -1,0 +1,270 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-04T13:16:58.694Z",
+  "key": "copilot-instructions",
+  "name": "Generate Copilot Instructions",
+  "summary": "Generate a compact repository-level Copilot instruction file that routes knowledge-graph work to focused MCP queries and optional group context.",
+  "keywords": [
+    "Copilot Instructions",
+    "knowledge.generateCopilotInstructions",
+    "copilot-instructions.md",
+    "Generate All AI Configs",
+    "agent knowledge router"
+  ],
+  "entries": [
+    {
+      "filePath": "src/extension.ts",
+      "startLine": 679,
+      "endLine": 701
+    },
+    {
+      "filePath": "src/ui/commands/entityCommands.ts",
+      "startLine": 1255,
+      "endLine": 1285
+    },
+    {
+      "filePath": "src/services/aiIntegrationService.ts",
+      "startLine": 71,
+      "endLine": 82
+    }
+  ],
+  "limitations": [
+    "Covers the generation command, active router builder and bulk/shared consumers; excludes unused long-form formatting helpers, scenario-template behavior and unrelated AI exports.",
+    "MCP query implementations, MCP installation, group-context production and actual GitHub Copilot instruction discovery/execution were not inspected or validated.",
+    "Tests were read only. No generated output was exercised in a live editor, no permissions/failure simulation was run, and no whole-project coverage is claimed.",
+    "No existing .vscode/.knowledge graph was available in the inspected workspace for a matching group key; copilot-instructions is a feature-name key."
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "The contributed Knowledge: Generate Copilot Instructions command calls EntityCommands.generateCopilotInstructions. It targets the first workspace folder, reports an error if none is open, and offers to open the generated document or reveal it in the OS after success; generation errors are shown to the user.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "package.json",
+          "startLine": 85,
+          "endLine": 89
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 679,
+          "endLine": 689
+        },
+        {
+          "filePath": "src/ui/commands/entityCommands.ts",
+          "startLine": 1255,
+          "endLine": 1285
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "AIIntegrationService creates .github when absent, writes .github/copilot-instructions.md as UTF-8, and returns its path. The current content is an English VibeKnowledge Agent Instructions router, regardless of the interface locale.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 71,
+          "endLine": 82
+        },
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 404,
+          "endLine": 408
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "Generated instructions prioritize VibeKnowledge MCP query_graph for architecture, unfamiliar/cross-file code, dependencies and impact work, with focused questions and tokenBudget. They name get_entity/get_neighbors/shortest_path for local expansion and reserve includeEvidence=true for relationship auditing.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 432,
+          "endLine": 438
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "If MCP is unavailable or unhelpful, the router points to .vscode/.knowledge/agent-context/index.md and one best-matching group view. It discourages default loading of knowledge-graph.md, allows small known-file tasks to skip the graph, requires current-source verification, and forbids direct graph.sqlite edits.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 439,
+          "endLine": 447
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "EntityCommands constructs AIIntegrationService from entity/relation/observation services and gathers KnowledgeGraphService's deduplicated snapshot plus observations before invoking it. However generateCopilotInstructions accepts but does not use _graphData; its active builder returns router text rather than exporting graph entities, observations, dependency analysis or a template.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/commands/entityCommands.ts",
+          "startLine": 23,
+          "endLine": 63
+        },
+        {
+          "filePath": "src/ui/commands/entityCommands.ts",
+          "startLine": 1262,
+          "endLine": 1267
+        },
+        {
+          "filePath": "src/services/knowledgeGraphService.ts",
+          "startLine": 67,
+          "endLine": 118
+        },
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 71,
+          "endLine": 81
+        },
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 404,
+          "endLine": 447
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "Generate All AI Configs is a second consumer: its non-cancellable notification workflow writes Cursor rules first, then Copilot instructions, and offers either file for viewing. AIIntegrationService also exposes a programmatic generateAllAIConfigs method with the same sequence. The shared router builder additionally supplies localized Cursor rules.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/commands/entityCommands.ts",
+          "startLine": 1290,
+          "endLine": 1334
+        },
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 89,
+          "endLine": 109
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "This is a TypeScript VS Code command/notification/document workflow using Node path and synchronous fs APIs for generation. The manifest declares VS Code ^1.80.0, TypeScript ^5.2.0, and Vitest ^4.1.10 with npm test mapped to vitest run; these declarations do not prove installed/runtime versions.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 1,
+          "endLine": 3
+        },
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 71,
+          "endLine": 81
+        },
+        {
+          "filePath": "src/ui/commands/entityCommands.ts",
+          "startLine": 1269,
+          "endLine": 1283
+        },
+        {
+          "filePath": "package.json",
+          "startLine": 26,
+          "endLine": 29
+        },
+        {
+          "filePath": "package.json",
+          "startLine": 463,
+          "endLine": 465
+        },
+        {
+          "filePath": "package.json",
+          "startLine": 479,
+          "endLine": 499
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Generation overwrites the target file with writeFileSync; the inspected command/service path has no merge, backup or overwrite confirmation. It only writes instruction text: it neither configures MCP nor creates/verifies the referenced agent-context index or group views. A successful write therefore does not establish those downstream resources are usable.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 71,
+          "endLine": 82
+        },
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 404,
+          "endLine": 447
+        },
+        {
+          "filePath": "src/ui/commands/entityCommands.ts",
+          "startLine": 1262,
+          "endLine": 1284
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Bulk generation is sequential, not transactional: Cursor rules are already written before Copilot generation starts, and its catch path reports errors without reverting that earlier write. The compact Copilot output does not require graph content at the service API, although the UI still gathers a snapshot before calling it.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/aiIntegrationService.ts",
+          "startLine": 58,
+          "endLine": 82
+        },
+        {
+          "filePath": "src/ui/commands/entityCommands.ts",
+          "startLine": 1262,
+          "endLine": 1267
+        },
+        {
+          "filePath": "src/ui/commands/entityCommands.ts",
+          "startLine": 1297,
+          "endLine": 1334
+        }
+      ]
+    },
+    {
+      "kind": "test",
+      "text": "AIIntegrationService's compact Copilot router test creates an ai-template.md marker, generates the file and asserts query/group-index guidance, selective evidence and audit-report avoidance. It asserts the marker, Tech Stack, Dependency Details and Total Entities are absent. The neighboring Cursor test checks the shared compact behavior. Assertions were inspected; tests were not executed.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/aiIntegrationService.test.ts",
+          "startLine": 67,
+          "endLine": 119
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "filePath": "package.json",
+      "contentHash": "9bed5299dba555ce210e465c12dabb3de4df2595c9c69864fbd6592feabbd972"
+    },
+    {
+      "filePath": "src/extension.ts",
+      "contentHash": "db5e3187dc656a9bf36915521d3205c25c71cfcce18a489129b621155ac8c42f"
+    },
+    {
+      "filePath": "src/services/aiIntegrationService.test.ts",
+      "contentHash": "2cb9ca7a416fa58bd3ae07ae8773e783a2a9496a4a855d399859fe2d85802c00"
+    },
+    {
+      "filePath": "src/services/aiIntegrationService.ts",
+      "contentHash": "351299243529e56151b558e165bc3d5fc34a50a2d1d5b9a391976bf161a59180"
+    },
+    {
+      "filePath": "src/services/knowledgeGraphService.ts",
+      "contentHash": "3ffc28d552c3ca653b574988cce617e7421c1e81ef2afcc150758dc28ac849b5"
+    },
+    {
+      "filePath": "src/ui/commands/entityCommands.ts",
+      "contentHash": "e627bc1455804b98bd4917f69f5434b58122a362f640f6591b1e0d8291ff33e0"
+    }
+  ]
+}

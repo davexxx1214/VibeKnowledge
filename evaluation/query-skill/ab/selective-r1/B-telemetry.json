@@ -1,0 +1,137 @@
+{
+  "sessionId": "01a06c3e-06f0-7d40-9b4e-e52658dc4d83",
+  "agentPath": "/root/selective_query_skill",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "xhigh",
+  "responses": [
+    {
+      "responseId": "resp_01c68d5a908fba40016a9aafa35d5c87d0898cb2437a08e254",
+      "usage": {
+        "input_tokens": 26120,
+        "cached_input_tokens": 24960,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 93,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 26213
+      }
+    },
+    {
+      "responseId": "resp_01c68d5a908fba40016a9aafa9061087d0a6e8d95bfbbc087c",
+      "usage": {
+        "input_tokens": 26917,
+        "cached_input_tokens": 25984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 186,
+        "reasoning_output_tokens": 32,
+        "total_tokens": 27103
+      }
+    },
+    {
+      "responseId": "resp_01c68d5a908fba40016a9aafafeb7487d0aa6981d4d01b1516",
+      "usage": {
+        "input_tokens": 27210,
+        "cached_input_tokens": 24960,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 120,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 27330
+      }
+    },
+    {
+      "responseId": "resp_01c68d5a908fba40016a9aafbd4c4087d0984615b4ef2ed0e2",
+      "usage": {
+        "input_tokens": 29360,
+        "cached_input_tokens": 27008,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1626,
+        "reasoning_output_tokens": 200,
+        "total_tokens": 30986
+      }
+    },
+    {
+      "responseId": "resp_01c68d5a908fba40016a9aafda63f087d0a40e2bd0fbf36d56",
+      "usage": {
+        "input_tokens": 31055,
+        "cached_input_tokens": 29184,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1607,
+        "reasoning_output_tokens": 15,
+        "total_tokens": 32662
+      }
+    },
+    {
+      "responseId": "resp_01c68d5a908fba40016a9aaff9ab7487d0b021a32ffeef5a02",
+      "usage": {
+        "input_tokens": 32803,
+        "cached_input_tokens": 30848,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 160,
+        "reasoning_output_tokens": 11,
+        "total_tokens": 32963
+      }
+    },
+    {
+      "responseId": "resp_01c68d5a908fba40016a9ab001384487d08a2ff4c5dcad2a81",
+      "usage": {
+        "input_tokens": 33182,
+        "cached_input_tokens": 32640,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 195,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 33377
+      }
+    },
+    {
+      "responseId": "resp_01c68d5a908fba40016a9ab00ef3fc87d089a4b8054d0a906b",
+      "usage": {
+        "input_tokens": 35507,
+        "cached_input_tokens": 33024,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 243,
+        "reasoning_output_tokens": 62,
+        "total_tokens": 35750
+      }
+    },
+    {
+      "responseId": "resp_01c68d5a908fba40016a9ab01d776487d09bcd0443d0ab3aa7",
+      "usage": {
+        "input_tokens": 40991,
+        "cached_input_tokens": 35328,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 314,
+        "reasoning_output_tokens": 207,
+        "total_tokens": 41305
+      }
+    },
+    {
+      "responseId": "resp_01c68d5a908fba40016a9ab027b65487d083bbcccce150bdfc",
+      "usage": {
+        "input_tokens": 42227,
+        "cached_input_tokens": 40832,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 2629,
+        "reasoning_output_tokens": 184,
+        "total_tokens": 44856
+      }
+    },
+    {
+      "responseId": "resp_01c68d5a908fba40016a9ab054e92487d0b6f6d291efe3dcb4",
+      "usage": {
+        "input_tokens": 44880,
+        "cached_input_tokens": 42112,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 280,
+        "reasoning_output_tokens": 56,
+        "total_tokens": 45160
+      }
+    }
+  ],
+  "totals": {
+    "input_tokens": 370252,
+    "cached_input_tokens": 346880,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 7453,
+    "reasoning_output_tokens": 767,
+    "total_tokens": 377705
+  }
+}

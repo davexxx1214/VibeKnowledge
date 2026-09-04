@@ -1,0 +1,25 @@
+{
+  "version": 3,
+  "createdAt": "2026-09-04T13:24:59.832Z",
+  "tokenizer": "o200k_base",
+  "freshSingleTaskValidated": true,
+  "arms": {
+    "A": {
+      "sessionId": "01a06c91-44cd-7251-81aa-ad5d700b6d5b",
+      "agentPath": "/root/facet_heldout_1a",
+      "toolOutputItems": 16,
+      "textBlocks": 69,
+      "truncationMarkers": 0,
+      "publicToolOutputTokens": 74789
+    },
+    "B": {
+      "sessionId": "01a06c91-66e4-73d0-bcb2-589606e55239",
+      "agentPath": "/root/facet_heldout_1b",
+      "toolOutputItems": 17,
+      "textBlocks": 62,
+      "truncationMarkers": 0,
+      "publicToolOutputTokens": 58869
+    }
+  },
+  "note": "Actual public tool-text blocks, after any tool-layer truncation, including wrapper formatting/errors; not observer stdout before delivery. No private content exported. Model token telemetry is a separate measure."
+}

@@ -1,0 +1,301 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-04T12:38:27.861Z",
+  "key": "entity-description-editing",
+  "name": "Human entity descriptions and restoring Agent prose",
+  "summary": "Edits human-owned entity descriptions independently of generated graph structure and restores the newest generated prose by removing the override.",
+  "keywords": [
+    "entity description",
+    "human override",
+    "restore Agent description",
+    "knowledge.editEntityDescription",
+    "knowledge.resetEntityDescription",
+    "CodeLens",
+    "graph.sqlite"
+  ],
+  "entries": [
+    {
+      "filePath": "src/extension.ts",
+      "startLine": 548,
+      "endLine": 577
+    },
+    {
+      "filePath": "src/ui/commands/entityCommands.ts",
+      "startLine": 224,
+      "endLine": 287
+    },
+    {
+      "filePath": "src/providers/codeLensProvider.ts",
+      "startLine": 42,
+      "endLine": 47
+    }
+  ],
+  "limitations": [
+    "Reviewed command resolution, service composition, override persistence and one read-only external consumer. Legacy entity/observation mutation, RAG and all other description consumers are outside this card.",
+    "Tests were inspected, not run. Native VS Code dialogs/context menus, cross-process database concurrency and durable reload after a real editor restart were not exercised."
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "Edit and Restore Agent Description are contributed commands. Explorer entity/agentEntity context menus expose edit, and agentEntity exposes restore. File CodeLens invokes edit with an entity ID. Both registered command wrappers refresh the tree, open graph webview and CodeLens after the handler resolves, including a cancellation/no-op return.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "package.json",
+          "startLine": 40,
+          "endLine": 47
+        },
+        {
+          "filePath": "package.json",
+          "startLine": 200,
+          "endLine": 210
+        },
+        {
+          "filePath": "src/providers/codeLensProvider.ts",
+          "startLine": 42,
+          "endLine": 47
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 548,
+          "endLine": 577
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "Edit resolves a tree item's entity, an object ID or a string ID; if unresolved it offers a QuickPick of aggregate entities with type/path/line context. The input starts with the displayed description. Undefined cancels, but an empty string is accepted and saved. A failed update produces an error message.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/commands/entityCommands.ts",
+          "startLine": 225,
+          "endLine": 265
+        },
+        {
+          "filePath": "src/ui/commands/entityCommands.ts",
+          "startLine": 279,
+          "endLine": 287
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Restore has no entity-selection fallback: it requires a resolvable Agent entity and otherwise returns silently. It calls resetGeneratedDescription and then announces success without inspecting that method's nullable result. Reset means removing the human override, not copying an old description into the generated manifest.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/ui/commands/entityCommands.ts",
+          "startLine": 267,
+          "endLine": 287
+        },
+        {
+          "filePath": "src/services/knowledgeGraphService.ts",
+          "startLine": 276,
+          "endLine": 284
+        },
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.ts",
+          "startLine": 158,
+          "endLine": 167
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "Activation composes DatabaseService -> AgentEntityOverrideService -> AgentGraphService -> KnowledgeGraphService and injects the graph service into EntityCommands. KnowledgeGraphService resolves IDs from aggregate or independent groups; update/reset delegate to AgentGraphService. Mutations need both a current entity and an override store, otherwise they return null.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 174,
+          "endLine": 183
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 245,
+          "endLine": 251
+        },
+        {
+          "filePath": "src/services/knowledgeGraphService.ts",
+          "startLine": 192,
+          "endLine": 205
+        },
+        {
+          "filePath": "src/services/knowledgeGraphService.ts",
+          "startLine": 261,
+          "endLine": 284
+        },
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.ts",
+          "startLine": 143,
+          "endLine": 167
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Overrides are keyed by stable entity key, not group-specific entity ID. Agent snapshots apply the same stored prose to every occurrence and retain generatedDescription plus descriptionSource metadata. Undefined means no override; an empty manual description still wins. Regeneration can therefore change underlying Agent prose without displacing the human description.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.ts",
+          "startLine": 143,
+          "endLine": 167
+        },
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.ts",
+          "startLine": 540,
+          "endLine": 574
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "AgentEntityOverrideService performs a parameterized upsert/delete in agent_entity_overrides and calls DatabaseService.save after changes. Reads prefer an exact key, then a unique normalized identity match; a non-unique fallback yields no match. Delete uses the exact row when present or that same unique fallback, preserving case-distinct identities.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/agentGraph/agentEntityOverrideService.ts",
+          "startLine": 22,
+          "endLine": 98
+        },
+        {
+          "filePath": "src/services/agentGraph/agentEntityOverrideService.test.ts",
+          "startLine": 28,
+          "endLine": 46
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "The extension uses sql.js (declared ^1.13.0), with WASM resolved beside its bundle. DatabaseService loads or creates .vscode/.knowledge/graph.sqlite in memory, creates the override table with agent_key primary key and required description/timestamp, and saves by exporting and synchronously rewriting the database file. This is not a write to agent-graph.json.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "package.json",
+          "startLine": 492,
+          "endLine": 500
+        },
+        {
+          "filePath": "src/services/database.ts",
+          "startLine": 17,
+          "endLine": 43
+        },
+        {
+          "filePath": "src/services/database.ts",
+          "startLine": 118,
+          "endLine": 129
+        },
+        {
+          "filePath": "src/services/database.ts",
+          "startLine": 165,
+          "endLine": 177
+        },
+        {
+          "filePath": "src/services/agentGraph/agentEntityOverrideService.ts",
+          "startLine": 47,
+          "endLine": 75
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "The portable query CLI is a non-editor consumer of the same human prose: it opens an existing graph.sqlite with built-in node:sqlite in read-only mode, reads agent_entity_overrides and supplies the map to AgentGraphStore before curated entity queries. No database or table means an empty map; malformed database errors propagate.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "packages/mcp-server/src/queryCli.ts",
+          "startLine": 41,
+          "endLine": 60
+        },
+        {
+          "filePath": "packages/mcp-server/src/queryCli.ts",
+          "startLine": 107,
+          "endLine": 119
+        }
+      ]
+    },
+    {
+      "kind": "test",
+      "text": "KnowledgeGraphService tests assert edit/reset delegation and returned prose. AgentGraphService tests assert a manual description applies across groups after regeneration and reset reveals each group's newest Agent text. Override-store tests assert portable path spelling lookup/delete, case distinction and save calls; query tests assert human prose is visible without changing SQLite bytes.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/knowledgeGraphService.test.ts",
+          "startLine": 131,
+          "endLine": 166
+        },
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.test.ts",
+          "startLine": 393,
+          "endLine": 430
+        },
+        {
+          "filePath": "src/services/agentGraph/agentEntityOverrideService.test.ts",
+          "startLine": 8,
+          "endLine": 47
+        },
+        {
+          "filePath": "tests/querySkill.test.ts",
+          "startLine": 86,
+          "endLine": 97
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "filePath": "package.json",
+      "contentHash": "9bed5299dba555ce210e465c12dabb3de4df2595c9c69864fbd6592feabbd972"
+    },
+    {
+      "filePath": "packages/mcp-server/src/queryCli.ts",
+      "contentHash": "e7fa9dd635406722447a9da0ad38522b01c6ef859c484550d1700f84061fb5f2"
+    },
+    {
+      "filePath": "src/extension.ts",
+      "contentHash": "db5e3187dc656a9bf36915521d3205c25c71cfcce18a489129b621155ac8c42f"
+    },
+    {
+      "filePath": "src/providers/codeLensProvider.ts",
+      "contentHash": "7fa65ffdf93e06bae5fe36ad0cc1563adc177c7cc107fd328e54313cd6b7168a"
+    },
+    {
+      "filePath": "src/services/agentGraph/agentEntityOverrideService.test.ts",
+      "contentHash": "69f0b0e2dbac5ac48f3da873088f941a04618cd8cf1500a89669cc6d46bb64c3"
+    },
+    {
+      "filePath": "src/services/agentGraph/agentEntityOverrideService.ts",
+      "contentHash": "2ff13035b7f9cf2dfd681b5e120ad1ec7f8eb74ac0c3e6fe54c8729873c07d99"
+    },
+    {
+      "filePath": "src/services/agentGraph/agentGraphService.test.ts",
+      "contentHash": "1b1d9c7b6e91b4a331fbcc478b1484b18b234ee90abb72d0eb284d3a3d56cdd3"
+    },
+    {
+      "filePath": "src/services/agentGraph/agentGraphService.ts",
+      "contentHash": "c8ef0f2fe13a64f37214176c4a7e84094a0187dc7ad76acafdfe26e662051a3c"
+    },
+    {
+      "filePath": "src/services/database.ts",
+      "contentHash": "baba1ffd4d9c4c1e2ae0e38b741514a16973d423c6df186ef729fe44d93339ff"
+    },
+    {
+      "filePath": "src/services/knowledgeGraphService.test.ts",
+      "contentHash": "36c5e4a27afb80a4ce09bbd5d0946e2eabc962115ab1c9941b7e09477d904629"
+    },
+    {
+      "filePath": "src/services/knowledgeGraphService.ts",
+      "contentHash": "3ffc28d552c3ca653b574988cce617e7421c1e81ef2afcc150758dc28ac849b5"
+    },
+    {
+      "filePath": "src/ui/commands/entityCommands.ts",
+      "contentHash": "e627bc1455804b98bd4917f69f5434b58122a362f640f6591b1e0d8291ff33e0"
+    },
+    {
+      "filePath": "tests/querySkill.test.ts",
+      "contentHash": "72bbecd8f936f983efcb8944ea9cbd40c3b5e20dd04e5c28f4ee001aaf5af2f5"
+    }
+  ]
+}

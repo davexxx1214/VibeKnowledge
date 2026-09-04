@@ -1,0 +1,341 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-04T12:38:22.400Z",
+  "key": "graph-refresh",
+  "name": "Graph refresh and freshness boundaries",
+  "summary": "Reloads generated Knowledge Graph data for editor surfaces and separately maintains an existing deterministic structural graph after source changes.",
+  "keywords": [
+    "refresh",
+    "knowledge.refresh",
+    "sidecar",
+    "file watcher",
+    "structural graph",
+    "CodeLens",
+    "webview"
+  ],
+  "entries": [
+    {
+      "filePath": "src/extension.ts",
+      "startLine": 749,
+      "endLine": 756
+    },
+    {
+      "filePath": "src/extension.ts",
+      "startLine": 265,
+      "endLine": 282
+    },
+    {
+      "filePath": "src/extension.ts",
+      "startLine": 184,
+      "endLine": 240
+    },
+    {
+      "filePath": "src/ui/webview/graphView.ts",
+      "startLine": 219,
+      "endLine": 222
+    }
+  ],
+  "limitations": [
+    "Reviewed refresh wiring, direct providers, Agent cache, structural updater/service and selected regression assertions; not a complete extractor, rendering or curated-generation specification.",
+    "Tests were inspected, not run. VS Code watcher delivery, webview behavior and multi-root use were not exercised in a running extension."
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "The contributed Knowledge: Refresh command is available in the Explorer title. Its handler refreshes the tree, fires CodeLens invalidation and shows a success notification; it does not invoke graph generation, RAG indexing or GraphView.refresh.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "package.json",
+          "startLine": 75,
+          "endLine": 79
+        },
+        {
+          "filePath": "package.json",
+          "startLine": 248,
+          "endLine": 252
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 749,
+          "endLine": 756
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "Tree refresh delegates to KnowledgeGraphService.refresh, which invalidates/reloads AgentGraphService, then emits onDidChangeTreeData. CodeLens refresh only emits onDidChangeCodeLenses; its next request queries aggregate entities and relations. The aggregate de-duplicates shared symbol identities while visualization groups retain independent occurrences.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/providers/treeDataProvider.ts",
+          "startLine": 159,
+          "endLine": 175
+        },
+        {
+          "filePath": "src/providers/codeLensProvider.ts",
+          "startLine": 16,
+          "endLine": 33
+        },
+        {
+          "filePath": "src/providers/codeLensProvider.ts",
+          "startLine": 73,
+          "endLine": 75
+        },
+        {
+          "filePath": "src/services/knowledgeGraphService.ts",
+          "startLine": 48,
+          "endLine": 84
+        },
+        {
+          "filePath": "src/services/knowledgeGraphService.ts",
+          "startLine": 147,
+          "endLine": 172
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "Create/change/delete events for .vscode/.knowledge/agent-graph.json refresh the tree, open graph panel and CodeLens together. GraphView.refresh only sends data when a panel already exists. The webview's own refresh message resends groups from KnowledgeGraphService; it does not explicitly invalidate the AgentGraphService cache.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 265,
+          "endLine": 282
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 124,
+          "endLine": 126
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 219,
+          "endLine": 222
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 263,
+          "endLine": 273
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 457,
+          "endLine": 469
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Agent graph reads cache by file mtime plus size; explicit refresh clears that signature. Missing manifests yield an empty snapshot without an error. Read/schema failures also yield an empty snapshot, recording the error instead of retaining the previous valid Agent snapshot. Rebuilding a snapshot reapplies human descriptions from the override store.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.ts",
+          "startLine": 103,
+          "endLine": 115
+        },
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.ts",
+          "startLine": 232,
+          "endLine": 260
+        },
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.ts",
+          "startLine": 540,
+          "endLine": 574
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "Activation binds graph services and RelativePattern file watchers to workspaceFolders[0]. Watchers and their listeners enter context.subscriptions. VS Code EventEmitter drives tree/CodeLens refresh and webview postMessage delivers graphData; no framework-wide reactive store is involved in these paths.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 48,
+          "endLine": 58
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 174,
+          "endLine": 183
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 205,
+          "endLine": 244
+        },
+        {
+          "filePath": "src/providers/treeDataProvider.ts",
+          "startLine": 159,
+          "endLine": 175
+        },
+        {
+          "filePath": "src/providers/codeLensProvider.ts",
+          "startLine": 10,
+          "endLine": 14
+        },
+        {
+          "filePath": "src/ui/webview/graphView.ts",
+          "startLine": 263,
+          "endLine": 273
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "Separate source/config watchers observe ts/tsx/js/jsx/html/htm and tsconfig/jsconfig JSON events. They discard parent-relative paths and node_modules/dist/out/build/coverage/.git/.vscode segments, then queue a 500 ms debounced refresh. Background generation runs only when structural-graph.json already exists; errors are logged and do not force a rebuild or curate Agent groups.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 184,
+          "endLine": 240
+        },
+        {
+          "filePath": "src/services/structuralGraph/structuralGraphService.ts",
+          "startLine": 59,
+          "endLine": 61
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "DebouncedStructuralGraphUpdater deduplicates/sorts paths and serializes callbacks through a promise chain; disposal clears queued paths and timers. StructuralGraphService.generate calls the shared Skill extractor with workspace, output and cache paths, stores its statistics, and returns the deterministic graph. The callback uses changed paths for logging, not as an extraction scope.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts",
+          "startLine": 5,
+          "endLine": 56
+        },
+        {
+          "filePath": "src/services/structuralGraph/structuralGraphService.ts",
+          "startLine": 1,
+          "endLine": 9
+        },
+        {
+          "filePath": "src/services/structuralGraph/structuralGraphService.ts",
+          "startLine": 82,
+          "endLine": 98
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 184,
+          "endLine": 203
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Structural replacement is validated before writing and can refuse changed-file parse failures or abnormal shrink. The explicit Generate Structural Graph command offers a modal force-rebuild choice only for STRUCTURAL_GRAPH_RECOVERY_REQUIRED. This preservation/recovery policy belongs to structural generation, unlike the Agent reader's empty-on-invalid policy.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+          "startLine": 119,
+          "endLine": 125
+        },
+        {
+          "filePath": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+          "startLine": 2255,
+          "endLine": 2296
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 339,
+          "endLine": 370
+        },
+        {
+          "filePath": "src/extension.ts",
+          "startLine": 945,
+          "endLine": 954
+        },
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.ts",
+          "startLine": 253,
+          "endLine": 260
+        }
+      ]
+    },
+    {
+      "kind": "test",
+      "text": "Existing tests assert debounce reset/path coalescing and serialization; Agent tests assert invalid documents expose no partial graph and refresh picks up new generated prose; incremental structural tests assert old output survives corrupt cache, changed parse failures and abnormal shrink until forced recovery.",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "src/services/structuralGraph/debouncedStructuralGraphUpdater.test.ts",
+          "startLine": 8,
+          "endLine": 53
+        },
+        {
+          "filePath": "src/services/agentGraph/agentGraphService.test.ts",
+          "startLine": 357,
+          "endLine": 390
+        },
+        {
+          "filePath": "src/services/structuralGraph/structuralGraphIncremental.test.ts",
+          "startLine": 216,
+          "endLine": 256
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "filePath": "package.json",
+      "contentHash": "9bed5299dba555ce210e465c12dabb3de4df2595c9c69864fbd6592feabbd972"
+    },
+    {
+      "filePath": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-extractor.mjs",
+      "contentHash": "35c84292dda1df4360170ca1222ed9aca95dc53e9a7c488fa420aef7a81c7e65"
+    },
+    {
+      "filePath": "src/extension.ts",
+      "contentHash": "db5e3187dc656a9bf36915521d3205c25c71cfcce18a489129b621155ac8c42f"
+    },
+    {
+      "filePath": "src/providers/codeLensProvider.ts",
+      "contentHash": "7fa65ffdf93e06bae5fe36ad0cc1563adc177c7cc107fd328e54313cd6b7168a"
+    },
+    {
+      "filePath": "src/providers/treeDataProvider.ts",
+      "contentHash": "98e8a5640c501f2d1877753b3ef6c9f54af5e5160d8f4555f8ac73a4b79eff15"
+    },
+    {
+      "filePath": "src/services/agentGraph/agentGraphService.test.ts",
+      "contentHash": "1b1d9c7b6e91b4a331fbcc478b1484b18b234ee90abb72d0eb284d3a3d56cdd3"
+    },
+    {
+      "filePath": "src/services/agentGraph/agentGraphService.ts",
+      "contentHash": "c8ef0f2fe13a64f37214176c4a7e84094a0187dc7ad76acafdfe26e662051a3c"
+    },
+    {
+      "filePath": "src/services/knowledgeGraphService.ts",
+      "contentHash": "3ffc28d552c3ca653b574988cce617e7421c1e81ef2afcc150758dc28ac849b5"
+    },
+    {
+      "filePath": "src/services/structuralGraph/debouncedStructuralGraphUpdater.test.ts",
+      "contentHash": "5d24d7574bd53047a1c03b40f8353d025e1b22e37f3a6fe4d4a63aaa764478eb"
+    },
+    {
+      "filePath": "src/services/structuralGraph/debouncedStructuralGraphUpdater.ts",
+      "contentHash": "1872d5487b2da17f2309c6852118f16593273ab9d9fc00ef4b1584eb11c775a6"
+    },
+    {
+      "filePath": "src/services/structuralGraph/structuralGraphIncremental.test.ts",
+      "contentHash": "8c840c4b8a7a3776a91241a348aad4b7484bb92b3c3c058696f0115d9a74d4dd"
+    },
+    {
+      "filePath": "src/services/structuralGraph/structuralGraphService.ts",
+      "contentHash": "0cf75fe65ace67a6121a8bafbe7ebaedc4b4649a46f54a9ef9378b8bb63d8967"
+    },
+    {
+      "filePath": "src/ui/webview/graphView.ts",
+      "contentHash": "295ff9c35b0e3402ed6219ed10c9a3ed36be4ddf1be9ed5aaa1e9fe8d6342b91"
+    }
+  ]
+}
