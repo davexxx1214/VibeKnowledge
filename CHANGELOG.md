@@ -16,6 +16,7 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 ### Fixed
 
+- Used explicit CMD shells for Windows build/watch tasks, including the F5 pre-launch build, without changing system execution policies or other workspaces' terminal profiles.
 - Corrected standalone MCP install/build commands and the distinct VS Code/Cursor configuration formats, with native Node.js dependency troubleshooting for moved checkouts.
 - Renamed the MCP relationship-list tool to `list_relations` to avoid invalid tool-name characters; clients must restart the server and refresh cached tools.
 

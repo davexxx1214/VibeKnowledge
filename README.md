@@ -97,6 +97,8 @@ code .
 
 Press `F5`, choose **Run Extension**, open a target workspace in the Extension Development Host, and run **Knowledge: Install Dependency Graph Agent Skill** from the Command Palette.
 
+On Windows, this repository's build/watch tasks explicitly use `cmd.exe` and `npm.cmd`, so F5's build step does not depend on a PowerShell terminal profile. This does not change system execution policies or terminal settings in the target workspace. If PowerShell still opens there, check that window's restored terminals and **Terminal: Select Default Profile**; choose **Command Prompt** if permitted by your organization. See [VS Code terminal profiles](https://code.visualstudio.com/docs/terminal/profiles).
+
 ### Generate a graph with the Skill
 
 Ask an Agent Skills-compatible coding agent:
