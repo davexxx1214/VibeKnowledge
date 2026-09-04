@@ -14,6 +14,8 @@ const skillScripts = resolve(
 );
 
 for (const fileName of [
+  'feature-brief.mjs',
+  'feature-brief.d.mts',
   'canonicalize-entity-key.mjs',
   'canonicalize-entity-key.d.mts',
   'structural-analysis.mjs',

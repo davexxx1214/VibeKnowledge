@@ -2,17 +2,21 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export const DEPENDENCY_GRAPH_SKILL_NAME = 'vibeknowledge-dependency-graph';
+export const QUERY_SKILL_NAME = 'vibeknowledge-query';
 
 /** Installs the bundled project skill into the standard Agent Skills folder. */
 export class AgentSkillService {
   private readonly sourceDirectory: string;
 
-  constructor(extensionPath: string) {
+  constructor(extensionPath: string, private readonly skillName = DEPENDENCY_GRAPH_SKILL_NAME) {
+    if (![DEPENDENCY_GRAPH_SKILL_NAME, QUERY_SKILL_NAME].includes(skillName)) {
+      throw new Error(`Unknown bundled skill: ${skillName}`);
+    }
     this.sourceDirectory = path.join(
       extensionPath,
-      'resources',
+      skillName === QUERY_SKILL_NAME ? 'dist' : 'resources',
       'skills',
-      DEPENDENCY_GRAPH_SKILL_NAME
+      skillName
     );
   }
 
@@ -21,7 +25,7 @@ export class AgentSkillService {
       workspaceRoot,
       '.agents',
       'skills',
-      DEPENDENCY_GRAPH_SKILL_NAME
+      this.skillName
     );
   }
 
@@ -37,6 +41,9 @@ export class AgentSkillService {
     const sourceSkill = path.join(this.sourceDirectory, 'SKILL.md');
     if (!fs.existsSync(sourceSkill)) {
       throw new Error(`Bundled skill is missing: ${sourceSkill}`);
+    }
+    if (this.skillName === QUERY_SKILL_NAME && !fs.existsSync(path.join(this.sourceDirectory, 'scripts', 'query.cjs'))) {
+      throw new Error('Bundled query runtime is missing. Rebuild the extension before installing the Skill.');
     }
 
     const targetDirectory = this.getInstallDirectory(workspaceRoot);

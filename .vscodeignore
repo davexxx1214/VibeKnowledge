@@ -10,13 +10,15 @@ vitest.config.*
 tsconfig.json
 node_modules/**
 packages/**
+resources/skills/vibeknowledge-query/**
 tests/**
+evaluation/**
 coverage/**
 .github/**
 .claude/**
 .gemini/**
 *.vsix
-.eslintrc.json
+eslint.config.*
 **/*.map
 **/.DS_Store
 out/**

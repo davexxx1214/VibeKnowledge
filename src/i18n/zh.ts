@@ -220,6 +220,16 @@ export const zh: LanguagePack = {
       success: '知识图谱已刷新'
     },
 
+    installQuerySkill: {
+      title: '知识图谱: 安装图谱查询 Agent Skill',
+      alreadyInstalled: '图谱查询 Skill 已安装。是否用内置版本更新？',
+      update: '更新 Skill',
+      cancel: '取消',
+      success: '图谱查询 Skill 已安装到 .agents/skills。可让 Agent 分析代码依赖，无需 MCP 或 npm 安装；已有会话可能需要重新加载 Skills。',
+      openSkill: '打开 Skill',
+      error: (error: string) => `安装图谱查询 Skill 失败: ${error}`
+    },
+
     installDependencyGraphSkill: {
       title: '知识图谱: 安装依赖图谱 Agent Skill',
       alreadyInstalled: '项目中已存在 VibeKnowledge 依赖图谱 Skill。是否用扩展内置版本更新它？',

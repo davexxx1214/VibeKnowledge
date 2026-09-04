@@ -104,7 +104,8 @@ export class StructuralGraphService {
       value = JSON.parse(readFileSync(filePath, 'utf8').replace(/^\uFEFF/, ''));
     } catch (error) {
       throw new Error(
-        `Cannot read ${label}: ${error instanceof Error ? error.message : String(error)}`
+        `Cannot read ${label}: ${error instanceof Error ? error.message : String(error)}`,
+        { cause: error }
       );
     }
     return assertStructuralGraphDocument(value) as StructuralGraphDocument;

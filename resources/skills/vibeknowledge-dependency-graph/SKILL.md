@@ -1,6 +1,6 @@
 ---
 name: vibeknowledge-dependency-graph
-description: Analyze a code workspace and create or incrementally refresh VibeKnowledge's evidence-backed, grouped Knowledge Graph with a boundary-focused framework view and detailed module, page-level, or cross-page feature views. Use when asked to generate, update, repair, or review project architecture, page, module, or feature dependency relationships, including “生成依赖关系” and “知识图谱” requests. Do not use for package-manager upgrades or dependency installation.
+description: Create or incrementally refresh VibeKnowledge's evidence-backed, grouped Knowledge Graph with a boundary-focused framework view and detailed module, page-level, or cross-page feature views. Use when asked to generate, update, repair, or review generated graph structure, including “生成依赖关系” and “生成知识图谱” requests. Not for read-only dependency queries against an existing graph, package-manager upgrades, or dependency installation.
 ---
 
 # VibeKnowledge grouped Knowledge Graph
@@ -14,6 +14,7 @@ Maintain these generated artifacts:
 - `.vscode/.knowledge/knowledge-graph.md`: the complete deterministic audit report for humans. Do not load it into Agent context by default.
 - `.vscode/.knowledge/agent-context/index.md`: the compact routing index for Coding Agents.
 - `.vscode/.knowledge/agent-context/<group-key>.md`: one compact entity/path/relation view per group, without Evidence prose.
+- `.vscode/.knowledge/feature-briefs/`: optional source-backed page/feature briefs and a small discovery index for query-time reuse.
 
 VibeKnowledge displays one framework/module/feature group at a time and combines the generated structure with human-authored description overrides. Never edit `.vscode/.knowledge/graph.sqlite`. Human descriptions live there and remain authoritative when the same stable entity key is regenerated.
 
@@ -127,6 +128,8 @@ Exclude method and constructor nodes, tests, framework decorators, lockfile pack
 
 ## Semantic review and update
 
+For a requested page or feature, also read [references/feature-briefs.md](references/feature-briefs.md) and publish a compact semantic brief after reviewing its implementation. Capture capabilities, direct dependency roles, relevant frameworks, tests and non-obvious constraints with source evidence. This lets querying Agents load one feature without rediscovering its whole implementation. Do not generate all pages by default, enlarge the framework graph, or turn test/method details into curated graph nodes.
+
 1. Confirm the requested group and run deterministic extraction and convergence when available.
 2. Inspect the target group only. Read its referenced public APIs, implementations, routes, data access, configuration, or tests only as needed to replace mechanical descriptions with business meaning or resolve a warning.
 3. Keep the condenser's high-signal component selection. Remove a node only when it is clearly noise; add a node only when the Skill can prove a business concept from precise Evidence. Human editing is prose-only and never creates structural nodes or relations.
@@ -138,6 +141,8 @@ Exclude method and constructor nodes, tests, framework decorators, lockfile pack
 ## Diagnose structure on demand
 
 Keep the curated group as the normal task-routing context. When VibeKnowledge MCP is available, query the raw fact layer only for a concrete diagnostic question:
+
+If the separate `vibeknowledge-query` Skill is installed, it provides equivalent local dependency queries without MCP. Use that Skill for read-only analysis instead of loading this generation workflow. Otherwise use the available MCP tools below, or the targeted file fallback.
 
 - `analyze_structure` with `cycles`, `coupling`, `cross_boundary`, `diff`, or `communities`;
 - `analyze_impact` for upstream dependants and downstream dependencies of one stable key;

@@ -136,7 +136,7 @@ export function registerStructuralAnalysisTools(
   );
 }
 
-function formatCycles(cycles: ReturnType<typeof findStructuralCycles>, generatedAt: string): string[] {
+export function formatCycles(cycles: ReturnType<typeof findStructuralCycles>, generatedAt: string): string[] {
   const lines = [`Structural cycles | generated ${generatedAt} | ${cycles.length} found`];
   for (const cycle of cycles) {
     lines.push(`C ${cycle.id} | ${cycle.entityKeys.join(' -> ')}`);
@@ -145,7 +145,7 @@ function formatCycles(cycles: ReturnType<typeof findStructuralCycles>, generated
   return lines;
 }
 
-function formatCoupling(records: ReturnType<typeof reportStructuralCoupling>, generatedAt: string): string[] {
+export function formatCoupling(records: ReturnType<typeof reportStructuralCoupling>, generatedAt: string): string[] {
   return [
     `High coupling | generated ${generatedAt} | ${records.length} shown`,
     ...records.map((record) =>
@@ -154,7 +154,7 @@ function formatCoupling(records: ReturnType<typeof reportStructuralCoupling>, ge
   ];
 }
 
-function formatCrossBoundary(records: ReturnType<typeof reportCrossBoundaryConnections>, generatedAt: string): string[] {
+export function formatCrossBoundary(records: ReturnType<typeof reportCrossBoundaryConnections>, generatedAt: string): string[] {
   const lines = [`Cross-boundary connections | generated ${generatedAt} | ${records.length} shown`];
   for (const record of records) {
     lines.push(`B ${record.sourceBoundary} -> ${record.targetBoundary} | ${record.count} edges | ${JSON.stringify(record.verbs)}`);
@@ -163,7 +163,7 @@ function formatCrossBoundary(records: ReturnType<typeof reportCrossBoundaryConne
   return lines;
 }
 
-function formatCommunities(records: ReturnType<typeof suggestStructuralCommunities>, generatedAt: string): string[] {
+export function formatCommunities(records: ReturnType<typeof suggestStructuralCommunities>, generatedAt: string): string[] {
   const lines = [`Community suggestions | generated ${generatedAt} | suggestions only; curated groups unchanged`];
   for (const record of records) {
     lines.push(`G ${record.suggestedKey} | scope ${record.scope} | ${record.files.length} files | ${record.relationCount} internal edges`);
@@ -172,7 +172,7 @@ function formatCommunities(records: ReturnType<typeof suggestStructuralCommuniti
   return lines;
 }
 
-function formatDiff(diff: ReturnType<typeof diffStructuralGraphs>): string[] {
+export function formatDiff(diff: ReturnType<typeof diffStructuralGraphs>): string[] {
   if (!diff.available) {
     return ['Structural diff unavailable: no previous structurally different valid snapshot exists.'];
   }
@@ -189,7 +189,7 @@ function formatDiff(diff: ReturnType<typeof diffStructuralGraphs>): string[] {
   return lines;
 }
 
-function formatImpact(result: ReturnType<typeof analyzeStructuralImpact>): string[] {
+export function formatImpact(result: ReturnType<typeof analyzeStructuralImpact>): string[] {
   const lines = [`Impact | ${result.seed.name} <${result.seed.key}> | depth ${result.maxDepth}`];
   for (const direction of ['upstream', 'downstream'] as const) {
     const slice = result[direction];
@@ -200,7 +200,7 @@ function formatImpact(result: ReturnType<typeof analyzeStructuralImpact>): strin
   return lines;
 }
 
-function formatPath(result: ReturnType<typeof findStructuralPath>): string[] {
+export function formatPath(result: ReturnType<typeof findStructuralPath>): string[] {
   const lines = [`Structural path | ${result.source.name} <${result.source.key}> -> ${result.target.name} <${result.target.key}>`];
   if (!result.found) return [...lines, 'No path found within the requested depth.'];
   result.steps.forEach((step, index) => {
@@ -217,17 +217,18 @@ function location(relation: ReturnType<typeof findStructuralCycles>[number]['rel
   return `${relation.location.filePath}:${relation.location.startLine}-${relation.location.endLine}`;
 }
 
-function withinBudget(lines: string[], tokenBudget: number): string {
+export function withinBudget(lines: string[], tokenBudget: number): string {
+  if (estimateTokenCount(lines.join('\n')) <= tokenBudget) return lines.join('\n');
   const selected: string[] = [];
+  const marker = `… truncated to approximately ${tokenBudget} tokens`;
   for (const line of lines) {
-    const candidate = [...selected, line].join('\n');
-    if (selected.length > 0 && estimateTokenCount(candidate) > tokenBudget) {
-      selected.push(`… truncated to approximately ${tokenBudget} tokens`);
+    const candidate = [...selected, line, marker].join('\n');
+    if (estimateTokenCount(candidate) > tokenBudget) {
       break;
     }
     selected.push(line);
   }
-  return selected.join('\n');
+  return [...selected, marker].join('\n');
 }
 
 function textResult(text: string) {

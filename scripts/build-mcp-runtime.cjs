@@ -26,7 +26,7 @@ async function buildMcpRuntime(root, output) {
   manifest.scripts = { start: 'node dist/index.js', 'audit:dependencies': 'node audit-dependencies.cjs' };
   delete manifest.types;
   await fs.writeFile(path.join(output, 'package.json'), JSON.stringify(manifest, null, 2) + '\n');
-  for (const name of ['canonicalize-entity-key.mjs', 'structural-analysis.mjs']) {
+  for (const name of ['canonicalize-entity-key.mjs', 'structural-analysis.mjs', 'feature-brief.mjs']) {
     await fs.copyFile(
       path.join(root, 'resources', 'skills', 'vibeknowledge-dependency-graph', 'scripts', name),
       path.join(output, 'dist', name)

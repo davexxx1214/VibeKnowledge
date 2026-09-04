@@ -77,7 +77,8 @@ export class CuratedGraphService {
       );
     } catch (error) {
       throw new Error(
-        `Cannot refresh the curated graph because the existing agent-graph.json is invalid: ${String(error)}`
+        `Cannot refresh the curated graph because the existing agent-graph.json is invalid: ${String(error)}`,
+        { cause: error }
       );
     }
   }

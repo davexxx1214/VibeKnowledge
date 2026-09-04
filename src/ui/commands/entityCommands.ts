@@ -1035,7 +1035,7 @@ export class EntityCommands {
    * 删除实体（从树视图右键调用）
    */
   public async deleteEntity(treeItem?: any): Promise<void> {
-    let entityToDelete: Entity | null = null;
+    let entityToDelete: Entity | null;
 
     // 如果从树视图右键调用，treeItem.entity 包含实体信息
     if (treeItem && treeItem.entity && treeItem.type === 'entity') {

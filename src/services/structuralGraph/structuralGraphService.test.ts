@@ -1,4 +1,4 @@
-import { cpSync, mkdtempSync, readFileSync, rmSync } from 'fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, resolve } from 'path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -147,6 +147,20 @@ describe('TypeScript structural extractor', () => {
 });
 
 describe('StructuralGraphService', () => {
+  it('preserves the original parse error and invalid graph when reading fails', () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'vibeknowledge-structural-read-'));
+    temporaryDirectories.push(workspace);
+    mkdirSync(join(workspace, '.vscode', '.knowledge'), { recursive: true });
+    const service = new StructuralGraphService(workspace);
+    writeFileSync(service.getOutputPath(), '{broken', 'utf8');
+
+    expect(() => service.read()).toThrow(expect.objectContaining({
+      message: expect.stringContaining('Cannot read structural graph'),
+      cause: expect.any(SyntaxError),
+    }));
+    expect(readFileSync(service.getOutputPath(), 'utf8')).toBe('{broken');
+  });
+
   it('validates before atomically writing structural-graph.json', () => {
     const workspace = mkdtempSync(join(tmpdir(), 'vibeknowledge-structural-'));
     temporaryDirectories.push(workspace);

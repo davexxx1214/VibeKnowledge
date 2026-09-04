@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+env:
+  # Failures still block CI; the helper prints failure categories and registry diagnostics.
+  VIBEKNOWLEDGE_AUDIT_TIMEOUT_MS: '60000'
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -32,7 +36,8 @@ jobs:
           node --version
           npm --version
       - run: npm ci
-      - run: npm run audit:dependencies
+      - name: Audit production dependencies (with timeout diagnostics)
+        run: npm run audit:dependencies
       - run: npm run check
       - run: npm run package -- --out vibe-knowledge.vsix
 
@@ -56,6 +61,7 @@ jobs:
           node --version
           npm --version
       - run: npm ci
-      - run: npm run audit:dependencies
+      - name: Audit production dependencies (with timeout diagnostics)
+        run: npm run audit:dependencies
       - run: npm run build
       - run: npm test

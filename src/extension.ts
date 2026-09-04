@@ -9,7 +9,7 @@ import {
   AgentEntityOverrideService,
   AgentGraphService,
 } from './services/agentGraph';
-import { AgentSkillService } from './services/agentSkillService';
+import { AgentSkillService, QUERY_SKILL_NAME } from './services/agentSkillService';
 import { KnowledgeGraphService } from './services/knowledgeGraphService';
 import {
   CuratedGraphService,
@@ -840,15 +840,17 @@ export async function activate(context: vscode.ExtensionContext) {
       })
     );
 
-    // 将内置 Agent Skill 安装到当前项目的标准 .agents/skills 目录。
-    context.subscriptions.push(
-      vscode.commands.registerCommand(
-        'knowledge.installDependencyGraphSkill',
-        async () => {
-          const translations = t().commands.installDependencyGraphSkill;
+    // Generation and read-only querying are independently installable skills.
+    for (const [command, service, translationKey] of [
+      ['knowledge.installDependencyGraphSkill', agentSkillService, 'installDependencyGraphSkill'],
+      ['knowledge.installQuerySkill', new AgentSkillService(context.extensionPath, QUERY_SKILL_NAME), 'installQuerySkill']
+    ] as const) {
+      context.subscriptions.push(
+        vscode.commands.registerCommand(command, async () => {
+          const translations = t().commands[translationKey];
           try {
             let overwrite = false;
-            if (agentSkillService.isInstalled(workspaceRoot)) {
+            if (service.isInstalled(workspaceRoot)) {
               const action = await vscode.window.showWarningMessage(
                 translations.alreadyInstalled,
                 { modal: true },
@@ -861,7 +863,7 @@ export async function activate(context: vscode.ExtensionContext) {
               overwrite = true;
             }
 
-            const skillPath = agentSkillService.install(workspaceRoot, overwrite);
+            const skillPath = service.install(workspaceRoot, overwrite);
             const action = await vscode.window.showInformationMessage(
               translations.success,
               translations.openSkill
@@ -871,12 +873,12 @@ export async function activate(context: vscode.ExtensionContext) {
               await vscode.window.showTextDocument(document);
             }
           } catch (error) {
-            console.error('Error installing dependency graph skill:', error);
+            console.error('Error installing graph skill:', error);
             vscode.window.showErrorMessage(translations.error(String(error)));
           }
-        }
-      )
-    );
+        })
+      );
+    }
 
     // 场景切换命令
     registerScenarioCommands(context);
@@ -982,6 +984,7 @@ function registerPlaceholderCommands(context: vscode.ExtensionContext) {
     'knowledge.switchAIScenario',
     'knowledge.showCurrentScenario',
     'knowledge.installDependencyGraphSkill',
+    'knowledge.installQuerySkill',
     'knowledge.generateStructuralGraph',
     'knowledge.curateStructuralGraph',
   ];

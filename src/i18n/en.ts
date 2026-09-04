@@ -219,6 +219,16 @@ export const en = {
       success: 'Knowledge Graph refreshed'
     },
 
+    installQuerySkill: {
+      title: 'Knowledge: Install Graph Query Agent Skill',
+      alreadyInstalled: 'The graph query Skill is already installed. Update it with the bundled version?',
+      update: 'Update Skill',
+      cancel: 'Cancel',
+      success: 'Graph query Skill installed under .agents/skills. Ask your Agent to analyze code dependencies; no MCP or npm install needed. Reload skills in an existing session if needed.',
+      openSkill: 'Open Skill',
+      error: (error: string) => `Failed to install graph query Skill: ${error}`
+    },
+
     installDependencyGraphSkill: {
       title: 'Knowledge: Install Dependency Graph Agent Skill',
       alreadyInstalled: 'This project already contains the VibeKnowledge dependency graph skill. Update it with the bundled version?',

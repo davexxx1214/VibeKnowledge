@@ -325,7 +325,10 @@ describe('CuratedGraphService', () => {
     writeFileSync(service.getOutputPath(), '{broken', 'utf8');
     expect(() =>
       service.curate(structural, { kind: 'framework', generatedAt })
-    ).toThrow('existing agent-graph.json is invalid');
+    ).toThrow(expect.objectContaining({
+      message: expect.stringContaining('existing agent-graph.json is invalid'),
+      cause: expect.any(SyntaxError),
+    }));
     expect(readFileSync(service.getOutputPath(), 'utf8')).toBe('{broken');
   });
 });

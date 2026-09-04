@@ -8,7 +8,7 @@ import {
 } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { AgentSkillService } from './agentSkillService';
+import { AgentSkillService, QUERY_SKILL_NAME } from './agentSkillService';
 
 const tempDirs: string[] = [];
 
@@ -39,6 +39,28 @@ afterEach(() => {
 });
 
 describe('AgentSkillService', () => {
+  it('installs the standalone query bundle without requiring the generation Skill', () => {
+    const root = createTempDir('query-extension-');
+    const source = join(root, 'dist', 'skills', QUERY_SKILL_NAME);
+    mkdirSync(join(source, 'scripts'), { recursive: true });
+    writeFileSync(join(source, 'SKILL.md'), 'query instructions');
+    writeFileSync(join(source, 'scripts', 'query.cjs'), 'portable runtime');
+    const workspace = createTempDir('query-workspace-');
+    const service = new AgentSkillService(root, QUERY_SKILL_NAME);
+    expect(readFileSync(service.install(workspace), 'utf8')).toBe('query instructions');
+    expect(readFileSync(join(service.getInstallDirectory(workspace), 'scripts', 'query.cjs'), 'utf8')).toBe('portable runtime');
+    expect(() => service.install(workspace)).toThrow(/already installed/);
+  });
+
+  it('refuses partial query bundles and unrecognized skill names', () => {
+    const root = createTempDir('query-extension-');
+    const source = join(root, 'dist', 'skills', QUERY_SKILL_NAME);
+    mkdirSync(source, { recursive: true });
+    writeFileSync(join(source, 'SKILL.md'), 'query instructions');
+    const workspace = createTempDir('query-workspace-');
+    expect(() => new AgentSkillService(root, QUERY_SKILL_NAME).install(workspace)).toThrow(/runtime is missing/);
+    expect(() => new AgentSkillService(root, '../outside')).toThrow(/Unknown bundled skill/);
+  });
   it('installs the complete skill under .agents/skills', () => {
     const workspace = createTempDir('vibeknowledge-workspace-');
     const service = new AgentSkillService(createExtensionFixture());

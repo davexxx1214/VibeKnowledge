@@ -7,7 +7,9 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import type { Logger } from '../src/server.js';
 import { StructuralGraphStore } from '../src/structuralGraphStore.js';
-import { registerStructuralAnalysisTools } from '../src/tools/registerStructuralAnalysisTools.js';
+import { registerStructuralAnalysisTools, withinBudget } from '../src/tools/registerStructuralAnalysisTools.js';
+import { runQuery } from '../src/queryCli.js';
+import { estimateTokenCount } from '../src/graphQuery.js';
 
 describe('structural analysis MCP tools', () => {
   let workspaceRoot: string;
@@ -46,6 +48,22 @@ describe('structural analysis MCP tools', () => {
       'analyze_impact',
       'find_structural_path',
     ]);
+  });
+
+  it.each(['cycles', 'coupling', 'cross_boundary', 'diff', 'communities'])('keeps CLI/MCP %s output identical', async (analysis) => {
+    const response = await client.callTool({ name: 'analyze_structure', arguments: { analysis, tokenBudget: 500 } });
+    expect(response.isError).not.toBe(true);
+    const cli = await runQuery('structure', { workspace: workspaceRoot, analysis, budget: '500' });
+    expect(cli).toBe(text(response.content));
+  });
+
+  it('reserves truncation tokens, including when the first line is too large', () => {
+    for (const lines of [['x'.repeat(2000)], ['header', 'x'.repeat(2000)], Array.from({ length: 100 }, () => 'some relationship')]) {
+      const output = withinBudget(lines, 200);
+      expect(output).toContain('truncated');
+      expect(estimateTokenCount(output)).toBeLessThanOrEqual(200);
+    }
+    expect(withinBudget(['short', 'complete'], 200)).toBe('short\ncomplete');
   });
 
   it('reports cycles, code locations, and snapshot diffs', async () => {

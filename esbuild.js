@@ -2,6 +2,7 @@ const esbuild = require('esbuild');
 const fs = require('fs/promises');
 const path = require('path');
 const { buildMcpRuntime } = require('./scripts/build-mcp-runtime.cjs');
+const { buildQuerySkill } = require('./scripts/build-query-skill.cjs');
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -12,6 +13,7 @@ async function copyRuntimeAssets() {
   await fs.mkdir(distDir, { recursive: true });
   await Promise.all([
     buildMcpRuntime(__dirname, path.join(distDir, 'mcp-server')),
+    buildQuerySkill(__dirname, path.join(distDir, 'skills/vibeknowledge-query')),
     fs.copyFile(
       require.resolve('sql.js/dist/sql-wasm.wasm'),
       path.join(distDir, 'sql-wasm.wasm')
