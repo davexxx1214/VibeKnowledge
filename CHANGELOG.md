@@ -2,7 +2,20 @@
 
 All notable changes to VibeKnowledge are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.4.0] - 2026-09-04
+
+### Added
+
+- One-click MCP installation from Knowledge Settings and the Explorer toolbar: configurable workspace, external Node and client; precompiled runtime included in VSIX/F5 builds; isolated locked production dependency installation, native SQLite/protocol checks, JSONC-preserving configuration updates and backups.
+- Cancellable setup progress and diagnostics without PowerShell; failed attempts preserve previous client configuration and successful installations.
+
+### Fixed
+
+- Restored dependency audits in both CI jobs and installation instructions, using npm 11.19.0 in CI and a bounded retry gate for invalid/unavailable audit reports. High/critical vulnerabilities fail immediately; persistent service failures remain failures, not skipped audits.
+- Updated the locked transitive `@xmldom/xmldom` dependency from 0.8.13 to 0.8.15 to address GHSA-6gmq-8vp8-gcm6.
+- Updated locked development dependencies `fast-uri` to 3.1.7 and `qs` to 6.16.0 to clear the vulnerabilities found by the full dependency audit.
+- Added strict extension typechecking before compilation, fixing 80 previously hidden diagnostics: SQL.js/MIME declarations, duplicate/incomplete locale types, QuickPick discriminator collisions, Thenable handling, graph result inference and SDK response fields.
+- Removed MCP production `any` annotations in favor of shared structural-analysis declarations and typed/validated Gemini responses. MCP source builds now preflight the local compiler and SDK declarations; regression tests reject new `any` annotations.
 
 ## [0.3.0] - 2026-09-04
 
