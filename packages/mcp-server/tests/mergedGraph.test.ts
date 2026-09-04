@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import type {
@@ -100,6 +100,15 @@ describe('merged graph queries', () => {
     expect(searchMergedEntities(db, agentGraph, {
       query: 'manual description wins', limit: 100
     })).toEqual([]);
+  });
+
+  it('does not deduplicate case-distinct stable keys', () => {
+    const graph = JSON.parse(readFileSync(agentGraph.filePath, 'utf8'));
+    graph.groups[0].entities.push({ ...graph.groups[0].entities[0], key: 'AGENT-USER', name: 'DistinctUser' });
+    writeFileSync(agentGraph.filePath, JSON.stringify(graph));
+    const db = createDbStub();
+    expect(searchMergedEntities(db, agentGraph, { limit: 100 })).toHaveLength(4);
+    expect(getMergedOverview(db, agentGraph).entityCount).toBe(4);
   });
 
   it('returns only Agent-authored relations', () => {

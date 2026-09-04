@@ -2,7 +2,7 @@
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { isAbsolute, resolve } from 'node:path';
-import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
+import { normalizeEntityIdentity } from './canonicalize-entity-key.mjs';
 
 const ENTITY_TYPES = new Set([
   'function', 'class', 'interface', 'variable', 'file',
@@ -171,7 +171,7 @@ function validateGroup(group, groupIndex) {
   if (!Array.isArray(group.relations)) errors.push(`${label}.relations must be an array`);
 
   const keys = new Set();
-  const keysByCanonicalAlias = new Map();
+  const keysByIdentity = new Map();
   if (Array.isArray(group.entities)) {
     group.entities.forEach((entity, entityIndex) => {
       const entityLabel = `${label}.entities[${entityIndex}]`;
@@ -184,14 +184,14 @@ function validateGroup(group, groupIndex) {
       } else if (keys.has(entity.key)) {
         errors.push(`${entityLabel}.key duplicates '${entity.key}' inside this group`);
       } else {
-        const canonicalAlias = canonicalizeEntityKey(entity.key);
-        const collidingKey = keysByCanonicalAlias.get(canonicalAlias);
-        if (canonicalAlias.length === 0) {
-          errors.push(`${entityLabel}.key must contain a canonical identity`);
+        const identity = normalizeEntityIdentity(entity.key);
+        const collidingKey = keysByIdentity.get(identity);
+        if (identity.length === 0) {
+          errors.push(`${entityLabel}.key must contain a path-normalized identity`);
         } else if (collidingKey !== undefined) {
-          errors.push(`${entityLabel}.key collides with '${collidingKey}' after canonicalization`);
+          errors.push(`${entityLabel}.key collides with '${collidingKey}' after path normalization`);
         } else {
-          keysByCanonicalAlias.set(canonicalAlias, entity.key);
+          keysByIdentity.set(identity, entity.key);
         }
         keys.add(entity.key);
       }

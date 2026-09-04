@@ -1,3 +1,5 @@
+import { normalizeEntityIdentity } from './canonicalize-entity-key.mjs';
+
 const DEPENDENCY_VERBS = new Set([
   'imports',
   'extends',
@@ -10,17 +12,20 @@ const DEPENDENCY_VERBS = new Set([
 export function resolveStructuralEntity(graph, selector) {
   const normalized = normalize(selector);
   if (!normalized) return undefined;
-  const exact = graph.entities.find((entity) =>
-    [entity.key, entity.name, entity.filePath].some(
-      (value) => normalize(value) === normalized
-    )
+  const exactKey = graph.entities.find((entity) =>
+    normalizeEntityIdentity(entity.key) === normalizeEntityIdentity(selector)
   );
-  if (exact) return exact;
-  return graph.entities.find((entity) =>
+  if (exactKey) return exactKey;
+  const exactName = graph.entities.filter((entity) => entity.name === selector);
+  const matches = exactName.length > 0 ? exactName : graph.entities.filter((entity) =>
     [entity.key, entity.name, entity.filePath].some((value) =>
       normalize(value).includes(normalized)
     )
   );
+  if (matches.length > 1) {
+    throw new Error(`Ambiguous entity selector '${selector}'; use an exact stable key: ${matches.map((entity) => entity.key).sort().join(', ')}`);
+  }
+  return matches[0];
 }
 
 /** Find strongly connected dependency components. */

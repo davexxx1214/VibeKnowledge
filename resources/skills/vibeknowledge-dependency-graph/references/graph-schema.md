@@ -81,14 +81,15 @@ Required fields are `key`, `name`, `type`, `filePath`, `startLine`, and `endLine
 - `type` is one of `function`, `class`, `interface`, `variable`, `file`, `api`, `service`, `component`, `external`.
 - For a genuinely external entity, use a portable virtual path such as `external/postgresql`.
 
-### Canonical comparison aliases
+### Identity and fuzzy search aliases
 
-The serialized `key` remains the stable identifier and must not be rewritten during routine refreshes. VibeKnowledge derives a comparison-only canonical alias that normalizes path separators, Unicode NFKC compatibility forms, case, surrounding whitespace, and redundant punctuation.
+The serialized `key` remains the stable identifier and must not be rewritten during routine refreshes. Identity comparisons normalize only the path's separators (`\\` to `/`), repeated `/`, and leading `./`. Case, Unicode forms and symbol punctuation remain significant. For example, `src/constants.ts#PartnerShip` and `src/constants.ts#Partnership` are distinct entities, not a validation collision.
 
-Maintainers can use [canonical-key-cases.json](canonical-key-cases.json) as the executable compatibility contract; ordinary graph generation does not need to load it separately.
+Fuzzy search separately derives a canonical alias that folds case, Unicode NFKC forms, whitespace and redundant punctuation. [canonical-key-cases.json](canonical-key-cases.json) documents this search-only contract; ordinary graph generation does not need to load it.
 
-- Two entity keys in the same group must not resolve to the same canonical alias.
-- Matching, cross-group de-duplication, and manual-description lookup may use the alias.
+- Two keys in the same group must not have the same path-normalized identity.
+- Cross-group de-duplication and manual-description lookup use identity, never fuzzy aliases.
+- Exact serialized keys take precedence in queries. An ambiguous fuzzy query returns candidates or a diagnostic, never a silently chosen target.
 - Stable IDs and persisted human overrides continue to use the original serialized key.
 - Preserve an existing key even when a newly generated spelling looks cleaner.
 

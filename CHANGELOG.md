@@ -6,10 +6,15 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 ### Changed
 
+- Separated exact, case-sensitive graph identity from fuzzy search aliases across validation, curation, description overrides, extension snapshots and MCP queries. Ambiguous selectors require an exact key for traversal.
+- Documented failure handling in the dependency-graph Skill: graph generation does not authorize editing installed tools, and readability counts must not drive removal of real dependencies.
 - Taught the bundled dependency-graph Skill to scope on-demand page and cross-page feature graphs, including help-center content, scattered frontend/backend code, and Markdown/MDX limitations.
 
 ### Fixed
 
+- Recognized React/Vite HTML and mount entries, JSX composition, routers and root layouts; excluded development artifacts from framework candidates while retaining reachable generated API clients.
+- Extracted literal dynamic imports and invalidated their dependants incrementally; HTML entry changes now invalidate extraction caches and trigger background refresh.
+- Prevented same-directory boundaries from overwriting one another and constrained lifted evidence paths to direct boundary crossings, without transitive shortcuts through other displayed nodes.
 - Fixed a Webview runtime error that left the graph canvas blank after group metadata loaded, and made future rendering failures visible in the graph view.
 
 ## [0.2.0] - 2026-09-03

@@ -183,7 +183,7 @@ describe('structural condenser', () => {
       (entity) => entity.key === 'src/article/article.service.ts#ArticleService'
     )!;
     const oldServiceKey = service.key;
-    service.key = 'SRC/article/article.service.ts#ArticleService';
+    service.key = './src/article/article.service.ts#ArticleService';
     service.name = '文章应用服务';
     service.description = '人工维护的职责说明。';
     for (const relation of articleGroup.relations) {

@@ -3,7 +3,7 @@ import type {
   AgentGraphEvidence,
   AgentGraphRelationRecord
 } from './agentGraphStore.js';
-import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
+import { canonicalizeEntityKey, normalizeEntityIdentity } from './canonicalize-entity-key.mjs';
 
 export const GRAPH_RELATION_VERBS = [
   'calls',
@@ -228,14 +228,13 @@ export class AgentGraphQueryEngine {
   }
 
   getEntities(selector: string, groupKey?: string): GraphSlice {
-    const matches = this.resolveEntities(selector, groupKey).slice(
-      0,
-      MAX_SELECTOR_MATCHES
-    );
+    const resolved = this.resolveEntities(selector, groupKey);
+    const matches = resolved.slice(0, MAX_SELECTOR_MATCHES);
     const warnings: string[] = [];
     if (matches.length === 0) {
       warnings.push(`没有找到实体：${selector}`);
     }
+    if (hasDistinctIdentities(resolved)) warnings.push('匹配到多个实体，请用区分大小写的完整 stable key 指定目标。');
     if (groupKey && !this.hasGroup(groupKey)) {
       warnings.push(`分组不存在：${groupKey}`);
     }
@@ -258,14 +257,14 @@ export class AgentGraphQueryEngine {
       MAX_QUERY_DEPTH,
       DEFAULT_NEIGHBOR_DEPTH
     );
-    const matches = this.resolveEntities(options.selector, options.groupKey).slice(
-      0,
-      MAX_SELECTOR_MATCHES
-    );
+    const resolved = this.resolveEntities(options.selector, options.groupKey);
+    const matches = resolved.slice(0, MAX_SELECTOR_MATCHES);
     const warnings: string[] = [];
     if (matches.length === 0) {
       warnings.push(`没有找到实体：${options.selector}`);
     }
+    const ambiguous = hasDistinctIdentities(resolved);
+    if (ambiguous) warnings.push('匹配到多个实体；仅返回候选，不扩展邻居。请指定完整 stable key。');
     if (options.groupKey && !this.hasGroup(options.groupKey)) {
       warnings.push(`分组不存在：${options.groupKey}`);
     }
@@ -275,7 +274,7 @@ export class AgentGraphQueryEngine {
       query: options.selector,
       groupKey: options.groupKey,
       seeds: matches.map((entity) => ({ entity, score: 0 })),
-      depth,
+      depth: ambiguous ? 0 : depth,
       direction: options.direction ?? 'both',
       relationVerbs: normalizeRelationVerbs(options.relationVerbs),
       warnings
@@ -283,16 +282,21 @@ export class AgentGraphQueryEngine {
   }
 
   shortestPath(options: ShortestPathOptions): ShortestPathResult {
-    const sourceMatches = this.resolveEntities(
+    const resolvedSources = this.resolveEntities(
       options.source,
       options.groupKey
-    ).slice(0, MAX_SELECTOR_MATCHES);
-    const targetMatches = this.resolveEntities(
+    );
+    const resolvedTargets = this.resolveEntities(
       options.target,
       options.groupKey
-    ).slice(0, MAX_SELECTOR_MATCHES);
+    );
+    const sourceMatches = resolvedSources.slice(0, MAX_SELECTOR_MATCHES);
+    const targetMatches = resolvedTargets.slice(0, MAX_SELECTOR_MATCHES);
     const warnings: string[] = [];
 
+    if (hasDistinctIdentities(resolvedSources) || hasDistinctIdentities(resolvedTargets)) {
+      return emptyPath(options, ['起点或终点匹配到多个实体，请指定区分大小写的完整 stable key。']);
+    }
     if (sourceMatches.length === 0) {
       warnings.push(`没有找到起点实体：${options.source}`);
     }
@@ -514,13 +518,19 @@ export class AgentGraphQueryEngine {
     );
     const exact = candidates.filter(
       (entity) =>
-        normalize(entity.id) === normalizedSelector ||
-        canonicalizeEntityKey(entity.key) === canonicalSelector ||
-        normalize(entity.name) === normalizedSelector
+        entity.id === selector ||
+        normalizeEntityIdentity(entity.key) === normalizeEntityIdentity(selector)
     );
     if (exact.length > 0) {
       return exact.sort(compareEntities);
     }
+    const names = candidates.filter((entity) => entity.name === selector);
+    if (names.length > 0) return names.sort(compareEntities);
+    const aliases = candidates.filter((entity) =>
+      canonicalizeEntityKey(entity.key) === canonicalSelector ||
+      normalize(entity.name) === normalizedSelector
+    );
+    if (aliases.length > 0) return aliases.sort(compareEntities);
 
     return candidates
       .map((entity) => ({ entity, score: scoreEntity(entity, selector) }))
@@ -941,6 +951,10 @@ function formatStructuralPath(relation: AgentGraphRelationRecord): string {
       return `${path} @ ${hop.filePath}:L${hop.startLine}-L${hop.endLine}`;
     })
     .join(' ; ')}`;
+}
+
+function hasDistinctIdentities(entities: AgentGraphEntityRecord[]): boolean {
+  return new Set(entities.map((entity) => normalizeEntityIdentity(entity.key))).size > 1;
 }
 
 function emptyPath(

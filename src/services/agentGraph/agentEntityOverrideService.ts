@@ -1,5 +1,5 @@
 import { DatabaseService } from '../database';
-import { canonicalizeEntityKey } from '../../../resources/skills/vibeknowledge-dependency-graph/scripts/canonicalize-entity-key.mjs';
+import { normalizeEntityIdentity } from '../../../resources/skills/vibeknowledge-dependency-graph/scripts/canonicalize-entity-key.mjs';
 
 export interface AgentEntityDescriptionOverrideStore {
   getDescription(agentKey: string): string | undefined;
@@ -24,7 +24,7 @@ export class AgentEntityOverrideService
     if (exactDescription !== undefined) {
       return exactDescription;
     }
-    return this.findCanonicalOverride(agentKey)?.description;
+    return this.findIdentityOverride(agentKey)?.description;
   }
 
   private getExactDescription(agentKey: string): string | undefined {
@@ -63,7 +63,7 @@ export class AgentEntityOverrideService
     const storedKey =
       this.getExactDescription(agentKey) !== undefined
         ? agentKey
-        : this.findCanonicalOverride(agentKey)?.agentKey;
+        : this.findIdentityOverride(agentKey)?.agentKey;
     if (storedKey === undefined) {
       return;
     }
@@ -75,10 +75,10 @@ export class AgentEntityOverrideService
     this.dbService.save();
   }
 
-  private findCanonicalOverride(
+  private findIdentityOverride(
     agentKey: string
   ): { agentKey: string; description: string } | undefined {
-    const canonicalKey = canonicalizeEntityKey(agentKey);
+    const identityKey = normalizeEntityIdentity(agentKey);
     const db = this.dbService.getDatabase();
     const stmt = db.prepare(
       'SELECT agent_key, description FROM agent_entity_overrides'
@@ -87,7 +87,7 @@ export class AgentEntityOverrideService
     while (stmt.step()) {
       const row = stmt.getAsObject();
       const storedKey = String(row.agent_key);
-      if (canonicalizeEntityKey(storedKey) === canonicalKey) {
+      if (normalizeEntityIdentity(storedKey) === identityKey) {
         matches.push({
           agentKey: storedKey,
           description: String(row.description),

@@ -1,5 +1,5 @@
 import { isAbsolute } from 'node:path';
-import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
+import { normalizeEntityIdentity } from './canonicalize-entity-key.mjs';
 
 export const STRUCTURAL_GRAPH_VERSION = 1;
 export const STRUCTURAL_ENTITY_KINDS = Object.freeze([
@@ -86,7 +86,7 @@ export function validateStructuralGraphDocument(value) {
     errors.push('entities must be an array');
   }
   const entityKeys = new Set();
-  const entityKeysByCanonicalAlias = new Map();
+  const entityKeysByIdentity = new Map();
   entities.forEach((entity, index) => {
     const label = `entities[${index}]`;
     if (!isRecord(entity)) {
@@ -99,14 +99,14 @@ export function validateStructuralGraphDocument(value) {
       if (entityKeys.has(entity.key)) {
         errors.push(`${label}.key duplicates '${entity.key}'`);
       }
-      const canonicalAlias = canonicalizeEntityKey(entity.key);
-      const collidingKey = entityKeysByCanonicalAlias.get(canonicalAlias);
-      if (!canonicalAlias) {
-        errors.push(`${label}.key must contain a canonical identity`);
+      const identity = normalizeEntityIdentity(entity.key);
+      const collidingKey = entityKeysByIdentity.get(identity);
+      if (!identity) {
+        errors.push(`${label}.key must contain a path-normalized identity`);
       } else if (collidingKey !== undefined) {
-        errors.push(`${label}.key collides with '${collidingKey}' after canonicalization`);
+        errors.push(`${label}.key collides with '${collidingKey}' after path normalization`);
       } else {
-        entityKeysByCanonicalAlias.set(canonicalAlias, entity.key);
+        entityKeysByIdentity.set(identity, entity.key);
       }
       entityKeys.add(entity.key);
     }

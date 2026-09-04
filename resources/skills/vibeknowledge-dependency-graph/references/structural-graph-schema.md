@@ -9,14 +9,14 @@ The normative machine schema is [structural-graph.schema.json](structural-graph.
 - The TypeScript Compiler API extractor writes version `1`.
 - Future language adapters may contribute the same entity and relation shapes.
 - Query and boundary-reduction stages may consume this graph, but must not treat it as a curated user-facing view.
-- `agent-graph.json` remains version `2` and keeps human descriptions and Agent-selected boundaries separate.
+- `agent-graph.json` remains version `1` and keeps human descriptions and Agent-selected boundaries separate.
 
 ## Identity
 
 - File entity: `<workspace-relative-path>`.
 - Symbol entity: `<workspace-relative-path>#<qualified-symbol>`.
 - External package: `external:<package-specifier>`.
-- Keys are deterministically generated. Canonical aliases are comparison-only.
+- Keys are deterministically generated and case-sensitive. Only path-separator spelling and leading `./` are normalized for identity; fuzzy aliases never identify or merge symbols.
 
 ## Relations
 
@@ -29,6 +29,8 @@ Every relation contains one source location plus:
 - `confidence: review_required` only when retaining an ambiguous fact is more useful than omitting it.
 
 The first extractor omits ambiguous cross-file symbol targets and records a diagnostic rather than guessing.
+
+Extractor implementation version `2` adds static-string dynamic imports and their incremental dependency tracking, JSX/route-composition references, and evidence-backed HTML/React runtime-entry metadata. The document schema is still version `1`. HTML entry fingerprints participate in cache invalidation; computed dynamic imports produce diagnostics. The framework condenser filters development artifacts without deleting them from this fact layer, and does not exclude generated runtime clients solely because they are generated.
 
 ## Diagnostics
 

@@ -9,7 +9,7 @@ import type {
   AgentGraphRelationRecord,
   AgentGraphStore
 } from './agentGraphStore.js';
-import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
+import { normalizeEntityIdentity } from './canonicalize-entity-key.mjs';
 
 export type MergedEntityRecord = AgentGraphEntityRecord;
 export type MergedRelationRecord = AgentGraphRelationRecord;
@@ -116,14 +116,14 @@ export function getAgentDescriptionOverrides(
 }
 
 function entityIdentityAliases(entity: AgentGraphEntityRecord): string[] {
-  return [`key:${canonicalizeEntityKey(entity.key)}`];
+  return [`key:${normalizeEntityIdentity(entity.key)}`];
 }
 
 function relationIdentityAliases(relation: AgentGraphRelationRecord): string[] {
   return [
-    `relation-key:${canonicalizeEntityKey(relation.sourceKey)}\u0000${normalize(
+    `relation-key:${normalizeEntityIdentity(relation.sourceKey)}\u0000${normalize(
       relation.verb
-    )}\u0000${canonicalizeEntityKey(relation.targetKey)}`
+    )}\u0000${normalizeEntityIdentity(relation.targetKey)}`
   ];
 }
 

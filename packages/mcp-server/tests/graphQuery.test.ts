@@ -167,6 +167,20 @@ describe('AgentGraphQueryEngine', () => {
     ]);
   });
 
+  it('prefers exact symbol identities and refuses ambiguous fuzzy traversal', () => {
+    const upper = makeEntity('framework', 0, 'src/a.ts#PartnerShip', 'PartnerShip', 'src/a.ts');
+    const lower = makeEntity('framework', 0, 'src/a.ts#Partnership', 'Partnership', 'src/a.ts');
+    const engine = new AgentGraphQueryEngine([upper, lower], [makeRelation('framework', 0, 'link', upper, lower, 'calls')]);
+    expect(engine.getEntities(upper.key).entities.map((item) => item.entity.key)).toEqual([upper.key]);
+    expect(engine.getEntities(lower.key).entities.map((item) => item.entity.key)).toEqual([lower.key]);
+    const ambiguous = engine.getNeighbors({ selector: 'partnership' });
+    expect(ambiguous.entities).toHaveLength(2);
+    expect(ambiguous.depth).toBe(0);
+    expect(ambiguous.warnings).toHaveLength(1);
+    expect(engine.shortestPath({ source: 'partnership', target: lower.key }).warnings).toHaveLength(1);
+    expect(engine.shortestPath({ source: upper.key, target: lower.key }).steps).toHaveLength(1);
+  });
+
   it('finds a shortest path in either direction and preserves relation direction', () => {
     const graph = sampleGraph();
     const engine = new AgentGraphQueryEngine(graph.entities, graph.relations);

@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
-import { canonicalizeEntityKey } from '../../../resources/skills/vibeknowledge-dependency-graph/scripts/canonicalize-entity-key.mjs';
+import { normalizeEntityIdentity } from '../../../resources/skills/vibeknowledge-dependency-graph/scripts/canonicalize-entity-key.mjs';
 import { EntityFilters, EntityType, RelationVerb } from '../../utils/types';
 import {
   AgentEntity,
@@ -354,24 +354,24 @@ function parseGroupContents(
   }
 
   const keys = new Set<string>();
-  const keysByCanonicalAlias = new Map<string, string>();
+  const keysByIdentity = new Map<string, string>();
   const entities = entityValue.map((item, index) => {
     const entity = parseEntity(item, `${label}.entities[${index}]`);
     if (keys.has(entity.key)) {
       throw new Error(`${label} has duplicate entity key: ${entity.key}`);
     }
-    const canonicalAlias = canonicalizeEntityKey(entity.key);
-    if (!canonicalAlias) {
-      throw new Error(`${label} entity key cannot be canonicalized: ${entity.key}`);
+    const identity = normalizeEntityIdentity(entity.key);
+    if (!identity) {
+      throw new Error(`${label} entity key has an empty path-normalized identity: ${entity.key}`);
     }
-    const collidingKey = keysByCanonicalAlias.get(canonicalAlias);
+    const collidingKey = keysByIdentity.get(identity);
     if (collidingKey !== undefined) {
       throw new Error(
-        `${label} entity key ${entity.key} collides with ${collidingKey} after canonicalization`
+        `${label} entity key ${entity.key} collides with ${collidingKey} after path normalization`
       );
     }
     keys.add(entity.key);
-    keysByCanonicalAlias.set(canonicalAlias, entity.key);
+    keysByIdentity.set(identity, entity.key);
     return entity;
   });
 

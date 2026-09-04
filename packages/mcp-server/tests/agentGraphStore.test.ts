@@ -36,6 +36,21 @@ describe('AgentGraphStore', () => {
     expect(store.searchRelations()).toEqual([]);
   });
 
+  it('keeps case-distinct keys and human overrides independent', () => {
+    const graph = validGraph();
+    const first = graph.groups[0].entities[0];
+    graph.groups[0].entities = [
+      { ...first, key: 'src/a.ts#PartnerShip', name: 'PartnerShip' },
+      { ...first, key: 'src/a.ts#Partnership', name: 'Partnership' }
+    ];
+    graph.groups[0].relations = [];
+    writeGraph(store.filePath, graph);
+    const entities = store.searchEntities({}, new Map([['src/a.ts#PartnerShip', 'Upper human description']]));
+    expect(entities).toHaveLength(2);
+    expect(entities.find((entity) => entity.key.endsWith('#PartnerShip'))?.description).toBe('Upper human description');
+    expect(entities.find((entity) => entity.key.endsWith('#Partnership'))?.description).toBe('Manages users');
+  });
+
   it('reads a valid grouped graph and creates stable IDs', () => {
     writeGraph(store.filePath, validGraph());
 
@@ -131,7 +146,7 @@ describe('AgentGraphStore', () => {
 
     const canonicalOverride = store.searchEntities(
       { query: 'UserService', limit: 100 },
-      new Map([['CORE::USER---SERVICE', 'Canonical human description']])
+      new Map([['./core:user-service', 'Canonical human description']])
     );
     expect(canonicalOverride.map((entity) => entity.description)).toEqual([
       'Canonical human description',
@@ -218,12 +233,12 @@ describe('AgentGraphStore', () => {
       }
     ],
     [
-      'a canonical entity key collision',
+      'a path-normalized entity key collision',
       () => {
         const graph = validGraph();
         graph.groups[0].entities.push({
           ...graph.groups[0].entities[0],
-          key: ' CORE::USER---SERVICE '
+          key: './core:user-service'
         });
         return graph;
       }

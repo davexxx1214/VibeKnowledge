@@ -30,6 +30,8 @@ node .agents/skills/vibeknowledge-dependency-graph/scripts/validate-structural-g
 
 The extractor uses the TypeScript Compiler API for `.ts`, `.tsx`, `.js`, and `.jsx`, records syntax failures as diagnostics, and emits only source-backed relationships. The curated group command applies its own narrow scope; do not overwrite the full structural graph with a feature-only extraction. Use targeted symbol/path searches in this file when verification is needed; do not inject the whole structural graph into Agent context.
 
+Static-string `import()` calls are extracted, including lazy routes and their reverse-import cache dependencies. Computed imports are reported as unresolved diagnostics, not guessed. A missing edge is an extraction gap to disclose, never proof that a runtime boundary is unnecessary.
+
 Later runs are incremental: unchanged file contributions are reused and only changed files plus their reverse-import dependants are resolved again. If extraction refuses to overwrite a corrupt, newly broken, or abnormally smaller graph, preserve the old artifacts and read [references/structural-cache.md](references/structural-cache.md). Never add `--force` autonomously; use it only after the user reviews and accepts the recovery rebuild.
 
 If the workspace cannot resolve the `typescript` package, ask the user to run **Knowledge: Generate Structural Graph** in the VibeKnowledge extension when available. Otherwise continue with the existing source-inspection workflow and report that deterministic extraction was unavailable; never invent missing facts.
@@ -109,6 +111,10 @@ Include only:
 
 Exclude feature-internal controllers, services, repositories, entities, DTOs, interfaces, tests, and their internal calls or data flow. Put those details in the corresponding module or feature group. An internal symbol may remain in the framework group only when its cross-cutting responsibility is necessary to explain more than one top-level boundary.
 
+For React/Vite applications, verify the HTML module-script entry or actual React DOM mounting call, its root UI composition, router creation, and root route layout. Names such as `App`, `router`, or `Layout` are clues, not evidence; arbitrary functions in `index.tsx` are not entry points. Exclude test fixtures, archived snapshots, Storybook and development mock directories from the default production boundary view, while keeping their code facts in the structural graph. Generated code is not automatically noise: a reachable generated API client may represent a real runtime boundary.
+
+Every selected boundary must retain its own identity, even when several roots share a file or directory. A lifted relation must have a continuous evidence path anchored at its displayed source and target, without traversing a third displayed boundary. Its one actual crossing determines dependency direction; internal containment, exports or imports may be traversed in reverse only as ownership evidence, not as reverse calls. Keep direct cross-boundary dependencies; do not add transitive shortcuts simply because a path exists.
+
 Boundary nodes and genuinely shared infrastructure may also appear in detailed groups using the same stable keys. Do not duplicate feature-internal nodes in the framework group merely to make the overview comprehensive.
 
 For an ordinary application, aim for roughly 8–15 entities and 10–20 relations in the framework group. These are readability targets, not validation limits. If a legitimate architecture exceeds them, collapse at the nearest stable boundary or add a missing module or feature group; never omit an architecturally important boundary solely to meet a count.
@@ -143,6 +149,12 @@ Set a token budget and continue from the returned stable keys and source locatio
 
 Use the earlier source-inspection workflow only when the deterministic extractor or condenser cannot run and no current structural graph is available. State the fallback in the result. Inspect the requested scope with targeted searches, preserve unrelated groups, use stable keys, attach precise Evidence to every relation, validate, and render normally. Never claim an unavailable raw `structuralPath`; omit it for Agent-only relations instead.
 
+## Generation failures and tool defects
+
+A request to generate or refresh a graph does not authorize modifying this Skill's installed scripts, validators, the application source, or tool configuration. On failure, preserve the last valid artifacts, inspect the diagnostic and a minimal relevant source snippet, and distinguish a source problem from an extractor/condenser defect. Report the failing command, affected symbol/path, and any safe fallback. Ask for authorization before repairing the tool or changing business code.
+
+Do not invent hash-suffixed keys to bypass identity validation, repeatedly patch selection rules until counts look small, or drop an orphaned node solely because a dynamic dependency was not extracted. For an authorized tool repair, reproduce the issue in a regression fixture, fix the shared generator, verify cold/warm extraction and boundary evidence, then reinstall the updated Skill in consumer projects. Project-specific names must not become general selection rules. Entity/relation counts are readability warnings, not quotas; retain legitimate architecture and disclose coverage gaps.
+
 ## Validate and render
 
 Resolve scripts relative to this `SKILL.md` when the skill is installed elsewhere.
@@ -169,7 +181,7 @@ Resolve scripts relative to this `SKILL.md` when the skill is installed elsewher
 - Base relationships on code or configuration, not names alone.
 - Give every relation at least one precise evidence location and a short explanation of what it proves.
 - Use stable keys such as `src/auth/service.ts#AuthService`. Changing a key disconnects all occurrences from their shared human description override.
-- Treat canonical keys only as comparison aliases. The generator's current stable key is authoritative; the validator rejects two keys in one group that differ only by path separators, Unicode compatibility forms, case, whitespace, or redundant punctuation.
+- Identity preserves symbol and path case, Unicode and punctuation. Only portable path spelling (`\\` versus `/`, repeated `/`, and a leading `./`) is normalized for identity comparison. `PartnerShip` and `Partnership` are different legal symbols. Fuzzy search aliases may return multiple candidates; they must not merge entities, transfer human descriptions, or silently choose a traversal target. Relation endpoints always use the exact serialized keys.
 - Model direct relationships. Avoid transitive edges that duplicate paths already present.
 - Keep the framework group boundary-focused; completeness belongs to the detailed groups, not the overview.
 - Keep external packages only when architecturally important; lockfile entries are noise.

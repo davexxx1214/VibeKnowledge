@@ -93,6 +93,15 @@ afterEach(() => {
 });
 
 describe('dependency graph skill validator', () => {
+  it('accepts distinct symbol case without rewriting relation endpoints', () => {
+    const fixture = createFixture();
+    const graph = graphWithEvidence([{ filePath: 'src/a.ts', startLine: 2 }]);
+    graph.groups[0].entities[1] = { ...graph.groups[0].entities[0], key: 'src/a.ts#a', name: 'a' };
+    graph.groups[0].relations[0].target = 'src/a.ts#a';
+    writeFileSync(fixture.graphPath, JSON.stringify(graph), 'utf8');
+    const result = spawnSync(process.execPath, [validatorPath, fixture.graphPath], { cwd: fixture.workspace, encoding: 'utf8' });
+    expect(result.status, result.stderr).toBe(0);
+  });
   it('accepts evidence that points inside an existing workspace file', () => {
     const fixture = createFixture();
     writeFileSync(
@@ -137,12 +146,12 @@ describe('dependency graph skill validator', () => {
     expect(result.stderr).toContain('but the file has 4 lines');
   });
 
-  it('rejects canonical key collisions and invalid relation provenance', () => {
+  it('rejects path-normalized key collisions and invalid relation provenance', () => {
     const fixture = createFixture();
     const graph = graphWithEvidence([
       { filePath: 'src/a.ts', startLine: 2 },
     ]);
-    graph.groups[0].entities[1].key = ' SRC\\A.ts ## a() ';
+    graph.groups[0].entities[1].key = './src\\a.ts#A';
     Object.assign(graph.groups[0].relations[0], {
       origin: 'parser',
       confidence: 'certain',
@@ -155,7 +164,7 @@ describe('dependency graph skill validator', () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain('after canonicalization');
+    expect(result.stderr).toContain('after path normalization');
     expect(result.stderr).toContain('.origin must be ast, resolver, or agent');
     expect(result.stderr).toContain(
       '.confidence must be extracted, inferred, or review_required'

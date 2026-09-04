@@ -10,7 +10,7 @@ import type {
   Relation,
   RelationVerb,
 } from '../utils/types';
-import { canonicalizeEntityKey } from '../../resources/skills/vibeknowledge-dependency-graph/scripts/canonicalize-entity-key.mjs';
+import { normalizeEntityIdentity } from '../../resources/skills/vibeknowledge-dependency-graph/scripts/canonicalize-entity-key.mjs';
 
 export type KnowledgeGraphOrigin = 'agent';
 
@@ -71,15 +71,15 @@ export class KnowledgeGraphService {
     const entities: KnowledgeEntity[] = [];
 
     for (const agentEntity of agentEntities) {
-      const canonicalKey = canonicalizeEntityKey(agentEntity.key);
-      const existing = finalEntityByKey.get(canonicalKey);
+      const identityKey = normalizeEntityIdentity(agentEntity.key);
+      const existing = finalEntityByKey.get(identityKey);
       if (existing) {
         finalIdByAgentId.set(agentEntity.id, existing.id);
         continue;
       }
       const entity = this.toKnowledgeEntity(agentEntity);
       entities.push(entity);
-      finalEntityByKey.set(canonicalKey, entity);
+      finalEntityByKey.set(identityKey, entity);
       finalIdByAgentId.set(agentEntity.id, entity.id);
     }
 
@@ -298,7 +298,7 @@ export class KnowledgeGraphService {
 }
 
 export function normalizeKnowledgeFilePath(filePath: string): string {
-  return canonicalizeEntityKey(filePath);
+  return normalizeEntityIdentity(filePath);
 }
 
 function relationIdentity(

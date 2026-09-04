@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { DatabaseService } from '../database';
 import { AgentEntityOverrideService } from './agentEntityOverrideService';
 
-describe('AgentEntityOverrideService canonical aliases', () => {
+describe('AgentEntityOverrideService portable path identities', () => {
   it('reapplies and resets an override through a key spelling variant', async () => {
     const SQL = await initSqlJs({
       locateFile: (file) =>
@@ -31,11 +31,14 @@ describe('AgentEntityOverrideService canonical aliases', () => {
     );
 
     expect(
-      overrides.getDescription(' SRC\\AUTH//auth.service.ts ## authservice() ')
+      overrides.getDescription('./src\\auth//auth.service.ts#AuthService')
     ).toBe('Human description');
+    expect(overrides.getDescription('src/auth/auth.service.ts#authService')).toBeUndefined();
+    overrides.deleteDescription('src/auth/auth.service.ts#authService');
+    expect(overrides.getDescription('src/auth/auth.service.ts#AuthService')).toBe('Human description');
 
     overrides.deleteDescription(
-      ' SRC\\AUTH//auth.service.ts ## authservice() '
+      './src\\auth//auth.service.ts#AuthService'
     );
     expect(
       overrides.getDescription('src/auth/auth.service.ts#AuthService')

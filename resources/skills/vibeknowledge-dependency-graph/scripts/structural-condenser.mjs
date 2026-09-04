@@ -1,10 +1,10 @@
-import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
+import { normalizeEntityIdentity } from './canonicalize-entity-key.mjs';
 import { assertStructuralGraphDocument } from './structural-graph-schema.mjs';
 
 const INFRASTRUCTURE_PATTERN =
   /(config|database|persistence|typeorm|prisma|sequelize|cache|redis|logger|logging|telemetry|observability|queue|messag|eventbus|storage|mail|search)/i;
 const IMPORTANT_EXTERNAL_PATTERN =
-  /(@nestjs\/core|swagger|openapi|typeorm|prisma|sequelize|postgres|mysql|mariadb|mongodb|redis|kafka|rabbit|nats|s3|dynamodb|elasticsearch|opensearch)/i;
+  /(@nestjs\/core|swagger|openapi|typeorm|prisma|sequelize|postgres|mysql|mariadb|mongodb|redis|kafka|rabbit|nats|s3|dynamodb|elasticsearch|opensearch|^react-dom(?:\/client)?(?: |$)|^react-router(?:-dom)?(?: |$))/i;
 const DETAIL_EXTERNAL_PATTERN =
   /(typeorm|prisma|sequelize|postgres|mysql|mariadb|mongodb|redis|kafka|rabbit|nats|s3|dynamodb|elasticsearch|opensearch)/i;
 const DETAIL_ENTITY_PATTERN =
@@ -111,7 +111,7 @@ function createContext(graph) {
 function convergeFramework(context, options) {
   const warnings = [];
   const modules = [...context.entities.values()]
-    .filter((entity) => entity.metadata?.nest?.role === 'module')
+    .filter((entity) => entity.metadata?.nest?.role === 'module' && !isFrameworkNoise(entity.filePath))
     .sort(compareEntities);
   const selected = new Map();
   const priorities = new Map();
@@ -123,6 +123,7 @@ function convergeFramework(context, options) {
 
   const startups = findStartupEntities(context);
   startups.forEach((entity) => select(entity, 0));
+  if (startups.length === 0) warnings.push('No runtime entry was identified; review source-backed application entry configuration before accepting this framework view.');
 
   let roots = [];
   let directModules = [];
@@ -173,10 +174,12 @@ function convergeFramework(context, options) {
       }
     }
   } else {
-    for (const entity of findGenericBoundaries(context)) {
+    const composition = findFrontendComposition(context, startups);
+    composition.forEach((entity) => select(entity, 1));
+    for (const entity of findGenericBoundaries(context, startups, composition)) {
       select(entity, 2);
     }
-    roots = startups.slice(0, 1);
+    roots = composition;
   }
 
   const membership = buildBoundaryMembership(context, [...selected.values()], modules);
@@ -200,19 +203,12 @@ function convergeFramework(context, options) {
   });
 
   const relationChoices = new Map();
-  const directModuleKeys = new Set(directModules.map((entity) => entity.key));
-  const startupExternalKeys = new Set(
-    context.graph.relations
-      .filter(
-        (relation) =>
-          startups.some((startup) => startup.key === relation.source) &&
-          importantExternals.some((external) => external.key === relation.target)
-      )
-      .map((relation) => relation.target)
-  );
+  const unlifted = new Set();
   for (const startup of startups) {
     for (const root of roots) {
-      const path = findStructuralPath(context, startup.key, root.key, 5);
+      const path = findStructuralPath(context, startup.key, root.key, 5, (key) =>
+        membership.get(key) === startup.key || membership.get(key) === root.key
+      );
       if (path.length > 0) {
         chooseFrameworkRelation(relationChoices, {
           source: startup.key,
@@ -226,23 +222,9 @@ function convergeFramework(context, options) {
   }
 
   for (const relation of context.graph.relations) {
-    let sourceBoundary = membership.get(relation.source);
+    const sourceBoundary = membership.get(relation.source);
     const targetBoundary = membership.get(relation.target);
-    if (
-      targetBoundary &&
-      selected.get(targetBoundary)?.kind === 'external' &&
-      directModuleKeys.has(sourceBoundary) &&
-      roots[0]
-    ) {
-      sourceBoundary = roots[0].key;
-    }
-    if (
-      targetBoundary &&
-      startupExternalKeys.has(targetBoundary) &&
-      !startups.some((startup) => startup.key === sourceBoundary)
-    ) {
-      continue;
-    }
+    if (relation.metadata?.typeOnly) continue;
     if (
       !sourceBoundary ||
       !targetBoundary ||
@@ -256,16 +238,17 @@ function convergeFramework(context, options) {
       relation.source === sourceBoundary && relation.target === targetBoundary;
     const structuralRelations = direct
       ? [{ ...relation, _traversal: 'forward' }]
-      : findStructuralPath(context, sourceBoundary, targetBoundary, 7);
+      : liftDirectBoundaryRelation(context, relation, sourceBoundary, targetBoundary, membership);
+    if (structuralRelations.length === 0) {
+      unlifted.add(`${sourceBoundary} -> ${targetBoundary}`);
+      continue;
+    }
     const verb = direct ? curatedVerb(relation.verb) : collapsedVerb(relation.verb);
     chooseFrameworkRelation(relationChoices, {
       source: sourceBoundary,
       target: targetBoundary,
       verb,
-      structuralRelations:
-        structuralRelations.length > 0
-          ? structuralRelations
-          : [relation],
+      structuralRelations,
       description: direct
         ? relation.detail
         : `${selected.get(sourceBoundary).name} depends on ${selected.get(targetBoundary).name} through a direct cross-boundary code relation.`
@@ -275,6 +258,14 @@ function convergeFramework(context, options) {
   const frameworkRelations = [...relationChoices.values()].map(
     (choice) => choice.relation
   );
+  const missingPairs = [...unlifted].filter((pair) => !frameworkRelations.some((relation) => `${relation.source} -> ${relation.target}` === pair));
+  if (missingPairs.length > 0) {
+    warnings.push(`${missingPairs.length} boundary pairs have raw relations without a continuous direct boundary path; inspect structural evidence: ${missingPairs.sort(compareText).slice(0, 5).join('; ')}`);
+  }
+  const unresolvedDynamic = context.graph.diagnostics.filter((diagnostic) =>
+    diagnostic.code === 'unresolved-dynamic-import' && membership.has(diagnostic.filePath)
+  );
+  if (unresolvedDynamic.length > 0) warnings.push(`${unresolvedDynamic.length} dynamic imports in selected runtime boundaries are unresolved; missing edges are coverage gaps, not evidence for removing a boundary.`);
 
   const orderedEntities = [...selected.values()].sort(
     (left, right) =>
@@ -438,17 +429,20 @@ function convergeDetailedGroup(context, options) {
 }
 
 function findStartupEntities(context) {
+  const proven = [...context.entities.values()].filter((entity) =>
+    entity.kind === 'file' && entity.metadata?.runtimeEntry?.length && !isFrameworkNoise(entity.filePath)
+  ).sort(compareEntities);
+  if (proven.length > 0) return proven;
   const candidates = [...context.entities.values()].filter((entity) => {
-    if (entity.kind === 'external' || entity.kind === 'file') return false;
+    if (entity.kind !== 'function' || isFrameworkNoise(entity.filePath)) return false;
     const fileName = entity.filePath.split('/').pop()?.toLowerCase() ?? '';
     return (
-      /^(bootstrap|main|start|run)$/i.test(entity.name) ||
-      /^(main|bootstrap|index)\.[cm]?[jt]sx?$/.test(fileName)
+      /^(bootstrap|main|start)$/i.test(entity.name) &&
+      /^(main|bootstrap|start|index)\.[cm]?[jt]sx?$/.test(fileName)
     );
   });
   return candidates
-    .sort((left, right) => startupScore(right) - startupScore(left) || compareEntities(left, right))
-    .slice(0, 3);
+    .sort((left, right) => startupScore(right) - startupScore(left) || compareEntities(left, right));
 }
 
 function startupScore(entity) {
@@ -478,10 +472,50 @@ function countBoundaryImporters(targetKey, relations) {
   ).size;
 }
 
-function findGenericBoundaries(context) {
+function findFrontendComposition(context, startups) {
+  if (!startups.some((entity) => entity.metadata?.runtimeEntry?.length)) return [];
+  const selected = new Map();
+  const entryFiles = new Set(startups.map((entity) => entity.filePath));
+  const add = (relation) => {
+    const target = context.entities.get(relation.target);
+    if (target?.metadata?.frontend && !isFrameworkNoise(target.filePath)) selected.set(target.key, target);
+  };
+  for (const relation of context.graph.relations) {
+    if (entryFiles.has(context.entities.get(relation.source)?.filePath) && relation.metadata?.runtimeRoot) add(relation);
+  }
+  // Follow one root-composition level, not every rendered feature descendant.
+  for (const root of [...selected.values()]) {
+    for (const relation of context.outgoing.get(root.key) ?? []) {
+      if (relation.metadata?.jsx || relation.metadata?.jsxProp) add(relation);
+    }
+  }
+  for (const root of [...selected.values()]) {
+    if (root.metadata?.frontend?.role !== 'router') continue;
+    for (const relation of context.outgoing.get(root.key) ?? []) {
+      if (relation.metadata?.rootRoute) add(relation);
+    }
+  }
+  return [...selected.values()].sort(compareEntities);
+}
+
+function findGenericBoundaries(context, startups, composition) {
+  const frontend = startups.some((entity) => entity.metadata?.runtimeEntry?.length);
+  const rootFiles = new Set([...startups, ...composition].map((entity) => entity.filePath));
+  const reachable = new Set(startups.map((entity) => entity.filePath));
+  const queue = [...reachable];
+  for (let index = 0; index < queue.length; index++) {
+    for (const relation of context.outgoing.get(queue[index]) ?? []) {
+      if (!['imports', 'exports'].includes(relation.verb) || relation.metadata?.typeOnly) continue;
+      const target = context.entities.get(relation.target);
+      if (!target || target.kind === 'external' || isFrameworkNoise(target.filePath) || reachable.has(target.filePath)) continue;
+      reachable.add(target.filePath);
+      queue.push(target.filePath);
+    }
+  }
   const groups = new Map();
   for (const entity of context.entities.values()) {
-    if (entity.kind === 'external') continue;
+    if (entity.kind === 'external' || isFrameworkNoise(entity.filePath) || rootFiles.has(entity.filePath)) continue;
+    if (frontend && (!reachable.has(entity.filePath) || /(?:^|\/)(?:components|hooks|utils|constants|types|assets|styles|pages)(?:\/|$)/i.test(entity.filePath))) continue;
     const boundary = boundaryPath(entity.filePath);
     if (boundary) appendMapArray(groups, boundary, entity);
   }
@@ -524,15 +558,22 @@ function buildBoundaryMembership(context, boundaries, allModules) {
   for (const module of allModules) {
     if (!boundaryKeys.has(module.key)) continue;
     for (const entity of context.entities.values()) {
-      if (entity.filePath === module.filePath) {
+      if (entity.filePath === module.filePath && !boundaryKeys.has(entity.key)) {
         membership.set(entity.key, module.key);
       }
     }
     for (const relation of context.outgoing.get(module.key) ?? []) {
-      if (['contains', 'exports'].includes(relation.verb)) {
+      if (['contains', 'exports'].includes(relation.verb) && !boundaryKeys.has(relation.target)) {
         membership.set(relation.target, module.key);
       }
     }
+  }
+  // Exact file ownership precedes directory ownership. Multiple selected roots
+  // in the same file retain their identities; unowned siblings stay ambiguous.
+  for (const entity of context.entities.values()) {
+    if (membership.has(entity.key) || entity.kind === 'external' || isFrameworkNoise(entity.filePath)) continue;
+    const owners = boundaries.filter((boundary) => boundary.filePath === entity.filePath);
+    if (owners.length === 1) membership.set(entity.key, owners[0].key);
   }
   let changed = true;
   while (changed) {
@@ -560,24 +601,22 @@ function buildBoundaryMembership(context, boundaries, allModules) {
         right.directory.length - left.directory.length || compareText(left.key, right.key)
     );
   for (const entity of context.entities.values()) {
-    if (membership.has(entity.key) || entity.kind === 'external') continue;
+    if (membership.has(entity.key) || entity.kind === 'external' || isFrameworkNoise(entity.filePath)) continue;
     const matches = directoryBoundaries.filter((item) =>
       isPathInScope(entity.filePath, item.directory)
     );
-    if (matches.length > 0 && matches[0].directory !== 'src') {
+    const closest = matches.filter((item) => item.directory.length === matches[0]?.directory.length);
+    if (closest.length === 1 && matches[0].directory !== 'src') {
       membership.set(entity.key, matches[0].key);
     }
   }
 
-  for (const boundary of boundaries) {
-    if (!allModules.some((module) => module.key === boundary.key)) {
-      const prefix = boundaryPath(boundary.filePath);
-      for (const entity of context.entities.values()) {
-        if (boundaryPath(entity.filePath) === prefix) {
-          membership.set(entity.key, boundary.key);
-        }
-      }
-    }
+  for (const entity of context.entities.values()) {
+    if (membership.has(entity.key) || entity.kind === 'external' || isFrameworkNoise(entity.filePath)) continue;
+    const owners = boundaries.filter((boundary) =>
+      !allModules.some((module) => module.key === boundary.key) && boundaryPath(boundary.filePath) === boundaryPath(entity.filePath)
+    );
+    if (owners.length === 1) membership.set(entity.key, owners[0].key);
   }
   return membership;
 }
@@ -600,6 +639,7 @@ function isConnectedToSelectedBoundary(
 }
 
 function isPackageBoundaryExternal(entity) {
+  if (entity.key === 'external:react-dom/client') return true;
   const packageName = entity.key.startsWith('external:')
     ? entity.key.slice('external:'.length)
     : entity.name;
@@ -607,7 +647,7 @@ function isPackageBoundaryExternal(entity) {
   return packageName.startsWith('@') ? segments.length === 2 : segments.length === 1;
 }
 
-function findStructuralPath(context, source, target, maxDepth) {
+function findStructuralPath(context, source, target, maxDepth, allow = () => true, ownershipPath = false) {
   const queue = [{ key: source, path: [] }];
   const visited = new Set([source]);
   while (queue.length > 0) {
@@ -621,7 +661,7 @@ function findStructuralPath(context, source, target, maxDepth) {
       });
     }
     for (const relation of context.incoming.get(current.key) ?? []) {
-      if (['contains', 'exports'].includes(relation.verb)) {
+      if (['contains', 'exports'].includes(relation.verb) || (ownershipPath && relation.verb === 'imports')) {
         candidates.push({
           next: relation.source,
           relation: { ...relation, _traversal: 'reverse' }
@@ -633,7 +673,7 @@ function findStructuralPath(context, source, target, maxDepth) {
         compareText(left.next, right.next) || compareRawRelations(left.relation, right.relation)
     );
     for (const candidate of candidates) {
-      if (visited.has(candidate.next)) continue;
+      if (visited.has(candidate.next) || !allow(candidate.next)) continue;
       const path = [...current.path, candidate.relation];
       if (candidate.next === target) return path;
       visited.add(candidate.next);
@@ -641,6 +681,23 @@ function findStructuralPath(context, source, target, maxDepth) {
     }
   }
   return [];
+}
+
+function liftDirectBoundaryRelation(context, relation, source, target, membership) {
+  // Internal imports may be walked backwards as ownership evidence, not as a
+  // reversed dependency. Only the original crossing edge establishes direction.
+  // Both internal paths stay inside one owner and cannot cross a third boundary.
+  const before = relation.source === source ? [] : findStructuralPath(context, source, relation.source, 7,
+    (key) => membership.get(key) === source, true);
+  const after = relation.target === target ? [] : findStructuralPath(context, relation.target, target, 7,
+    (key) => membership.get(key) === target, true);
+  if ((relation.source !== source && !before.length) || (relation.target !== target && !after.length)) return [];
+  return [...before, { ...relation, _traversal: 'forward' }, ...after];
+}
+
+function isFrameworkNoise(filePath) {
+  return isTestPath(filePath) || /(^|\/)(?:__snapshots__|snapshots?|archives?|archived|coverage|fixtures?|__mocks__|mocks?|stories|storybook)(\/|$)/i.test(filePath)
+    || /\.(?:stories|story)\.[cm]?[jt]sx?$/i.test(filePath);
 }
 
 function isDetailedEntity(entity, context) {
@@ -863,6 +920,7 @@ function toCuratedEntity(entity) {
 
 function curatedEntityType(entity) {
   if (entity.kind === 'external') return 'external';
+  if (entity.metadata?.frontend) return 'component';
   const role = entity.metadata?.nest?.role;
   if (role === 'module') return 'component';
   if (role === 'controller') return 'api';
@@ -877,6 +935,9 @@ function curatedEntityType(entity) {
 }
 
 function deterministicEntityDescription(entity) {
+  if (entity.metadata?.runtimeEntry?.length) return `Runtime application entry: ${entity.filePath}.`;
+  if (entity.metadata?.frontend?.role === 'router') return `Configures the application's route composition.`;
+  if (entity.metadata?.frontend?.role === 'component') return `Composes the ${entity.name} UI boundary.`;
   const nest = entity.metadata?.nest;
   if (nest?.role === 'module') return `Defines the ${entity.name} NestJS composition boundary.`;
   if (nest?.role === 'controller') {
@@ -896,10 +957,10 @@ function deterministicEntityDescription(entity) {
 function preserveSemanticCuration(candidate, existing) {
   if (!existing) return candidate;
   const existingByAlias = new Map(
-    existing.entities.map((entity) => [canonicalizeEntityKey(entity.key), entity])
+    existing.entities.map((entity) => [normalizeEntityIdentity(entity.key), entity])
   );
   const entities = candidate.entities.map((entity) => {
-    const prior = existingByAlias.get(canonicalizeEntityKey(entity.key));
+    const prior = existingByAlias.get(normalizeEntityIdentity(entity.key));
     if (!prior) return entity;
     return {
       ...entity,
@@ -929,8 +990,8 @@ function preserveSemanticCuration(candidate, existing) {
 
 function curatedRelationAlias(relation) {
   return [
-    canonicalizeEntityKey(relation.source),
-    canonicalizeEntityKey(relation.target),
+    normalizeEntityIdentity(relation.source),
+    normalizeEntityIdentity(relation.target),
     relation.verb
   ].join('\u0000');
 }

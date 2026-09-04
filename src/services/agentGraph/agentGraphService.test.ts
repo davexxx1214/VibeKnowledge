@@ -228,10 +228,10 @@ describe('parseAgentGraphDocument', () => {
       },
     ],
     [
-      'canonical key collisions inside one group',
+      'path-normalized key collisions inside one group',
       () => {
         const document = cloneDocument();
-        document.groups[0].entities[1].key = ' SRC\\A.ts ## a() ';
+        document.groups[0].entities[1].key = './src\\a.ts#A';
         return document;
       },
     ],
@@ -265,6 +265,12 @@ describe('parseAgentGraphDocument', () => {
 });
 
 describe('AgentGraphService', () => {
+  it('accepts case-distinct symbols in a group with exact relation endpoints', () => {
+    const graph = validDocument();
+    graph.groups[0].entities[1] = { ...graph.groups[0].entities[0], key: 'src/a.ts#a', name: 'a' };
+    graph.groups[0].relations[0].target = 'src/a.ts#a';
+    expect(() => parseAgentGraphDocument(graph)).not.toThrow();
+  });
   it('returns an empty grouped graph when the manifest is absent', () => {
     const service = new AgentGraphService(createWorkspace());
     expect(service.getStats()).toEqual({

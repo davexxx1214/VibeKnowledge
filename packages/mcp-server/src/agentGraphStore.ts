@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { isAbsolute, join, resolve } from 'node:path';
 import { z } from 'zod';
-import { canonicalizeEntityKey } from './canonicalize-entity-key.mjs';
+import { canonicalizeEntityKey, normalizeEntityIdentity } from './canonicalize-entity-key.mjs';
 import type {
   EntityRecord,
   RelationRecord,
@@ -483,7 +483,7 @@ function validateGroupContents(
   pathPrefix: Array<string | number>
 ): void {
   const entityKeys = new Set<string>();
-  const entityKeysByCanonicalAlias = new Map<string, string>();
+  const entityKeysByIdentity = new Map<string, string>();
   group.entities.forEach((entity, index) => {
     if (entityKeys.has(entity.key)) {
       context.addIssue({
@@ -492,24 +492,24 @@ function validateGroupContents(
         message: 'duplicate entity key'
       });
     }
-    const canonicalAlias = canonicalizeEntityKey(entity.key);
-    if (!canonicalAlias) {
+    const identity = normalizeEntityIdentity(entity.key);
+    if (!identity) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: [...pathPrefix, 'entities', index, 'key'],
-        message: 'must contain a canonical identity'
+        message: 'must contain a path-normalized identity'
       });
     }
-    const collidingKey = entityKeysByCanonicalAlias.get(canonicalAlias);
+    const collidingKey = entityKeysByIdentity.get(identity);
     if (collidingKey !== undefined) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: [...pathPrefix, 'entities', index, 'key'],
-        message: `collides with '${collidingKey}' after canonicalization`
+        message: `collides with '${collidingKey}' after path normalization`
       });
     }
     entityKeys.add(entity.key);
-    entityKeysByCanonicalAlias.set(canonicalAlias, entity.key);
+    entityKeysByIdentity.set(identity, entity.key);
   });
 
   const relationKeys = new Set<string>();
@@ -568,11 +568,11 @@ function applyDescriptionOverrides(
   if (overrides.size === 0) {
     return entities;
   }
-  const canonicalOverrides = buildCanonicalDescriptionOverrides(overrides);
+  const identityOverrides = buildIdentityDescriptionOverrides(overrides);
   return entities.map((entity) => {
     const description =
       overrides.get(entity.key) ??
-      canonicalOverrides.get(canonicalizeEntityKey(entity.key));
+      identityOverrides.get(normalizeEntityIdentity(entity.key));
     if (description === undefined) {
       return entity;
     }
@@ -588,19 +588,19 @@ function applyDescriptionOverrides(
   });
 }
 
-function buildCanonicalDescriptionOverrides(
+function buildIdentityDescriptionOverrides(
   overrides: ReadonlyMap<string, string>
 ): Map<string, string | undefined> {
-  const canonicalOverrides = new Map<string, string | undefined>();
+  const identityOverrides = new Map<string, string | undefined>();
   for (const [key, description] of overrides) {
-    const canonicalKey = canonicalizeEntityKey(key);
-    if (canonicalOverrides.has(canonicalKey)) {
-      canonicalOverrides.set(canonicalKey, undefined);
+    const identityKey = normalizeEntityIdentity(key);
+    if (identityOverrides.has(identityKey)) {
+      identityOverrides.set(identityKey, undefined);
     } else {
-      canonicalOverrides.set(canonicalKey, description);
+      identityOverrides.set(identityKey, description);
     }
   }
-  return canonicalOverrides;
+  return identityOverrides;
 }
 
 function toEntityRecord(

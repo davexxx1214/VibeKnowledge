@@ -203,7 +203,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const structuralSourceWatcher = vscode.workspace.createFileSystemWatcher(
       new vscode.RelativePattern(
         workspaceFolders[0],
-        '**/*.{ts,tsx,js,jsx}'
+        '**/*.{ts,tsx,js,jsx,html,htm}'
       )
     );
     const structuralConfigWatcher = vscode.workspace.createFileSystemWatcher(

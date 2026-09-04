@@ -29,7 +29,7 @@ describe('structural graph schema', () => {
           endLine: 2,
         },
         {
-          key: ' SRC\\A.ts ## a() ',
+          key: './src\\a.ts#A',
           name: 'A alias',
           kind: 'class',
           filePath: 'src/a.ts',
@@ -50,7 +50,7 @@ describe('structural graph schema', () => {
 
     expect(errors).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('after canonicalization'),
+        expect.stringContaining('after path normalization'),
         expect.stringContaining('target does not reference an entity'),
         expect.stringContaining('origin must be ast or resolver'),
         expect.stringContaining('confidence is not supported'),

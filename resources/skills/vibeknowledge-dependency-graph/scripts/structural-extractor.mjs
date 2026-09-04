@@ -18,13 +18,14 @@ import {
   sep
 } from 'node:path';
 import ts from 'typescript';
+import { discoverHtmlEntries } from './runtime-entrypoints.mjs';
 import {
   STRUCTURAL_GRAPH_VERSION,
   assertStructuralGraphDocument,
   validateStructuralGraphDocument
 } from './structural-graph-schema.mjs';
 
-export const TYPESCRIPT_STRUCTURAL_EXTRACTOR_VERSION = 1;
+export const TYPESCRIPT_STRUCTURAL_EXTRACTOR_VERSION = 2;
 export const STRUCTURAL_CACHE_VERSION = 1;
 
 export class StructuralGraphRecoveryRequiredError extends Error {
@@ -160,10 +161,12 @@ function extractWithTypeScript(options, incrementalOptions) {
     moduleResolution:
       configuration.options.moduleResolution ?? ts.ModuleResolutionKind.Node10
   };
+  const htmlEntries = discoverHtmlEntries(workspaceRoot, rootNames);
   const configurationHash = createConfigurationHash(
     workspaceRoot,
     compilerOptions,
-    configuration.configPath
+    configuration.configPath,
+    htmlEntries.fingerprints
   );
   const cacheState = incrementalOptions
     ? readStructuralCache(
@@ -184,6 +187,12 @@ function extractWithTypeScript(options, incrementalOptions) {
   );
 
   firstPass(rootNames, program, state, cacheState.entries);
+  for (const facts of state.sourceFacts) {
+    const entries = htmlEntries.entries.get(resolve(workspaceRoot, facts.filePath));
+    if (entries) facts.fileEntity.metadata = { ...facts.fileEntity.metadata, runtimeEntry: [
+      ...entries, ...(facts.fileEntity.metadata?.runtimeEntry ?? []).filter((entry) => entry.kind !== 'html-module-script')
+    ] };
+  }
 
   let incrementalPlan;
   let baseSnapshot;
@@ -401,7 +410,7 @@ function collectDeclarations(state, facts) {
             ts.isFunctionExpression(declaration.initializer));
         const important =
           exported || callable ||
-          (!!declaration.initializer && ts.isNewExpression(declaration.initializer));
+          (!!declaration.initializer && (ts.isNewExpression(declaration.initializer) || ts.isCallExpression(declaration.initializer)));
         if (!important) {
           continue;
         }
@@ -556,6 +565,9 @@ function secondPass(state, affectedFiles) {
     if (facts.skipped || (affectedFiles && !affectedFiles.has(facts.filePath))) {
       continue;
     }
+    if (facts.fileEntity.metadata?.runtimeEntry) {
+      facts.fileEntity.metadata.runtimeEntry = facts.fileEntity.metadata.runtimeEntry.filter((entry) => entry.kind === 'html-module-script');
+    }
     collectModuleRelations(state, facts);
     collectHeritageRelations(state, facts);
     collectNestModuleRelations(state, facts);
@@ -587,7 +599,7 @@ function collectModuleRelations(state, facts) {
         confidence: 'extracted',
         location: locationForNode(sourceFile, statement.moduleSpecifier),
         detail: `${facts.filePath} imports ${specifier}`,
-        metadata: { specifier }
+        metadata: { specifier, ...(isTypeOnlyImport(statement.importClause) ? { typeOnly: true } : {}) }
       });
       continue;
     }
@@ -760,8 +772,38 @@ function collectCallAndReferenceRelations(state, facts) {
     const mappedSourceKey =
       resolveEntityKeyForNode(state, node) ?? currentSourceKey;
 
-    if (ts.isCallExpression(node) || ts.isNewExpression(node)) {
+    if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword) {
+      const argument = node.arguments[0];
+      const literal = argument && (ts.isStringLiteral(argument) || ts.isNoSubstitutionTemplateLiteral(argument));
+      const target = literal ? resolveModuleTarget(state, facts, argument.text) : undefined;
+      if (target) {
+        for (const source of new Set([facts.fileKey, mappedSourceKey])) {
+          addRelation(state, {
+            source, target: target.key, verb: 'imports', origin: 'resolver', confidence: 'extracted',
+            location: locationForNode(facts.sourceFile, node),
+            detail: `${source} dynamically imports ${argument.text}`,
+            metadata: { specifier: argument.text, dynamic: true }
+          });
+        }
+      } else {
+        addDiagnostic(state, {
+          filePath: facts.filePath, code: 'unresolved-dynamic-import', category: 'warning',
+          message: literal ? `Cannot resolve dynamic import '${argument.text}'` : 'Dynamic import is not a static string; target was not guessed',
+          ...locationForNode(facts.sourceFile, node)
+        });
+      }
+    } else if (ts.isCallExpression(node) || ts.isNewExpression(node)) {
       const expression = node.expression;
+      const api = importedApi(facts, expression);
+      if (api && /^(react-router|react-router-dom)$/.test(api.specifier) && /^create(?:Browser|Hash|Memory)Router$/.test(api.name)) {
+        markFrontend(state.entitiesByKey.get(mappedSourceKey), 'router');
+      }
+      if (isReactMount(facts, node) && isTopLevelRuntimeNode(facts, node)) {
+        facts.fileEntity.metadata = { ...facts.fileEntity.metadata, runtimeEntry: [
+          ...(facts.fileEntity.metadata?.runtimeEntry ?? []),
+          { ...locationForNode(facts.sourceFile, node), kind: 'react-mount' }
+        ] };
+      }
       const resolved = resolveExpressionTarget(state, facts, expression);
       if (resolved && resolved.entity.key !== mappedSourceKey) {
         addRelation(state, {
@@ -774,6 +816,19 @@ function collectCallAndReferenceRelations(state, facts) {
           detail: `${mappedSourceKey} ${ts.isCallExpression(node) ? 'calls' : 'constructs'} ${resolved.entity.name}`
         });
       }
+    } else if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+      markFrontend(state.entitiesByKey.get(mappedSourceKey), 'component');
+      if (!ts.isIdentifier(node.tagName) || !/^[a-z]/.test(node.tagName.text)) {
+        addValueReference(node.tagName, mappedSourceKey, {
+          jsx: true, rootRoute: isRootRouteElement(facts, node), runtimeRoot: isMountedComposition(facts, node)
+        });
+      }
+    } else if (ts.isJsxExpression(node) && node.expression && ts.isIdentifier(node.expression)) {
+      addValueReference(node.expression, mappedSourceKey, { jsxProp: ts.isJsxAttribute(node.parent) });
+    } else if (ts.isPropertyAssignment(node) && /^(Component|component)$/.test(propertyNameText(node.name, facts.sourceFile))) {
+      addValueReference(node.initializer, mappedSourceKey, { routeComponent: true, rootRoute: isRootRouteElement(facts, node) });
+    } else if (ts.isPropertyAccessExpression(node)) {
+      addValueReference(node.expression, mappedSourceKey, { receiver: true });
     } else if (
       ts.isTypeReferenceNode(node) &&
       !isInsideHeritageClause(node)
@@ -787,13 +842,102 @@ function collectCallAndReferenceRelations(state, facts) {
           origin: resolved.origin,
           confidence: 'extracted',
           location: locationForNode(facts.sourceFile, node),
-          detail: `${mappedSourceKey} references type ${resolved.entity.name}`
+          detail: `${mappedSourceKey} references type ${resolved.entity.name}`,
+          metadata: { typeOnly: true }
         });
       }
     }
     ts.forEachChild(node, (child) => visit(child, mappedSourceKey));
   };
+  function addValueReference(expression, source, metadata) {
+    const resolved = resolveExpressionTarget(state, facts, expression);
+    if (!resolved || resolved.entity.key === source) return;
+    addRelation(state, {
+      source, target: resolved.entity.key, verb: 'references', origin: resolved.origin,
+      confidence: 'extracted', location: locationForNode(facts.sourceFile, expression),
+      detail: `${source} references ${resolved.entity.name}`, metadata
+    });
+  }
   visit(facts.sourceFile);
+}
+
+function importedApi(facts, expression) {
+  const root = leftmostIdentifier(expression);
+  const binding = root && facts.importBindings.get(root.text);
+  if (!binding) return undefined;
+  return { specifier: binding.specifier, name: ts.isPropertyAccessExpression(expression) ? expression.name.text : binding.importedName };
+}
+
+function isTypeOnlyImport(clause) {
+  if (clause?.isTypeOnly) return true;
+  return !!(clause && !clause.name && clause.namedBindings && ts.isNamedImports(clause.namedBindings)
+    && clause.namedBindings.elements.length > 0 && clause.namedBindings.elements.every((element) => element.isTypeOnly));
+}
+
+function isReactMount(facts, node) {
+  if (!ts.isCallExpression(node)) return false;
+  const api = importedApi(facts, node.expression);
+  if (api && /^react-dom(?:\/client)?$/.test(api.specifier) && /^(render|hydrate|hydrateRoot)$/.test(api.name)) return true;
+  if (!ts.isPropertyAccessExpression(node.expression) || node.expression.name.text !== 'render') return false;
+  let receiver = node.expression.expression;
+  if (ts.isIdentifier(receiver)) {
+    for (const statement of facts.sourceFile.statements) {
+      if (!ts.isVariableStatement(statement)) continue;
+      const declaration = statement.declarationList.declarations.find((item) => ts.isIdentifier(item.name) && item.name.text === receiver.text);
+      if (declaration?.initializer) { receiver = declaration.initializer; break; }
+    }
+  }
+  if (!ts.isCallExpression(receiver)) return false;
+  const creator = importedApi(facts, receiver.expression);
+  return creator?.specifier === 'react-dom/client' && creator.name === 'createRoot';
+}
+
+function markFrontend(entity, role) {
+  if (!entity || entity.kind === 'file') return;
+  // A router containing JSX remains a router, not a component.
+  if (entity.metadata?.frontend?.role === 'router') return;
+  entity.metadata = { ...entity.metadata, frontend: { role } };
+}
+
+function isMountedComposition(facts, node) {
+  for (let current = node.parent; current && !ts.isSourceFile(current); current = current.parent) {
+    if (isReactMount(facts, current) && isTopLevelRuntimeNode(facts, current)) return true;
+  }
+  return false;
+}
+
+function isTopLevelRuntimeNode(facts, node) {
+  let owner;
+  for (let current = node.parent; current && !ts.isSourceFile(current); current = current.parent) {
+    if (ts.isFunctionLike(current)) { owner = current; break; }
+  }
+  if (!owner) return true;
+  const name = ts.isFunctionDeclaration(owner) ? owner.name?.text
+    : ts.isVariableDeclaration(owner.parent) && ts.isIdentifier(owner.parent.name) ? owner.parent.name.text : undefined;
+  // An uncalled exported render helper is not an application entry. Resolve a
+  // local bootstrap only when a top-level call actually invokes it.
+  let invoked = false;
+  const visit = (current) => {
+    if (ts.isFunctionLike(current)) return;
+    if (name && ts.isCallExpression(current) && ts.isIdentifier(current.expression) && current.expression.text === name) invoked = true;
+    ts.forEachChild(current, visit);
+  };
+  visit(facts.sourceFile);
+  return invoked;
+}
+
+function isRootRouteElement(facts, node) {
+  let current = node;
+  let objects = 0;
+  while (current && !ts.isSourceFile(current)) {
+    if (ts.isObjectLiteralExpression(current)) objects++;
+    if (ts.isCallExpression(current)) {
+      const api = importedApi(facts, current.expression);
+      if (api && /^(react-router|react-router-dom)$/.test(api.specifier) && /^create(?:Browser|Hash|Memory)Router$/.test(api.name)) return objects === 1;
+    }
+    current = current.parent;
+  }
+  return false;
 }
 
 function resolveModuleTarget(state, facts, specifier) {
@@ -1715,6 +1859,8 @@ function restoreCachedBaseContributions(state, facts, entry) {
     const existing = state.entitiesByKey.get(entity.key);
     if (!existing) {
       state.entitiesByKey.set(entity.key, entity);
+    } else if (entity.key === facts.fileKey && entity.metadata) {
+      existing.metadata = structuredClone(entity.metadata);
     }
   }
   state.entityKeyByNode.set(facts.sourceFile, facts.fileKey);
@@ -1762,6 +1908,19 @@ function summarizeFile(state, facts) {
       });
     }
   }
+  const collectDynamic = (node) => {
+    if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword) {
+      const argument = node.arguments[0];
+      if (argument && (ts.isStringLiteral(argument) || ts.isNoSubstitutionTemplateLiteral(argument))) {
+        const target = resolveModuleFacts(state, facts, argument.text);
+        imports.push({ specifier: argument.text, names: ['*'], dynamic: true,
+          ...(target ? { resolvedFilePath: target.filePath } : {}),
+          ...locationForNode(facts.sourceFile, node) });
+      }
+    }
+    ts.forEachChild(node, collectDynamic);
+  };
+  collectDynamic(facts.sourceFile);
   const exports = [...state.entitiesByKey.values()]
     .filter(
       (entity) =>
@@ -2144,7 +2303,7 @@ function recoveryRequired(reason, message) {
   );
 }
 
-function createConfigurationHash(workspaceRoot, compilerOptions, configPath) {
+function createConfigurationHash(workspaceRoot, compilerOptions, configPath, runtimeInputs) {
   const normalizedOptions = normalizeCacheValue(compilerOptions, workspaceRoot);
   const configIdentity = configPath
     ? {
@@ -2155,7 +2314,7 @@ function createConfigurationHash(workspaceRoot, compilerOptions, configPath) {
       }
     : undefined;
   return createHash('sha256')
-    .update(stableStringify({ compilerOptions: normalizedOptions, configIdentity }))
+    .update(stableStringify({ compilerOptions: normalizedOptions, configIdentity, runtimeInputs }))
     .digest('hex');
 }
 

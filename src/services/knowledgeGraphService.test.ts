@@ -99,7 +99,7 @@ describe('KnowledgeGraphService', () => {
     expect(service.getEntity('checkout-a')?.name).toBe('A');
   });
 
-  it('de-duplicates cross-group key variants by canonical alias', () => {
+  it('de-duplicates cross-group portable path variants by identity', () => {
     const framework = agentEntity(
       'framework-a',
       'src/auth/auth.service.ts#AuthService',
@@ -108,7 +108,7 @@ describe('KnowledgeGraphService', () => {
     );
     const checkout = agentEntity(
       'checkout-a',
-      ' SRC\\AUTH//auth.service.ts ## authservice() ',
+      './src\\auth//auth.service.ts#AuthService',
       'AuthService',
       'src/auth/auth.service.ts',
       checkoutGroup
@@ -166,6 +166,13 @@ describe('KnowledgeGraphService', () => {
     expect(resetManualDescription).toHaveBeenCalledWith('framework-a');
   });
 
+  it('does not merge case-distinct symbols across groups', () => {
+    const first = agentEntity('framework-first', 'src/a.ts#PartnerShip', 'PartnerShip', 'src/a.ts');
+    const second = agentEntity('checkout-second', 'src/a.ts#Partnership', 'Partnership', 'src/a.ts', checkoutGroup);
+    const service = createService([first, second], [], [group(frameworkGroup, [first], []), group(checkoutGroup, [second], [])]);
+    expect(service.getSnapshot().entities.map((entity) => entity.agentKey)).toEqual(['src/a.ts#PartnerShip', 'src/a.ts#Partnership']);
+  });
+
   it('finds Agent entities and related entities from an editor location', () => {
     const a = agentEntity('framework-a', 'key-a', 'A', 'src/a.ts');
     const b = agentEntity('framework-b', 'key-b', 'B', 'src/b.ts');
@@ -176,7 +183,7 @@ describe('KnowledgeGraphService', () => {
       [group(frameworkGroup, [a, b], [relation])]
     );
 
-    expect(service.getEntitiesByFile('SRC\\A.TS')).toMatchObject([
+    expect(service.getEntitiesByFile('src\\a.ts')).toMatchObject([
       { id: 'framework-a', origin: 'agent' },
     ]);
     expect(service.findEntityAtLocation('./src/a.ts', 5)?.id).toBe(
