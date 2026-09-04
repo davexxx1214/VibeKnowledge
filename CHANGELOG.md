@@ -16,6 +16,9 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 ### Fixed
 
+- Corrected standalone MCP install/build commands and the distinct VS Code/Cursor configuration formats, with native Node.js dependency troubleshooting for moved checkouts.
+- Renamed the MCP relationship-list tool to `list_relations` to avoid invalid tool-name characters; clients must restart the server and refresh cached tools.
+
 - Paused graph animation and layout work while hidden, cancelled replaced layouts, and reused the existing Webview document when reopening the graph panel.
 
 - Recognized React/Vite HTML and mount entries, JSX composition, routers and root layouts; excluded development artifacts from framework candidates while retaining reachable generated API clients.

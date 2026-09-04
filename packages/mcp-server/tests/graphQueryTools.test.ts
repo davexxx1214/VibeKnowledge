@@ -15,21 +15,26 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { AgentGraphStore } from '../src/agentGraphStore.js';
 import type { GraphDatabase } from '../src/database.js';
 import type { Logger } from '../src/server.js';
-import { registerGraphQueryTools } from '../src/tools/registerGraphQueryTools.js';
+import { registerTools } from '../src/tools/registerTools.js';
+import { StructuralGraphStore } from '../src/structuralGraphStore.js';
+import { registerBaseResources } from '../src/resources/registerResources.js';
 
 describe('graph query MCP tools', () => {
   let workspaceRoot: string;
+  let graph: AgentGraphStore;
   let server: McpServer;
   let client: Client;
 
   beforeEach(async () => {
     workspaceRoot = mkdtempSync(join(tmpdir(), 'vibeknowledge-query-tools-'));
-    const graph = new AgentGraphStore(workspaceRoot);
+    graph = new AgentGraphStore(workspaceRoot);
     mkdirSync(dirname(graph.filePath), { recursive: true });
     writeFileSync(graph.filePath, JSON.stringify(validGraph()), 'utf8');
 
     server = new McpServer({ name: 'test-server', version: '1.0.0' });
-    registerGraphQueryTools(server, createDbStub(), graph, createLogger());
+    const db = createDbStub();
+    registerTools(server, db, null, createLogger(), graph, new StructuralGraphStore(workspaceRoot));
+    registerBaseResources(server, db, graph);
     client = new Client({ name: 'test-client', version: '1.0.0' });
     const [clientTransport, serverTransport] =
       InMemoryTransport.createLinkedPair();
@@ -44,15 +49,51 @@ describe('graph query MCP tools', () => {
     rmSync(workspaceRoot, { recursive: true, force: true });
   });
 
-  it('registers all Phase 1 graph tools', async () => {
+  it('registers all graph tools with client-compatible names', async () => {
     const result = await client.listTools();
 
     expect(result.tools.map((tool) => tool.name)).toEqual([
+      'search_entities',
+      'search_observations',
+      'list_relations',
       'query_graph',
       'get_entity',
       'get_neighbors',
-      'shortest_path'
+      'shortest_path',
+      'analyze_structure',
+      'analyze_impact',
+      'find_structural_path'
     ]);
+    expect(result.tools.every(tool => /^[A-Za-z0-9_.-]{1,128}$/.test(tool.name))).toBe(true);
+    expect(result.tools.some(tool => tool.name === 'knowledge://relations')).toBe(false);
+  });
+
+  it('keeps resource URIs separate from tool names', async () => {
+    const result = await client.readResource({ uri: 'knowledge://overview' });
+    expect(JSON.parse(result.contents[0].text as string)).toMatchObject({
+      entityCount: 3,
+      relationCount: 2
+    });
+  });
+
+  it('calls list_relations with filters and returns graph evidence', async () => {
+    const result = await client.callTool({
+      name: 'list_relations',
+      arguments: { verb: 'depends_on', source: 'UserService', target: 'AuthService', limit: 1 }
+    });
+    expect(result.isError).not.toBe(true);
+    const text = getText(result.content);
+    expect(text).toContain('UserService [service] --depends_on--> AuthService [service]');
+    expect(text).toContain('Evidence: src/user.ts:10-10');
+    expect(text).not.toContain('Logger');
+  });
+
+  it('uses the new tool name in errors without crashing the protocol', async () => {
+    vi.spyOn(graph, 'searchRelations').mockImplementationOnce(() => { throw new Error('read failed'); });
+    const result = await client.callTool({ name: 'list_relations', arguments: {} });
+    expect(result.isError).toBe(true);
+    expect(getText(result.content)).toContain('list_relations 执行失败');
+    expect((await client.listTools()).tools.length).toBe(10);
   });
 
   it('queries a compact subgraph without Evidence by default', async () => {

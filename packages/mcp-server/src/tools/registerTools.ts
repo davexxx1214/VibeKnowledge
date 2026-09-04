@@ -199,7 +199,7 @@ function registerRelationsTool(
   });
 
   server.registerTool(
-    'knowledge://relations',
+    'list_relations',
     {
       title: 'List Relations',
       description:
@@ -209,7 +209,7 @@ function registerRelationsTool(
     async ({ verb, source, target, limit = DEFAULT_LIMIT }) => {
       try {
         logger.debug?.(
-          `[knowledge://relations] verb=${verb ?? 'all'}, source=${source ?? 'any'}, target=${target ?? 'any'}, limit=${limit}`
+          `[list_relations] verb=${verb ?? 'all'}, source=${source ?? 'any'}, target=${target ?? 'any'}, limit=${limit}`
         );
         const params = { verb, source, target, limit };
         const results = agentGraph
@@ -224,7 +224,7 @@ function registerRelationsTool(
           ]
         };
       } catch (error) {
-        logger.error('[knowledge://relations] failed:', error);
+        logger.error('[list_relations] failed:', error);
         const message =
           error instanceof Error
             ? error.message
@@ -233,7 +233,7 @@ function registerRelationsTool(
           content: [
             {
               type: 'text',
-              text: `knowledge://relations 执行失败：${message}`
+              text: `list_relations 执行失败：${message}`
             }
           ],
           isError: true

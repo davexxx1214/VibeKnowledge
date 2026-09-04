@@ -174,7 +174,7 @@ Legend:
    - Full zh-CN / en-US coverage with runtime switching
 5. **MCP Server (completed)**
    - Resource: `knowledge://overview`
-   - Tools: `search_entities`, `search_observations`, `knowledge://relations`, `ask_question`
+   - Tools: `search_entities`, `search_observations`, `list_relations`, `ask_question`
    - Prompt: `get_observations`
    - Tested with Cursor MCP beta & Copilot MCP
 

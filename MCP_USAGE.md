@@ -10,17 +10,23 @@
    ```bash
    cd D:/workspace/VibeKnowledge
    ```
-2. 先构建一次（如尚未构建）：
+2. 安装独立 MCP 包的依赖并构建（首次使用、换机器或切换 Node.js 后先重新安装）：
    ```bash
-   npm run --workspace packages/mcp-server build
+   npm --prefix packages/mcp-server ci
+   npm --prefix packages/mcp-server run build
    ```
+   仓库根目录和 MCP 包各自维护 `package-lock.json`，没有声明 npm workspaces。根目录的 `npm ci` 不会安装 MCP 包依赖，请使用 `--prefix` 或先进入 `packages/mcp-server` 再执行命令。
+
 3. （可选）手动启动服务器（一般用于本地调试；若通过 Cursor / Copilot 配置则无需手工保持进程）：
    ```bash
    node packages/mcp-server/dist/index.js --workspace "D:/workspace/nestjs-realworld-example-app"
    ```
+
    - `--workspace` 指向目标项目根目录，MCP Server 启动前仍需存在 `.vscode/.knowledge/graph.sqlite`；精选局部图查询需要 `.vscode/.knowledge/agent-graph.json`，结构诊断需要 `.vscode/.knowledge/structural-graph.json`。SQLite 不再提供图结构，只提供人工描述覆盖、观察记录和 RAG 数据。
    - 日志全部输出到 `stderr`，`stdout` 专用于 MCP 协议通信。
    - **提示**：Cursor / Copilot 会按 `mcp.json` 自动启动 server，除非需要独立调试，一般无需在此手动运行。
+   - `args[0]` 是 **VibeKnowledge 工具仓库**的构建入口，`--workspace` 后面是 **待分析项目**，两者不要混用。换目录后需要同步更新入口路径；不要复用其他工程副本的 `node_modules`。
+   - `better-sqlite3` 是原生模块。安装依赖与 MCP 客户端启动时必须使用兼容的 Node.js 版本；必要时将配置中的 `command` 改为安装依赖所用的 Node 可执行文件绝对路径。
 
 ### RAG 配置来源（用于 Q&A）
 
@@ -58,28 +64,30 @@
 
 ## 2. Cursor 集成步骤
 
-> 需启用 Cursor MCP（Beta）功能。
+Cursor 的项目配置文件是 `.cursor/mcp.json`，顶层键为 `mcpServers`，与 VS Code 的配置格式不同。参见 [Cursor MCP 文档](https://cursor.com/docs/mcp)。
 
-1. 在 Cursor 按 `Ctrl + Shift + P`。
-2. 输入并选择 **`View: Open MCP Settings`**。
-3. 点击 **“New MCP Server”**。
-4. 在弹出的 `mcp.json` 中添加条目（若已有则合并）：
+1. 在待分析项目中打开或创建 `.cursor/mcp.json`。
+2. 在 `mcpServers` 中添加条目（已有配置请合并，不要覆盖其他服务器）：
 
    ```jsonc
    {
-     "vibeknowledge": {
-       "command": "node",
-       "args": [
-         "D:/workspace/VibeKnowledge/packages/mcp-server/dist/index.js",
-         "--workspace",
-         "D:/workspace/nestjs-realworld-example-app"
-       ]
+     "mcpServers": {
+       "vibeknowledge": {
+         "type": "stdio",
+         "command": "node",
+         "args": [
+           "D:/workspace/VibeKnowledge/packages/mcp-server/dist/index.js",
+           "--workspace",
+           "D:/workspace/nestjs-realworld-example-app"
+         ]
+       }
      }
    }
    ```
 
-5. 保存后，Cursor 会自动以子进程方式启动该 server，并在日志面板提示连接结果。
-6. 测试：
+3. 在 Cursor 的 MCP 设置中确认服务器已启用，并查看连接日志；根据客户端提示授权使用工具。
+4. 可请求 Agent 调用以下资源和工具。下列 `@mcp ...` 是调用意图示例，不是终端命令，具体交互以客户端界面为准：
+
    - 项目概览：`@mcp vibeknowledge resource knowledge://overview`
    - 查询实体：`@mcp vibeknowledge tool search_entities {"query": "UserService"}`（查询统一知识图谱）
    - 查询局部子图：`@mcp vibeknowledge tool query_graph {"query": "用户认证依赖哪些组件", "depth": 2, "tokenBudget": 2000}`
@@ -91,7 +99,7 @@
    - 分析底层影响：`@mcp vibeknowledge tool analyze_impact {"selector": "UserService", "direction": "both", "maxDepth": 3}`
    - 查找底层跨模块路径：`@mcp vibeknowledge tool find_structural_path {"source": "UserController", "target": "ArticleEntity"}`
    - 查询观察记录：`@mcp vibeknowledge tool search_observations {"limit": 5}`
-   - 查询关系：`@mcp vibeknowledge tool knowledge://relations {"verb": "depends_on", "limit": 5}`（返回数据来源与 Agent 证据）
+   - 查询关系：`@mcp vibeknowledge tool list_relations {"verb": "depends_on", "limit": 5}`（返回数据来源与 Agent 证据）
    - RAG 问答：`@mcp vibeknowledge tool ask_question {"question": "项目的数据库连接数是多少？"}`
 
 ---
@@ -102,22 +110,25 @@
    在你的项目根目录下创建文件夹 .vscode（如果不存在）。
    在 .vscode 文件夹中新建 mcp.json 文件。
 
-2. 在 mcp.json 中添加配置：
+2. 在 `.vscode/mcp.json` 的 `servers` 中添加配置（不要使用 Cursor 的 `mcpServers`）：
 
    ```jsonc
    {
-     "vibeknowledge": {
-       "command": "node",
-       "args": [
-         "D:/workspace/VibeKnowledge/packages/mcp-server/dist/index.js",
-         "--workspace",
-         "D:/workspace/nestjs-realworld-example-app"
-       ]
+     "servers": {
+       "vibeknowledge": {
+         "type": "stdio",
+         "command": "node",
+         "args": [
+           "D:/workspace/VibeKnowledge/packages/mcp-server/dist/index.js",
+           "--workspace",
+           "D:/workspace/nestjs-realworld-example-app"
+         ]
+       }
      }
    }
    ```
 
-3. 重启 VS Code，Copilot 会自动连接该 MCP server。随后即可在 Copilot Chat 中直接请求项目概览、实体信息等。对于架构、跨文件依赖和影响分析任务，应优先调用 `query_graph`，再用 `get_entity`、`get_neighbors` 或 `shortest_path` 扩展结果。
+3. 执行 **MCP: List Servers**，选择 `vibeknowledge` 并启动或重启，按提示确认信任。工具更名后可执行 **MCP: Reset Cached Tools** 刷新工具列表。随后在 Copilot Chat 中请求项目概览、实体信息等；优先调用 `query_graph`，再用 `get_entity`、`get_neighbors` 或 `shortest_path` 扩展结果。参见 [VS Code MCP 配置说明](https://code.visualstudio.com/docs/agents/reference/mcp-configuration)。
 
 ---
 
@@ -128,6 +139,10 @@
 | `graph.sqlite` 找不到 | 需先在对应项目中运行 VibeKnowledge VS Code 插件以生成 `.vscode/.knowledge/graph.sqlite` |
 | 想切换到其他项目 | 停止当前 server，重新以新的 `--workspace` 路径启动 |
 | 无法连接 | 检查 `mcp.json` 路径、命令参数及 Node.js 版本（≥ 20） |
+| `No workspaces found` | 根目录没有 npm workspaces 声明；使用 `npm --prefix packages/mcp-server run build` |
+| `NODE_MODULE_VERSION` 不一致 / `ERR_DLOPEN_FAILED` | 确认入口指向当前 VibeKnowledge 仓库，使用与客户端相同的 Node.js 执行 `npm --prefix packages/mcp-server ci` 后重新构建，再重启 MCP；不要复制别台机器的 `node_modules` |
+| VS Code 找不到已配置的服务器 | `.vscode/mcp.json` 使用 `servers`；Cursor 的 `.cursor/mcp.json` 使用 `mcpServers` |
+| 仍显示旧关系查询工具 | 重新构建并重启 MCP、清理客户端工具缓存；关系工具名为 `list_relations` |
 | 想查看实时日志 | MCP Server 日志打印在启动终端的 `stderr`，不会污染协议输出 |
 
 如需在多个项目间复用，可为每个项目同时运行一个 MCP 进程，并在 `mcp.json` 中配置不同的名称与工作区路径。
@@ -148,7 +163,7 @@
 | Tool | `find_structural_path` | 在完整结构图中查询跨文件或跨模块最短路径 |
 | Tool | `search_entities` | 根据名称、类型、文件路径或描述搜索统一知识图谱中的实体 |
 | Tool | `search_observations` | 检索观察记录，可按关键字或实体 ID 过滤 |
-| Tool | `knowledge://relations` | 列出统一知识图谱关系，可按动词、源/目标实体筛选；Agent 生成关系附带代码证据 |
+| Tool | `list_relations` | 列出统一知识图谱关系，可按动词、源/目标实体筛选；Agent 生成关系附带代码证据 |
 | Prompt | `get_observations` | 引导 AI 调用 `search_observations` 工具 |
 | Tool | `ask_question` | 自动根据 `rag.mode` 调用本地或云端 RAG，并附带引用文件 |
 

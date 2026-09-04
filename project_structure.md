@@ -229,7 +229,7 @@ VibeKnowledge/
 - ✅ Tools：
   - `search_entities`（实体模糊搜索）
   - `search_observations`（观察记录查询）
-  - `knowledge://relations`（关系列表）
+  - `list_relations`（关系列表）
   - `ask_question`（RAG 问答）
 - ✅ Prompt：`get_observations`（引导 AI 调用观察记录工具）
 - ✅ 深度支持 Cursor 和 GitHub Copilot（MCP 协议）
