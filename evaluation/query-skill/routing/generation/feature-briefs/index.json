@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "features": [
+    {
+      "key": "cli-auth-authorize-view",
+      "name": "命令行登录确认授权",
+      "summary": "浏览器中的 Yuxi CLI 登录确认页：要求用户先登录，读取授权码关联的会话，展示凭据名称、状态和过期时间，提醒确认请求来源，再显式提交授权并提示回到终端。",
+      "keywords": [
+        "Yuxi CLI",
+        "确认命令行登录",
+        "命令行登录",
+        "确认授权",
+        "已授权",
+        "凭据名称",
+        "过期时间",
+        "CLI authorization",
+        "CLIAuthAuthorizeView",
+        "CLIAuthAuthorize",
+        "/auth/cli/authorize",
+        "user_code"
+      ],
+      "entryFiles": [
+        "web/src/router/index.js",
+        "web/src/views/CLIAuthAuthorizeView.vue"
+      ],
+      "contentHash": "7bf2e27b1af785cb9ae29d54905703760eb7a5e1eda470fcab0d91c31fac5f17"
+    },
+    {
+      "key": "extensions-view",
+      "name": "智能体扩展",
+      "summary": "已登录用户的智能体资源入口：按角色展示知识库、工具、MCP 和 Skills，并承载知识库、MCP、Skill 的嵌套详情页。页面负责标签、权限可见性、URL 查询同步和当前子页加载状态，具体资源操作由各子组件负责。",
+      "keywords": [
+        "智能体扩展",
+        "扩展",
+        "知识库",
+        "工具",
+        "MCP",
+        "Skills",
+        "技能",
+        "Agent Extensions",
+        "ExtensionsView",
+        "ExtensionsComp",
+        "/extensions",
+        "/extensions?tab=knowledge",
+        "/extensions?tab=tools",
+        "/extensions?tab=mcp",
+        "/extensions?tab=skills",
+        "/extensions/knowledgebase/:kbId",
+        "/extensions/mcp/:slug",
+        "/extensions/skill/:slug"
+      ],
+      "entryFiles": [
+        "web/src/router/index.js",
+        "web/src/views/ExtensionsView.vue",
+        "web/src/layouts/AppLayout.vue"
+      ],
+      "contentHash": "a7afccb2aca87e1e20d18ca89a877a4679e977b90a3f010be9d86a91f62cc82e"
+    },
+    {
+      "key": "login-view",
+      "name": "登录与首次运行初始化",
+      "summary": "公开登录页提供 UID/手机号密码登录、首次运行超级管理员创建、可选 OIDC 登录、账户锁定倒计时和服务健康提示；消费品牌/协议配置并衔接受保护页面的登录后返回路径。",
+      "keywords": [
+        "登录",
+        "欢迎登录",
+        "登录账号",
+        "UID或手机号",
+        "创建管理员账户",
+        "系统初始化",
+        "超级管理员",
+        "OIDC 登录",
+        "服务端连接失败",
+        "账户已锁定",
+        "用户协议",
+        "隐私协议",
+        "Login",
+        "Sign in",
+        "LoginView",
+        "/login",
+        "autostartOidc",
+        "oidc_error",
+        "redirect"
+      ],
+      "entryFiles": [
+        "web/src/router/index.js",
+        "web/src/views/LoginView.vue",
+        "web/src/views/HomeView.vue"
+      ],
+      "contentHash": "b4f17b1c085033d9f57e370e94bc89021ba3a8888538976ad9b659f08607a964"
+    },
+    {
+      "key": "oidc-callback-view",
+      "name": "OIDC 登录回调",
+      "summary": "公开 OIDC 回调页消费 URL 中的一次性登录 code，交换并保存用户登录态、清理回调查询参数和自动登录标记，再返回预定页面；提供处理中、成功待跳转与失败返回登录页三种展示。",
+      "keywords": [
+        "OIDC 登录回调",
+        "正在处理登录",
+        "登录成功",
+        "登录失败",
+        "参数错误",
+        "返回登录页",
+        "OIDCCallbackView",
+        "OIDCCallback",
+        "OIDC callback",
+        "exchange code",
+        "/auth/oidc/callback",
+        "code",
+        "oidc_redirect",
+        "oidc_auto_start_attempted"
+      ],
+      "entryFiles": [
+        "web/src/router/index.js",
+        "web/src/views/OIDCCallbackView.vue"
+      ],
+      "contentHash": "214ef05872d724b3846d3d4f886ca305f0c6723e02c374cb91b58be75f0b79c0"
+    },
+    {
+      "key": "workspace-view",
+      "name": "工作区与文件预览",
+      "summary": "工作区统一浏览个人文件和可访问知识库文件：个人目录支持新建、上传、下载、删除及有限格式编辑，知识库以只读方式浏览、分页和预览。页面组合侧栏、文件表和自适应预览，并管理选择状态及预览资源生命周期。",
+      "keywords": [
+        "工作区",
+        "个人工作区",
+        "快速访问",
+        "我的知识库",
+        "共享知识库",
+        "Saved Artifacts",
+        "Agents",
+        "新建文件夹",
+        "上传文件",
+        "文件预览",
+        "Workspace",
+        "WorkspaceView",
+        "WorkspaceComp",
+        "/workspace",
+        "/saved_artifacts",
+        "/agents/"
+      ],
+      "entryFiles": [
+        "web/src/router/index.js",
+        "web/src/views/WorkspaceView.vue",
+        "web/src/layouts/AppLayout.vue"
+      ],
+      "contentHash": "a528aead5358a1cb075ae36c4d98adb09ace917a5c1ef465e5166f549be31121"
+    }
+  ]
+}

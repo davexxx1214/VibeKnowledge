@@ -1,0 +1,439 @@
+{
+  "generatedAt": "2026-09-04T17:06:05.537Z",
+  "pairs": [
+    {
+      "pair": 1,
+      "arms": {
+        "A": {
+          "phases": {
+            "visualization": {
+              "observations": 26,
+              "observedTextTokens": 36443,
+              "reads": 20,
+              "distinctReadFiles": 11,
+              "repeatedExactReads": 0,
+              "searches": 6,
+              "queries": 0,
+              "discoveries": 0,
+              "resources": 0,
+              "failures": [],
+              "internalCaps": 0,
+              "tokensByKind": {
+                "rg": 8527,
+                "source": 27916
+              }
+            },
+            "instructions": {
+              "observations": 23,
+              "observedTextTokens": 19897,
+              "reads": 19,
+              "distinctReadFiles": 11,
+              "repeatedExactReads": 0,
+              "searches": 4,
+              "queries": 0,
+              "discoveries": 0,
+              "resources": 0,
+              "failures": [],
+              "internalCaps": 0,
+              "tokensByKind": {
+                "rg": 3009,
+                "source": 16888
+              }
+            }
+          },
+          "queriesByTool": {},
+          "queryArguments": []
+        },
+        "B": {
+          "phases": {
+            "visualization": {
+              "observations": 23,
+              "observedTextTokens": 25529,
+              "reads": 16,
+              "distinctReadFiles": 8,
+              "repeatedExactReads": 0,
+              "searches": 4,
+              "queries": 2,
+              "discoveries": 1,
+              "resources": 0,
+              "failures": [
+                {
+                  "operation": "rg",
+                  "args": [
+                    "-n",
+                    "visualize|structural|StaticLayout|LayoutCache|visibilitychange",
+                    "src/ui/webview/graph*.test.ts",
+                    "src/extension.test.ts",
+                    "package.json"
+                  ],
+                  "exitCode": 2
+                },
+                {
+                  "operation": "rg",
+                  "args": [
+                    "-n",
+                    "-g",
+                    "*.test.*",
+                    "GraphView|structuralGroup|requestStructuralOverview|graph-paused|selectedGroupKey|aggregateGraph|structuralPath",
+                    "src",
+                    "resources",
+                    "test"
+                  ],
+                  "exitCode": 2
+                }
+              ],
+              "internalCaps": 0,
+              "tokensByKind": {
+                "mcp-list": 2831,
+                "mcp": 1981,
+                "source": 19311,
+                "rg": 1406
+              }
+            },
+            "instructions": {
+              "observations": 16,
+              "observedTextTokens": 12063,
+              "reads": 11,
+              "distinctReadFiles": 7,
+              "repeatedExactReads": 0,
+              "searches": 3,
+              "queries": 2,
+              "discoveries": 0,
+              "resources": 0,
+              "failures": [],
+              "internalCaps": 0,
+              "tokensByKind": {
+                "mcp": 1294,
+                "source": 8938,
+                "rg": 1831
+              }
+            }
+          },
+          "queriesByTool": {
+            "find_features": 2,
+            "get_feature_brief": 2
+          },
+          "queryArguments": [
+            {
+              "phase": "visualization",
+              "args": [
+                "find_features",
+                "--query",
+                "visualization",
+                "--tokenBudget",
+                "1400"
+              ],
+              "exitCode": 0
+            },
+            {
+              "phase": "visualization",
+              "args": [
+                "get_feature_brief",
+                "--feature",
+                "graph-visualization",
+                "--tokenBudget",
+                "9000"
+              ],
+              "exitCode": 0
+            },
+            {
+              "phase": "instructions",
+              "args": [
+                "find_features",
+                "--query",
+                "Copilot Instructions",
+                "--tokenBudget",
+                "1400"
+              ],
+              "exitCode": 0
+            },
+            {
+              "phase": "instructions",
+              "args": [
+                "get_feature_brief",
+                "--feature",
+                "copilot-instructions",
+                "--tokenBudget",
+                "9000"
+              ],
+              "exitCode": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "pair": 2,
+      "arms": {
+        "A": {
+          "phases": {
+            "visualization": {
+              "observations": 23,
+              "observedTextTokens": 32379,
+              "reads": 17,
+              "distinctReadFiles": 9,
+              "repeatedExactReads": 0,
+              "searches": 6,
+              "queries": 0,
+              "discoveries": 0,
+              "resources": 0,
+              "failures": [],
+              "internalCaps": 0,
+              "tokensByKind": {
+                "rg": 10039,
+                "source": 22340
+              }
+            },
+            "instructions": {
+              "observations": 16,
+              "observedTextTokens": 16396,
+              "reads": 12,
+              "distinctReadFiles": 8,
+              "repeatedExactReads": 0,
+              "searches": 4,
+              "queries": 0,
+              "discoveries": 0,
+              "resources": 0,
+              "failures": [],
+              "internalCaps": 0,
+              "tokensByKind": {
+                "rg": 2551,
+                "source": 13845
+              }
+            }
+          },
+          "queriesByTool": {},
+          "queryArguments": []
+        },
+        "B": {
+          "phases": {
+            "visualization": {
+              "observations": 25,
+              "observedTextTokens": 26331,
+              "reads": 19,
+              "distinctReadFiles": 7,
+              "repeatedExactReads": 0,
+              "searches": 3,
+              "queries": 2,
+              "discoveries": 1,
+              "resources": 0,
+              "failures": [],
+              "internalCaps": 0,
+              "tokensByKind": {
+                "mcp-list": 2831,
+                "mcp": 1981,
+                "source": 20278,
+                "rg": 1241
+              }
+            },
+            "instructions": {
+              "observations": 19,
+              "observedTextTokens": 13322,
+              "reads": 13,
+              "distinctReadFiles": 10,
+              "repeatedExactReads": 0,
+              "searches": 4,
+              "queries": 2,
+              "discoveries": 0,
+              "resources": 0,
+              "failures": [],
+              "internalCaps": 0,
+              "tokensByKind": {
+                "mcp": 1294,
+                "source": 10254,
+                "rg": 1774
+              }
+            }
+          },
+          "queriesByTool": {
+            "find_features": 2,
+            "get_feature_brief": 2
+          },
+          "queryArguments": [
+            {
+              "phase": "visualization",
+              "args": [
+                "find_features",
+                "--query",
+                "visualization",
+                "--tokenBudget",
+                "1800"
+              ],
+              "exitCode": 0
+            },
+            {
+              "phase": "visualization",
+              "args": [
+                "get_feature_brief",
+                "--feature",
+                "graph-visualization",
+                "--tokenBudget",
+                "8500"
+              ],
+              "exitCode": 0
+            },
+            {
+              "phase": "instructions",
+              "args": [
+                "find_features",
+                "--query",
+                "Copilot Instructions",
+                "--tokenBudget",
+                "1800"
+              ],
+              "exitCode": 0
+            },
+            {
+              "phase": "instructions",
+              "args": [
+                "get_feature_brief",
+                "--feature",
+                "copilot-instructions",
+                "--tokenBudget",
+                "8000"
+              ],
+              "exitCode": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "pair": 3,
+      "arms": {
+        "A": {
+          "phases": {
+            "visualization": {
+              "observations": 26,
+              "observedTextTokens": 34709,
+              "reads": 21,
+              "distinctReadFiles": 10,
+              "repeatedExactReads": 0,
+              "searches": 5,
+              "queries": 0,
+              "discoveries": 0,
+              "resources": 0,
+              "failures": [],
+              "internalCaps": 1,
+              "tokensByKind": {
+                "rg": 9115,
+                "source": 25594
+              }
+            },
+            "instructions": {
+              "observations": 19,
+              "observedTextTokens": 17420,
+              "reads": 14,
+              "distinctReadFiles": 9,
+              "repeatedExactReads": 0,
+              "searches": 5,
+              "queries": 0,
+              "discoveries": 0,
+              "resources": 0,
+              "failures": [],
+              "internalCaps": 0,
+              "tokensByKind": {
+                "rg": 2368,
+                "source": 15052
+              }
+            }
+          },
+          "queriesByTool": {},
+          "queryArguments": []
+        },
+        "B": {
+          "phases": {
+            "visualization": {
+              "observations": 21,
+              "observedTextTokens": 29048,
+              "reads": 15,
+              "distinctReadFiles": 8,
+              "repeatedExactReads": 0,
+              "searches": 3,
+              "queries": 2,
+              "discoveries": 1,
+              "resources": 0,
+              "failures": [],
+              "internalCaps": 0,
+              "tokensByKind": {
+                "mcp-list": 2831,
+                "mcp": 1981,
+                "source": 20690,
+                "rg": 3546
+              }
+            },
+            "instructions": {
+              "observations": 16,
+              "observedTextTokens": 11347,
+              "reads": 11,
+              "distinctReadFiles": 8,
+              "repeatedExactReads": 0,
+              "searches": 3,
+              "queries": 2,
+              "discoveries": 0,
+              "resources": 0,
+              "failures": [],
+              "internalCaps": 0,
+              "tokensByKind": {
+                "mcp": 1294,
+                "source": 8483,
+                "rg": 1570
+              }
+            }
+          },
+          "queriesByTool": {
+            "find_features": 2,
+            "get_feature_brief": 2
+          },
+          "queryArguments": [
+            {
+              "phase": "visualization",
+              "args": [
+                "find_features",
+                "--query",
+                "visualization",
+                "--tokenBudget",
+                "1000"
+              ],
+              "exitCode": 0
+            },
+            {
+              "phase": "visualization",
+              "args": [
+                "get_feature_brief",
+                "--feature",
+                "graph-visualization",
+                "--tokenBudget",
+                "6500"
+              ],
+              "exitCode": 0
+            },
+            {
+              "phase": "instructions",
+              "args": [
+                "find_features",
+                "--query",
+                "Copilot Instructions",
+                "--tokenBudget",
+                "1200"
+              ],
+              "exitCode": 0
+            },
+            {
+              "phase": "instructions",
+              "args": [
+                "get_feature_brief",
+                "--feature",
+                "copilot-instructions",
+                "--tokenBudget",
+                "6500"
+              ],
+              "exitCode": 0
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "note": "Repeated read means exact duplicate observer read arguments within one task, not overlapping ranges. DistinctReadFiles excludes files only seen in rg output. Per-task model usage is not inferred from session totals."
+}

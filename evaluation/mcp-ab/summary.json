@@ -1,0 +1,230 @@
+{
+  "createdAt": "2026-09-04T15:07:25.743Z",
+  "candidateSha256": "8ae701edd1c363b07dc9b46a953abb75158195c4917f9bcd062da220c028aeb7",
+  "model": "gpt-5.6-sol",
+  "effort": "xhigh",
+  "pairs": [
+    {
+      "pair": 1,
+      "scores": {
+        "A": {
+          "critical": 17,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 1
+        },
+        "B": {
+          "critical": 17,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 0
+        }
+      },
+      "arms": {
+        "A": {
+          "observedTextTokens": 53167,
+          "publicToolOutputTokens": 62730,
+          "usage": {
+            "input_tokens": 1264415,
+            "cached_input_tokens": 1183232,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 13575,
+            "reasoning_output_tokens": 2038,
+            "total_tokens": 1277990,
+            "uncachedInput": 81183,
+            "uncachedInputPlusOutput": 94758
+          },
+          "queries": 0,
+          "discoveries": 0,
+          "resources": 0,
+          "elapsedMs": 421585
+        },
+        "B": {
+          "observedTextTokens": 61588,
+          "publicToolOutputTokens": 71178,
+          "usage": {
+            "input_tokens": 1361285,
+            "cached_input_tokens": 1270272,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 14516,
+            "reasoning_output_tokens": 1894,
+            "total_tokens": 1375801,
+            "uncachedInput": 91013,
+            "uncachedInputPlusOutput": 105529
+          },
+          "queries": 3,
+          "discoveries": 1,
+          "resources": 0,
+          "elapsedMs": 418625
+        }
+      }
+    },
+    {
+      "pair": 2,
+      "scores": {
+        "A": {
+          "critical": 16.5,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 0
+        },
+        "B": {
+          "critical": 16.5,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 0
+        }
+      },
+      "arms": {
+        "A": {
+          "observedTextTokens": 58634,
+          "publicToolOutputTokens": 68188,
+          "usage": {
+            "input_tokens": 1119592,
+            "cached_input_tokens": 1036032,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 11722,
+            "reasoning_output_tokens": 1314,
+            "total_tokens": 1131314,
+            "uncachedInput": 83560,
+            "uncachedInputPlusOutput": 95282
+          },
+          "queries": 0,
+          "discoveries": 0,
+          "resources": 0,
+          "elapsedMs": 360034
+        },
+        "B": {
+          "observedTextTokens": 52461,
+          "publicToolOutputTokens": 61388,
+          "usage": {
+            "input_tokens": 1273749,
+            "cached_input_tokens": 1195904,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 12252,
+            "reasoning_output_tokens": 827,
+            "total_tokens": 1286001,
+            "uncachedInput": 77845,
+            "uncachedInputPlusOutput": 90097
+          },
+          "queries": 2,
+          "discoveries": 1,
+          "resources": 0,
+          "elapsedMs": 390644
+        }
+      }
+    },
+    {
+      "pair": 3,
+      "scores": {
+        "A": {
+          "critical": 17,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 0
+        },
+        "B": {
+          "critical": 16.5,
+          "critical_max": 17,
+          "supplemental": 3,
+          "supplemental_max": 3,
+          "major_false_claim_count": 0
+        }
+      },
+      "arms": {
+        "A": {
+          "observedTextTokens": 55882,
+          "publicToolOutputTokens": 65679,
+          "usage": {
+            "input_tokens": 1267063,
+            "cached_input_tokens": 1184640,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 12808,
+            "reasoning_output_tokens": 1177,
+            "total_tokens": 1279871,
+            "uncachedInput": 82423,
+            "uncachedInputPlusOutput": 95231
+          },
+          "queries": 0,
+          "discoveries": 0,
+          "resources": 0,
+          "elapsedMs": 381096
+        },
+        "B": {
+          "observedTextTokens": 57207,
+          "publicToolOutputTokens": 66170,
+          "usage": {
+            "input_tokens": 1017093,
+            "cached_input_tokens": 935680,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 12055,
+            "reasoning_output_tokens": 1672,
+            "total_tokens": 1029148,
+            "uncachedInput": 81413,
+            "uncachedInputPlusOutput": 93468
+          },
+          "queries": 2,
+          "discoveries": 1,
+          "resources": 0,
+          "elapsedMs": 357775
+        }
+      }
+    }
+  ],
+  "medians": {
+    "A": {
+      "observedTextTokens": 55882,
+      "uncachedInput": 82423,
+      "uncachedInputPlusOutput": 95231,
+      "cachedInput": 1183232,
+      "totalTokens": 1277990,
+      "outputTokens": 12808,
+      "elapsedMs": 381096,
+      "publicToolOutputTokens": 65679
+    },
+    "B": {
+      "observedTextTokens": 57207,
+      "uncachedInput": 81413,
+      "uncachedInputPlusOutput": 93468,
+      "cachedInput": 1195904,
+      "totalTokens": 1286001,
+      "outputTokens": 12252,
+      "elapsedMs": 390644,
+      "publicToolOutputTokens": 66170
+    }
+  },
+  "savedFractions": {
+    "observedTextTokens": -0.023710676067427716,
+    "uncachedInput": 0.012253861179525094,
+    "uncachedInputPlusOutput": 0.018512879209501065,
+    "cachedInput": -0.010709649502379959,
+    "totalTokens": -0.006268437155220408,
+    "outputTokens": 0.04341036851967517,
+    "elapsedMs": -0.02505405462140775,
+    "publicToolOutputTokens": -0.00747575328491612
+  },
+  "gates": {
+    "efficiency": false,
+    "quality": false,
+    "noQualityLoss": false,
+    "noExtraMajorClaims": true,
+    "missedRequiredFacts": {
+      "A": 0.5,
+      "B": 1
+    },
+    "strictImprovements": 0
+  },
+  "deliveryAuditsPassed": true,
+  "limitations": [
+    "Three matched pairs/two published tasks/one selected source snapshot; no new local negative control.",
+    "Actual MCP SDK stdio via observer, not native-host MCP schema discovery or persistent latency.",
+    "Current MCP lacks Skill feature briefs and context; not isolated transport comparison.",
+    "Generation/update and installation costs are additional; no billing or statistical significance claim.",
+    "Original finite rubric is not exhaustive correctness; cached input is reported separately."
+  ]
+}

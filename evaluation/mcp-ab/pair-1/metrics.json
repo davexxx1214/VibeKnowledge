@@ -1,0 +1,525 @@
+{
+  "generatedAt": "2026-09-04T14:47:13.350Z",
+  "run": "D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-ab-jzyaQm\\pair-1",
+  "candidateSha256": "8ae701edd1c363b07dc9b46a953abb75158195c4917f9bcd062da220c028aeb7",
+  "bundleSha256": "8ae701edd1c363b07dc9b46a953abb75158195c4917f9bcd062da220c028aeb7",
+  "graphPreparation": [
+    {
+      "args": [
+        "--kind",
+        "framework",
+        "--name",
+        "Framework"
+      ],
+      "elapsedMs": 525,
+      "exitCode": 0,
+      "stdout": "Curated framework group 'framework': 11 entities, 14 relations, 14 collapsed relations -> D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-ab-jzyaQm\\generation\\.vscode\\.knowledge\\agent-graph.json\n",
+      "stderr": "Warning: 2 boundary pairs have raw relations without a continuous direct boundary path; inspect structural evidence: src/commands/mcpSetupCommands.ts#registerMcpSetupCommands -> src/i18n/i18nService.ts#t; src/ui/webview/graphView.ts#GraphView -> src/utils/types.ts#Entity\nWarning: 1 dynamic imports in selected runtime boundaries are unresolved; missing edges are coverage gaps, not evidence for removing a boundary.\n"
+    },
+    {
+      "args": [
+        "--kind",
+        "feature",
+        "--scope",
+        "src/ui/webview/graphView.ts",
+        "--key",
+        "graph-visualization",
+        "--name",
+        "Graph visualization"
+      ],
+      "elapsedMs": 213,
+      "exitCode": 0,
+      "stdout": "Curated feature group 'graph-visualization': 12 entities, 11 relations, 7 collapsed relations -> D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-ab-jzyaQm\\generation\\.vscode\\.knowledge\\agent-graph.json\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "--kind",
+        "feature",
+        "--scope",
+        "src/services/aiIntegrationService.ts",
+        "--key",
+        "copilot-instructions",
+        "--name",
+        "Copilot instructions"
+      ],
+      "elapsedMs": 236,
+      "exitCode": 0,
+      "stdout": "Curated feature group 'copilot-instructions': 11 entities, 12 relations, 9 collapsed relations -> D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-ab-jzyaQm\\generation\\.vscode\\.knowledge\\agent-graph.json\n",
+      "stderr": ""
+    }
+  ],
+  "tokenizer": {
+    "encoding": "o200k_base",
+    "version": "0.12.0"
+  },
+  "arms": {
+    "A": {
+      "sessionId": "01a06cdc-0281-7113-b7c1-27fbf50ea988",
+      "agentPath": "/root/mcp_pair1_a",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "responses": 20,
+      "elapsedMs": 421585,
+      "usage": {
+        "input_tokens": 1264415,
+        "cached_input_tokens": 1183232,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 13575,
+        "reasoning_output_tokens": 2038,
+        "total_tokens": 1277990,
+        "uncachedInput": 81183,
+        "uncachedInputPlusOutput": 94758
+      },
+      "sourceHashMismatches": [],
+      "artifactHashMismatches": [],
+      "queries": 0,
+      "discoveries": 0,
+      "resources": 0,
+      "phases": {
+        "visualization": {
+          "observations": 32,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1,
+              "end": 340
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 340,
+              "end": 700
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1070,
+              "end": 1440
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1440,
+              "end": 1645
+            },
+            {
+              "file": "src/ui/webview/graphPerformanceScript.ts",
+              "start": 1,
+              "end": 120
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1640,
+              "end": 1830
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1830,
+              "end": 1985
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 2030,
+              "end": 2188
+            },
+            {
+              "file": "src/ui/webview/graphView.test.ts",
+              "start": 1,
+              "end": 111
+            },
+            {
+              "file": "src/ui/webview/graphPerformanceScript.test.ts",
+              "start": 1,
+              "end": 167
+            },
+            {
+              "file": "src/services/knowledgeGraphService.ts",
+              "start": 40,
+              "end": 230
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 195,
+              "end": 247
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 636,
+              "end": 657
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 722,
+              "end": 765
+            },
+            {
+              "file": "src/services/structuralGraph/structuralAnalysis.test.ts",
+              "start": 1,
+              "end": 207
+            },
+            {
+              "file": "src/services/knowledgeGraphService.test.ts",
+              "start": 60,
+              "end": 102
+            },
+            {
+              "file": "src/ui/webview/graphWebviewClientScript.test.ts",
+              "start": 1,
+              "end": 41
+            },
+            {
+              "file": "package.json",
+              "start": 325,
+              "end": 342
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 704,
+              "end": 723
+            },
+            {
+              "file": "src/services/structuralGraph/structuralGraphService.ts",
+              "start": 1,
+              "end": 89
+            },
+            {
+              "file": "resources/skills/vibeknowledge-dependency-graph/scripts/structural-analysis.mjs",
+              "start": 391,
+              "end": 472
+            },
+            {
+              "file": "src/services/structuralGraph/structuralGraphService.ts",
+              "start": 95,
+              "end": 120
+            }
+          ],
+          "observedTextTokens": 35829,
+          "tokensByKind": {
+            "rg": 3745,
+            "source": 32084
+          }
+        },
+        "instructions": {
+          "observations": 22,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "src/services/aiIntegrationService.ts",
+              "start": 1,
+              "end": 300
+            },
+            {
+              "file": "src/services/aiIntegrationService.ts",
+              "start": 399,
+              "end": 610
+            },
+            {
+              "file": "src/ui/commands/entityCommands.ts",
+              "start": 1184,
+              "end": 1345
+            },
+            {
+              "file": "src/services/aiIntegrationService.test.ts",
+              "start": 1,
+              "end": 165
+            },
+            {
+              "file": "src/ui/commands/entityCommands.ts",
+              "start": 1,
+              "end": 150
+            },
+            {
+              "file": "src/i18n/en.ts",
+              "start": 280,
+              "end": 312
+            },
+            {
+              "file": "src/i18n/zh.ts",
+              "start": 284,
+              "end": 311
+            },
+            {
+              "file": "src/commands/scenarioCommands.ts",
+              "start": 1,
+              "end": 114
+            },
+            {
+              "file": "src/services/aiIntegrationService.ts",
+              "start": 686,
+              "end": 765
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 244,
+              "end": 257
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 664,
+              "end": 706
+            },
+            {
+              "file": "src/services/dependencyAnalyzer.ts",
+              "start": 44,
+              "end": 62
+            },
+            {
+              "file": "package.json",
+              "start": 78,
+              "end": 98
+            },
+            {
+              "file": "src/services/aiIntegrationService.ts",
+              "start": 851,
+              "end": 929
+            },
+            {
+              "file": "src/services/knowledgeGraphService.ts",
+              "start": 246,
+              "end": 272
+            }
+          ],
+          "observedTextTokens": 17338,
+          "tokensByKind": {
+            "rg": 2235,
+            "source": 15103
+          }
+        }
+      },
+      "observedTextTokens": 53167,
+      "reportTokens": 6622
+    },
+    "B": {
+      "sessionId": "01a06cdc-2260-7ba0-a8f4-f79fbe0b77b0",
+      "agentPath": "/root/mcp_pair1_b",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "responses": 21,
+      "elapsedMs": 418625,
+      "usage": {
+        "input_tokens": 1361285,
+        "cached_input_tokens": 1270272,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 14516,
+        "reasoning_output_tokens": 1894,
+        "total_tokens": 1375801,
+        "uncachedInput": 91013,
+        "uncachedInputPlusOutput": 105529
+      },
+      "sourceHashMismatches": [],
+      "artifactHashMismatches": [],
+      "queries": 3,
+      "discoveries": 1,
+      "resources": 0,
+      "phases": {
+        "visualization": {
+          "observations": 29,
+          "queries": 1,
+          "reads": [
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1,
+              "end": 265
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 263,
+              "end": 580
+            },
+            {
+              "file": "src/ui/webview/graphPerformanceScript.ts",
+              "start": 1,
+              "end": 120
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1080,
+              "end": 1371
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1372,
+              "end": 1630
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1630,
+              "end": 1815
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 1815,
+              "end": 2187
+            },
+            {
+              "file": "src/ui/webview/graphView.test.ts",
+              "start": 1,
+              "end": 111
+            },
+            {
+              "file": "src/ui/webview/graphPerformanceScript.test.ts",
+              "start": 1,
+              "end": 167
+            },
+            {
+              "file": "src/ui/webview/graphWebviewClientScript.test.ts",
+              "start": 1,
+              "end": 41
+            },
+            {
+              "file": "src/services/knowledgeGraphService.ts",
+              "start": 1,
+              "end": 220
+            },
+            {
+              "file": "src/ui/webview/graphView.ts",
+              "start": 627,
+              "end": 765
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 638,
+              "end": 656
+            },
+            {
+              "file": "package.json",
+              "start": 315,
+              "end": 344
+            },
+            {
+              "file": "src/services/knowledgeGraphService.test.ts",
+              "start": 60,
+              "end": 102
+            },
+            {
+              "file": "src/services/structuralGraph/structuralAnalysis.test.ts",
+              "start": 1,
+              "end": 78
+            },
+            {
+              "file": "src/services/agentGraph/agentGraphService.test.ts",
+              "start": 268,
+              "end": 370
+            },
+            {
+              "file": "package.json",
+              "start": 48,
+              "end": 67
+            },
+            {
+              "file": "package.json",
+              "start": 226,
+              "end": 256
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 228,
+              "end": 248
+            },
+            {
+              "file": "src/services/structuralGraph/structuralGraphService.ts",
+              "start": 1,
+              "end": 95
+            }
+          ],
+          "observedTextTokens": 41601,
+          "tokensByKind": {
+            "mcp-list": 2201,
+            "mcp": 2440,
+            "rg": 5894,
+            "source": 31066
+          }
+        },
+        "instructions": {
+          "observations": 21,
+          "queries": 2,
+          "reads": [
+            {
+              "file": "src/services/aiIntegrationService.ts",
+              "start": 1,
+              "end": 270
+            },
+            {
+              "file": "src/services/aiIntegrationService.ts",
+              "start": 400,
+              "end": 465
+            },
+            {
+              "file": "src/ui/commands/entityCommands.ts",
+              "start": 1,
+              "end": 83
+            },
+            {
+              "file": "src/ui/commands/entityCommands.ts",
+              "start": 1160,
+              "end": 1370
+            },
+            {
+              "file": "src/services/aiIntegrationService.test.ts",
+              "start": 1,
+              "end": 165
+            },
+            {
+              "file": "src/i18n/i18nService.ts",
+              "start": 1,
+              "end": 151
+            },
+            {
+              "file": "src/extension.ts",
+              "start": 664,
+              "end": 706
+            },
+            {
+              "file": "src/services/knowledgeGraphService.ts",
+              "start": 224,
+              "end": 280
+            },
+            {
+              "file": "src/services/aiIntegrationService.ts",
+              "start": 680,
+              "end": 735
+            },
+            {
+              "file": "src/services/dependencyAnalyzer.ts",
+              "start": 43,
+              "end": 64
+            },
+            {
+              "file": "package.json",
+              "start": 76,
+              "end": 99
+            },
+            {
+              "file": "src/i18n/en.ts",
+              "start": 280,
+              "end": 310
+            },
+            {
+              "file": "src/commands/scenarioCommands.ts",
+              "start": 1,
+              "end": 110
+            },
+            {
+              "file": "src/i18n/zh.ts",
+              "start": 290,
+              "end": 308
+            }
+          ],
+          "observedTextTokens": 19987,
+          "tokensByKind": {
+            "mcp": 3611,
+            "rg": 3100,
+            "source": 13276
+          }
+        }
+      },
+      "observedTextTokens": 61588,
+      "reportTokens": 7883
+    }
+  },
+  "limitations": [
+    "Real MCP SDK stdio bridge, not native-host discovery overhead.",
+    "Same published tasks, new independent answers; two tasks in one source snapshot.",
+    "No private reasoning/system content exported.",
+    "Generation cost separate; no feature-brief/context API in tested MCP."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-04T14:54:05.697Z",
+  "blind": "D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-blind-SGmi83",
+  "records": [
+    {
+      "arm": "A",
+      "file": "X.md",
+      "rawSha256": "36ce159bed4fd55ff48952d5f39d552d129ec869fd02becd0505d6e5fdeb086d",
+      "blindSha256": "4a6c3428d54b1b2a22784309eec8f6eff233df637fff36bca3e6c674df3ca592",
+      "changed": true
+    },
+    {
+      "arm": "B",
+      "file": "Y.md",
+      "rawSha256": "24b4e77ab23c0ba9e8d6b65af0bbd0c7184e676afc432d6a7112cab4683f1d14",
+      "blindSha256": "92894ade96d18a714f08b84d2cf8bdc97749e7afbd6acab289e4c478b368d73e",
+      "changed": true
+    }
+  ],
+  "redaction": "Only absolute trial workspace prefixes, explicit Arm A/B labels, and the execution-method preamble starting 分析范围：; no implementation content changes. Reblinding preserves the original random mapping and occurs before grader access."
+}

@@ -1,0 +1,228 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-04T15:42:56.002Z",
+  "key": "cli-auth-authorize-view",
+  "name": "命令行登录确认授权",
+  "summary": "浏览器中的 Yuxi CLI 登录确认页：要求用户先登录，读取授权码关联的会话，展示凭据名称、状态和过期时间，提醒确认请求来源，再显式提交授权并提示回到终端。",
+  "keywords": [
+    "Yuxi CLI",
+    "确认命令行登录",
+    "命令行登录",
+    "确认授权",
+    "已授权",
+    "凭据名称",
+    "过期时间",
+    "CLI authorization",
+    "CLIAuthAuthorizeView",
+    "CLIAuthAuthorize",
+    "/auth/cli/authorize",
+    "user_code"
+  ],
+  "entries": [
+    {
+      "filePath": "web/src/router/index.js",
+      "startLine": 36,
+      "endLine": 41
+    },
+    {
+      "filePath": "web/src/views/CLIAuthAuthorizeView.vue",
+      "startLine": 1,
+      "endLine": 50
+    },
+    {
+      "filePath": "web/src/views/CLIAuthAuthorizeView.vue",
+      "startLine": 98,
+      "endLine": 98
+    }
+  ],
+  "limitations": [
+    "这是前端会话读取/确认 UI，API Key 创建、交付终端、会话过期与防重复批准属于未提供的后端或 CLI；仅有页面说明，未实际执行授权。",
+    "未运行应用或测试，未联网、安装依赖或获得后端/CLI 实现。快照中未发现负责创建该浏览器授权 URL 的 CLI 来源。",
+    "已枚举快照测试，并在 web/src 的 *.test.js、*.spec.js 中检索 CLIAuth、auth_api、/auth/cli、用户状态与 router 等引用，未找到直接相关测试；不表示外部 CLI 或后端没有测试。",
+    "路由访问控制和请求 Bearer 头只是已观察的前端机制，不证明服务端授权或凭据作用域策略。"
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "页面标题“确认命令行登录”，展示授权码、凭据名称（缺省 Yuxi CLI）、session.status 和 expires_at（缺省 -）。警告要求确认是本人发起，并说明确认后以当前身份创建 API Key 返回终端；成功页只显示“已授权，可以关闭此页面并回到终端”，不显示 API Key。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 4,
+          "endLine": 45
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "user_code 来自 route.query，经 String、trim、toUpperCase 规范化；空值显示“缺少 CLI 授权码”并停止加载。组件仅 onMounted 调用 loadSession，没有 query 监听或会话轮询；因此会话详情是这次加载的结果，不是持续刷新的状态。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 52,
+          "endLine": 99
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "authApi 将规范化后的授权码 encodeURIComponent 后 GET /api/auth/cli/sessions/{userCode} 读取会话，POST /api/auth/cli/sessions/{userCode}/approve（空 JSON 对象）批准。两个调用都经过通用 apiGet/apiPost；base.js 默认要求登录，并从 userStore.getAuthHeaders 添加 Bearer token。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/apis/auth_api.js",
+          "startLine": 83,
+          "endLine": 91
+        },
+        {
+          "filePath": "web/src/apis/base.js",
+          "startLine": 17,
+          "endLine": 40
+        },
+        {
+          "filePath": "web/src/stores/user.js",
+          "startLine": 141,
+          "endLine": 146
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "会话 GET 成功后展示确认按钮，没有根据 session.status 或 expires_at 在本组件中决定能否授权。approved 初始 false，只有确认按钮调用批准 API 并成功返回后才置 true；不是根据会话已有状态推导。服务端是否接受过期或重复批准不在前端实现中。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 13,
+          "endLine": 45
+        },
+        {
+          "filePath": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 57,
+          "endLine": 98
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "加载会话时显示 spin，批准时按钮显示 approving；任一请求异常写 errorMessage，错误警告优先于加载、成功和会话内容显示。组件未提供重试或拒绝按钮，警告文案要求非本人请求直接关闭页面。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 9,
+          "endLine": 47
+        },
+        {
+          "filePath": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 70,
+          "endLine": 96
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "/auth/cli/authorize 要求登录但不要求管理员；未登录访问时全局守卫把包含 user_code 的 to.fullPath 存为 sessionStorage.redirect 并去 /login。密码登录消费该保存路径；手动 OIDC 会将它复制到 oidc_redirect，回调再消费，因此此页依赖登录链保留原授权 URL。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/router/index.js",
+          "startLine": 36,
+          "endLine": 41
+        },
+        {
+          "filePath": "web/src/router/index.js",
+          "startLine": 180,
+          "endLine": 185
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 449,
+          "endLine": 465
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 513,
+          "endLine": 522
+        },
+        {
+          "filePath": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 88,
+          "endLine": 108
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "该页是独立的懒加载顶层 Vue 路由，不嵌入 AppLayout；用 script setup/ref/computed/onMounted 和 useRoute，Ant Design Vue 的 alert/spin/result/button 依赖 main.js 全局注册。项目声明 Vue ^3.5.34、Vue Router ^5.0.6、ant-design-vue ^4.2.6，未核验安装版本。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/router/index.js",
+          "startLine": 36,
+          "endLine": 41
+        },
+        {
+          "filePath": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 52,
+          "endLine": 68
+        },
+        {
+          "filePath": "web/src/main.js",
+          "startLine": 12,
+          "endLine": 18
+        },
+        {
+          "filePath": "web/package.json",
+          "startLine": 22,
+          "endLine": 22
+        },
+        {
+          "filePath": "web/package.json",
+          "startLine": 42,
+          "endLine": 43
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "filePath": "web/package.json",
+      "contentHash": "a0e482f4f607d25869b9eee1f99484461057b98d450771b52671ae5e5fa661dd"
+    },
+    {
+      "filePath": "web/src/apis/auth_api.js",
+      "contentHash": "b725c5562d6620a3b7af4c68bf1d27a7a4dda6bc9fdcd39bf0662ee456fb638e"
+    },
+    {
+      "filePath": "web/src/apis/base.js",
+      "contentHash": "a3f093338bc437dd0676aa3348d5e5f40a8856e4e055e52f90344e013ec45858"
+    },
+    {
+      "filePath": "web/src/main.js",
+      "contentHash": "d0c0c0c13bb275f45b0a34915f683c1d0836cd1c4a438157be7bc21ce95a34c1"
+    },
+    {
+      "filePath": "web/src/router/index.js",
+      "contentHash": "878c0ce0a8de7cc0552bddd0373bb902b330119954388b0b0f107fa044f1b2b8"
+    },
+    {
+      "filePath": "web/src/stores/user.js",
+      "contentHash": "bbd2d7197caefb891bbfb3aaeda6e4e8b0f8848c062eb54ae8c0e2472da42939"
+    },
+    {
+      "filePath": "web/src/views/CLIAuthAuthorizeView.vue",
+      "contentHash": "0029ee99451665bf9803b4b48ae13fcc66a9ce5d755c3b52530f44447c0c5e93"
+    },
+    {
+      "filePath": "web/src/views/LoginView.vue",
+      "contentHash": "83307ca52ec1c60c257726701d46935b0ec76b8797c3fec9d38041832e9ad25c"
+    },
+    {
+      "filePath": "web/src/views/OIDCCallbackView.vue",
+      "contentHash": "cf695320b94ca6a438b0ce3207edf60dc03b0c51be8c18cf115e40b1bc3f7852"
+    }
+  ]
+}

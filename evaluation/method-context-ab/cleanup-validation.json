@@ -1,0 +1,113 @@
+{
+  "createdAt": "2026-09-05T02:49:24.470Z",
+  "purpose": "Validate scope cleanup only; no new Agent runs or usage measurements.",
+  "immutableHashesChecked": 26,
+  "projectedCheckHashesChecked": 5,
+  "summaryMatchesOriginalMetricsAndGrades": true,
+  "excludedTaskIdentifiersAbsent": true,
+  "localDocumentationLinksChecked": 92,
+  "acceptanceSha256": "747e6cb36fe9385d1758a481f2934074652a03280971571fdba3f598ee83ece2",
+  "execution": "Retained fixture rerun on fresh copies of original candidate workspaces; original artifacts unchanged.",
+  "runs": [
+    {
+      "pair": 1,
+      "arm": "A",
+      "taskId": "export_subset",
+      "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-scope-validation-l7uo4u\\pair-1-A",
+      "exitCode": 0,
+      "passed": 4,
+      "failed": 0,
+      "assertions": [
+        {
+          "name": "export_subset EX1 EX2: selects existing entities and the induced relation set without changing graph order",
+          "status": "passed"
+        },
+        {
+          "name": "export_subset EX1 EX2: empty and unknown-only selections produce an empty export",
+          "status": "passed"
+        },
+        {
+          "name": "export_subset EX3: keeps the aggregate graph as the source when that service is present",
+          "status": "passed"
+        },
+        {
+          "name": "export_subset EX4: preserves the existing full-export envelope when no IDs are provided",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "taskId": "export_subset",
+      "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-scope-validation-l7uo4u\\pair-1-B",
+      "exitCode": 0,
+      "passed": 4,
+      "failed": 0,
+      "assertions": [
+        {
+          "name": "export_subset EX1 EX2: selects existing entities and the induced relation set without changing graph order",
+          "status": "passed"
+        },
+        {
+          "name": "export_subset EX1 EX2: empty and unknown-only selections produce an empty export",
+          "status": "passed"
+        },
+        {
+          "name": "export_subset EX3: keeps the aggregate graph as the source when that service is present",
+          "status": "passed"
+        },
+        {
+          "name": "export_subset EX4: preserves the existing full-export envelope when no IDs are provided",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "pair": 4,
+      "arm": "A",
+      "taskId": "codelens_unicode",
+      "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-scope-validation-l7uo4u\\pair-4-A",
+      "exitCode": 0,
+      "passed": 3,
+      "failed": 0,
+      "assertions": [
+        {
+          "name": "codelens_unicode CU1: does not truncate descriptions that fit in 96 Unicode code points",
+          "status": "passed"
+        },
+        {
+          "name": "codelens_unicode CU2: keeps 95 whole code points before an ellipsis for over-limit descriptions",
+          "status": "passed"
+        },
+        {
+          "name": "codelens_unicode CU3: preserves whitespace compaction, fallback, and surrounding model fields",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "pair": 4,
+      "arm": "B",
+      "taskId": "codelens_unicode",
+      "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-scope-validation-l7uo4u\\pair-4-B",
+      "exitCode": 0,
+      "passed": 3,
+      "failed": 0,
+      "assertions": [
+        {
+          "name": "codelens_unicode CU1: does not truncate descriptions that fit in 96 Unicode code points",
+          "status": "passed"
+        },
+        {
+          "name": "codelens_unicode CU2: keeps 95 whole code points before an ellipsis for over-limit descriptions",
+          "status": "passed"
+        },
+        {
+          "name": "codelens_unicode CU3: preserves whitespace compaction, fallback, and surrounding model fields",
+          "status": "passed"
+        }
+      ]
+    }
+  ]
+}

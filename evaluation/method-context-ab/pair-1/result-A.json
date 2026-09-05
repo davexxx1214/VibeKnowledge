@@ -1,0 +1,8 @@
+{
+  "createdAt": "2026-09-05T02:10:36.083Z",
+  "pair": 1,
+  "arm": "A",
+  "taskId": "export_subset",
+  "reportSha256": "99fd2dc99419a27467f31e7beaebcc9ef18b8d5e853df54641ed89bd1cd24d58",
+  "patchSha256": "ea331f3e5c5ae6c972ceedb42660f316c46db86545a6130fd7cea9da6d501bc3"
+}

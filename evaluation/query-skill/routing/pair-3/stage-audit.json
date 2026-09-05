@@ -1,0 +1,52 @@
+{
+  "createdAt": "2026-09-04T15:56:55.514Z",
+  "passed": true,
+  "arms": {
+    "A": {
+      "errors": [],
+      "modelContexts": 1,
+      "tasks": [
+        {
+          "phase": "discovery",
+          "exit": 0
+        },
+        {
+          "phase": "followup",
+          "exit": 0
+        },
+        {
+          "phase": "control",
+          "exit": 0
+        }
+      ],
+      "observations": 24,
+      "cappedObservations": 0,
+      "failedObservations": 0
+    },
+    "B": {
+      "errors": [],
+      "modelContexts": 1,
+      "tasks": [
+        {
+          "phase": "discovery",
+          "exit": 0
+        },
+        {
+          "phase": "followup",
+          "exit": 0
+        },
+        {
+          "phase": "control",
+          "exit": 0
+        }
+      ],
+      "observations": 18,
+      "cappedObservations": 0,
+      "failedObservations": 0
+    }
+  },
+  "limits": [
+    "Observation delivery is multiplicity-aware, not call-identity proof. Agent scope compliance additionally reviewed from public calls.",
+    "Full-session numeric usage does not support exact uncached-token attribution to each stage."
+  ]
+}

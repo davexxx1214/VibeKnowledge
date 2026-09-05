@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-04T14:47:22.545Z",
+  "blind": "D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-blind-v8rNaW",
+  "records": [
+    {
+      "arm": "A",
+      "file": "X.md",
+      "rawSha256": "489db4c4d2a34f8b6f468f4df3a61be878d0e6e3332721f54e484cc2b6de1210",
+      "blindSha256": "9d98fdee784bf0d588520cd510778df8b47132486d2ace575901b7b72ea44eb7",
+      "changed": true
+    },
+    {
+      "arm": "B",
+      "file": "Y.md",
+      "rawSha256": "18564e2652f6ed6aa931c038406c09ea4508c0782e95ff758a0401badf42dd7f",
+      "blindSha256": "55c588b0fc878abf441b39043ce046711bb8c08cc6743590d51d70f34dd420c1",
+      "changed": true
+    }
+  ],
+  "redaction": "Only absolute trial workspace prefixes and explicit Arm A/B labels; no semantic content changes."
+}

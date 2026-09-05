@@ -1,0 +1,463 @@
+{
+  "version": 1,
+  "createdAt": "2026-09-04T17:11:40.170Z",
+  "reviewerAgentPath": "/root/mcp_feature_harness_review",
+  "passed": false,
+  "operationalScopePassed": true,
+  "preregisteredMethodConformancePassed": false,
+  "disposition": "Preserve all runs for transparent descriptive reporting; not eligible for an unqualified preregistered efficiency/quality gate claim.",
+  "run": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc",
+  "candidateSha256": "a5f2e2730c22d694acce43aa3a1573a4e16e533e1ee45ec6f08526fe3582f768",
+  "privacy": {
+    "candidateReportsRead": false,
+    "gradesRead": false,
+    "performanceMetricResultsRead": false,
+    "privateReasoningInspected": false,
+    "systemMessagesInspected": false,
+    "sessionCodeExecuted": false,
+    "patchBodies": "Not displayed or interpreted as answers; only public patch construction/target headers inspected.",
+    "publicOutputs": "Used only for exact observer-delivery matching and MCP discovery schema verification; answer/source content not exported."
+  },
+  "findings": [
+    {
+      "id": "D1",
+      "severity": "blocking_for_preregistered_gate",
+      "status": "confirmed_method_deviation",
+      "affectedSessions": "all six",
+      "finding": "The six prewritten dispatches each include both Arm A and Arm B instruction sections, whereas protocol.md says each dispatch includes only its arm. The pre-run harness review explicitly required withholding the other arm instructions. The primary agent confirmed that the actual execution plan sent the complete tasks.md with both conditional sections plus an own-arm/workspace prefix.",
+      "evidence": [
+        "protocol.md, dispatch paragraph",
+        "dispatches.json, all six records: complete frozen tasks.md suffix and both arm sections",
+        "finalize-freeze.mjs, dispatch construction appends the entire tasks.md",
+        "primary agent audit-response attestation in this review task; actual opaque plaintext not decrypted"
+      ],
+      "reasoning": "Both arms remained operationally separated, but the predeclared arm-specific information restriction was not met. Extra method text is part of a token-cost experiment's input and may affect behavior/context costs. Its irrelevance or zero effect cannot be established without a changed counterfactual; do not retrospectively weaken the protocol because observed command scopes were clean.",
+      "adjudication": "Do not certify preregistered method conformance or open the summary hard gate. This is not a finding that a candidate accessed the other arm's files, reports or artifacts. Preserve results and disclose the deviation; do not overwrite records, rerun candidates, or relabel the original gate as satisfied."
+    },
+    {
+      "id": "L1",
+      "severity": "verification_limit",
+      "status": "acknowledged_not_independent_failure",
+      "finding": "Actual public dispatch records retain opaque message payloads; their hashes cannot be compared directly with prepared plaintext hashes to prove exact message delivery.",
+      "evidence": [
+        "public-dispatch.json: all plaintextIndependentlyMatched fields are false",
+        "dispatches.json: all prepared plaintext hashes match referenced preparedPlaintextSha256",
+        "compliance-audit.json: role=user task-body-match review flags"
+      ],
+      "adjudication": "Resolve the task-body review flags as an explicit evidentiary limitation, not proof of wrong delivered task and not proof of exact match. Rely only on prewritten plaintext/primary-agent attestation for task content; public records corroborate task names, fork none, no overrides and dispatch order."
+    },
+    {
+      "id": "R1",
+      "severity": "resolved",
+      "status": "public_patch_scope_verified",
+      "affectedSession": "pair 1 A",
+      "finding": "A nonliteral apply_patch argument builds only the assigned REPORT.md from an in-memory report string after citation-link formatting.",
+      "callId": "call_64mzcGPjlxFiKihwk9G20VLq",
+      "publicInputSha256": "0052a90e3b5262881df615ae6ffde69d3ac2dfa893dca0c7ca125641c9e4cd01",
+      "adjudication": "Fixed workspace root and fixed /REPORT.md suffix; constant Add File header; each body line is prefixed with +; only report string replace/split/map/join operations. No source read, code execution, external target or observation-output filtering. The original automated nonliteral warning is closed without inspecting report prose."
+    },
+    {
+      "id": "I1",
+      "severity": "disclosed_expected_cap",
+      "status": "not_a_scope_failure",
+      "affectedSession": "pair 3 A",
+      "finding": "Observer index 4 is capped at the predeclared 18,000-character observer limit; its capped display including marker is completely delivered. No public outer-output truncation markers or missing observations were found in any session.",
+      "adjudication": "Keep the cap event in accounting; it is not unobserved filtering or delivery failure."
+    }
+  ],
+  "commonChecks": {
+    "distinctSessionIds": 6,
+    "model": "gpt-5.6-sol",
+    "effort": "xhigh",
+    "taskStartsPerSession": 1,
+    "taskCompletionsPerSession": 1,
+    "abortsInCompletedSessions": 0,
+    "forkedFromIdsPresent": false,
+    "priorPublicAssistantOrToolItemsReportedByAudit": 0,
+    "actualPublicDispatchForkSetting": "none for six records; no model/effort overrides",
+    "actualDispatchOrder": [
+      "1A",
+      "1B",
+      "2B",
+      "2A",
+      "3A",
+      "3B"
+    ],
+    "pairsSerialized": true,
+    "withinPairStartSeparationSeconds": [
+      21.805,
+      21.408,
+      24.241
+    ],
+    "preflightRecordedAt": "2026-09-04T16:46:25.992Z",
+    "firstCandidateStartedAt": "2026-09-04T16:46:49.116Z",
+    "lastCandidateCompletedAt": "2026-09-04T17:05:32.713Z",
+    "sourceSearchesAndReads": "All public shell commands are node observe.cjs in the assigned workdir. Source/test reads and rg paths/flags were individually reviewed.",
+    "commandObservationCount": 253,
+    "allRawPublicCommandArgsMatchObservationLogs": true,
+    "noDirectSkillBriefGraphContentReads": true,
+    "noOtherWorkspaceReads": true,
+    "noInternetToolCalls": true,
+    "noSourceExecutionOrBuildTests": true,
+    "noCandidateSubagents": true,
+    "reportPatchTargets": "Each candidate's own REPORT.md only.",
+    "mcp": "B only: one complete discovery and four calls, find_features then get_feature_brief for each task; 13 actual tool definitions match preflight, including all three new endpoints. No direct artifact reads or resource/other-MCP calls.",
+    "delivery": "253/253 multiplicity-aware exact observer displays found in public outputs; zero missing and zero outer truncation markers.",
+    "independentCurrentIntegrity": {
+      "runtime": [],
+      "runtimeSource": [],
+      "dependencies": [],
+      "dependencyInventoryMatches": true,
+      "harness": [],
+      "helpers": [],
+      "nodeMatches": true,
+      "rgMatches": true,
+      "tokenizerExecutableMatches": true,
+      "tokenizerModuleMatches": true,
+      "dispatchesMatchFreeze": true
+    }
+  },
+  "sessions": [
+    {
+      "pair": 1,
+      "arm": "A",
+      "sessionId": "01a06d50-d2d0-7b63-92e7-135415317935",
+      "agentPath": "/root/mcp_feature_pair1_a",
+      "passed": false,
+      "operationalScopePassed": true,
+      "methodConformancePassed": false,
+      "findings": [
+        "D1",
+        "L1",
+        "R1"
+      ],
+      "adjudication": "Public commands, patch target, source/artifact identity, assigned-workspace scope and observation delivery pass. Overall withheld because this session used a prepared/attested dispatch containing both arm instruction sections, contrary to the preregistered information restriction. Exact opaque plaintext remains unverified.",
+      "evidence": {
+        "taskStart": {
+          "at": "2026-09-04T16:46:49.116Z",
+          "turnId": "01a06d50-d449-7dc1-8c79-d95956df291d"
+        },
+        "taskEnd": {
+          "at": "2026-09-04T16:53:01.444Z",
+          "turnId": "01a06d50-d449-7dc1-8c79-d95956df291d"
+        },
+        "model": "gpt-5.6-sol",
+        "effort": "xhigh",
+        "observations": 49,
+        "operations": {
+          "rg": 10,
+          "read": 39
+        },
+        "rawPublicCommandKeysMatchObservations": true,
+        "missingPublicDelivery": [],
+        "outerTruncationMarkers": 0,
+        "cappedObserverIndexes": [],
+        "frozenFileMismatches": [],
+        "extraFiles": [],
+        "symlinks": [],
+        "patchTarget": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/pair-1/A/REPORT.md",
+        "discovery": []
+      }
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "sessionId": "01a06d51-27f8-7fb3-b442-4d288cd6c18b",
+      "agentPath": "/root/mcp_feature_pair1_b",
+      "passed": false,
+      "operationalScopePassed": true,
+      "methodConformancePassed": false,
+      "findings": [
+        "D1",
+        "L1"
+      ],
+      "adjudication": "Public commands, patch target, source/artifact identity, assigned-workspace scope and observation delivery pass. Overall withheld because this session used a prepared/attested dispatch containing both arm instruction sections, contrary to the preregistered information restriction. Exact opaque plaintext remains unverified.",
+      "evidence": {
+        "taskStart": {
+          "at": "2026-09-04T16:47:10.921Z",
+          "turnId": "01a06d51-296f-7592-97e9-1a9cc12ecb04"
+        },
+        "taskEnd": {
+          "at": "2026-09-04T16:52:21.561Z",
+          "turnId": "01a06d51-296f-7592-97e9-1a9cc12ecb04"
+        },
+        "model": "gpt-5.6-sol",
+        "effort": "xhigh",
+        "observations": 39,
+        "operations": {
+          "mcp-list": 1,
+          "mcp": 4,
+          "read": 27,
+          "rg": 7
+        },
+        "rawPublicCommandKeysMatchObservations": true,
+        "missingPublicDelivery": [],
+        "outerTruncationMarkers": 0,
+        "cappedObserverIndexes": [],
+        "frozenFileMismatches": [],
+        "extraFiles": [],
+        "symlinks": [],
+        "patchTarget": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/pair-1/B/REPORT.md",
+        "discovery": [
+          {
+            "exitCode": 0,
+            "truncated": false,
+            "chars": 10507,
+            "validJson": true,
+            "names": [
+              "search_entities",
+              "search_observations",
+              "list_relations",
+              "find_features",
+              "get_feature_brief",
+              "get_task_context",
+              "query_graph",
+              "get_entity",
+              "get_neighbors",
+              "shortest_path",
+              "analyze_structure",
+              "analyze_impact",
+              "find_structural_path"
+            ],
+            "equalsPreflightTools": true
+          }
+        ]
+      }
+    },
+    {
+      "pair": 2,
+      "arm": "A",
+      "sessionId": "01a06d57-71ee-7af2-b76d-67165452e64e",
+      "agentPath": "/root/mcp_feature_pair2_a",
+      "passed": false,
+      "operationalScopePassed": true,
+      "methodConformancePassed": false,
+      "findings": [
+        "D1",
+        "L1"
+      ],
+      "adjudication": "Public commands, patch target, source/artifact identity, assigned-workspace scope and observation delivery pass. Overall withheld because this session used a prepared/attested dispatch containing both arm instruction sections, contrary to the preregistered information restriction. Exact opaque plaintext remains unverified.",
+      "evidence": {
+        "taskStart": {
+          "at": "2026-09-04T16:54:02.885Z",
+          "turnId": "01a06d57-72e3-76a1-9247-6b34b578103a"
+        },
+        "taskEnd": {
+          "at": "2026-09-04T16:59:12.059Z",
+          "turnId": "01a06d57-72e3-76a1-9247-6b34b578103a"
+        },
+        "model": "gpt-5.6-sol",
+        "effort": "xhigh",
+        "observations": 39,
+        "operations": {
+          "rg": 10,
+          "read": 29
+        },
+        "rawPublicCommandKeysMatchObservations": true,
+        "missingPublicDelivery": [],
+        "outerTruncationMarkers": 0,
+        "cappedObserverIndexes": [],
+        "frozenFileMismatches": [],
+        "extraFiles": [],
+        "symlinks": [],
+        "patchTarget": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/pair-2/A/REPORT.md",
+        "discovery": []
+      }
+    },
+    {
+      "pair": 2,
+      "arm": "B",
+      "sessionId": "01a06d57-1e77-7691-98f3-3bda76d1b5a4",
+      "agentPath": "/root/mcp_feature_pair2_b",
+      "passed": false,
+      "operationalScopePassed": true,
+      "methodConformancePassed": false,
+      "findings": [
+        "D1",
+        "L1"
+      ],
+      "adjudication": "Public commands, patch target, source/artifact identity, assigned-workspace scope and observation delivery pass. Overall withheld because this session used a prepared/attested dispatch containing both arm instruction sections, contrary to the preregistered information restriction. Exact opaque plaintext remains unverified.",
+      "evidence": {
+        "taskStart": {
+          "at": "2026-09-04T16:53:41.477Z",
+          "turnId": "01a06d57-1f4a-77d0-88ba-e5ad6ec60f1f"
+        },
+        "taskEnd": {
+          "at": "2026-09-04T16:59:13.742Z",
+          "turnId": "01a06d57-1f4a-77d0-88ba-e5ad6ec60f1f"
+        },
+        "model": "gpt-5.6-sol",
+        "effort": "xhigh",
+        "observations": 44,
+        "operations": {
+          "mcp-list": 1,
+          "mcp": 4,
+          "read": 32,
+          "rg": 7
+        },
+        "rawPublicCommandKeysMatchObservations": true,
+        "missingPublicDelivery": [],
+        "outerTruncationMarkers": 0,
+        "cappedObserverIndexes": [],
+        "frozenFileMismatches": [],
+        "extraFiles": [],
+        "symlinks": [],
+        "patchTarget": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/pair-2/B/REPORT.md",
+        "discovery": [
+          {
+            "exitCode": 0,
+            "truncated": false,
+            "chars": 10507,
+            "validJson": true,
+            "names": [
+              "search_entities",
+              "search_observations",
+              "list_relations",
+              "find_features",
+              "get_feature_brief",
+              "get_task_context",
+              "query_graph",
+              "get_entity",
+              "get_neighbors",
+              "shortest_path",
+              "analyze_structure",
+              "analyze_impact",
+              "find_structural_path"
+            ],
+            "equalsPreflightTools": true
+          }
+        ]
+      }
+    },
+    {
+      "pair": 3,
+      "arm": "A",
+      "sessionId": "01a06d5c-f3ef-79d2-ac45-80669aa23b83",
+      "agentPath": "/root/mcp_feature_pair3_a",
+      "passed": false,
+      "operationalScopePassed": true,
+      "methodConformancePassed": false,
+      "findings": [
+        "D1",
+        "L1",
+        "I1"
+      ],
+      "adjudication": "Public commands, patch target, source/artifact identity, assigned-workspace scope and observation delivery pass. Overall withheld because this session used a prepared/attested dispatch containing both arm instruction sections, contrary to the preregistered information restriction. Exact opaque plaintext remains unverified.",
+      "evidence": {
+        "taskStart": {
+          "at": "2026-09-04T17:00:03.856Z",
+          "turnId": "01a06d5c-f4ff-7d90-a9f6-964734e5b7bc"
+        },
+        "taskEnd": {
+          "at": "2026-09-04T17:05:12.874Z",
+          "turnId": "01a06d5c-f4ff-7d90-a9f6-964734e5b7bc"
+        },
+        "model": "gpt-5.6-sol",
+        "effort": "xhigh",
+        "observations": 45,
+        "operations": {
+          "rg": 10,
+          "read": 35
+        },
+        "rawPublicCommandKeysMatchObservations": true,
+        "missingPublicDelivery": [],
+        "outerTruncationMarkers": 0,
+        "cappedObserverIndexes": [
+          4
+        ],
+        "frozenFileMismatches": [],
+        "extraFiles": [],
+        "symlinks": [],
+        "patchTarget": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/pair-3/A/REPORT.md",
+        "discovery": []
+      }
+    },
+    {
+      "pair": 3,
+      "arm": "B",
+      "sessionId": "01a06d5d-52a5-70a2-8a06-fa360b2afb42",
+      "agentPath": "/root/mcp_feature_pair3_b",
+      "passed": false,
+      "operationalScopePassed": true,
+      "methodConformancePassed": false,
+      "findings": [
+        "D1",
+        "L1"
+      ],
+      "adjudication": "Public commands, patch target, source/artifact identity, assigned-workspace scope and observation delivery pass. Overall withheld because this session used a prepared/attested dispatch containing both arm instruction sections, contrary to the preregistered information restriction. Exact opaque plaintext remains unverified.",
+      "evidence": {
+        "taskStart": {
+          "at": "2026-09-04T17:00:28.097Z",
+          "turnId": "01a06d5d-53a2-70a1-a05f-833f1a327007"
+        },
+        "taskEnd": {
+          "at": "2026-09-04T17:05:32.713Z",
+          "turnId": "01a06d5d-53a2-70a1-a05f-833f1a327007"
+        },
+        "model": "gpt-5.6-sol",
+        "effort": "xhigh",
+        "observations": 37,
+        "operations": {
+          "mcp-list": 1,
+          "mcp": 4,
+          "read": 26,
+          "rg": 6
+        },
+        "rawPublicCommandKeysMatchObservations": true,
+        "missingPublicDelivery": [],
+        "outerTruncationMarkers": 0,
+        "cappedObserverIndexes": [],
+        "frozenFileMismatches": [],
+        "extraFiles": [],
+        "symlinks": [],
+        "patchTarget": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/pair-3/B/REPORT.md",
+        "discovery": [
+          {
+            "exitCode": 0,
+            "truncated": false,
+            "chars": 10507,
+            "validJson": true,
+            "names": [
+              "search_entities",
+              "search_observations",
+              "list_relations",
+              "find_features",
+              "get_feature_brief",
+              "get_task_context",
+              "query_graph",
+              "get_entity",
+              "get_neighbors",
+              "shortest_path",
+              "analyze_structure",
+              "analyze_impact",
+              "find_structural_path"
+            ],
+            "equalsPreflightTools": true
+          }
+        ]
+      }
+    }
+  ],
+  "evidenceSha256": {
+    "protocol.md": "e5c16d78a70ee5af007890ee5348495b06c41662b786d1007484fd8eccd81375",
+    "tasks.md": "ee59a95c0f94fa074df2dc09f8ae1709a140aef0d25de33c610037e22b832628",
+    "dispatches.json": "7f8d3d0636e959ff0960a3705a50160a223c8b6c4ef78f146778ee931d3acd8a",
+    "public-dispatch.json": "6e218e509b6b39bb616a3700e089c2f140d2c55944cbd549333b3bd807ae679b",
+    "session-mapping.json": "3db2799f18db9aa89b76c15ba0d9ed6565634eea09e32d472dced5cbe50391e8",
+    "freeze.json": "82d4e42e67d85fe90235a622169899e192ca4635ac19e38efc9303d7da562baf",
+    "preflight-checks.json": "ebf5cf4184e0593370d613a7805ff9a9d254fc7d593708314719962d2b90ffdb",
+    "post-run-integrity.json": "0a28f923c75ac9f66737ddbb5608c48822f906a6580567fed8fe18922c4ebc58",
+    "compliance-audit.json": "74bfa30990471a5be895773e7d1a8caf671d14e55e271d713028cf93e48bc2bb",
+    "scope-inspect.cjs": "79b93b969ce6a4f3eb10e83bc4bffe8856a1112e2398499db589ddea04ac2429"
+  },
+  "limits": [
+    "This is independent adjudication of observable scope and predeclared method, not quality grading or token-efficiency interpretation.",
+    "No exact plaintext equivalence or delivery can be proven from opaque persisted dispatch payloads. Prewritten prompts and sender attestation are not cryptographic proof of delivery.",
+    "No inherited public history or forked-from identity was observed; no-fork configuration is additionally corroborated by public dispatch metadata, not inspection of private/system context.",
+    "Final file hashes and observed calls cannot exclude transient changes reverted before audit, invisible platform actions, or unrecorded external activity; this is not a security sandbox.",
+    "MCP runtime/dependency hashes and approved bridge path were verified; this review does not monitor network syscalls or attest every child process binary independently.",
+    "Delivery proof uses multiplicity-aware substring consumption, not protocol call-id causal binding. Numeric telemetry and grading remain separate.",
+    "Only the six mapped completed sessions are audited; the findings do not certify absence of any undisclosed, unmapped infrastructure run.",
+    "The helper was added after completion solely for read-only audit; it is not misrepresented as pre-run instrumentation."
+  ]
+}

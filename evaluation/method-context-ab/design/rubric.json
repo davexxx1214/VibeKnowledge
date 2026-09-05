@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "status": "Retained task criteria after user scope correction; not a newly preregistered two-task experiment.",
+  "scoring": {
+    "taskScore": "Mean of critical item scores (0, 0.5, 1).",
+    "majorErrors": "Report count and stable item IDs separately. A major error is an item-specific listed condition, not every minor incomplete requirement. Do not silently turn all partial credit into a global fail.",
+    "verification": "Tests establish observable behavior, not implementation form. A failing combined assertion does not automatically zero unrelated rubric items. Inspect actual output and source diff. No bonus for copying expected implementation or adding tests."
+  },
+  "tasks": [
+    {
+      "id": "export_subset",
+      "category": "Focused executable change in a 721-line multi-purpose file",
+      "selector": "src/services/exportService.ts#ExportService.exportToJSON",
+      "criticalItems": [
+        {
+          "id": "EX1",
+          "critical": true,
+          "scale": [
+            0,
+            0.5,
+            1
+          ],
+          "sources": [
+            "src/services/exportService.ts:273-280",
+            "src/utils/types.ts:26-38"
+          ],
+          "expectedBehavior": "The public exportToJSON API accepts optional { entityIds?: readonly string[] }. When present, it retains exactly the existing entities with selected IDs in original graph order. Repeated and unknown IDs are harmless; [] and an all-unknown selection yield no entities. Input arrays and graph objects are not mutated.",
+          "scoring": {
+            "0": "Absent, contradicted by implementation/source, or materially wrong.",
+            "1": "All required behavior or analysis in expectedBehavior is supported and correct.",
+            "0.5": "Ordinary nonempty selections work, but an empty/unknown/repeated selection, readonly typing, original order, or non-mutation is wrong."
+          },
+          "majorErrorCriteria": "Selected export includes unselected existing entities; empty selection exports the entire graph; API change breaks callers without a second argument.",
+          "checks": [
+            "EX1 EX2: selects existing entities and the induced relation set without changing graph order",
+            "EX1 EX2: empty and unknown-only selections produce an empty export"
+          ]
+        },
+        {
+          "id": "EX2",
+          "critical": true,
+          "scale": [
+            0,
+            0.5,
+            1
+          ],
+          "sources": [
+            "src/services/exportService.ts:275-297",
+            "src/utils/types.ts:56-77"
+          ],
+          "expectedBehavior": "For a selected export, retain relations if both endpoint IDs identify exported entities, preserving relation order and all such relationships (including a self-relation). Observations contain only exported entity keys, retaining empty arrays. All three statistics equal actual exported collection counts.",
+          "scoring": {
+            "0": "Absent, contradicted by implementation/source, or materially wrong.",
+            "1": "All required behavior or analysis in expectedBehavior is supported and correct.",
+            "0.5": "Main entity filter works, but one of endpoint filtering, observation scoping, empty observation keys, or statistics is incomplete."
+          },
+          "majorErrorCriteria": "Exports observations for unselected entities, relations crossing the selected boundary, or statistics describing the full graph rather than the result.",
+          "checks": [
+            "EX1 EX2: selects existing entities and the induced relation set without changing graph order",
+            "EX1 EX2: empty and unknown-only selections produce an empty export"
+          ]
+        },
+        {
+          "id": "EX3",
+          "critical": true,
+          "scale": [
+            0,
+            0.5,
+            1
+          ],
+          "sources": [
+            "src/services/exportService.ts:19-26",
+            "src/services/exportService.ts:684-706"
+          ],
+          "expectedBehavior": "Both construction modes work. When knowledgeGraphService is supplied, selected entities, relations, and observations come from it through the existing source-selection contract; manual services are not used instead. The fallback mode uses existing entity/relation/observation services.",
+          "scoring": {
+            "0": "Absent, contradicted by implementation/source, or materially wrong.",
+            "1": "All required behavior or analysis in expectedBehavior is supported and correct.",
+            "0.5": "Selected data comes from the aggregate, but one category accidentally falls back or fallback construction regresses."
+          },
+          "majorErrorCriteria": "Bypasses the aggregate and exports manual-service data when the aggregate service is present.",
+          "checks": [
+            "EX3: keeps the aggregate graph as the source when that service is present"
+          ]
+        },
+        {
+          "id": "EX4",
+          "critical": true,
+          "scale": [
+            0,
+            0.5,
+            1
+          ],
+          "sources": [
+            "src/services/exportService.ts:273-302"
+          ],
+          "expectedBehavior": "Omitted options, {}, and { entityIds: undefined } preserve the full JSON export, version 1.0, parseable exportTime, statistics, entities, relations, observations, and current envelope. JSON remains writable to the requested path.",
+          "scoring": {
+            "0": "Absent, contradicted by implementation/source, or materially wrong.",
+            "1": "All required behavior or analysis in expectedBehavior is supported and correct.",
+            "0.5": "Full export still works but an envelope field, value, or no-selection form regresses."
+          },
+          "majorErrorCriteria": "Existing one-argument export fails or silently exports an empty/partial graph.",
+          "checks": [
+            "EX4: preserves the existing full-export envelope when no IDs are provided"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "codelens_unicode",
+      "category": "Small known-file executable control (56 source lines)",
+      "selector": "src/providers/knowledgeCodeLensModel.ts#compactDescription",
+      "criticalItems": [
+        {
+          "id": "CU1",
+          "critical": true,
+          "scale": [
+            0,
+            0.5,
+            1
+          ],
+          "sources": [
+            "src/providers/knowledgeCodeLensModel.ts:6",
+            "src/providers/knowledgeCodeLensModel.ts:50-56"
+          ],
+          "expectedBehavior": "After whitespace compaction, descriptions containing no more than 96 Unicode code points remain complete, including astral emoji whose UTF-16 length exceeds 96.",
+          "scoring": {
+            "0": "Absent, contradicted by implementation/source, or materially wrong.",
+            "1": "All required behavior or analysis in expectedBehavior is supported and correct.",
+            "0.5": "Most emoji work, but the exact 96-code-point boundary truncates or the implementation counts grapheme clusters rather than the requested code points."
+          },
+          "majorErrorCriteria": "Continues using UTF-16 code-unit length to truncate in-limit emoji descriptions.",
+          "checks": [
+            "CU1: does not truncate descriptions that fit in 96 Unicode code points"
+          ]
+        },
+        {
+          "id": "CU2",
+          "critical": true,
+          "scale": [
+            0,
+            0.5,
+            1
+          ],
+          "sources": [
+            "src/providers/knowledgeCodeLensModel.ts:50-56"
+          ],
+          "expectedBehavior": "Descriptions over 96 Unicode code points become the first 95 complete code points plus the existing single ellipsis. No lone surrogate is introduced at a cut boundary; ASCII behavior stays the same.",
+          "scoring": {
+            "0": "Absent, contradicted by implementation/source, or materially wrong.",
+            "1": "All required behavior or analysis in expectedBehavior is supported and correct.",
+            "0.5": "Does not split emoji, but is off by one or changes the ellipsis."
+          },
+          "majorErrorCriteria": "Splits a surrogate pair, produces more than 96 code points for an over-limit description, or returns the entire over-limit string.",
+          "checks": [
+            "CU2: keeps 95 whole code points before an ellipsis for over-limit descriptions"
+          ]
+        },
+        {
+          "id": "CU3",
+          "critical": true,
+          "scale": [
+            0,
+            0.5,
+            1
+          ],
+          "sources": [
+            "src/providers/knowledgeCodeLensModel.ts:28-46",
+            "src/providers/knowledgeCodeLensModel.ts:50-51"
+          ],
+          "expectedBehavior": "Preserves whitespace collapse/trim before truncation, empty/undefined description fallback to entity name, entityId, line conversion, observation/relation title fields, and out-of-range filtering.",
+          "scoring": {
+            "0": "Absent, contradicted by implementation/source, or materially wrong.",
+            "1": "All required behavior or analysis in expectedBehavior is supported and correct.",
+            "0.5": "Description behavior is correct but one surrounding existing detail changes without need."
+          },
+          "majorErrorCriteria": "Empty descriptions yield blank labels instead of the entity name, or valid entities disappear from CodeLens output.",
+          "checks": [
+            "CU3: preserves whitespace compaction, fallback, and surrounding model fields"
+          ]
+        }
+      ]
+    }
+  ]
+}

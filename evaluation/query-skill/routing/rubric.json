@@ -1,0 +1,511 @@
+{
+  "title": "命令行授权功能定位、登录往返与局部阅读",
+  "criticalMax": 12,
+  "phaseMax": {
+    "discovery": 5,
+    "followup": 5,
+    "control": 2
+  },
+  "allowedScores": [
+    0,
+    0.5,
+    1
+  ],
+  "scoringPolicy": {
+    "one": "该项核心事实完整且正确，带能支持结论的源码路径及行号；等价措辞或额外但准确的相关说明均可。",
+    "half": "核心方向正确但有重要遗漏；或事实完整正确但没有可追溯源码行号。各项 partial 提供具体参考。",
+    "zero": "该项缺失、主要判断错误，或被该项内的重大错误断言推翻。",
+    "aggregation": "逐项相加。重大错误另行记录，并使直接受该断言影响的评分项为 0；不机械清零同一条重大错误列出的所有项，也不另扣总分，以免重复处罚。",
+    "neutrality": "仅评最终可追溯结论，不按工具、搜索/阅读顺序、文件读取数、耗时、token、篇幅或输出格式偏好给分。",
+    "phases": "按各阶段回应评分。followup 可引用 discovery 中已建立且有依据的事实，不要求复制旧结论；本阶段须增补登录往返事实。"
+  },
+  "items": [
+    {
+      "id": "D1",
+      "phase": "discovery",
+      "criterion": "定位 CLIAuthAuthorizeView.vue 与 /auth/cli/authorize；该路由要求登录而未要求管理员，普通已登录用户不会因管理员守卫被拦。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 5,
+          "endLine": 6,
+          "supports": "用户可描述的页面标题"
+        },
+        {
+          "path": "web/src/router/index.js",
+          "startLine": 36,
+          "endLine": 41,
+          "supports": "路由、组件与 requiresAuth 元信息"
+        },
+        {
+          "path": "web/src/router/index.js",
+          "startLine": 157,
+          "endLine": 185,
+          "supports": "登录要求判定"
+        },
+        {
+          "path": "web/src/router/index.js",
+          "startLine": 187,
+          "endLine": 215,
+          "supports": "管理员及超级管理员限制仅按相应元信息触发"
+        }
+      ],
+      "partial": "只定位组件/路由或只正确说明前端访问条件，另一部分遗漏。"
+    },
+    {
+      "id": "D2",
+      "phase": "discovery",
+      "criterion": "授权码来自 route.query.user_code，先 String(... || '')、trim、toUpperCase；挂载时加载会话，空码时设置缺少授权码错误、结束 loading 并提前返回，不发会话请求。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 64,
+          "endLine": 84,
+          "supports": "授权码归一化、空码分支和加载"
+        },
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 98,
+          "endLine": 98,
+          "supports": "挂载触发加载"
+        }
+      ],
+      "partial": "来源与处理或空码/挂载行为中有一部分正确，但重要部分缺失；不得把它说成严格格式验证。"
+    },
+    {
+      "id": "D3",
+      "phase": "discovery",
+      "criterion": "加载调用 getCLIAuthSession，用编码后的授权码 GET /api/auth/cli/sessions/{code}；确认调用 approveCLIAuthSession，POST /api/auth/cli/sessions/{code}/approve，JSON 请求体为 {}。两者使用默认需认证的基础封装，认证头来自当前 userStore token 的 Bearer 值，非管理员专用 API。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 76,
+          "endLine": 90,
+          "supports": "页面到 API 的调用"
+        },
+        {
+          "path": "web/src/apis/auth_api.js",
+          "startLine": 83,
+          "endLine": 91,
+          "supports": "编码、端点和空对象参数"
+        },
+        {
+          "path": "web/src/apis/base.js",
+          "startLine": 17,
+          "endLine": 40,
+          "supports": "默认认证及身份头合并"
+        },
+        {
+          "path": "web/src/apis/base.js",
+          "startLine": 153,
+          "endLine": 159,
+          "supports": "GET 默认认证与管理员封装的区别"
+        },
+        {
+          "path": "web/src/apis/base.js",
+          "startLine": 176,
+          "endLine": 191,
+          "supports": "POST 序列化、默认认证及管理员封装的区别"
+        },
+        {
+          "path": "web/src/stores/user.js",
+          "startLine": 7,
+          "endLine": 18,
+          "supports": "token 状态与登录判断"
+        },
+        {
+          "path": "web/src/stores/user.js",
+          "startLine": 141,
+          "endLine": 146,
+          "supports": "Bearer 头"
+        }
+      ],
+      "partial": "两项请求大体正确但遗漏编码、请求体或认证来源之一，或只完整追踪其中一个请求。"
+    },
+    {
+      "id": "D4",
+      "phase": "discovery",
+      "criterion": "会话返回值用于展示 key_name/status/expires_at（含模板回退值）；确认请求完成后才把本地 approved 设为 true 并显示已授权、提示回终端。不能把 session.status 当成本地 approved 的来源；确认返回值未被该组件接收并转交 API Key，提示文字不是后端签发/传递实现的证据。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 14,
+          "endLine": 45,
+          "supports": "成功态、展示字段、API Key 提示和确认按钮"
+        },
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 58,
+          "endLine": 62,
+          "supports": "approved 初始为 false"
+        },
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 76,
+          "endLine": 90,
+          "supports": "会话赋值和确认成功后本地状态更新"
+        }
+      ],
+      "partial": "正确讲清展示与成功态，或正确限制 API Key 结论，但未同时覆盖；无需列出每个模板回退字符串。"
+    },
+    {
+      "id": "D5",
+      "phase": "discovery",
+      "criterion": "区分初次加载 loading 与确认提交 approving；加载/确认异常分别写入 errorMessage（优先 error.message，否则各自回退文案），finally 结束各自忙碌状态。模板优先显示错误提示，因此错误会替代加载/会话/成功内容，而不是仅额外弹出一条提示。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 9,
+          "endLine": 21,
+          "supports": "顶层错误、加载与内容的互斥优先级"
+        },
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 43,
+          "endLine": 45,
+          "supports": "确认按钮 loading 绑定"
+        },
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 70,
+          "endLine": 95,
+          "supports": "两条请求的异常及 finally 处理"
+        }
+      ],
+      "partial": "只解释一种请求的失败处理，或正确说明错误信息但未说明忙碌状态/模板互斥。"
+    },
+    {
+      "id": "F1",
+      "phase": "followup",
+      "criterion": "未登录访问同一受保护链接，守卫把 to.fullPath 存入 sessionStorage.redirect 并返回 /login；保存的是含授权码查询参数的完整前端目标，不是只保存 pathname，也不是直接把 CLI 链接作为登录页 query 传过去。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/router/index.js",
+          "startLine": 36,
+          "endLine": 41,
+          "supports": "CLI 路由要求认证"
+        },
+        {
+          "path": "web/src/router/index.js",
+          "startLine": 180,
+          "endLine": 185,
+          "supports": "fullPath 的保存位置和登录导航"
+        }
+      ],
+      "partial": "正确说明去登录页且有保存目标，但未说明保存位置或完整查询参数。"
+    },
+    {
+      "id": "F2",
+      "phase": "followup",
+      "criterion": "密码路径由 LoginView 调用 userStore.login；store 向 /api/auth/token POST FormData（username 来自 loginId、password），成功更新 token/用户状态并将 user_token 写入 localStorage。随后 LoginView 读取并删除 sessionStorage.redirect，再 push 原非根目标。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/LoginView.vue",
+          "startLine": 442,
+          "endLine": 465,
+          "supports": "登录调用与回跳目标消费、删除和导航"
+        },
+        {
+          "path": "web/src/stores/user.js",
+          "startLine": 23,
+          "endLine": 33,
+          "supports": "密码登录请求及字段"
+        },
+        {
+          "path": "web/src/stores/user.js",
+          "startLine": 49,
+          "endLine": 65,
+          "supports": "成功后登录状态与 token 持久化"
+        }
+      ],
+      "partial": "密码登录状态建立或目标恢复链路正确，但另一部分缺失；无需逐一枚举用户资料字段。"
+    },
+    {
+      "id": "F3",
+      "phase": "followup",
+      "criterion": "手动 OIDC 调用 getOIDCLoginUrl() 时没有传目标参数，因此 API 请求 /api/auth/oidc/login-url 的 redirect_path 是默认 /。收到 login_url 后，登录页按 sessionStorage.redirect、当前路由 query.redirect、/ 的优先级选目标，写 oidc_redirect，再用 window.location.href 去 login_url；本题保存的是原 CLI 完整链接，不能等同于请求给服务端的默认 /。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/LoginView.vue",
+          "startLine": 513,
+          "endLine": 522,
+          "supports": "无参数发起、浏览器保存目标的优先级与外部导航"
+        },
+        {
+          "path": "web/src/apis/auth_api.js",
+          "startLine": 36,
+          "endLine": 43,
+          "supports": "默认参数及 login-url 请求"
+        }
+      ],
+      "partial": "正确说明浏览器保存目标并跳身份提供方，或发现默认 / 与 CLI 目标的差异，但链路未完整。"
+    },
+    {
+      "id": "F4",
+      "phase": "followup",
+      "criterion": "OIDC 回调读取字符串 code，调用 exchangeOIDCCode，POST /api/auth/oidc/exchange-code 的 JSON {code}；成功后清掉回调 URL query，更新 userStore 登录状态并持久化 user_token。读取并移除 oidc_redirect，随后按已保存的非根目标导航；本题 OIDC 路径并未像密码路径那样删除原 redirect，需明确这项清理差异。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/router/index.js",
+          "startLine": 30,
+          "endLine": 35,
+          "supports": "OIDC 回调路由"
+        },
+        {
+          "path": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 54,
+          "endLine": 91,
+          "supports": "code 检查、交换、query 清理、登录状态和 oidc_redirect 的处理"
+        },
+        {
+          "path": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 95,
+          "endLine": 109,
+          "supports": "延迟导航到非根目标"
+        },
+        {
+          "path": "web/src/apis/auth_api.js",
+          "startLine": 66,
+          "endLine": 80,
+          "supports": "code 交换 POST 的数据"
+        },
+        {
+          "path": "web/src/views/LoginView.vue",
+          "startLine": 450,
+          "endLine": 451,
+          "supports": "密码路径明确删除 redirect"
+        },
+        {
+          "path": "web/src/views/LoginView.vue",
+          "startLine": 517,
+          "endLine": 522,
+          "supports": "手动 OIDC 发起只读取 redirect、另写 oidc_redirect"
+        }
+      ],
+      "partial": "回调建立登录与恢复目标大体正确，但遗漏 code 交换/URL 清理或未准确比较 redirect 的清理；不要求点出延迟毫秒数或自动登录标记实现。"
+    },
+    {
+      "id": "F5",
+      "phase": "followup",
+      "criterion": "区分 OIDC code 是本次网页登录交换用途，CLI user_code 是定位及确认命令行会话用途；回调清理的是回调页 query，CLI 授权码仍随保存的原目标返回。网页登录成功只让用户回到授权页；授权页挂载只加载会话，仍需显式确认按钮触发 approve，不会因为完成密码/OIDC 登录自动批准。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 54,
+          "endLine": 69,
+          "supports": "OIDC code 的用途及回调 query 清理"
+        },
+        {
+          "path": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 89,
+          "endLine": 109,
+          "supports": "恢复已保存目标"
+        },
+        {
+          "path": "web/src/views/LoginView.vue",
+          "startLine": 450,
+          "endLine": 465,
+          "supports": "密码成功只导航到目标"
+        },
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 43,
+          "endLine": 45,
+          "supports": "按钮触发确认"
+        },
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 64,
+          "endLine": 98,
+          "supports": "CLI 授权码用途及挂载只加载会话"
+        },
+        {
+          "path": "web/src/apis/auth_api.js",
+          "startLine": 66,
+          "endLine": 91,
+          "supports": "两种 code 使用不同接口"
+        }
+      ],
+      "partial": "准确区分两种 code 或准确说明登录不自动批准，但未同时讲清两者及目标恢复。"
+    },
+    {
+      "id": "C1",
+      "phase": "control",
+      "criterion": "isAdmin=false 时 normalizeTab('mcp') 返回 skills；isAdmin=true 时 normalizeTab(['skills','mcp']) 返回 knowledge。includes 对整个入参做匹配，不取数组第一个元素；非法值回退当前角色标签列表第一项。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/ExtensionsView.vue",
+          "startLine": 51,
+          "endLine": 65,
+          "supports": "角色标签列表、默认标签与直接 includes"
+        }
+      ],
+      "partial": "两个返回值中只答对一个，或两个值正确但缺少依据。"
+    },
+    {
+      "id": "C2",
+      "phase": "control",
+      "criterion": "调用 router.replace({ query: { q: 'needle' } })：先浅复制 route.query，knowledge 是管理员默认项，所以删除 query.tab，保留 q；不是 push，也不是清空全部 query。",
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/ExtensionsView.vue",
+          "startLine": 51,
+          "endLine": 60,
+          "supports": "管理员默认标签为 knowledge"
+        },
+        {
+          "path": "web/src/views/ExtensionsView.vue",
+          "startLine": 67,
+          "endLine": 75,
+          "supports": "复制 query、删除默认 tab、router.replace"
+        }
+      ],
+      "partial": "正确给出保留 q 并去掉 tab，或正确识别 replace，但调用参数/解释不完整。"
+    }
+  ],
+  "majorFalseClaims": [
+    {
+      "id": "M1",
+      "definition": "声称 CLI 页面需要管理员，或相关会话请求是匿名请求、无需当前登录身份。",
+      "affectedItems": [
+        "D1",
+        "D3"
+      ],
+      "sourceEvidence": [
+        {
+          "path": "web/src/router/index.js",
+          "startLine": 36,
+          "endLine": 41,
+          "supports": "仅 requiresAuth"
+        },
+        {
+          "path": "web/src/apis/auth_api.js",
+          "startLine": 83,
+          "endLine": 91,
+          "supports": "普通 apiGet/apiPost"
+        },
+        {
+          "path": "web/src/apis/base.js",
+          "startLine": 29,
+          "endLine": 37,
+          "supports": "默认附带认证身份"
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "definition": "把提示文字当成已核实的实现，声称这个 Vue 组件生成 API Key、保存/展示具体密钥或直接转交密钥给终端；或捏造未包含的后端签发、轮询、过期保证。仅明确标注未知的推测不算。",
+      "affectedItems": [
+        "D4"
+      ],
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 26,
+          "endLine": 27,
+          "supports": "这是界面提示"
+        },
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 86,
+          "endLine": 95,
+          "supports": "组件只等待确认并更新 approved，没有密钥传递代码"
+        }
+      ]
+    },
+    {
+      "id": "M3",
+      "definition": "声称手动 OIDC 请求 login-url 时显式将原 CLI 链接传为 redirect_path，或声称密码与手动 OIDC 成功都删除 redirect 与 oidc_redirect 两条记录。",
+      "affectedItems": [
+        "F3",
+        "F4"
+      ],
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/LoginView.vue",
+          "startLine": 450,
+          "endLine": 451,
+          "supports": "密码删除 redirect"
+        },
+        {
+          "path": "web/src/views/LoginView.vue",
+          "startLine": 513,
+          "endLine": 522,
+          "supports": "手动调用无参、保存另一个 key"
+        },
+        {
+          "path": "web/src/apis/auth_api.js",
+          "startLine": 36,
+          "endLine": 38,
+          "supports": "服务端请求参数默认 /"
+        },
+        {
+          "path": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 89,
+          "endLine": 91,
+          "supports": "回调删除 oidc_redirect"
+        }
+      ]
+    },
+    {
+      "id": "M4",
+      "definition": "把 OIDC 登录 code 与 CLI user_code 说成同一凭据/同一接口用途，或断言网页登录成功会自动调用命令行 approve。",
+      "affectedItems": [
+        "F5"
+      ],
+      "sourceEvidence": [
+        {
+          "path": "web/src/apis/auth_api.js",
+          "startLine": 66,
+          "endLine": 91,
+          "supports": "交换与会话确认接口分离"
+        },
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 43,
+          "endLine": 45,
+          "supports": "确认需要按钮动作"
+        },
+        {
+          "path": "web/src/views/CLIAuthAuthorizeView.vue",
+          "startLine": 86,
+          "endLine": 98,
+          "supports": "挂载只触发 loadSession"
+        }
+      ]
+    },
+    {
+      "id": "M5",
+      "definition": "声称 normalizeTab 会解析查询数组并取第一个合法标签，或 replaceTabQuery 默认清空所有查询参数。",
+      "affectedItems": [
+        "C1",
+        "C2"
+      ],
+      "sourceEvidence": [
+        {
+          "path": "web/src/views/ExtensionsView.vue",
+          "startLine": 62,
+          "endLine": 75,
+          "supports": "直接 includes、浅复制后仅修改 tab"
+        }
+      ]
+    }
+  ],
+  "designNotes": {
+    "scope": "已在隔离目录内检查真实前端源码；无需后端、二进制素材、运行项目、测试、外部资料或私有评测信息。",
+    "expectedCoreFiles": [
+      "web/src/views/CLIAuthAuthorizeView.vue",
+      "web/src/router/index.js",
+      "web/src/apis/auth_api.js",
+      "web/src/apis/base.js",
+      "web/src/stores/user.js",
+      "web/src/views/LoginView.vue",
+      "web/src/views/OIDCCallbackView.vue",
+      "web/src/views/ExtensionsView.vue"
+    ],
+    "boundedness": "discovery 的核心链路涉及 5 个文件；followup 复用并新增 2 个页面；control 给定单个文件，仅需标签定义和两个相邻函数。合计 8 个核心文件，读取范围不是评分要求。",
+    "stageRationale": "discovery 从可见页面行为进入，不给实现文件；followup 在同一功能上改为未登录入口并比较两条成功回跳路径，不能仅复述首次页面结论；control 移除发现负担，仅判断一小段同步代码。",
+    "coverage": "任务中的每个分析问题均对应 D1-D5、F1-F5 或 C1-C2，sourceEvidence 给出源码路径与行号。故障只要求页面层处理，不要求枚举公共请求封装的所有 HTTP 错误。缺少后端源码时不得将界面提示升级为后端事实。",
+    "protocol": "候选只读分析并在会话内回答，不实施授权、登录或源文件修改。评测执行者分别投放 tasks.json 的三个值，不预泄露后续题目与答案。"
+  }
+}

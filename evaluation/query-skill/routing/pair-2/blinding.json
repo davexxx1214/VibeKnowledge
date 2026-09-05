@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-04T15:53:15.764Z",
+  "blind": "D:\\workspace\\VibeKnowledge\\.vscode-test\\routing-blind-OlaAc1",
+  "records": [
+    {
+      "arm": "A",
+      "file": "X.md",
+      "rawSha256": "514e01272c643dcc4bb9246dc1c24703325816fb3ddf93bd1609d04d41199786",
+      "blindSha256": "514e01272c643dcc4bb9246dc1c24703325816fb3ddf93bd1609d04d41199786",
+      "changed": false
+    },
+    {
+      "arm": "B",
+      "file": "Y.md",
+      "rawSha256": "dd5f65abd1dc718550e6428d3e7efa15b9eaffbefbdad7d6cdb80a14675f1ad4",
+      "blindSha256": "dd5f65abd1dc718550e6428d3e7efa15b9eaffbefbdad7d6cdb80a14675f1ad4",
+      "changed": false
+    }
+  ],
+  "redaction": "Absolute trial workspace prefixes and literal Arm A/B labels only; no answer prose removed."
+}

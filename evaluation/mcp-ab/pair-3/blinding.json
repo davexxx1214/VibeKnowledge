@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-04T15:00:45.393Z",
+  "blind": "D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-blind-3XqHKL",
+  "records": [
+    {
+      "arm": "A",
+      "file": "Y.md",
+      "rawSha256": "45ce495f1035c8afce68b7c2cc98fb5b1713b85ed05a0544cfb4926a5147b5c5",
+      "blindSha256": "c955ef5a1e4df0e4337f2cd644eaa0d3f737e77e96781dbf49a863015ccf9fb5",
+      "changed": true
+    },
+    {
+      "arm": "B",
+      "file": "X.md",
+      "rawSha256": "832283e68fdbc53483b17ec5c6371a8b2cb7f4ecb978906e4d3f33c19d6cf6ec",
+      "blindSha256": "9aa545364e6de77a11f431cae98268d9b80df4b23e8cd5dee59db361cf9a7773",
+      "changed": true
+    }
+  ],
+  "redaction": "Only absolute trial workspace prefixes, explicit Arm A/B labels, and pre-task execution-method prologue. The prologue is checked to contain no substantive answer; task sections are unchanged. Reblinding preserves the original random mapping and occurs before grader access."
+}

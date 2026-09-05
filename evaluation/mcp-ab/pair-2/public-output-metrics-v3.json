@@ -1,0 +1,25 @@
+{
+  "version": 3,
+  "createdAt": "2026-09-04T14:54:00.338Z",
+  "tokenizer": "o200k_base",
+  "freshSingleTaskValidated": true,
+  "arms": {
+    "A": {
+      "sessionId": "01a06ce2-efde-7733-8f2e-555634a2afd0",
+      "agentPath": "/root/mcp_pair2_a",
+      "toolOutputItems": 17,
+      "textBlocks": 62,
+      "truncationMarkers": 0,
+      "publicToolOutputTokens": 68188
+    },
+    "B": {
+      "sessionId": "01a06ce3-11db-78f1-a579-78ac42bbfb25",
+      "agentPath": "/root/mcp_pair2_b",
+      "toolOutputItems": 20,
+      "textBlocks": 77,
+      "truncationMarkers": 0,
+      "publicToolOutputTokens": 61388
+    }
+  },
+  "note": "Actual public tool-text blocks, after any tool-layer truncation, including wrapper formatting/errors; not observer stdout before delivery. No private content exported. Model token telemetry is a separate measure."
+}

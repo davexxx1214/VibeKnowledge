@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-05T00:19:51.134Z",
+  "blind": "D:\\workspace\\VibeKnowledge\\.vscode-test\\skill-precision-ueXaLu\\blind-c7Ydmi",
+  "mapping": {
+    "A": "Y",
+    "B": "X"
+  },
+  "records": [
+    {
+      "arm": "A",
+      "label": "Y",
+      "sha256": "f32b17545689a1f295136420c38463a0d13a58c08738bd9fb5fc89ec611c8f15",
+      "facts": 11,
+      "sourceInputsUnchanged": true,
+      "publicationValid": true
+    },
+    {
+      "arm": "B",
+      "label": "X",
+      "sha256": "8667fa9acb8a5ffbc92def129e78bd370b25007dd8d54176707c1014e4764a5a",
+      "facts": 11,
+      "sourceInputsUnchanged": true,
+      "publicationValid": true
+    }
+  ],
+  "draftChanges": "None; identical bytes copied, no content redaction."
+}

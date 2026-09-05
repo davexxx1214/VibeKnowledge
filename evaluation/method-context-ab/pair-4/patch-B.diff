@@ -1,0 +1,51 @@
+diff --git "a/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\snapshot\\src/providers/knowledgeCodeLensModel.test.ts" "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-4\\B\\src/providers/knowledgeCodeLensModel.test.ts"
+index ce65be2..fcf7986 100644
+--- "a/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\snapshot\\src/providers/knowledgeCodeLensModel.test.ts"
++++ "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-4\\B\\src/providers/knowledgeCodeLensModel.test.ts"
+@@ -55,8 +55,27 @@ describe('buildKnowledgeCodeLensModels', () => {
+     ]);
+   });
+ 
+-  it('falls back to the entity name and skips out-of-range locations', () => {
+-    const visible = entity({ description: '', origin: 'agent' });
++  it.each([
++    ['95 emoji', '😀'.repeat(95), '😀'.repeat(95)],
++    ['96 emoji', '😀'.repeat(96), '😀'.repeat(96)],
++    ['97 emoji', '😀'.repeat(97), `${'😀'.repeat(95)}…`],
++    ['emoji at the cutoff', `${'a'.repeat(94)}😀bc`, `${'a'.repeat(94)}😀…`],
++    ['96 ASCII characters', 'a'.repeat(96), 'a'.repeat(96)],
++    ['97 ASCII characters', 'a'.repeat(97), `${'a'.repeat(95)}…`],
++    ['compacted whitespace', `  ${'😀'.repeat(94)}\n\t a  `, `${'😀'.repeat(94)} a`],
++  ])('limits descriptions by code points: %s', (_label, description, expected) => {
++    const models = buildKnowledgeCodeLensModels(
++      [entity({ description, origin: 'agent' })],
++      [],
++      100,
++      () => 0
++    );
++
++    expect(models[0].title).toBe(`🧠 KG: ${expected} · 📝 0 · 🔗 0`);
++  });
++
++  it.each(['', ' \n\t ', undefined])('falls back to the entity name for %j and skips out-of-range locations', (description) => {
++    const visible = entity({ description, origin: 'agent' });
+     const outside = entity({
+       id: 'outside',
+       description: 'Outside',
+diff --git "a/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\snapshot\\src/providers/knowledgeCodeLensModel.ts" "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-4\\B\\src/providers/knowledgeCodeLensModel.ts"
+index a3cf0e6..d2a4653 100644
+--- "a/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\snapshot\\src/providers/knowledgeCodeLensModel.ts"
++++ "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-4\\B\\src/providers/knowledgeCodeLensModel.ts"
+@@ -49,8 +49,9 @@ export function buildKnowledgeCodeLensModels(
+ 
+ function compactDescription(description?: string): string {
+   const compact = description?.replace(/\s+/g, ' ').trim() || '';
+-  if (compact.length <= MAX_DESCRIPTION_LENGTH) {
++  const codePoints = Array.from(compact);
++  if (codePoints.length <= MAX_DESCRIPTION_LENGTH) {
+     return compact;
+   }
+-  return `${compact.slice(0, MAX_DESCRIPTION_LENGTH - 1)}…`;
++  return `${codePoints.slice(0, MAX_DESCRIPTION_LENGTH - 1).join('')}…`;
+ }
+

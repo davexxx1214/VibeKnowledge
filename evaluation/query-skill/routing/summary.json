@@ -1,0 +1,837 @@
+{
+  "createdAt": "2026-09-04T15:59:21.816Z",
+  "maxScore": 12,
+  "pairs": [
+    {
+      "pair": 1,
+      "arms": {
+        "A": {
+          "score": 11.5,
+          "missed": 0.5,
+          "majorFalseClaims": 0,
+          "observedTextTokens": 15722,
+          "publicToolOutputTokens": 18552,
+          "usage": {
+            "input_tokens": 1012740,
+            "cached_input_tokens": 971008,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 5920,
+            "reasoning_output_tokens": 901,
+            "total_tokens": 1018660,
+            "uncachedInput": 41732,
+            "uncachedInputPlusOutput": 47652
+          },
+          "elapsedMs": 221105,
+          "queries": 0,
+          "phases": {
+            "discovery": {
+              "observations": 12,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/CLIAuthAuthorizeView.vue",
+                  "start": 1,
+                  "end": 186
+                },
+                {
+                  "file": "web/src/router/index.js",
+                  "start": 1,
+                  "end": 205
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 1,
+                  "end": 101
+                },
+                {
+                  "file": "web/src/apis/base.js",
+                  "start": 1,
+                  "end": 190
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 1,
+                  "end": 96
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 138,
+                  "end": 147
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 309,
+                  "end": 340
+                },
+                {
+                  "file": "web/src/router/index.js",
+                  "start": 203,
+                  "end": 227
+                }
+              ],
+              "observedTextTokens": 9565,
+              "tokensByKind": {
+                "task": 230,
+                "rg": 1889,
+                "source": 7446
+              },
+              "score": 4.5
+            },
+            "followup": {
+              "observations": 7,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/LoginView.vue",
+                  "start": 426,
+                  "end": 532
+                },
+                {
+                  "file": "web/src/views/OIDCCallbackView.vue",
+                  "start": 1,
+                  "end": 189
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 31,
+                  "end": 80
+                },
+                {
+                  "file": "web/src/utils/oidcAutoStart.js",
+                  "start": 1,
+                  "end": 35
+                }
+              ],
+              "observedTextTokens": 5271,
+              "tokensByKind": {
+                "task": 319,
+                "rg": 1494,
+                "source": 3458
+              },
+              "score": 5
+            },
+            "control": {
+              "observations": 3,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/ExtensionsView.vue",
+                  "start": 36,
+                  "end": 83
+                }
+              ],
+              "observedTextTokens": 886,
+              "tokensByKind": {
+                "task": 242,
+                "rg": 149,
+                "source": 495
+              },
+              "score": 2
+            }
+          }
+        },
+        "B": {
+          "score": 12,
+          "missed": 0,
+          "majorFalseClaims": 0,
+          "observedTextTokens": 14197,
+          "publicToolOutputTokens": 16463,
+          "usage": {
+            "input_tokens": 904731,
+            "cached_input_tokens": 877184,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 5502,
+            "reasoning_output_tokens": 428,
+            "total_tokens": 910233,
+            "uncachedInput": 27547,
+            "uncachedInputPlusOutput": 33049
+          },
+          "elapsedMs": 202315,
+          "queries": 2,
+          "phases": {
+            "discovery": {
+              "observations": 11,
+              "queries": 2,
+              "reads": [
+                {
+                  "file": ".agents/skills/vibeknowledge-query/SKILL.md",
+                  "start": 1,
+                  "end": 32
+                },
+                {
+                  "file": "web/src/views/CLIAuthAuthorizeView.vue",
+                  "start": 1,
+                  "end": 186
+                },
+                {
+                  "file": "web/src/router/index.js",
+                  "start": 1,
+                  "end": 60
+                },
+                {
+                  "file": "web/src/router/index.js",
+                  "start": 164,
+                  "end": 227
+                },
+                {
+                  "file": "web/src/router/index.js",
+                  "start": 149,
+                  "end": 164
+                },
+                {
+                  "file": "web/src/apis/base.js",
+                  "start": 1,
+                  "end": 225
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 1,
+                  "end": 155
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 73,
+                  "end": 96
+                }
+              ],
+              "observedTextTokens": 9348,
+              "tokensByKind": {
+                "task": 230,
+                "skill": 944,
+                "query": 1618,
+                "source": 6556
+              },
+              "score": 5
+            },
+            "followup": {
+              "observations": 6,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/LoginView.vue",
+                  "start": 430,
+                  "end": 535
+                },
+                {
+                  "file": "web/src/views/OIDCCallbackView.vue",
+                  "start": 1,
+                  "end": 160
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 1,
+                  "end": 81
+                },
+                {
+                  "file": "web/src/utils/oidcAutoStart.js",
+                  "start": 1,
+                  "end": 36
+                }
+              ],
+              "observedTextTokens": 4073,
+              "tokensByKind": {
+                "task": 319,
+                "source": 3504,
+                "rg": 250
+              },
+              "score": 5
+            },
+            "control": {
+              "observations": 3,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/ExtensionsView.vue",
+                  "start": 39,
+                  "end": 78
+                }
+              ],
+              "observedTextTokens": 776,
+              "tokensByKind": {
+                "task": 242,
+                "rg": 131,
+                "source": 403
+              },
+              "score": 2
+            }
+          }
+        }
+      },
+      "changePercent": {
+        "observed": -9.699783742526396,
+        "publicTool": -11.260241483398016,
+        "uncachedInputPlusOutput": -30.645093595232098
+      }
+    },
+    {
+      "pair": 2,
+      "arms": {
+        "A": {
+          "score": 12,
+          "missed": 0,
+          "majorFalseClaims": 0,
+          "observedTextTokens": 15206,
+          "publicToolOutputTokens": 18026,
+          "usage": {
+            "input_tokens": 1100633,
+            "cached_input_tokens": 1067392,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 6291,
+            "reasoning_output_tokens": 931,
+            "total_tokens": 1106924,
+            "uncachedInput": 33241,
+            "uncachedInputPlusOutput": 39532
+          },
+          "elapsedMs": 236775,
+          "queries": 0,
+          "phases": {
+            "discovery": {
+              "observations": 12,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/CLIAuthAuthorizeView.vue",
+                  "start": 1,
+                  "end": 186
+                },
+                {
+                  "file": "web/src/router/index.js",
+                  "start": 1,
+                  "end": 205
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 1,
+                  "end": 101
+                },
+                {
+                  "file": "web/src/apis/base.js",
+                  "start": 1,
+                  "end": 186
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 1,
+                  "end": 95
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 138,
+                  "end": 147
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 309,
+                  "end": 339
+                },
+                {
+                  "file": "web/src/router/index.js",
+                  "start": 203,
+                  "end": 227
+                }
+              ],
+              "observedTextTokens": 9587,
+              "tokensByKind": {
+                "task": 230,
+                "rg": 1961,
+                "source": 7396
+              },
+              "score": 5
+            },
+            "followup": {
+              "observations": 9,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/LoginView.vue",
+                  "start": 426,
+                  "end": 544
+                },
+                {
+                  "file": "web/src/views/OIDCCallbackView.vue",
+                  "start": 1,
+                  "end": 126
+                },
+                {
+                  "file": "web/src/views/OIDCCallbackView.vue",
+                  "start": 119,
+                  "end": 133
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 31,
+                  "end": 81
+                },
+                {
+                  "file": "web/src/views/LoginView.vue",
+                  "start": 219,
+                  "end": 245
+                },
+                {
+                  "file": "web/src/utils/oidcAutoStart.js",
+                  "start": 30,
+                  "end": 35
+                }
+              ],
+              "observedTextTokens": 4698,
+              "tokensByKind": {
+                "task": 319,
+                "rg": 1190,
+                "source": 3189
+              },
+              "score": 5
+            },
+            "control": {
+              "observations": 3,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/ExtensionsView.vue",
+                  "start": 31,
+                  "end": 80
+                }
+              ],
+              "observedTextTokens": 921,
+              "tokensByKind": {
+                "task": 242,
+                "rg": 149,
+                "source": 530
+              },
+              "score": 2
+            }
+          }
+        },
+        "B": {
+          "score": 12,
+          "missed": 0,
+          "majorFalseClaims": 0,
+          "observedTextTokens": 15690,
+          "publicToolOutputTokens": 18143,
+          "usage": {
+            "input_tokens": 903169,
+            "cached_input_tokens": 868352,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 5635,
+            "reasoning_output_tokens": 716,
+            "total_tokens": 908804,
+            "uncachedInput": 34817,
+            "uncachedInputPlusOutput": 40452
+          },
+          "elapsedMs": 203977,
+          "queries": 2,
+          "phases": {
+            "discovery": {
+              "observations": 9,
+              "queries": 2,
+              "reads": [
+                {
+                  "file": ".agents/skills/vibeknowledge-query/SKILL.md",
+                  "start": 1,
+                  "end": 32
+                },
+                {
+                  "file": "web/src/views/CLIAuthAuthorizeView.vue",
+                  "start": 1,
+                  "end": 186
+                },
+                {
+                  "file": "web/src/apis/base.js",
+                  "start": 1,
+                  "end": 240
+                },
+                {
+                  "file": "web/src/router/index.js",
+                  "start": 1,
+                  "end": 227
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 1,
+                  "end": 165
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 65,
+                  "end": 96
+                }
+              ],
+              "observedTextTokens": 10281,
+              "tokensByKind": {
+                "task": 230,
+                "skill": 944,
+                "query": 1546,
+                "source": 7561
+              },
+              "score": 5
+            },
+            "followup": {
+              "observations": 7,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/LoginView.vue",
+                  "start": 405,
+                  "end": 540
+                },
+                {
+                  "file": "web/src/views/OIDCCallbackView.vue",
+                  "start": 1,
+                  "end": 155
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 1,
+                  "end": 81
+                },
+                {
+                  "file": "web/src/utils/oidcAutoStart.js",
+                  "start": 1,
+                  "end": 40
+                }
+              ],
+              "observedTextTokens": 4491,
+              "tokensByKind": {
+                "task": 319,
+                "source": 3818,
+                "rg": 354
+              },
+              "score": 5
+            },
+            "control": {
+              "observations": 3,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/ExtensionsView.vue",
+                  "start": 32,
+                  "end": 80
+                }
+              ],
+              "observedTextTokens": 918,
+              "tokensByKind": {
+                "task": 242,
+                "rg": 149,
+                "source": 527
+              },
+              "score": 2
+            }
+          }
+        }
+      },
+      "changePercent": {
+        "observed": 3.182954097066947,
+        "publicTool": 0.6490624653278597,
+        "uncachedInputPlusOutput": 2.327228574319539
+      }
+    },
+    {
+      "pair": 3,
+      "arms": {
+        "A": {
+          "score": 12,
+          "missed": 0,
+          "majorFalseClaims": 0,
+          "observedTextTokens": 15109,
+          "publicToolOutputTokens": 17871,
+          "usage": {
+            "input_tokens": 1089196,
+            "cached_input_tokens": 1044224,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 7103,
+            "reasoning_output_tokens": 1266,
+            "total_tokens": 1096299,
+            "uncachedInput": 44972,
+            "uncachedInputPlusOutput": 52075
+          },
+          "elapsedMs": 241170,
+          "queries": 0,
+          "phases": {
+            "discovery": {
+              "observations": 12,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/CLIAuthAuthorizeView.vue",
+                  "start": 1,
+                  "end": 186
+                },
+                {
+                  "file": "web/src/router/index.js",
+                  "start": 1,
+                  "end": 55
+                },
+                {
+                  "file": "web/src/router/index.js",
+                  "start": 157,
+                  "end": 227
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 1,
+                  "end": 101
+                },
+                {
+                  "file": "web/src/apis/base.js",
+                  "start": 1,
+                  "end": 188
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 1,
+                  "end": 92
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 140,
+                  "end": 150
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 309,
+                  "end": 338
+                }
+              ],
+              "observedTextTokens": 9320,
+              "tokensByKind": {
+                "task": 230,
+                "rg": 2501,
+                "source": 6589
+              },
+              "score": 5
+            },
+            "followup": {
+              "observations": 9,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/LoginView.vue",
+                  "start": 426,
+                  "end": 468
+                },
+                {
+                  "file": "web/src/views/LoginView.vue",
+                  "start": 503,
+                  "end": 550
+                },
+                {
+                  "file": "web/src/views/OIDCCallbackView.vue",
+                  "start": 25,
+                  "end": 130
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 31,
+                  "end": 81
+                },
+                {
+                  "file": "web/src/views/LoginView.vue",
+                  "start": 219,
+                  "end": 244
+                }
+              ],
+              "observedTextTokens": 4579,
+              "tokensByKind": {
+                "task": 319,
+                "rg": 1764,
+                "source": 2496
+              },
+              "score": 5
+            },
+            "control": {
+              "observations": 3,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/ExtensionsView.vue",
+                  "start": 51,
+                  "end": 76
+                }
+              ],
+              "observedTextTokens": 1210,
+              "tokensByKind": {
+                "task": 242,
+                "rg": 687,
+                "source": 281
+              },
+              "score": 2
+            }
+          }
+        },
+        "B": {
+          "score": 12,
+          "missed": 0,
+          "majorFalseClaims": 0,
+          "observedTextTokens": 15152,
+          "publicToolOutputTokens": 17483,
+          "usage": {
+            "input_tokens": 849175,
+            "cached_input_tokens": 819712,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 5289,
+            "reasoning_output_tokens": 804,
+            "total_tokens": 854464,
+            "uncachedInput": 29463,
+            "uncachedInputPlusOutput": 34752
+          },
+          "elapsedMs": 179909,
+          "queries": 2,
+          "phases": {
+            "discovery": {
+              "observations": 9,
+              "queries": 2,
+              "reads": [
+                {
+                  "file": ".agents/skills/vibeknowledge-query/SKILL.md",
+                  "start": 1,
+                  "end": 32
+                },
+                {
+                  "file": "web/src/views/CLIAuthAuthorizeView.vue",
+                  "start": 1,
+                  "end": 186
+                },
+                {
+                  "file": "web/src/apis/base.js",
+                  "start": 1,
+                  "end": 240
+                },
+                {
+                  "file": "web/src/router/index.js",
+                  "start": 1,
+                  "end": 220
+                },
+                {
+                  "file": "web/src/stores/user.js",
+                  "start": 1,
+                  "end": 155
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 65,
+                  "end": 100
+                }
+              ],
+              "observedTextTokens": 10272,
+              "tokensByKind": {
+                "task": 230,
+                "skill": 944,
+                "query": 1618,
+                "source": 7480
+              },
+              "score": 5
+            },
+            "followup": {
+              "observations": 6,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/LoginView.vue",
+                  "start": 425,
+                  "end": 535
+                },
+                {
+                  "file": "web/src/views/OIDCCallbackView.vue",
+                  "start": 1,
+                  "end": 150
+                },
+                {
+                  "file": "web/src/apis/auth_api.js",
+                  "start": 1,
+                  "end": 82
+                },
+                {
+                  "file": "web/src/utils/oidcAutoStart.js",
+                  "start": 1,
+                  "end": 40
+                }
+              ],
+              "observedTextTokens": 4057,
+              "tokensByKind": {
+                "task": 319,
+                "source": 3572,
+                "rg": 166
+              },
+              "score": 5
+            },
+            "control": {
+              "observations": 3,
+              "queries": 0,
+              "reads": [
+                {
+                  "file": "web/src/views/ExtensionsView.vue",
+                  "start": 40,
+                  "end": 82
+                }
+              ],
+              "observedTextTokens": 823,
+              "tokensByKind": {
+                "task": 242,
+                "rg": 149,
+                "source": 432
+              },
+              "score": 2
+            }
+          }
+        }
+      },
+      "changePercent": {
+        "observed": 0.2845985836256536,
+        "publicTool": -2.1711152145934753,
+        "uncachedInputPlusOutput": -33.26548247719635
+      }
+    }
+  ],
+  "medianChangePercent": {
+    "observed": 0.2845985836256536,
+    "publicTool": -2.1711152145934753,
+    "uncachedInputPlusOutput": -30.645093595232098
+  },
+  "missed": {
+    "A": 0.5,
+    "B": 0
+  },
+  "strictGains": 1,
+  "noLoss": true,
+  "noExtraMajor": true,
+  "gates": {
+    "efficiency": false,
+    "quality": false
+  },
+  "generation": {
+    "createdAt": "2026-09-04T15:44:28.449Z",
+    "sessionId": "01a06d0f-451d-73a2-a998-0e1e752449eb",
+    "agentPath": "/root/routing_brief_author",
+    "model": "gpt-5.6-sol",
+    "effort": "xhigh",
+    "elapsedMs": 525254,
+    "responses": 20,
+    "sourceFiles": 230,
+    "tokenized": {
+      "observer": 65362,
+      "publicTool": 73929
+    },
+    "usage": {
+      "input_tokens": 1519401,
+      "cached_input_tokens": 1421440,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 19917,
+      "reasoning_output_tokens": 1825,
+      "total_tokens": 1539318,
+      "uncachedInput": 97961,
+      "uncachedInputPlusOutput": 117878
+    },
+    "notes": [
+      "Five reusable frontend briefs authored without task wording/rubric. Preparation cost is separate from warm task-query cost.",
+      "Excludes coordinator, task designer, graders, source fetch and future regeneration costs. Numeric token counts are not a bill.",
+      "Only public observations, final report and numeric telemetry are exported; no private reasoning/system messages."
+    ]
+  },
+  "limitations": [
+    "Three repeated pairs on one independently designed three-stage frontend task, not three different tasks or statistical significance.",
+    "B uses five warm reusable briefs. Authoring, refresh, coordinator, grading and evaluation preparation costs are separate.",
+    "Observed text uses o200k_base, while uncached input plus output uses numeric model telemetry; neither is a monetary bill.",
+    "Per-stage visible text can be attributed; full-session uncached/cache telemetry cannot be precisely attributed to each phase.",
+    "Comparison is source-only versus candidate Skill, not candidate versus old Skill; does not isolate which new feature causes differences.",
+    "No backend/runtime assertions, no RAG, no native-host MCP token-saving claim."
+  ]
+}

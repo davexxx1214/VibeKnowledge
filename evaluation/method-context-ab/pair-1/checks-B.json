@@ -1,0 +1,127 @@
+{
+  "createdAt": "2026-09-05T02:11:43.359Z",
+  "mode": "candidate",
+  "pair": 1,
+  "arm": "B",
+  "taskId": "export_subset",
+  "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\checks-pair-1-B-NseBSZ",
+  "acceptanceSha256": "a8695a62aaa30ac229e1bc9a0909a09b579bbb5f07228958e21e2e2a19e9b374",
+  "records": [
+    {
+      "kind": "hidden-acceptance",
+      "exitCode": 0,
+      "elapsedMs": 844,
+      "stderr": "",
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "export_subset"
+          ],
+          "fullName": "export_subset EX1 EX2: selects existing entities and the induced relation set without changing graph order",
+          "status": "passed",
+          "title": "EX1 EX2: selects existing entities and the induced relation set without changing graph order",
+          "duration": 9.016500000000008,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "export_subset"
+          ],
+          "fullName": "export_subset EX1 EX2: empty and unknown-only selections produce an empty export",
+          "status": "passed",
+          "title": "EX1 EX2: empty and unknown-only selections produce an empty export",
+          "duration": 11.451299999999947,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "export_subset"
+          ],
+          "fullName": "export_subset EX3: keeps the aggregate graph as the source when that service is present",
+          "status": "passed",
+          "title": "EX3: keeps the aggregate graph as the source when that service is present",
+          "duration": 6.22120000000001,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "export_subset"
+          ],
+          "fullName": "export_subset EX4: preserves the existing full-export envelope when no IDs are provided",
+          "status": "passed",
+          "title": "EX4: preserves the existing full-export envelope when no IDs are provided",
+          "duration": 19.751800000000003,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        }
+      ],
+      "selectedCounts": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0
+      }
+    },
+    {
+      "kind": "baseline-regression",
+      "exitCode": 0,
+      "elapsedMs": 542,
+      "stderr": "",
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels shows Agent descriptions and unified graph statistics",
+          "status": "passed",
+          "title": "shows Agent descriptions and unified graph statistics",
+          "duration": 1.4102000000000032,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels falls back to the entity name and skips out-of-range locations",
+          "status": "passed",
+          "title": "falls back to the entity name and skips out-of-range locations",
+          "duration": 0.13460000000000605,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        }
+      ],
+      "selectedCounts": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0
+      }
+    },
+    {
+      "kind": "typecheck",
+      "args": [
+        "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\checks-pair-1-B-NseBSZ\\node_modules\\typescript\\bin\\tsc",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "elapsedMs": 1288,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "projection": {
+    "kind": "selected_task_assertions",
+    "sourceSha256": "c240fd1e95c43234d9554cb5568d4687846b706e7d34124159ecc51ec7fc4f72",
+    "taskIds": [
+      "export_subset"
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-09-04T17:00:41.900Z",
+  "records": [
+    {
+      "timestamp": "2026-09-04T16:46:48.481Z",
+      "callId": "call_WPVPWIfwdRANYU0j6AEe3Ts8",
+      "taskName": "mcp_feature_pair1_a",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload, not decrypted/exported",
+      "messagePayloadSha256": "7e7cd13ada4875ea8f60bdcbf9a25aca2c5f62272543d888dbd2e1c890f2157f",
+      "preparedPlaintextSha256": "396d2c52d665eee483b00e72145babba3d799e954253a5ad1975d7416dfde1ac",
+      "plaintextIndependentlyMatched": false
+    },
+    {
+      "timestamp": "2026-09-04T16:47:10.270Z",
+      "callId": "call_ta13lc3IrrJqanni9xoLFr2m",
+      "taskName": "mcp_feature_pair1_b",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload, not decrypted/exported",
+      "messagePayloadSha256": "b497b5a97108fa3da934f705982ef92f7bc237fc98292dd4913ed7d370e9a3eb",
+      "preparedPlaintextSha256": "797b14a1c58c46c81c46eeb88bc8beed26a846c0e31978e89899d104c94c1d2f",
+      "plaintextIndependentlyMatched": false
+    },
+    {
+      "timestamp": "2026-09-04T16:53:41.088Z",
+      "callId": "call_AV9qWdHeynOgefvaX367JctR",
+      "taskName": "mcp_feature_pair2_b",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload, not decrypted/exported",
+      "messagePayloadSha256": "d60fa2f1f0bad15d6e30aec63ea81bd61d155771bff03c3057bfd5c6fc379dc7",
+      "preparedPlaintextSha256": "91b516913481e3e0886e34e632522768d1baa737f88b6d16600f1dcfd3c3d650",
+      "plaintextIndependentlyMatched": false
+    },
+    {
+      "timestamp": "2026-09-04T16:54:02.459Z",
+      "callId": "call_Nakn0JmA2HcvgfgJkwxHgMaC",
+      "taskName": "mcp_feature_pair2_a",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload, not decrypted/exported",
+      "messagePayloadSha256": "0f2080b8cc29ea48a0a124421c727165f328a9fd4c5901adb5a0a588acd2112b",
+      "preparedPlaintextSha256": "da0d2521ceebafcb01e0afc8d547f7b7ef5638419de7bafc9535a86d8ca16ad9",
+      "plaintextIndependentlyMatched": false
+    },
+    {
+      "timestamp": "2026-09-04T17:00:03.416Z",
+      "callId": "call_TVTBRvs6bJLLOj8ckSmazqTq",
+      "taskName": "mcp_feature_pair3_a",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload, not decrypted/exported",
+      "messagePayloadSha256": "d43012fcd851d0078a11fd3c5701db30df4b1a59bb3328b0b2e171dca4b25c09",
+      "preparedPlaintextSha256": "a5eb5862e883f069720c992bcaab7f7063f99f116a1e9f1fa1c3607efa587831",
+      "plaintextIndependentlyMatched": false
+    },
+    {
+      "timestamp": "2026-09-04T17:00:27.665Z",
+      "callId": "call_RENvwZ5D7hRR7tzYKQQazJt8",
+      "taskName": "mcp_feature_pair3_b",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload, not decrypted/exported",
+      "messagePayloadSha256": "ec3d74ae68199e1aba27ca13ba34d0238b0ef53baf5662b42a31457f15f9eaf5",
+      "preparedPlaintextSha256": "d8328009d908db2e6b70040bae972a8cb1cfc0c42ca0a4ea51c7b1b650e3f045",
+      "plaintextIndependentlyMatched": false
+    }
+  ],
+  "limitation": "Opaque persistence proves neither its plaintext nor delivery. Prewritten public prompts are primary-agent attestations where exact plaintext is not available; no decryption is attempted."
+}

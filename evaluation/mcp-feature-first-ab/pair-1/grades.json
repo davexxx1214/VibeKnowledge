@@ -1,0 +1,1835 @@
+{
+  "evaluation": "独立匿名只读功能分析盲评",
+  "source_root": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot",
+  "scope": "仅读取 X.md、Y.md、rubric.md、notes.md 与指定源码快照；未运行源码、测试或构建；未读取分组身份、方法映射或其他评价材料。",
+  "scoring_rule": "原有 0/0.5/1 非穷尽因果标准；17 critical 与3 supplemental独立求和；遗漏与重大错误分离。",
+  "rubric_concerns": [
+    "严格采用 notes.md 的固定解释：源码以本次指定的0.4.0快照为准；panel reveal不同于dispose/new document；finite geometry检查针对node x/y；service返回path而UI方法返回void。",
+    "I.C7 的 locale-aware 括注不作额外得分要求。源码 aiIntegrationService.ts:102–107 比较 zh，而 i18nService.ts:126–149 返回 zh-CN/en-US；X仅如实描述条件分支，未独立声称当前中文UI产中文，Y指出不匹配且正确，因此两者均无相关重大错误。",
+    "I.C1 的 activation warning-placeholder 分支与方法自身 guard 是不同入口关系，前者并非只要求列全一个例子或行号；两份均遗漏这一显式规定的分支，统一判0.5。",
+    "X的V.S1按全报告合并证据：切组保存/恢复alpha、settled、auto-fit和明确的unfinished-state保留已形成关系，不因未逐字写出freeze或再重复全部示例而扣分。",
+    "未新增重复.github通知前缀、locale矩阵等评分项；Y对重复前缀的额外发现由entityCommands.ts:1271与en.ts:293/zh.ts:294支持，X对文件名的概括不构成重大路由错误。"
+  ],
+  "candidates": {
+    "X": {
+      "items": [
+        {
+          "id": "V.C1",
+          "score": 1,
+          "rationale": "完整连接贡献命令、双服务注入、单例保留上下文、同标题 reveal 不替换 HTML，以及 ready 后宿主模型/模式到浏览器的链路。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 5,
+              "quote": "The view is a singleton, script-enabled webview with `retainContextWhenHidden: true`; an existing panel is revealed and sent graph data without replacing its HTML, except when its translated title changed"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 5,
+              "quote": "the host responds with the actual performance preference and graph data"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/package.json",
+              "line": 57,
+              "detail": "贡献 knowledge.visualizeGraph。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/extension.ts",
+              "line": 242,
+              "detail": "注入两个图谱服务；643–646 注册命令并调用 createOrShow。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 157,
+              "detail": "已有面板 reveal；同标题只 _sendGraphData；170–176 创建单例并 retainContextWhenHidden。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 205,
+              "detail": "ready 分支发送实际性能设置和普通 groups。"
+            }
+          ]
+        },
+        {
+          "id": "V.C2",
+          "score": 1,
+          "rationale": "解释独立 getGroups、排序、仅渲染选中组、记忆 key 的匹配/回退与空数据清理；后文将 key 的 webview state 与全局模式及内存 geometry 分开，因果边界完整。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 7,
+              "quote": "only the selected group is rendered. An existing selected key wins if still present, otherwise the first group wins"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 24,
+              "quote": "The page reads only `selectedGroupKey` from webview state; the layout cache is newly constructed."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 26,
+              "quote": "Clears in-memory selection, geometry/cache and active work, then shows the empty state."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 456,
+              "detail": "getGroups().map 建立独立模型。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1149,
+              "detail": "selectedGroupKey 来自 vscode.getState。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1372,
+              "detail": "排序、空列表清理、匹配所选 key 或第一个组。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1449,
+              "detail": "仅选中组 renderGraph，setState 只写 selectedGroupKey。"
+            }
+          ]
+        },
+        {
+          "id": "V.C3",
+          "score": 1,
+          "rationale": "按需读取→聚合→发临时组→替换旧结构项并选择的链路正确，且明确普通 graphData 整体替换可移除临时视图；read 缺失/失败反馈及只读临时边界有可追踪证据，不要求逐字重复不生成产物。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 9,
+              "quote": "The host reads StructuralGraphService on demand, aggregates with a limit of 80 nodes, converts the result to a display group and sends `structuralGroup`."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 9,
+              "quote": "The client removes prior `__structural_` groups, adds and selects the new one."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 9,
+              "quote": "any ordinary `graphData` response replaces the entire group array"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 324,
+              "detail": "read 已有结构图、按 level 聚合后发送结构组；异常进入 _sendStructuralError。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/structuralGraph/structuralGraphService.ts",
+              "line": 63,
+              "detail": "read 缺文件即抛错，不调用 generate。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 450,
+              "detail": "结构错误发送页面消息和宿主 warning。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1372,
+              "detail": "普通数据整组替换；1401–1410 先删 __structural_ 临时项，再加入并选择新项。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 2091,
+              "detail": "读取结构层级并发 requestStructuralOverview；2173 绑定按钮。"
+            }
+          ]
+        },
+        {
+          "id": "V.C4",
+          "score": 1,
+          "rationale": "正确说明 low 默认、low/high 校验、machine scope、Global 写入及宿主实际配置权威；新面板仍取全局偏好，与局部 key/geometry 生命周期区分。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 15,
+              "quote": "the machine-scoped setting defaults to `low`; only `low`/`high` are accepted by the host"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 15,
+              "quote": "The host writes VS Code Global configuration, reports write errors, and always resends the actual stored mode"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 24,
+              "quote": "The globally saved performance preference survives a fresh panel"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/package.json",
+              "line": 325,
+              "detail": "性能设置 enum low/high、default low、scope machine。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 150,
+              "detail": "设置变化重新发送当前模式。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 300,
+              "detail": "实际配置归一化读取；309–320 Global 更新并 finally 重读。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1091,
+              "detail": "初始 body 与1140模式变量均取宿主设置。"
+            }
+          ]
+        },
+        {
+          "id": "V.C5",
+          "score": 1,
+          "rationale": "完整说明乐观 apply/禁用/消息、宿主验证和保存、finally 实际值回包、失败回滚和启用，以及设置变化和仅重绘当前组而非 HTML reload。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 15,
+              "quote": "A selector change immediately applies locally, disables the control, and sends `setPerformanceMode`."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 15,
+              "quote": "receiving it applies/rolls back the page and reenables the selector. Settings changes also resend the preference"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 15,
+              "quote": "Changing mode rerenders the selected group; it does not request different graph data"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 2176,
+              "detail": "change 立即 apply，禁用选择器并发送 setPerformanceMode。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 309,
+              "detail": "验证 low/high，Global 保存、失败提示、finally 发真实配置。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1283,
+              "detail": "回包 apply 并重新启用选择器。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 2077,
+              "detail": "改变模式后仅重选/重绘当前组；150 设置变化也发模式消息。"
+            }
+          ]
+        },
+        {
+          "id": "V.C6",
+          "score": 1,
+          "rationale": "连接相同组数据与纯渲染模式差异，说明 low 有让出执行权的有界布局和局部 drag、high 动效/可重热 physics，且 settled cache 不必重热；预算未被误说成墙钟 SLA。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 15,
+              "quote": "it does not request different graph data"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 17,
+              "quote": "It yields between batches and routes errors to the render-error path"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 17,
+              "quote": "Low-mode drag stops layout, moves just the node, redraws its incident geometry, and saves on release without reheating physics"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 28,
+              "quote": "low-to-high preserves a settled cached layout instead of necessarily reheating it"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1495,
+              "detail": "同一组实体关系准备 links；1552 复制 nodes；模式不筛掉语义数据。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 48,
+              "detail": "低模式短批次手动 tick、让出帧，按冷却/tick/累计计算预算结束。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 91,
+              "detail": "低模式 drag 仅更新节点、不 restart；高模式可以 restart。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1572,
+              "detail": "低模式、settled 缓存或隐藏页面停止 simulation。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1594,
+              "detail": "link-flow 受 high 控制；1933 未 settled 的 low 才新建静态布局。"
+            }
+          ]
+        },
+        {
+          "id": "V.C7",
+          "score": 1,
+          "rationale": "替换前停止/保存旧 work、隐藏时暂停并清 timers、恢复时按 unfinished/alpha 条件继续、卸载停止均具备，并通过生命周期取消与去重调度测试连接避免旧工作残留的风险。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 21,
+              "quote": "Before replacing geometry, the page stops old layout/particles/simulation and saves its layout closure."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 25,
+              "quote": "Visibility handling pauses static work and particles, stops simulation, interrupts transitions, clears fit/resize timers and saves geometry."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 34,
+              "quote": "pause/resume/no duplicate scheduling, replacement cancellation"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1234,
+              "detail": "取消旧粒子帧，防重复调度。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1254,
+              "detail": "隐藏暂停静态布局/粒子、停止模拟、打断动画、清计时器并保存；显示按模式/热度恢复。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1272,
+              "detail": "卸载停止布局/模拟/粒子及 timers。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1479,
+              "detail": "替换前停止旧 work、保存旧布局、打断并清 DOM。"
+            }
+          ]
+        },
+        {
+          "id": "V.C8",
+          "score": 1,
+          "rationale": "说明按组与 node/endpoint/verb topology 判定的内存 geometry cache、prose 不失效、positions/zoom 复用、文档重建丢 cache，未把源对象或全部 geometry 误当持久 state。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 21,
+              "quote": "A valid cache entry restores positions, pan/zoom transform, alpha, settled status and auto-fit intent."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 22,
+              "quote": "Validity depends on node IDs and edge source/target/verb topology, not descriptions/evidence. Geometry is copied, never source/evidence objects"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 24,
+              "quote": "There is no durable layout serialization in this path."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 8,
+              "detail": "按 group key 缓存；signature 使用 node IDs 和 sourceId/targetId/verb；保存几何而非源对象。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1141,
+              "detail": "每份新文档创建 memory cache。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1454,
+              "detail": "webview state 仅 selectedGroupKey。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1556,
+              "detail": "命中恢复坐标和 zoom；未命中归零 transform，1575 保存当前 geometry。"
+            }
+          ]
+        },
+        {
+          "id": "V.C9",
+          "score": 1,
+          "rationale": "三类风险均与实际断言连接：宿主设置/失败同步、布局预算/生命周期/drag、cache复用失效；明确 helper VM/mock/syntax 不等于真实浏览器或硬件表现。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 33,
+              "quote": "The shipped helper-string VM tests cover prose reuse/topology invalidation, LRU/group/node limits and pending-state retention"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 34,
+              "quote": "The harness uses fake D3-like simulation, time and animation frames, not measured browser performance"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 35,
+              "quote": "Settings synchronization, failed save and invalid input"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 35,
+              "quote": "Syntax compilation is not execution of page event wiring."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.test.ts",
+              "line": 58,
+              "detail": "manifest/HTML/语法；79 persistence/reopen/reveal；96 Settings 与失败回包。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.test.ts",
+              "line": 5,
+              "detail": "VM 执行 shipped helper，使用伪 simulation/time/frames。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.test.ts",
+              "line": 49,
+              "detail": "tick/compute/冷却预算；81隐藏暂停与取消；142 low/high drag。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.test.ts",
+              "line": 105,
+              "detail": "prose/order 复用与 topology miss；133仅保存/读取未完成状态。"
+            }
+          ]
+        },
+        {
+          "id": "I.C1",
+          "score": 0.5,
+          "rationale": "正常命令委托、首工作区、方法级 guard、writer 返回路径及可选展示均正确；但未解释无工作区激活先注册 warning placeholder 并 return，因而该入口不会进入其叙述的正常 EntityCommands handler。这是显式要求的另一条入口因果分支缺失，不是将方法级 guard 判错。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 43,
+              "quote": "Its registered async handler awaits `EntityCommands.generateCopilotInstructions()`"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 43,
+              "quote": "EntityCommands selects `workspaceFolders[0]`, reports a localized no-workspace error and returns if absent"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 59,
+              "quote": "then returns that path"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 63,
+              "quote": "These respectively call `openTextDocument`/`showTextDocument` or `revealFileInOS`"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/package.json",
+              "line": 86,
+              "detail": "贡献 knowledge.generateCopilotInstructions。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/extension.ts",
+              "line": 48,
+              "detail": "无 workspaceFolders 时显示 warning、注册 placeholder、直接 return，不进入正常服务/命令注册。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/extension.ts",
+              "line": 680,
+              "detail": "正常命令委托 EntityCommands 方法。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/extension.ts",
+              "line": 971,
+              "detail": "Copilot 命令包含在占位列表；992–996 注册仅显示 warning 的 handler。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1255,
+              "detail": "方法自己也检查 folders[0]；1264 接收服务路径，1276/1280用于可选展示。"
+            }
+          ]
+        },
+        {
+          "id": "I.C2",
+          "score": 1,
+          "rationale": "正确区分 caller 真实 snapshot/observations 收集与 writer unused GraphData；明确收集有成本且失败可阻断写入，不因参数未使用推成全路径零读取。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 45,
+              "quote": "Its `getGraphData()` obtains KnowledgeGraphService's snapshot and collects observations for each resulting entity"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 50,
+              "quote": "The parameter is named `_graphData` and is unused."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 55,
+              "quote": "Graph gathering is currently an operational dependency without an output-content benefit: a snapshot/observation failure still prevents the UI from reaching generation"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 43,
+              "detail": "getSnapshot 后逐实体 getObservations，构成 GraphData。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1263,
+              "detail": "在 writer 调用之前收集，所以抛错可阻止写入。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 71,
+              "detail": "_graphData 未使用，调用无参 builder。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 404,
+              "detail": "Copilot wrapper 不接收/读取 graph data。"
+            }
+          ]
+        },
+        {
+          "id": "I.C3",
+          "score": 1,
+          "rationale": "创建目录、同步 UTF-8 覆盖、返回路径、无 merge/备份/确认/回滚及失败可能已有副作用均正确，目录 existence check 与目标文件检查区别清楚。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 59,
+              "quote": "creates `.github` recursively if absent, calls `buildCopilotInstructionsContent()`, synchronously writes UTF-8 to `.github/copilot-instructions.md`, then returns that path"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 61,
+              "quote": "The normal write replaces existing instructions, including user-authored content."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 61,
+              "quote": "a failed direct write is not a guarantee that old file bytes were preserved"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 71,
+              "detail": "仅检查/递归创建 .github，UTF-8 writeFileSync 无条件覆盖并返回路径，无 merge/backup/temp-rename/rollback。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1262,
+              "detail": "生成及展示在 try 中；1282 捕获异常。"
+            }
+          ]
+        },
+        {
+          "id": "I.C4",
+          "score": 1,
+          "rationale": "准确追踪无参 Copilot wrapper→固定 en compact router，且将 UI locale、GraphData、technology/scenario/custom-template 及旧 rich helpers 从活动链排除。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 52,
+              "quote": "Affects command notifications, not Copilot content"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 53,
+              "quote": "the active Cursor and Copilot entry builders both call the compact router instead"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 55,
+              "quote": "Copilot content is currently the same fixed router across projects, graph contents and interface locales."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 404,
+              "detail": "Copilot 无参 wrapper 硬编码 en 后调用共享 compact router。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 432,
+              "detail": "固定英文字符串，不嵌 graph/template/tech-stack。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 101,
+              "detail": "活动 Cursor 也调用 router，不调用114/259的旧 rich builders。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 691,
+              "detail": "场景模板读取在旧 rich helper 路径，不在活动 Copilot 链。"
+            }
+          ]
+        },
+        {
+          "id": "I.C5",
+          "score": 1,
+          "rationale": "说明特定复杂任务条件式 focused MCP 查询、局部扩展/选择证据、index+一个组的有界 fallback、小已知文件任务可跳过及源码验证，并连接其固定 router 契约与个性化改动。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 71,
+              "quote": "If MCP is unavailable/unhelpful, it points to `.vscode/.knowledge/agent-context/index.md` and only the best-matching group view."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 71,
+              "quote": "permits known-file small tasks to skip graph lookup, requires current-source verification"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 55,
+              "quote": "“More project-specific” therefore changes the active data contract"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 435,
+              "detail": "按需依赖导航；437针对指定任务条件式 focused query；438局部扩展及选择证据。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 439,
+              "detail": "无 MCP/结果无用时 index+一个最佳组，440不默认 audit dump，441小任务可跳过并验证源码。"
+            }
+          ]
+        },
+        {
+          "id": "I.C6",
+          "score": 1,
+          "rationale": "明确生成文本不等于执行指导：不查询/安装或验证 MCP、不造/验证上下文产物、不证明消费者发现/遵循，source boundary正确。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 59,
+              "quote": "There is no model call, project analysis, prompt, network operation or graph query in this active content-generation chain."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 73,
+              "quote": "These are instructions written into text, not actions performed by the generator."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 73,
+              "quote": "does not configure/install MCP, run the named tools, generate/validate the context index or group files"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 71,
+              "detail": "完整 writer 仅 mkdir、builder、writeFileSync、return。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 404,
+              "detail": "活动 builder 构造静态文本；437–442只是后续工具/文件指导，不执行或验证目标。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1262,
+              "detail": "调用者只收集、写文件、通知/可选展示，未连接真实 Copilot/MCP 消费者。"
+            }
+          ]
+        },
+        {
+          "id": "I.C7",
+          "score": 1,
+          "rationale": "共享 builder 影响范围、Copilot wrapper 的局部变更边界、UI/service两条路径顺序复用 writers 及第二阶段失败保留 Cursor 均正确。locale句只是代码条件 zh/otherwise 的准确描述，未声称当前中文 UI 会产中文；按 notes 不另加 locale 必答条件。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 67,
+              "quote": "These are sequential, not transactional: Copilot failure leaves an already-written Cursor file"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 69,
+              "quote": "Cursor's active builder shares the compact router, selecting Chinese only for locale `zh` and otherwise English"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 69,
+              "quote": "Changing shared router logic can affect both products; changing the Copilot wrapper alone need not change Cursor."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 58,
+              "detail": "Cursor writer 到101共享 router；404 Copilot wrapper 也到共享 router。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 89,
+              "detail": "await Cursor 后 await Copilot；无事务回滚。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1290,
+              "detail": "UI 路径独立顺序调用同一对 writers；1308先 Cursor、1311后 Copilot。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/i18n/i18nService.ts",
+              "line": 126,
+              "detail": "getLocaleCode 返回 zh-CN/en-US；148导出 getLocale。"
+            }
+          ]
+        },
+        {
+          "id": "I.C8",
+          "score": 1,
+          "rationale": "连接 Copilot 正向路由/fallback 和反向模板/图转储断言、Cursor共享风险；明确没传 GraphData、空 service doubles、非命令/真实消费者测试，所列增补仅为建议。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 77,
+              "quote": "It calls generation without GraphData using empty service doubles"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 78,
+              "quote": "The neighboring Cursor test protects shared query-first behavior and absence of template/graph dumps"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 79,
+              "quote": "They also do not test live Copilot/MCP/index availability."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 79,
+              "quote": "These are proposed verification needs, not implemented changes or claims of measured coverage."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.test.ts",
+              "line": 16,
+              "detail": "VS Code mock 无 workspaceFolders；42服务使用空 stub。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.test.ts",
+              "line": 68,
+              "detail": "temp workspace 与模板 marker；78不传 GraphData；83–97验证 focused routing/fallback 和无模板/图转储标题。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.test.ts",
+              "line": 100,
+              "detail": "Cursor compact-router assertions 保护共享 builder。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.test.ts",
+              "line": 121,
+              "detail": "后续测试直接调 private tech-stack helper，不经过当前输出内容路径。"
+            }
+          ]
+        },
+        {
+          "id": "V.S1",
+          "score": 1,
+          "rationale": "整体证据已连接切组保存/恢复 alpha、settled、auto-fit 与未完成状态保留，另说明用户交互禁 auto-fit；不是仅列 x/y。按非穷尽标准，不因未使用“freeze”原句再扣分。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 21,
+              "quote": "A valid cache entry restores positions, pan/zoom transform, alpha, settled status and auto-fit intent."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 28,
+              "quote": "user zoom/pan or drag disables pending automatic fit"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 33,
+              "quote": "Preserve cache freshness without caching old semantic data, bounded memory, unfinished-layout alpha/auto-fit state, and cleanup before rendering replacements."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 24,
+              "detail": "缓存 settled、alpha、autoFit。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1572,
+              "detail": "按 cached settled/alpha恢复模拟状态；1933未 settled 的 low 重建并 resume布局。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1360,
+              "detail": "用户 zoom 禁自动 fit；1957 drag 亦然。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.test.ts",
+              "line": 133,
+              "detail": "测试保存并取回未完成状态，不是端到端切组。"
+            }
+          ]
+        },
+        {
+          "id": "V.S2",
+          "score": 1,
+          "rationale": "明确内存 LRU 的组/总节点约束与 oversized/nonfinite admission拒绝，因而并非无界会话保留，也没误当图源规模限制；finite 只按 notes 解为 node positions。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 22,
+              "quote": "Memory-only LRU defaults to eight groups/2,000 total nodes; oversized groups, excessive links or nonfinite positions are not cached."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 8,
+              "detail": "默认8组/2000节点。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 26,
+              "detail": "拒绝超大节点/边集合和非有限 node x/y。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 35,
+              "detail": "超过组数/总节点数则驱逐最旧项；17–21读取更新 LRU。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.test.ts",
+              "line": 119,
+              "detail": "组/节点 bound 及 LRU 断言。"
+            }
+          ]
+        },
+        {
+          "id": "I.S1",
+          "score": 1,
+          "rationale": "说明成功写入与后续展示的不同完成边界，同一 catch 可将 open/reveal 失败呈现为生成错误；取消通知不撤销文件。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 63,
+              "quote": "dismissing the message leaves the file written with no follow-up action."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/X.md",
+              "line": 63,
+              "quote": "An open/reveal error can therefore be reported after the file was successfully written; the command does not undo it"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1262,
+              "detail": "同一 try/catch 包围 writer、成功通知和 open/reveal；1282后展示失败仍报 generation error。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 80,
+              "detail": "服务先写完并返回；未实现展示失败后的撤销。"
+            }
+          ]
+        }
+      ],
+      "major_false_claims": [],
+      "totals": {
+        "critical": 16.5,
+        "critical_max": 17,
+        "supplemental": 3,
+        "supplemental_max": 3,
+        "major_false_claim_count": 0
+      },
+      "task_totals": {
+        "visualization": {
+          "critical": 9,
+          "critical_max": 9,
+          "supplemental": 2,
+          "supplemental_max": 2
+        },
+        "instructions": {
+          "critical": 7.5,
+          "critical_max": 8,
+          "supplemental": 1,
+          "supplemental_max": 1
+        }
+      },
+      "main_omissions": {
+        "visualization": "按原 rubric 的非穷尽因果标准，未发现需要扣分的主要遗漏。",
+        "instructions": "未说明无工作区激活时注册 warning placeholder 并提前返回，导致正常 EntityCommands 命令入口未建立的分支（I.C1）。方法级首工作区检查及写后路径展示已覆盖，因此该项为 0.5，而非 0。"
+      }
+    },
+    "Y": {
+      "items": [
+        {
+          "id": "V.C1",
+          "score": 1,
+          "rationale": "完整说明贡献入口、正常 command→createOrShow、双服务依赖、单例 retain context、同标题 reveal只发数据、ready握手与浏览器接收实际设置/组，区分 reveal/visibility/new document。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 5,
+              "quote": "its extension-host handler calls `GraphView.createOrShow(context.extensionUri)`"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 7,
+              "quote": "The host maintains a single panel. New panels enable scripts and retain context while hidden."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 7,
+              "quote": "with an unchanged localized title it posts fresh `graphData` without replacing HTML"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 7,
+              "quote": "receives the effective performance preference followed by ordinary groups"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/package.json",
+              "line": 57,
+              "detail": "贡献 knowledge.visualizeGraph。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/extension.ts",
+              "line": 242,
+              "detail": "注入两个图谱服务；643–646 注册命令并调用 createOrShow。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 157,
+              "detail": "已有面板 reveal；同标题只 _sendGraphData；170–176 创建单例并 retainContextWhenHidden。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 205,
+              "detail": "ready 分支发送实际性能设置和普通 groups。"
+            }
+          ]
+        },
+        {
+          "id": "V.C2",
+          "score": 1,
+          "rationale": "getGroups 独立视图、排序、记忆 key 回退、单组渲染和 setState 明确；把选中 key 与内存 cache及 durable性能偏好区分，空数据也停止/清理并展示空态。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 9,
+              "quote": "Ordinary groups are independent framework/module/feature views, not a union of all nodes."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 9,
+              "quote": "restores a matching selected key or falls back to the first group, and renders only that group."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 9,
+              "quote": "Selection writes `vscode.setState({ selectedGroupKey })`"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 28,
+              "quote": "No groups clears live selection, simulation, geometry cache, and graph DOM, then displays the empty state."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 456,
+              "detail": "getGroups().map 建立独立模型。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1149,
+              "detail": "selectedGroupKey 来自 vscode.getState。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1372,
+              "detail": "排序、空列表清理、匹配所选 key 或第一个组。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1449,
+              "detail": "仅选中组 renderGraph，setState 只写 selectedGroupKey。"
+            }
+          ]
+        },
+        {
+          "id": "V.C3",
+          "score": 1,
+          "rationale": "清楚说明按钮读取当前 level后发请求、host只读聚合并发送、单一临时槽替换/选中、普通 graphData移除及错误/status+warning；此只读 transient链足以表达非持久视图，不要求列每种不产生的文件。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 11,
+              "quote": "changing the option alone does not fetch a view—the adjacent structural button sends `requestStructuralOverview` with its current value."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 11,
+              "quote": "This is one temporary advanced slot, not a stack of drill-down tabs."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 26,
+              "quote": "an active structural group disappears and selection falls back to the first ordinary group."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 42,
+              "quote": "structural failures post an error/status and host warning, leaving the previous view available."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 324,
+              "detail": "read 已有结构图、按 level 聚合后发送结构组；异常进入 _sendStructuralError。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/structuralGraph/structuralGraphService.ts",
+              "line": 63,
+              "detail": "read 缺文件即抛错，不调用 generate。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 450,
+              "detail": "结构错误发送页面消息和宿主 warning。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1372,
+              "detail": "普通数据整组替换；1401–1410 先删 __structural_ 临时项，再加入并选择新项。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 2091,
+              "detail": "读取结构层级并发 requestStructuralOverview；2173 绑定按钮。"
+            }
+          ]
+        },
+        {
+          "id": "V.C4",
+          "score": 1,
+          "rationale": "正确描述 low默认、machine scope、low/high、Global、实际设置回读与初始化/Settings同步；明确属于显示偏好而非图修改，与持久几何分开。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 34,
+              "quote": "The default setting is `low`, enum `low/high`, machine-scoped."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 34,
+              "quote": "saves to `ConfigurationTarget.Global`, and always posts the effective setting back"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 34,
+              "quote": "This is a display preference, not graph mutation."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 27,
+              "quote": "the durable reopen preference is the separately saved performance setting"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/package.json",
+              "line": 325,
+              "detail": "性能设置 enum low/high、default low、scope machine。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 150,
+              "detail": "设置变化重新发送当前模式。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 300,
+              "detail": "实际配置归一化读取；309–320 Global 更新并 finally 重读。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1091,
+              "detail": "初始 body 与1140模式变量均取宿主设置。"
+            }
+          ]
+        },
+        {
+          "id": "V.C5",
+          "score": 1,
+          "rationale": "完整覆盖乐观UI→禁用→发送→合法值/保存→finally真实值回包→回滚/启用，并描述模式仅当前组重绘及同一设置消息同步路径。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 34,
+              "quote": "The selector optimistically applies the mode and rerenders the selected group, disables itself, then posts `setPerformanceMode`."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 34,
+              "quote": "The reply reapplies/rolls back the page and reenables the selector. Settings UI changes reach the same reply path."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 2176,
+              "detail": "change 立即 apply，禁用选择器并发送 setPerformanceMode。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 309,
+              "detail": "验证 low/high，Global 保存、失败提示、finally 发真实配置。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1283,
+              "detail": "回包 apply 并重新启用选择器。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 2077,
+              "detail": "改变模式后仅重选/重绘当前组；150 设置变化也发模式消息。"
+            }
+          ]
+        },
+        {
+          "id": "V.C6",
+          "score": 1,
+          "rationale": "同一选中图保留交互、低模式有有限分批force布局和局部drag、高模式重热与动效、settled缓存例外均讲清；计算预算与墙钟保证作了正确区分。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 36,
+              "quote": "Low mode still computes a force layout, but it stops D3's automatic loop"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 36,
+              "quote": "this is not a guaranteed 600 ms wall-clock deadline"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 36,
+              "quote": "Low-mode drag cancels pending layout, updates only the dragged node and incident geometry, and never restarts physics."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 38,
+              "quote": "It does not necessarily restart a settled cached layout merely because the mode changed"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1495,
+              "detail": "同一组实体关系准备 links；1552 复制 nodes；模式不筛掉语义数据。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 48,
+              "detail": "低模式短批次手动 tick、让出帧，按冷却/tick/累计计算预算结束。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 91,
+              "detail": "低模式 drag 仅更新节点、不 restart；高模式可以 restart。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1572,
+              "detail": "低模式、settled 缓存或隐藏页面停止 simulation。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1594,
+              "detail": "link-flow 受 high 控制；1933 未 settled 的 low 才新建静态布局。"
+            }
+          ]
+        },
+        {
+          "id": "V.C7",
+          "score": 1,
+          "rationale": "替换、隐藏、恢复与卸载的 graph work拥有明确取消/保存/恢复条件；直接连接旧回调污染新组与隐藏忙碌风险，没有把 retainContext误当后台持续运行。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 25,
+              "quote": "Hiding pauses particles/static layout, stops physics, interrupts transitions, cancels fit/resize timers, saves layout"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 40,
+              "quote": "replacement stops old particle/static/simulation work and interrupts transitions before new graph construction; hidden and unload paths cancel scheduled work."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 40,
+              "quote": "Otherwise old callbacks can mutate a newly selected view or leave hidden pages busy."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1234,
+              "detail": "取消旧粒子帧，防重复调度。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1254,
+              "detail": "隐藏暂停静态布局/粒子、停止模拟、打断动画、清计时器并保存；显示按模式/热度恢复。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1272,
+              "detail": "卸载停止布局/模拟/粒子及 timers。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1479,
+              "detail": "替换前停止旧 work、保存旧布局、打断并清 DOM。"
+            }
+          ]
+        },
+        {
+          "id": "V.C8",
+          "score": 1,
+          "rationale": "内存/新文档生命周期、group key+拓扑签名、prose复用且显示新语义、topology miss、positions/zoom复用均正确，也明确不保存源对象/完整 state geometry。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 24,
+              "quote": "This is a browser-memory LRU cache, not VS Code persisted state."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 24,
+              "quote": "Metadata-only changes can reuse geometry while displaying fresh data; topology changes miss the cache."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 27,
+              "quote": "Page initialization reads only `selectedGroupKey` from `getState`; all caches and group arrays are newly allocated."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 8,
+              "detail": "按 group key 缓存；signature 使用 node IDs 和 sourceId/targetId/verb；保存几何而非源对象。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1141,
+              "detail": "每份新文档创建 memory cache。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1454,
+              "detail": "webview state 仅 selectedGroupKey。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1556,
+              "detail": "命中恢复坐标和 zoom；未命中归零 transform，1575 保存当前 geometry。"
+            }
+          ]
+        },
+        {
+          "id": "V.C9",
+          "score": 1,
+          "rationale": "把设置/回滚、有限执行/隐藏取消、cache invalidation/revisit 三组风险都映射到对应真实测试，明确 mocks/VM/语法检查及非D3、非整页交互/E2E的限制。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 48,
+              "quote": "It mocks VS Code and compiles—not executes—the entire page"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 49,
+              "quote": "Tests execute the shipped helper string in a VM with mocked frames/time/simulation"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 50,
+              "quote": "Helper tests cover geometry across prose/order changes, invalidation after topology changes"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 50,
+              "quote": "The quick-switch test stores/retrieves state; it is not an end-to-end switch sequence."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.test.ts",
+              "line": 58,
+              "detail": "manifest/HTML/语法；79 persistence/reopen/reveal；96 Settings 与失败回包。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.test.ts",
+              "line": 5,
+              "detail": "VM 执行 shipped helper，使用伪 simulation/time/frames。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.test.ts",
+              "line": 49,
+              "detail": "tick/compute/冷却预算；81隐藏暂停与取消；142 low/high drag。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.test.ts",
+              "line": 105,
+              "detail": "prose/order 复用与 topology miss；133仅保存/读取未完成状态。"
+            }
+          ]
+        },
+        {
+          "id": "I.C1",
+          "score": 0.5,
+          "rationale": "正常命令→EntityCommands→首工作区 writer→路径展示与方法级无工作区 guard准确；但未识别无工作区激活先注册警告占位并 return的另一条公共入口，因此入口解释仍不完整。此遗漏不等于报告断言 guard不存在或执行成功。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 60,
+              "quote": "The registered async handler delegates to `EntityCommands.generateCopilotInstructions()`"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 60,
+              "quote": "The command takes the first workspace folder, errors and returns if none exists"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 64,
+              "quote": "returns that exact path"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 64,
+              "quote": "choosing the former opens and displays the returned file, choosing the latter invokes `revealFileInOS`"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/package.json",
+              "line": 86,
+              "detail": "贡献 knowledge.generateCopilotInstructions。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/extension.ts",
+              "line": 48,
+              "detail": "无 workspaceFolders 时显示 warning、注册 placeholder、直接 return，不进入正常服务/命令注册。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/extension.ts",
+              "line": 680,
+              "detail": "正常命令委托 EntityCommands 方法。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/extension.ts",
+              "line": 971,
+              "detail": "Copilot 命令包含在占位列表；992–996 注册仅显示 warning 的 handler。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1255,
+              "detail": "方法自己也检查 folders[0]；1264 接收服务路径，1276/1280用于可选展示。"
+            }
+          ]
+        },
+        {
+          "id": "I.C2",
+          "score": 1,
+          "rationale": "明确调用端实际 snapshot/observations收集、传GraphData、活动参数unused和无内容影响，同时说明收集开销/抛错可阻止写，因果完整。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 62,
+              "quote": "This is real work on the command path, despite not being used by the active Copilot builder."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 62,
+              "quote": "graph collection can consume time or throw and prevent generation before any write"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 75,
+              "quote": "All are ignored by the active Copilot service parameter `_graphData`"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 43,
+              "detail": "getSnapshot 后逐实体 getObservations，构成 GraphData。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1263,
+              "detail": "在 writer 调用之前收集，所以抛错可阻止写入。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 71,
+              "detail": "_graphData 未使用，调用无参 builder。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 404,
+              "detail": "Copilot wrapper 不接收/读取 graph data。"
+            }
+          ]
+        },
+        {
+          "id": "I.C3",
+          "score": 1,
+          "rationale": "路径、recursive mkdir、sync UTF-8、返回路径、目标文件无条件覆盖/无确认合并备份及无事务/回滚均正确；还区分目录可能已经创建和失败后的无 restoration。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 64,
+              "quote": "creates `.github` recursively if absent, calls the content builder, synchronously writes UTF-8, and returns that exact path."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 93,
+              "quote": "an existing instruction file is replaced, with no merge, preserved user section, backup, comparison, or confirmation."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 93,
+              "quote": "If directory creation succeeds and writing subsequently fails, that newly created directory can remain."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 71,
+              "detail": "仅检查/递归创建 .github，UTF-8 writeFileSync 无条件覆盖并返回路径，无 merge/backup/temp-rename/rollback。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1262,
+              "detail": "生成及展示在 try 中；1282 捕获异常。"
+            }
+          ]
+        },
+        {
+          "id": "I.C4",
+          "score": 1,
+          "rationale": "固定英文 compact路由器活动链完整，并将 GraphData、UI locale、富格式/tech stack与场景template分派从实际内容链分开；locale问题识别与源代码一致。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 70,
+              "quote": "`generateCopilotInstructions(workspaceRoot, _graphData?)` → `buildCopilotInstructionsContent()` → `buildAgentKnowledgeRouterContent('en', '# VibeKnowledge Agent Instructions')`"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 78,
+              "quote": "Neither active generator reaches this path."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 79,
+              "quote": "Copilot explicitly forces English."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 404,
+              "detail": "Copilot 无参 wrapper 硬编码 en 后调用共享 compact router。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 432,
+              "detail": "固定英文字符串，不嵌 graph/template/tech-stack。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 101,
+              "detail": "活动 Cursor 也调用 router，不调用114/259的旧 rich builders。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 691,
+              "detail": "场景模板读取在旧 rich helper 路径，不在活动 Copilot 链。"
+            }
+          ]
+        },
+        {
+          "id": "I.C5",
+          "score": 1,
+          "rationale": "正确给出 focused条件式查询、局部扩展/审计证据、单组index fallback、默认不读全集、小任务跳过和源码确认；同时指出个性化输出改变generic routing契约。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 85,
+              "quote": "call MCP `query_graph` for unfamiliar/architectural/cross-file/impact tasks when available, then focused entity/neighbor/path queries"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 85,
+              "quote": "fall back to the agent-context index and one matching group"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 85,
+              "quote": "skip graph lookup for small known-file tasks; verify current source before edits/tests"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 114,
+              "quote": "More project-specific output would change today's deliberately generic routing contract"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 435,
+              "detail": "按需依赖导航；437针对指定任务条件式 focused query；438局部扩展及选择证据。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 439,
+              "detail": "无 MCP/结果无用时 index+一个最佳组，440不默认 audit dump，441小任务可跳过并验证源码。"
+            }
+          ]
+        },
+        {
+          "id": "I.C6",
+          "score": 1,
+          "rationale": "明确文本推荐非当场执行，生成不调用AI/MCP、安装验证外部连接、生成fallback产物或证明真实Copilot消费；正确区分意图推断与执行证据。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 70,
+              "quote": "It neither calls an AI model nor examines the project to compose its prose."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 85,
+              "quote": "These are strings in the output, not actions the generator performs."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 85,
+              "quote": "It does not call those tools, validate/install MCP, load the referenced graph files, refresh graph artifacts"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 85,
+              "quote": "not an observed Copilot execution"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 71,
+              "detail": "完整 writer 仅 mkdir、builder、writeFileSync、return。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 404,
+              "detail": "活动 builder 构造静态文本；437–442只是后续工具/文件指导，不执行或验证目标。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1262,
+              "detail": "调用者只收集、写文件、通知/可选展示，未连接真实 Copilot/MCP 消费者。"
+            }
+          ]
+        },
+        {
+          "id": "I.C7",
+          "score": 1,
+          "rationale": "共享helper及Copilot-only wrapper的变更影响、两条batch路径复用同writers、Cursor→Copilot顺序及部分成功均正确；按notes评价这些主契约，locale full-code不匹配的独立推断已核实正确。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 87,
+              "quote": "A shared-router edit therefore changes both products' output"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 89,
+              "quote": "the UI command independently orchestrates those same two methods"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 97,
+              "quote": "If Copilot fails after Cursor succeeds, the Cursor file remains changed"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 79,
+              "quote": "`getLocale()` actually returns `zh-CN` or `en-US`"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 58,
+              "detail": "Cursor writer 到101共享 router；404 Copilot wrapper 也到共享 router。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 89,
+              "detail": "await Cursor 后 await Copilot；无事务回滚。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1290,
+              "detail": "UI 路径独立顺序调用同一对 writers；1308先 Cursor、1311后 Copilot。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/i18n/i18nService.ts",
+              "line": 126,
+              "detail": "getLocaleCode 返回 zh-CN/en-US；148导出 getLocale。"
+            }
+          ]
+        },
+        {
+          "id": "I.C8",
+          "score": 1,
+          "rationale": "准确说明Copilot正负路由断言及Cursor保护共享builder，说明无GraphData fixture、空stubs及测试非UI/消费者/overwrite/事务覆盖；没有用tech-stack私有helper测试宣称现有输出包含该数据。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 101,
+              "quote": "It excludes the custom marker, Tech Stack, Dependency Details, and Total Entities."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 101,
+              "quote": "The service is constructed with empty dependency stubs and no GraphData"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 103,
+              "quote": "The paired Cursor test checks the same compact, query-first pattern and absence of template/graph dumps, protecting the shared builder's role."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 103,
+              "quote": "Those extractor tests are not evidence that current generated instructions contain project technology information."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.test.ts",
+              "line": 16,
+              "detail": "VS Code mock 无 workspaceFolders；42服务使用空 stub。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.test.ts",
+              "line": 68,
+              "detail": "temp workspace 与模板 marker；78不传 GraphData；83–97验证 focused routing/fallback 和无模板/图转储标题。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.test.ts",
+              "line": 100,
+              "detail": "Cursor compact-router assertions 保护共享 builder。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.test.ts",
+              "line": 121,
+              "detail": "后续测试直接调 private tech-stack helper，不经过当前输出内容路径。"
+            }
+          ]
+        },
+        {
+          "id": "V.S1",
+          "score": 1,
+          "rationale": "明确说明切换前未稳定状态需保留alpha/settled/auto-fit，以免只存坐标导致冻结；恢复与用户zoom/drag禁auto-fit也有因果解释。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 23,
+              "quote": "Matching cache entries restore positions, pan/zoom, cooling alpha, settled state, and pending auto-fit intent."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 40,
+              "quote": "Cache alpha/settled/auto-fit fields matter when switching away before stabilization; preserving positions alone can freeze an unfinished layout."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 38,
+              "quote": "User-origin zoom and drag suppress pending auto-fit"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 24,
+              "detail": "缓存 settled、alpha、autoFit。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1572,
+              "detail": "按 cached settled/alpha恢复模拟状态；1933未 settled 的 low 重建并 resume布局。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphView.ts",
+              "line": 1360,
+              "detail": "用户 zoom 禁自动 fit；1957 drag 亦然。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.test.ts",
+              "line": 133,
+              "detail": "测试保存并取回未完成状态，不是端到端切组。"
+            }
+          ]
+        },
+        {
+          "id": "V.S2",
+          "score": 1,
+          "rationale": "明确cache admission拒绝超大/非有限坐标，以及LRU组数/总节点限制；未将缓存容量说成实体源数据规模限制。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 24,
+              "quote": "Defaults are eight groups and 2,000 total cached nodes; individual entries reject oversized node/link sets or nonfinite positions."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 24,
+              "quote": "This is a browser-memory LRU cache"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 8,
+              "detail": "默认8组/2000节点。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 26,
+              "detail": "拒绝超大节点/边集合和非有限 node x/y。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.ts",
+              "line": 35,
+              "detail": "超过组数/总节点数则驱逐最旧项；17–21读取更新 LRU。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/webview/graphPerformanceScript.test.ts",
+              "line": 119,
+              "detail": "组/节点 bound 及 LRU 断言。"
+            }
+          ]
+        },
+        {
+          "id": "I.S1",
+          "score": 1,
+          "rationale": "分离写成功与可选展示，dismiss不撤销；同一try/catch可在写完后因open/reveal失败发生成错误，并明确无回滚。",
+          "report_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 64,
+              "quote": "dismissing the prompt simply leaves the generated file in place."
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-PYhKqE/Y.md",
+              "line": 95,
+              "quote": "an open/reveal failure after a successful write can produce a “generation failed” message even though the file exists"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/ui/commands/entityCommands.ts",
+              "line": 1262,
+              "detail": "同一 try/catch 包围 writer、成功通知和 open/reveal；1282后展示失败仍报 generation error。"
+            },
+            {
+              "path": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot/src/services/aiIntegrationService.ts",
+              "line": 80,
+              "detail": "服务先写完并返回；未实现展示失败后的撤销。"
+            }
+          ]
+        }
+      ],
+      "major_false_claims": [],
+      "totals": {
+        "critical": 16.5,
+        "critical_max": 17,
+        "supplemental": 3,
+        "supplemental_max": 3,
+        "major_false_claim_count": 0
+      },
+      "task_totals": {
+        "visualization": {
+          "critical": 9,
+          "critical_max": 9,
+          "supplemental": 2,
+          "supplemental_max": 2
+        },
+        "instructions": {
+          "critical": 7.5,
+          "critical_max": 8,
+          "supplemental": 1,
+          "supplemental_max": 1
+        }
+      },
+      "main_omissions": {
+        "visualization": "按原 rubric 的非穷尽因果标准，未发现需要扣分的主要遗漏。",
+        "instructions": "未说明无工作区激活时注册 warning placeholder 并提前返回，导致正常 EntityCommands 命令入口未建立的分支（I.C1）。方法级首工作区检查及写后路径展示已覆盖，因此该项为 0.5，而非 0。"
+      }
+    }
+  }
+}

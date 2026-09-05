@@ -1,0 +1,386 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-04T15:42:50.394Z",
+  "key": "login-view",
+  "name": "登录与首次运行初始化",
+  "summary": "公开登录页提供 UID/手机号密码登录、首次运行超级管理员创建、可选 OIDC 登录、账户锁定倒计时和服务健康提示；消费品牌/协议配置并衔接受保护页面的登录后返回路径。",
+  "keywords": [
+    "登录",
+    "欢迎登录",
+    "登录账号",
+    "UID或手机号",
+    "创建管理员账户",
+    "系统初始化",
+    "超级管理员",
+    "OIDC 登录",
+    "服务端连接失败",
+    "账户已锁定",
+    "用户协议",
+    "隐私协议",
+    "Login",
+    "Sign in",
+    "LoginView",
+    "/login",
+    "autostartOidc",
+    "oidc_error",
+    "redirect"
+  ],
+  "entries": [
+    {
+      "filePath": "web/src/router/index.js",
+      "startLine": 24,
+      "endLine": 29
+    },
+    {
+      "filePath": "web/src/views/LoginView.vue",
+      "startLine": 1,
+      "endLine": 50
+    },
+    {
+      "filePath": "web/src/views/HomeView.vue",
+      "startLine": 419,
+      "endLine": 426
+    },
+    {
+      "filePath": "web/src/router/index.js",
+      "startLine": 180,
+      "endLine": 185
+    }
+  ],
+  "limitations": [
+    "仅提供前端文字源码；未验证后端首次运行判定、密码策略、账号锁定策略、OIDC provider 配置或任何真实登录过程。未安装依赖、运行应用或测试。",
+    "品牌图片和登录背景未包含；配置数据与加载时序仅根据源码描述，不能确认部署环境实际呈现。",
+    "已枚举快照测试，并在 web/src 的 *.test.js、*.spec.js 检索 LoginView、登录路由、oidcAutoStart、auth_api、stores/user 和 router 等引用，未找到直接相关测试；不宣称全项目无测试或测试已通过。",
+    "本卡片聚焦登录/初始化发起端，OIDC code 交换和 CLI 确认页分别由相邻卡片描述；后端权限保证与未提供测试不在证据范围。"
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "非首次运行展示登录账号（UID 或手机号）与密码必填表单；首次运行改为超级管理员创建，UID 限字母/数字/下划线且 3–20 字符，可选手机号按 /^1[3-9]\\d{9}$/ 验证，并要求密码一致。初始化成功调用 userStore.initialize 后导航到 /。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 42,
+          "endLine": 117
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 153,
+          "endLine": 178
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 405,
+          "endLine": 413
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 553,
+          "endLine": 581
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "userStore.login 把 loginId 映射到 FormData.username，POST /api/auth/token；initialize 以 JSON POST /api/auth/initialize；checkFirstRun 读取 /api/auth/check-first-run。登录/初始化把用户字段写入 Pinia，只将 access_token 持久化为 localStorage.user_token；isLoggedIn 在 store 内是 token 非空。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/stores/user.js",
+          "startLine": 5,
+          "endLine": 65
+        },
+        {
+          "filePath": "web/src/stores/user.js",
+          "startLine": 92,
+          "endLine": 138
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "挂载顺序为：已登录者先按 sanitizeRedirect(query.redirect) 离开；否则读取 oidc_error，等待服务器健康检查，再等待首次运行检查；首次运行直接停止后续 OIDC 检查。健康错误只更新顶部警告，并不会阻断首次运行或后续 OIDC 流程；userStore 的首次运行请求异常返回 false。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 598,
+          "endLine": 649
+        },
+        {
+          "filePath": "web/src/stores/user.js",
+          "startLine": 130,
+          "endLine": 138
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 2,
+          "endLine": 14
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "infoStore 供给组织名、logo、登录背景、品牌名和页脚协议 URL；缺省品牌为 Yuxi，背景为 /login-bg.jpg。main.js 在挂载前发起 loadInfoConfig 但不 await；登录页使用 computed 响应配置变化，没有自行等待品牌配置加载完成。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 294,
+          "endLine": 322
+        },
+        {
+          "filePath": "web/src/main.js",
+          "startLine": 20,
+          "endLine": 25
+        },
+        {
+          "filePath": "web/src/stores/info.js",
+          "startLine": 51,
+          "endLine": 74
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "仅用户协议与隐私协议两个 URL 都存在时显示同意勾选，并由 ensureAgreementAccepted 阻止未勾选的密码登录、管理员创建和手动 OIDC 登录。自动 OIDC 路径直接调用 tryAutoStartOIDC，没有调用这个同意检查。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 314,
+          "endLine": 322
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 415,
+          "endLine": 435
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 503,
+          "endLine": 507
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 553,
+          "endLine": 557
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 642,
+          "endLine": 648
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "密码登录收到 HTTP 423 时优先读取 X-Lock-Remaining，再从错误文案解析秒数；只有解析到正数才启动每秒倒计时和禁用登录按钮。到期清除锁定与错误文案，卸载清理 interval；其他登录错误显示后端消息或默认失败文案。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 204,
+          "endLine": 215
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 362,
+          "endLine": 384
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 467,
+          "endLine": 500
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 651,
+          "endLine": 654
+        },
+        {
+          "filePath": "web/src/stores/user.js",
+          "startLine": 35,
+          "endLine": 43
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "密码登录成功消费并删除 sessionStorage.redirect；缺省 / 会先调用 agentStore.initialize 然后去 /agent，其他保存路径直接 router.push。已登录访问 /login 时路由守卫及页面挂载逻辑则使用 query.redirect 经 sanitizeRedirect 校验；两者不是同一个返回路径来源。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 442,
+          "endLine": 465
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 619,
+          "endLine": 624
+        },
+        {
+          "filePath": "web/src/router/index.js",
+          "startLine": 217,
+          "endLine": 220
+        },
+        {
+          "filePath": "web/src/utils/oidcAutoStart.js",
+          "startLine": 8,
+          "endLine": 19
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "OIDC 配置检查期间显示骨架按钮，配置 enabled 时才保留第三方登录入口，并可用 provider_name 覆盖“OIDC 登录”。手动点击请求登录 URL，将 sessionStorage.redirect、query.redirect、/ 按此顺序选出的路径存为 oidc_redirect，再用 window.location.href 跳转登录服务；这个手动存储分支未调用 sanitizeRedirect。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 219,
+          "endLine": 244
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 503,
+          "endLine": 550
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "自动 OIDC 要求 enabled、URL 存在 autostartOidc 参数、无 oidc_error 参数且本 session 未尝试；参数检查使用存在性而不是值是否为 true。成功取到 login_url 后才保存经 sanitizeRedirect 处理的 redirect、设置 oidc_auto_start_attempted=1 并跳转；取 URL 失败返回 false 留在登录页。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/utils/oidcAutoStart.js",
+          "startLine": 1,
+          "endLine": 29
+        },
+        {
+          "filePath": "web/src/utils/oidcAutoStart.js",
+          "startLine": 40,
+          "endLine": 82
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 642,
+          "endLine": 648
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "authApi 使用公开 fetch 获取 /api/auth/oidc/config 和 /api/auth/oidc/login-url；getOIDCLoginUrl 默认发送 redirect_path=/，登录页的手动与自动调用均未给它传入目标路径，客户端另用 oidc_redirect 供回调页消费。agentStore.initialize 加载智能体/mention 资源并选择偏好智能体，已有初始化或正在初始化会提前返回。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/apis/auth_api.js",
+          "startLine": 23,
+          "endLine": 44
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 513,
+          "endLine": 522
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 643,
+          "endLine": 645
+        },
+        {
+          "filePath": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 88,
+          "endLine": 91
+        },
+        {
+          "filePath": "web/src/stores/agent.js",
+          "startLine": 100,
+          "endLine": 118
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "/login 是无需认证的懒加载顶层路由；页面采用 Vue script setup、Pinia stores 和 Vue Router，表单/提示依赖全局注册的 Ant Design Vue。manifest 声明 Vue ^3.5.34、Pinia ^3.0.4、Vue Router ^5.0.6、ant-design-vue ^4.2.6，并非已验证安装版本。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/router/index.js",
+          "startLine": 24,
+          "endLine": 29
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 271,
+          "endLine": 286
+        },
+        {
+          "filePath": "web/src/main.js",
+          "startLine": 12,
+          "endLine": 18
+        },
+        {
+          "filePath": "web/package.json",
+          "startLine": 22,
+          "endLine": 22
+        },
+        {
+          "filePath": "web/package.json",
+          "startLine": 38,
+          "endLine": 43
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "filePath": "web/package.json",
+      "contentHash": "a0e482f4f607d25869b9eee1f99484461057b98d450771b52671ae5e5fa661dd"
+    },
+    {
+      "filePath": "web/src/apis/auth_api.js",
+      "contentHash": "b725c5562d6620a3b7af4c68bf1d27a7a4dda6bc9fdcd39bf0662ee456fb638e"
+    },
+    {
+      "filePath": "web/src/main.js",
+      "contentHash": "d0c0c0c13bb275f45b0a34915f683c1d0836cd1c4a438157be7bc21ce95a34c1"
+    },
+    {
+      "filePath": "web/src/router/index.js",
+      "contentHash": "878c0ce0a8de7cc0552bddd0373bb902b330119954388b0b0f107fa044f1b2b8"
+    },
+    {
+      "filePath": "web/src/stores/agent.js",
+      "contentHash": "1b86b460a47197a65120a3e02c7b3a456a578f5abdc7602b8863234c5e57da69"
+    },
+    {
+      "filePath": "web/src/stores/info.js",
+      "contentHash": "95cc0d5b7f5f5439bc3218fc1616e4158580f7a8aac2360d31eee42fa54c87ea"
+    },
+    {
+      "filePath": "web/src/stores/user.js",
+      "contentHash": "bbd2d7197caefb891bbfb3aaeda6e4e8b0f8848c062eb54ae8c0e2472da42939"
+    },
+    {
+      "filePath": "web/src/utils/oidcAutoStart.js",
+      "contentHash": "07f5ac4582f9d171bee7cf4ef1e432062140388ccb74c169fa66de32f9ff806d"
+    },
+    {
+      "filePath": "web/src/views/HomeView.vue",
+      "contentHash": "367a9aba8907496697ca7501bf666a186606d978226e9042b19220902cac7874"
+    },
+    {
+      "filePath": "web/src/views/LoginView.vue",
+      "contentHash": "83307ca52ec1c60c257726701d46935b0ec76b8797c3fec9d38041832e9ad25c"
+    },
+    {
+      "filePath": "web/src/views/OIDCCallbackView.vue",
+      "contentHash": "cf695320b94ca6a438b0ce3207edf60dc03b0c51be8c18cf115e40b1bc3f7852"
+    }
+  ]
+}

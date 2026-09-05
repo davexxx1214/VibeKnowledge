@@ -1,0 +1,317 @@
+{
+  "version": 1,
+  "createdAt": "2026-09-05T02:23:47.675Z",
+  "pair": 4,
+  "tokenizer": "o200k_base",
+  "matched": true,
+  "passed": false,
+  "arms": {
+    "A": {
+      "sessionId": "01a06f5d-cae0-7ea1-9909-98e3014284ff",
+      "agentPath": "/root/method_pair4_a",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "elapsedMs": 132703,
+      "usage": {
+        "input_tokens": 277062,
+        "cached_input_tokens": 263296,
+        "output_tokens": 3127,
+        "total_tokens": 280189,
+        "uncachedInput": 13766,
+        "uncachedInputPlusOutput": 16893,
+        "responses": 8
+      },
+      "publicToolOutputTokens": 5225,
+      "observedTextTokens": 4504,
+      "publicOutputItems": 16,
+      "publicTruncations": 0,
+      "queries": 1,
+      "observations": 6,
+      "toolCalls": 9,
+      "observerFailures": 1,
+      "sourceReads": [
+        {
+          "file": "src/providers/knowledgeCodeLensModel.ts",
+          "start": 1,
+          "end": 57
+        },
+        {
+          "file": "src/providers/knowledgeCodeLensModel.test.ts",
+          "start": 1,
+          "end": 94
+        }
+      ],
+      "uniqueFilesRead": [
+        "src/providers/knowledgeCodeLensModel.ts",
+        "src/providers/knowledgeCodeLensModel.test.ts"
+      ],
+      "uniqueLinesRead": 151,
+      "tests": [
+        {
+          "operation": "test",
+          "args": [
+            "src/providers/knowledgeCodeLensModel.test.ts"
+          ],
+          "exitCode": 1
+        },
+        {
+          "operation": "test",
+          "args": [
+            "src/providers/knowledgeCodeLensModel.test.ts"
+          ],
+          "exitCode": 0
+        },
+        {
+          "operation": "typecheck",
+          "args": [],
+          "exitCode": 0
+        }
+      ],
+      "tokensByOperation": {
+        "context": 689,
+        "read": 1314,
+        "test": 2495,
+        "typecheck": 6
+      },
+      "sourceChanges": [
+        "src/providers/knowledgeCodeLensModel.test.ts",
+        "src/providers/knowledgeCodeLensModel.ts"
+      ],
+      "unauthorizedChanges": [],
+      "protectedChecks": {
+        "observer": true,
+        "engine": true,
+        "graph": true
+      },
+      "promptMatched": false,
+      "initialQueryMatched": true,
+      "delivery": {
+        "unmatchedObservationIndexes": [
+          1,
+          2,
+          4,
+          5
+        ],
+        "passed": false
+      },
+      "scope": {
+        "issues": [],
+        "audited": [
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs context 'src/providers/knowledgeCodeLensModel.ts#compactDescription'",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/providers/knowledgeCodeLensModel.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/providers/knowledgeCodeLensModel.test.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/A",
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/A/src/providers/knowledgeCodeLensModel.test.ts"
+            ],
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs test src/providers/knowledgeCodeLensModel.test.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/A",
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/A/src/providers/knowledgeCodeLensModel.ts",
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/A/src/providers/knowledgeCodeLensModel.test.ts"
+            ],
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs test src/providers/knowledgeCodeLensModel.test.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs typecheck",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/A",
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/A/REPORT.md"
+            ],
+            "passed": true
+          }
+        ],
+        "unknown": []
+      },
+      "passed": false
+    },
+    "B": {
+      "sessionId": "01a06f5d-719e-7fb1-b861-f0550a4549a2",
+      "agentPath": "/root/method_pair4_b",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "elapsedMs": 91004,
+      "usage": {
+        "input_tokens": 269638,
+        "cached_input_tokens": 243456,
+        "output_tokens": 1768,
+        "total_tokens": 271406,
+        "uncachedInput": 26182,
+        "uncachedInputPlusOutput": 27950,
+        "responses": 8
+      },
+      "publicToolOutputTokens": 4713,
+      "observedTextTokens": 4067,
+      "publicOutputItems": 16,
+      "publicTruncations": 0,
+      "queries": 1,
+      "observations": 6,
+      "toolCalls": 9,
+      "observerFailures": 1,
+      "sourceReads": [
+        {
+          "file": "src/providers/knowledgeCodeLensModel.ts",
+          "start": 1,
+          "end": 57
+        },
+        {
+          "file": "src/providers/knowledgeCodeLensModel.test.ts",
+          "start": 1,
+          "end": 94
+        }
+      ],
+      "uniqueFilesRead": [
+        "src/providers/knowledgeCodeLensModel.ts",
+        "src/providers/knowledgeCodeLensModel.test.ts"
+      ],
+      "uniqueLinesRead": 151,
+      "tests": [
+        {
+          "operation": "test",
+          "args": [
+            "src/providers/knowledgeCodeLensModel.test.ts"
+          ],
+          "exitCode": 1
+        },
+        {
+          "operation": "test",
+          "args": [
+            "src/providers/knowledgeCodeLensModel.test.ts"
+          ],
+          "exitCode": 0
+        },
+        {
+          "operation": "typecheck",
+          "args": [],
+          "exitCode": 0
+        }
+      ],
+      "tokensByOperation": {
+        "context": 416,
+        "read": 1314,
+        "test": 2331,
+        "typecheck": 6
+      },
+      "sourceChanges": [
+        "src/providers/knowledgeCodeLensModel.test.ts",
+        "src/providers/knowledgeCodeLensModel.ts"
+      ],
+      "unauthorizedChanges": [],
+      "protectedChecks": {
+        "observer": true,
+        "engine": true,
+        "graph": true
+      },
+      "promptMatched": false,
+      "initialQueryMatched": true,
+      "delivery": {
+        "unmatchedObservationIndexes": [
+          1,
+          2,
+          4,
+          5
+        ],
+        "passed": false
+      },
+      "scope": {
+        "issues": [],
+        "audited": [
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs context 'src/providers/knowledgeCodeLensModel.ts#compactDescription'",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/providers/knowledgeCodeLensModel.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/providers/knowledgeCodeLensModel.test.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/B",
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/B/src/providers/knowledgeCodeLensModel.test.ts"
+            ],
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs test src/providers/knowledgeCodeLensModel.test.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/B",
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/B/src/providers/knowledgeCodeLensModel.ts"
+            ],
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs test src/providers/knowledgeCodeLensModel.test.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs typecheck",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/B",
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-4/B/REPORT.md"
+            ],
+            "passed": true
+          }
+        ],
+        "unknown": []
+      },
+      "passed": false
+    }
+  }
+}

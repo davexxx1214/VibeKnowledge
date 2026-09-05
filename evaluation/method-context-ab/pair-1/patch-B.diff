@@ -1,0 +1,200 @@
+diff --git "a/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-1\\B\\src/services/exportService.test.ts" "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-1\\B\\src/services/exportService.test.ts"
+new file mode 100644
+index 0000000..909ecbf
+--- /dev/null
++++ "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-1\\B\\src/services/exportService.test.ts"
+@@ -0,0 +1,162 @@
++import { afterEach, describe, expect, it, vi } from 'vitest';
++import { writeFileSync } from 'fs';
++import { ExportService } from './exportService';
++import type { EntityService } from './entityService';
++import type { RelationService } from './relationService';
++import type { ObservationService } from './observationService';
++import type { KnowledgeGraphService } from './knowledgeGraphService';
++import type { Entity, Observation, Relation } from '../utils/types';
++
++vi.mock('vscode', () => ({}));
++vi.mock('fs', () => ({ writeFileSync: vi.fn() }));
++
++const entities: Entity[] = ['a', 'b', 'c'].map((id) => ({
++  id,
++  name: id,
++  type: 'function',
++  filePath: 'example.ts',
++  startLine: 1,
++  endLine: 2,
++  createdAt: 1,
++  updatedAt: 1,
++}));
++
++const relations: Relation[] = [
++  ['a', 'c'],
++  ['c', 'a'],
++  ['a', 'b'],
++  ['b', 'c'],
++  ['c', 'c'],
++  ['a', 'unknown'],
++  ['unknown', 'c'],
++  ['unknown', 'unknown'],
++].map(([sourceEntityId, targetEntityId]) => ({
++  id: `${sourceEntityId}-${targetEntityId}`,
++  sourceEntityId,
++  targetEntityId,
++  verb: 'calls',
++  createdAt: 1,
++}));
++
++const observations: Record<string, Observation[]> = {
++  a: [1, 2].map((index) => ({
++    id: `a-${index}`,
++    entityId: 'a',
++    content: `Observation ${index}`,
++    createdAt: 1,
++    updatedAt: 1,
++  })),
++  b: [{
++    id: 'b-1',
++    entityId: 'b',
++    content: 'Observation for b',
++    createdAt: 1,
++    updatedAt: 1,
++  }],
++  c: [],
++};
++
++function createService(source: 'legacy' | 'knowledgeGraph') {
++  const listEntities = vi.fn(() => entities);
++  const listRelations = vi.fn(() => relations);
++  const getObservations = vi.fn((id: string) => observations[id] ?? []);
++  const service = source === 'legacy'
++    ? new ExportService(
++      { listEntities } as unknown as EntityService,
++      { getAllRelations: listRelations } as unknown as RelationService,
++      { getObservations } as unknown as ObservationService
++    )
++    : new ExportService(
++      {} as EntityService,
++      {} as RelationService,
++      {} as ObservationService,
++      { listEntities, listRelations, getObservations } as unknown as KnowledgeGraphService
++    );
++  return { service, getObservations };
++}
++
++function readExport() {
++  expect(writeFileSync).toHaveBeenCalledOnce();
++  expect(writeFileSync).toHaveBeenCalledWith('export.json', expect.any(String), 'utf-8');
++  const json = vi.mocked(writeFileSync).mock.calls[0][1] as string;
++  return JSON.parse(json);
++}
++
++afterEach(() => {
++  vi.clearAllMocks();
++});
++
++describe.each(['legacy', 'knowledgeGraph'] as const)('JSON export from %s', (source) => {
++  it.each([undefined, {}, { entityIds: undefined }])(
++    'preserves the full export when selection is omitted (%j)',
++    async (options) => {
++      const { service, getObservations } = createService(source);
++      if (options === undefined) {
++        await service.exportToJSON('export.json');
++      } else {
++        await service.exportToJSON('export.json', options);
++      }
++
++      expect(readExport()).toEqual({
++        exportTime: expect.any(String),
++        version: '1.0',
++        statistics: { entityCount: 3, relationCount: 8, observationCount: 3 },
++        entities,
++        relations,
++        observations,
++      });
++      expect(getObservations.mock.calls).toEqual([['a'], ['b'], ['c']]);
++    }
++  );
++
++  it('exports selected existing entities in source order with their internal relations and observations', async () => {
++    const { service, getObservations } = createService(source);
++    const entityIds: readonly string[] = Object.freeze(['c', 'a', 'unknown', 'a']);
++
++    await service.exportToJSON('export.json', { entityIds });
++
++    expect(readExport()).toEqual({
++      exportTime: expect.any(String),
++      version: '1.0',
++      statistics: { entityCount: 2, relationCount: 3, observationCount: 2 },
++      entities: [entities[0], entities[2]],
++      relations: [relations[0], relations[1], relations[4]],
++      observations: { a: observations.a, c: [] },
++    });
++    expect(getObservations.mock.calls).toEqual([['a'], ['c']]);
++    expect(entityIds).toEqual(['c', 'a', 'unknown', 'a']);
++    expect(entities.map((entity) => entity.id)).toEqual(['a', 'b', 'c']);
++    expect(relations).toHaveLength(8);
++  });
++
++  it.each([{ entityIds: [] }, { entityIds: ['unknown', 'unknown'] }])('exports an empty graph for selection %j', async (options) => {
++    const { service, getObservations } = createService(source);
++
++    await service.exportToJSON('export.json', options);
++
++    expect(readExport()).toEqual({
++      exportTime: expect.any(String),
++      version: '1.0',
++      statistics: { entityCount: 0, relationCount: 0, observationCount: 0 },
++      entities: [],
++      relations: [],
++      observations: {},
++    });
++    expect(getObservations).not.toHaveBeenCalled();
++  });
++
++  it('keeps a selected entity and its observations when no relations are internal', async () => {
++    const { service } = createService(source);
++
++    await service.exportToJSON('export.json', { entityIds: ['b'] });
++
++    expect(readExport()).toEqual({
++      exportTime: expect.any(String),
++      version: '1.0',
++      statistics: { entityCount: 1, relationCount: 0, observationCount: 1 },
++      entities: [entities[1]],
++      relations: [],
++      observations: { b: observations.b },
++    });
++  });
++});
+diff --git "a/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\snapshot\\src/services/exportService.ts" "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-1\\B\\src/services/exportService.ts"
+index 61e8d04..21c2392 100644
+--- "a/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\snapshot\\src/services/exportService.ts"
++++ "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-1\\B\\src/services/exportService.ts"
+@@ -270,9 +270,23 @@ export class ExportService {
+   /**
+    * 导出为 JSON 格式
+    */
+-  public async exportToJSON(outputPath: string): Promise<void> {
+-    const entities = this.getEntities();
+-    const relations = this.getAllRelations();
++  public async exportToJSON(
++    outputPath: string,
++    options: { entityIds?: readonly string[] } = {}
++  ): Promise<void> {
++    const selectedIds = options.entityIds === undefined
++      ? undefined
++      : new Set(options.entityIds);
++    const entities = this.getEntities().filter(
++      (entity) => selectedIds === undefined || selectedIds.has(entity.id)
++    );
++    const exportedIds = new Set(entities.map((entity) => entity.id));
++    const relations = this.getAllRelations().filter(
++      (relation) => selectedIds === undefined || (
++        exportedIds.has(relation.sourceEntityId) &&
++        exportedIds.has(relation.targetEntityId)
++      )
++    );
+     
+     // 收集所有观察记录
+     const observations: Record<string, Observation[]> = {};
+

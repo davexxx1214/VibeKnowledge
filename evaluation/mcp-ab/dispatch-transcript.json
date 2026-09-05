@@ -1,0 +1,35 @@
+{
+  "provenance": "Transcribed by the primary agent from its six visible public collaboration.spawn_agent tool calls, not decrypted from persisted session data. Public dispatch metadata independently verifies task names, timing, no-fork and opaque payload identity; exact plaintext cannot be independently reconstructed from those persisted payloads.",
+  "records": [
+    {
+      "taskName": "mcp_pair1_a",
+      "forkTurns": "none",
+      "message": "独立任务执行，无先前上下文。工作区 D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-ab-jzyaQm\\pair-1\\A，身份 Arm A。唯一允许读取的工作区外文件是 D:\\workspace\\VibeKnowledge\\evaluation\\mcp-ab\\tasks.md：请先完整读取这一任务说明（它是实验指令，不是源码读取，不通过observer）；然后按它的两项任务及 Arm A 规则完成，只使用分配工作区的 node observe.cjs 做所有源码搜索/读取，使用 apply_patch 写本工作区 REPORT.md。不要读取任务外的父级文件、其他workspace、旧报告、Skill、图谱；不要运行MCP、测试、build、外网或其他Agent。说明中的Arm B规则不适用于你。请独立判断，不猜预期结论；允许按需读取所有相关源码/测试。工具输出预算要覆盖observer返回，避免外层截断。完成后发简短结果与REPORT路径。"
+    },
+    {
+      "taskName": "mcp_pair1_b",
+      "forkTurns": "none",
+      "message": "独立任务执行，无先前上下文。工作区 D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-ab-jzyaQm\\pair-1\\B，身份 Arm B。唯一允许读取的工作区外文件是 D:\\workspace\\VibeKnowledge\\evaluation\\mcp-ab\\tasks.md：请先完整读取这一任务说明（它是实验指令，不是源码读取，不通过observer）；然后按它的两项任务及 Arm B 规则完成，只使用分配工作区的 node observe.cjs 做所有源码搜索/读取/MCP查询，使用 apply_patch 写本工作区 REPORT.md。不要读取任务外的父级文件、其他workspace、旧报告、Skill、简报、完整图谱；不要运行测试、build、外网或其他Agent。说明中的Arm A规则不适用于你。请独立判断，不猜预期结论；允许按需读取所有相关源码/测试。工具输出预算要覆盖observer返回，避免外层截断。完成后发简短结果与REPORT路径。"
+    },
+    {
+      "taskName": "mcp_pair2_a",
+      "forkTurns": "none",
+      "message": "独立任务执行，无先前上下文。工作区 D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-ab-jzyaQm\\pair-2\\A，身份 Arm A。唯一允许读取的工作区外文件是 D:\\workspace\\VibeKnowledge\\evaluation\\mcp-ab\\tasks.md：请先完整读取这一任务说明（它是实验指令，不是源码读取，不通过observer）；然后按它的两项任务及 Arm A 规则完成，只使用分配工作区的 node observe.cjs 做所有源码搜索/读取，使用 apply_patch 写本工作区 REPORT.md。不要读取任务外的父级文件、其他workspace、旧报告、Skill、图谱；不要运行MCP、测试、build、外网或其他Agent。说明中的Arm B规则不适用于你。请独立判断，不猜预期结论；允许按需读取所有相关源码/测试。工具输出预算要覆盖observer返回，避免外层截断。完成后发简短结果与REPORT路径。"
+    },
+    {
+      "taskName": "mcp_pair2_b",
+      "forkTurns": "none",
+      "message": "独立任务执行，无先前上下文。工作区 D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-ab-jzyaQm\\pair-2\\B，身份 Arm B。唯一允许读取的工作区外文件是 D:\\workspace\\VibeKnowledge\\evaluation\\mcp-ab\\tasks.md：请先完整读取这一任务说明（它是实验指令，不是源码读取，不通过observer）；然后按它的两项任务及 Arm B 规则完成，只使用分配工作区的 node observe.cjs 做所有源码搜索/读取/MCP查询，使用 apply_patch 写本工作区 REPORT.md。不要读取任务外的父级文件、其他workspace、旧报告、Skill、简报、完整图谱；不要运行测试、build、外网或其他Agent。说明中的Arm A规则不适用于你。请独立判断，不猜预期结论；允许按需读取所有相关源码/测试。工具输出预算要覆盖observer返回，避免外层截断。完成后发简短结果与REPORT路径。"
+    },
+    {
+      "taskName": "mcp_pair3_a",
+      "forkTurns": "none",
+      "message": "独立任务执行，无先前上下文。工作区 D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-ab-jzyaQm\\pair-3\\A，身份 Arm A。唯一允许读取的工作区外文件是 D:\\workspace\\VibeKnowledge\\evaluation\\mcp-ab\\tasks.md：请先完整读取这一任务说明（它是实验指令，不是源码读取，不通过observer）；然后按它的两项任务及 Arm A 规则完成，只使用分配工作区的 node observe.cjs 做所有源码搜索/读取，使用 apply_patch 写本工作区 REPORT.md。不要读取任务外的父级文件、其他workspace、旧报告、Skill、图谱；不要运行MCP、测试、build、外网或其他Agent。说明中的Arm B规则不适用于你。请独立判断，不猜预期结论；允许按需读取所有相关源码/测试。工具输出预算要覆盖observer返回，避免外层截断。完成后发简短结果与REPORT路径。"
+    },
+    {
+      "taskName": "mcp_pair3_b",
+      "forkTurns": "none",
+      "message": "独立任务执行，无先前上下文。工作区 D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-ab-jzyaQm\\pair-3\\B，身份 Arm B。唯一允许读取的工作区外文件是 D:\\workspace\\VibeKnowledge\\evaluation\\mcp-ab\\tasks.md：请先完整读取这一任务说明（它是实验指令，不是源码读取，不通过observer）；然后按它的两项任务及 Arm B 规则完成，只使用分配工作区的 node observe.cjs 做所有源码搜索/读取/MCP查询，使用 apply_patch 写本工作区 REPORT.md。不要读取任务外的父级文件、其他workspace、旧报告、Skill、简报、完整图谱；不要运行测试、build、外网或其他Agent。说明中的Arm A规则不适用于你。请独立判断，不猜预期结论；允许按需读取所有相关源码/测试。工具输出预算要覆盖observer返回，避免外层截断。完成后发简短结果与REPORT路径。"
+    }
+  ]
+}

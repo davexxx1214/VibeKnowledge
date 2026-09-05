@@ -1,0 +1,112 @@
+{
+  "candidates": {
+    "X": {
+      "items": [
+        {
+          "id": "R1",
+          "score": 1,
+          "rationale": "Zero-based fact indexes: X.facts[1] supplies activation -> ShelfCommands -> ShelfExporter wiring, and X.facts[5] distinguishes the activation-time placeholder/early return from the normal handler's runtime workspace guard. Its statement that the placeholder never rechecks workspace captures why opening a workspace alone does not repair that handler. Source: src/activate.ts:5-12 and src/commands.ts:10-14."
+        },
+        {
+          "id": "R2",
+          "score": 1,
+          "rationale": "X.facts[2] correctly connects the MIME-valued formatTag producer with render's short 'json' comparison and concludes that both declared formats join items with newlines. X.facts[10] correctly limits the structured test to nonempty output. Source: src/preferences.ts:1-4, src/exporter.ts:7-10, and tests/exporter.test.ts:15-18."
+        },
+        {
+          "id": "R3",
+          "score": 1,
+          "rationale": "X.facts[0] and X.facts[6] identify the fixed shelf-export.txt path, awaited write before appendIndex, and return only after both succeed. X.facts[3-4] identify injected storage/transport, and limitations[1] says the real backend is unknown; no overwrite or atomicity guarantee is asserted. The direct-versus-delegated wording in fact[4] merits a minor clarification only. Source: src/exporter.ts:12-17, src/host.ts:7-10, and src/remoteStore.ts:3-11."
+        },
+        {
+          "id": "R4",
+          "score": 1,
+          "rationale": "X.facts[6] correctly states that appendIndex rejection leaves the earlier completed write without compensation in this layer and produces Export failed. Together with X.facts[0] and X.facts[7], which place reveal after save returns, it establishes that this rejection bypasses reveal. Source: src/exporter.ts:14-16 and src/commands.ts:13-19."
+        },
+        {
+          "id": "R5",
+          "score": 1,
+          "rationale": "X.facts[7] explicitly gives success notification before reveal, the shared try/catch, and the resulting success-then-failure messages if reveal rejects after persistence. X.facts[0] identifies autoOpen as the reveal condition. Source: src/commands.ts:14-18 and src/exporter.ts:14-16."
+        },
+        {
+          "id": "R6",
+          "score": 1,
+          "rationale": "X.facts[1] says preview calls render and not save, and X.facts[2] identifies the shared impact of renderer changes. As save owns both storage calls, these statements also establish that preview does not append an index. Source: src/commands.ts:22-24, src/activate.ts:12, and src/exporter.ts:7-16."
+        },
+        {
+          "id": "R7",
+          "score": 1,
+          "rationale": "X.facts[9] correctly reports the asserted path, newline content, and write/index event order; X.facts[10] limits the structured assertion to nonempty output. Limitations[2] identifies the missing registration, workspace, preview, autoOpen, exception, and RemoteStore coverage, while limitations[1] leaves the real backend unknown. This adequately qualifies the tests' scope without implying execution. Source: tests/exporter.test.ts:5-18 contains only an event-recording Store and a no-op Store; command and activation paths occur separately in src/activate.ts:5-12 and src/commands.ts:10-24."
+        },
+        {
+          "id": "R8",
+          "score": 1,
+          "rationale": "X.facts[1], X.facts[3-4], and limitations[1] identify Host/Store/Transport injection and the absence of concrete host/transport/backend implementations. X.facts[8] accurately explains when state is read for rendering and when autoOpen is read after save. No concrete SDK, networking, overwrite, or filesystem guarantee is inferred. Source: src/activate.ts:5-12, src/host.ts:1-10, src/remoteStore.ts:3-11, src/commands.ts:5-23, and src/exporter.ts:7-15."
+        }
+      ],
+      "major_false_claims": [],
+      "minor_corrections": [
+        {
+          "fact_index": 4,
+          "issue": "The wording '它不执行本地文件写入' can be read as excluding local filesystem effects of the delegated Transport.",
+          "correction": "Say RemoteStore does not directly call filesystem APIs and delegates its effects to the injected Transport, whose implementation is absent. The surrounding description and limitations already constrain this enough that it is not a major false claim.",
+          "source_evidence": "src/remoteStore.ts:3-11 only declares Transport and awaits its put/append methods; src/host.ts:7-10 supplies no storage-medium guarantee."
+        }
+      ],
+      "totals": { "score": 8, "max": 8, "major_false_claim_count": 0 }
+    },
+    "Y": {
+      "items": [
+        {
+          "id": "R1",
+          "score": 1,
+          "rationale": "Zero-based fact indexes: Y.facts[0] explicitly states the no-workspace placeholder/return and that later workspace assignment does not replace it. Y.facts[1] describes normal activation, the command binding, and the separate runtime guard; Y.facts[7] supplies exporter construction/injection. Source: src/activate.ts:5-12 and src/commands.ts:8-14."
+        },
+        {
+          "id": "R2",
+          "score": 1,
+          "rationale": "Y.facts[2] correctly traces the MIME producer and short 'json' comparison to joined text for both preferences. Y.facts[10] explicitly says plain text satisfies the structured test's nonempty assertion. The newline presentation issue does not change this accurate behavioral account. Source: src/preferences.ts:1-4, src/exporter.ts:7-10, and tests/exporter.test.ts:15-18."
+        },
+        {
+          "id": "R3",
+          "score": 1,
+          "rationale": "Y.facts[4] gives the fixed path and both awaited persistence operations before return. Y.facts[5] disclaims atomic consistency and delegates partial effects to Store, while limitations[1] explicitly leaves overwrite semantics and the storage medium unknown. Source: src/exporter.ts:12-17, src/host.ts:7-10, and src/remoteStore.ts:3-11."
+        },
+        {
+          "id": "R4",
+          "score": 1,
+          "rationale": "Y.facts[5] correctly describes an already completed write when appendIndex rejects, no rollback/retry in save, and the command failure notification. Y.facts[6] places reveal only after both persistence operations finish, establishing no reveal on the appendIndex failure path. Source: src/exporter.ts:14-17 and src/commands.ts:13-19."
+        },
+        {
+          "id": "R5",
+          "score": 1,
+          "rationale": "Y.facts[6] explicitly orders completed persistence, Export complete, autoOpen evaluation, and awaited reveal; it correctly explains that reveal rejection adds Export failed without undoing persistence. Source: src/commands.ts:14-18 and src/exporter.ts:14-16."
+        },
+        {
+          "id": "R6",
+          "score": 1,
+          "rationale": "Y.facts[3] identifies preview's registration, shared state/render path, notification output, absence of storage writes, and the effect of renderer changes on both preview and save. Since only save calls appendIndex, preview also avoids indexing. Source: src/activate.ts:12, src/commands.ts:22-24, and src/exporter.ts:7-16."
+        },
+        {
+          "id": "R7",
+          "score": 1,
+          "rationale": "Y.facts[9] correctly identifies the mock Store and exact path/content/order assertions while excluding real storage and registration validation. Y.facts[10] accurately limits the structured test to nonempty output; limitations[2] explicitly lists untested activation/guards, failures, reveal, preview, and RemoteStore integration. Source: tests/exporter.test.ts:5-18; the unexercised host/command behaviors are in src/activate.ts:5-12 and src/commands.ts:10-24."
+        },
+        {
+          "id": "R8",
+          "score": 1,
+          "rationale": "Y.facts[7-8] describe injected Host/Store/Transport and forwarding without inventing a platform or backend implementation. Limitations[1] explicitly leaves UI exposure, persistence medium, overwrite, and recovery unknown. Y.facts[1], Y.facts[3], and Y.facts[6] correctly connect state to render/save and preferences to post-save reveal. Source: src/activate.ts:5-12, src/host.ts:1-10, src/remoteStore.ts:3-11, src/commands.ts:5-23, and src/preferences.ts:1-4."
+        }
+      ],
+      "major_false_claims": [],
+      "minor_corrections": [
+        {
+          "fact_index": 2,
+          "issue": "After parsing Y.json, the quoted items.join argument contains an actual line break instead of the visible JavaScript escape sequence backslash-n.",
+          "correction": "Escape the backslash in the JSON text so the displayed snippet reads items.join('\\n'). The summary and format explanation already convey newline-joined text correctly.",
+          "source_evidence": "src/exporter.ts:9 spells the separator as the JavaScript escape sequence '\\n'."
+        }
+      ],
+      "totals": { "score": 8, "max": 8, "major_false_claim_count": 0 }
+    }
+  }
+}

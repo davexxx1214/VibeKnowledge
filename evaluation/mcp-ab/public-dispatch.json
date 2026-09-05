@@ -1,0 +1,73 @@
+{
+  "version": 2,
+  "createdAt": "2026-09-04T15:04:22.025Z",
+  "note": "Only actual public dispatch metadata for six candidates. Persistence stored message bodies as opaque payloads; export their hashes, not ciphertext or a claim of readable plaintext. No decryption, private reasoning/system or unrelated history. Version 2 sanitizes the earlier opaque-body export without changing dispatch identities.",
+  "records": [
+    {
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\08\\25\\rollout-2026-08-25T20-33-16-01a038cd-9948-7213-a047-8c204f8dff94_01a038e9-1ba9-7b42-8325-40622628d3c9.jsonl",
+      "timestamp": "2026-09-04T14:39:12.973Z",
+      "callId": "call_GbjYukpYoQcJS5IBStCxAmlC",
+      "taskName": "mcp_pair1_a",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload; not decrypted or exported.",
+      "messagePayloadSha256": "ff8489025d12e5ca8175321eaa3b63b25d5e997c73a709e071cebb23e0b29673"
+    },
+    {
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\08\\25\\rollout-2026-08-25T20-33-16-01a038cd-9948-7213-a047-8c204f8dff94_01a038e9-1ba9-7b42-8325-40622628d3c9.jsonl",
+      "timestamp": "2026-09-04T14:39:21.127Z",
+      "callId": "call_f5CT9U7C96wxhs5r87UT15Q3",
+      "taskName": "mcp_pair1_b",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload; not decrypted or exported.",
+      "messagePayloadSha256": "6c52e8251b5fcadbc12beb71405fe5a72eb930e4c29dc90b4cbae10bf26e16d7"
+    },
+    {
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\08\\25\\rollout-2026-08-25T20-33-16-01a038cd-9948-7213-a047-8c204f8dff94_01a038e9-1ba9-7b42-8325-40622628d3c9.jsonl",
+      "timestamp": "2026-09-04T14:46:46.970Z",
+      "callId": "call_joX4NlHRl98wUGOjZOy8AjdH",
+      "taskName": "mcp_pair2_a",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload; not decrypted or exported.",
+      "messagePayloadSha256": "624c11e2616ae2fb4c875db99c13cab97ef5922a2463d7e9be163a34d5b7a6e9"
+    },
+    {
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\08\\25\\rollout-2026-08-25T20-33-16-01a038cd-9948-7213-a047-8c204f8dff94_01a038e9-1ba9-7b42-8325-40622628d3c9.jsonl",
+      "timestamp": "2026-09-04T14:46:55.676Z",
+      "callId": "call_VAQHxZUS3dHGn8nCHV6D4oN5",
+      "taskName": "mcp_pair2_b",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload; not decrypted or exported.",
+      "messagePayloadSha256": "08f8a4bbcd03195a3084f5ea43589a6ca64e182954455045a0b6262008e773c1"
+    },
+    {
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\08\\25\\rollout-2026-08-25T20-33-16-01a038cd-9948-7213-a047-8c204f8dff94_01a038e9-1ba9-7b42-8325-40622628d3c9.jsonl",
+      "timestamp": "2026-09-04T14:53:33.687Z",
+      "callId": "call_uA0tG5AoCdwhMf62e2wd2kDe",
+      "taskName": "mcp_pair3_a",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload; not decrypted or exported.",
+      "messagePayloadSha256": "17fa9f629211675c25077ed2a47430ceda7cb81b5448fa499dcea70cb698e325"
+    },
+    {
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\08\\25\\rollout-2026-08-25T20-33-16-01a038cd-9948-7213-a047-8c204f8dff94_01a038e9-1ba9-7b42-8325-40622628d3c9.jsonl",
+      "timestamp": "2026-09-04T14:53:42.251Z",
+      "callId": "call_5aKnEhrLrd71QFsesuAwxD2W",
+      "taskName": "mcp_pair3_b",
+      "forkTurns": "none",
+      "modelOverride": null,
+      "effortOverride": null,
+      "messageStorage": "Opaque persisted payload; not decrypted or exported.",
+      "messagePayloadSha256": "03bd00857206355e7ccb7ed78b45c28ed9f731463b2ece07b8a87fbcfbff8cfe"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-09-05T00:16:02.486Z",
+  "run": "D:\\workspace\\VibeKnowledge\\.vscode-test\\skill-precision-ueXaLu",
+  "mapping": {
+    "original": "B",
+    "revised": "A"
+  },
+  "task": "为此工程的 Shelf 导出功能编写一份可供后续 Coding Agent 复用的功能简报。\n覆盖实际功能、主要依赖、相关运行机制、现有测试和影响修改的约束。使用分配给你的\nauthoring.md，输出符合其中 schema 的 draft.json；功能 key 使用 shelf-export。\n只能读取分配工作区的 src/、tests/ 和 authoring.md，使用 apply_patch 创建 draft.json。\n无需发布简报、运行代码/测试、生成图谱、安装依赖或修改源文件。不能读取父目录、\n其他工作区、评测文件或联网，也不要启动子代理。不要为假设的未来测试编写答案。\n最终只报告简报路径和实际核查范围。\n",
+  "rubricSha256": "00a2969793e12961bf29bd4cd0a29f3b08a8e048f5eaaffc2d346e76fe690fa3",
+  "arms": {
+    "A": {
+      "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\skill-precision-ueXaLu\\author-A",
+      "hashes": {
+        "authoring.md": "b24202327b20537a226fb3e2edb981366faad4db03775ebe2aea8b8b0cc0d6fd",
+        "src/activate.ts": "3473317e64f787c982504a6728ffb477755d352c0e1665c675b559c7a90a4772",
+        "src/commands.ts": "bef86db5aa23493497cce3adc49aa9995d0ac46871c89509ce9a21fa82af55bb",
+        "src/exporter.ts": "dfad642a60440c85d48c0d0cc674a383fb7eb447d4332d42acdd47443097fdaa",
+        "src/host.ts": "1a664a8c8d1eb30979d1bc875ca20d2a83defc9ed73a6c87feca00be6dfad17b",
+        "src/preferences.ts": "18d0129f4314ed19d1e5dd76673121343ce3751aac83eb4cd6362c1c67819852",
+        "src/remoteStore.ts": "1a60c648bd14a8465240cabf41074ffbb16e82b02693295ab2dde474b69798bd",
+        "tests/exporter.test.ts": "2de0a09ad112202b4ce6e1d02f18a45755d0d2f1c22554688b0359035955736e"
+      }
+    },
+    "B": {
+      "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\skill-precision-ueXaLu\\author-B",
+      "hashes": {
+        "authoring.md": "1942b7888b46c1fb081748515c4932baa62c7eaa8511eb28efb4d51ad4dea52b",
+        "src/activate.ts": "3473317e64f787c982504a6728ffb477755d352c0e1665c675b559c7a90a4772",
+        "src/commands.ts": "bef86db5aa23493497cce3adc49aa9995d0ac46871c89509ce9a21fa82af55bb",
+        "src/exporter.ts": "dfad642a60440c85d48c0d0cc674a383fb7eb447d4332d42acdd47443097fdaa",
+        "src/host.ts": "1a664a8c8d1eb30979d1bc875ca20d2a83defc9ed73a6c87feca00be6dfad17b",
+        "src/preferences.ts": "18d0129f4314ed19d1e5dd76673121343ce3751aac83eb4cd6362c1c67819852",
+        "src/remoteStore.ts": "1a60c648bd14a8465240cabf41074ffbb16e82b02693295ab2dde474b69798bd",
+        "tests/exporter.test.ts": "2de0a09ad112202b4ce6e1d02f18a45755d0d2f1c22554688b0359035955736e"
+      }
+    }
+  }
+}

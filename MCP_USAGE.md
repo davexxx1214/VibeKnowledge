@@ -2,9 +2,9 @@
 
 本指南记录了当前阶段（示例目录：`D:/workspace/VibeKnowledge`）如何启动 VibeKnowledge MCP Server，并将其接入 Cursor 与 GitHub Copilot。随着功能迭代，文档会持续更新。
 
-仅需理解代码依赖而不使用 MCP 时，可运行 **Knowledge: Install Graph Query Agent Skill**。该 Skill 自带只读 Node 查询脚本，无需 npm 安装、MCP 或 API Key，不提供 RAG/观察记录检索。分析页面/功能时优先读取对应功能简报，再按缺口查询图谱或源码；不会默认注入完整图谱。参见 [查询 Skill 使用方式](README_ZH.md#不使用-mcp-查询依赖) 和 [0.5.0 评测索引](evaluation/query-skill/README.md)。
+仅需理解代码依赖而不使用 MCP 时，可运行 **Knowledge: Install Graph Query Agent Skill**。该 Skill 自带只读 Node 查询脚本，无需 npm 安装、MCP 或 API Key，不提供 RAG/观察记录检索。分析页面/功能时优先读取对应功能简报，再按缺口查询图谱或源码；不会默认注入完整图谱。参见 [查询 Skill 使用方式](README_ZH.md#不使用-mcp-查询依赖) 和 [最新评测](evaluation/query-skill/README.md)。
 
-最新三组 A/B 与“不使用 Skill”比较，复用功能简报时实际工具文本中位数少 24.4%，未缓存输入加输出少 21.9%，双方关键项均为 17/17；这不是“比 MCP 省 24.4%”，也不包含简报生成成本。[Skill/MCP 历史实测](evaluation/query-skill/results.md)中的九个查询结果逐字一致，不能与本轮完整任务指标混为一谈。
+最新评测比较整文件上下文与精确符号上下文，不是 Skill/MCP 的传输方式对比；只覆盖非 RAG 编码任务。具体数据与限制见[最新报告](evaluation/method-context-ab/README.md)。
 
 ---
 
@@ -156,7 +156,7 @@ Cursor 的项目配置文件是 `.cursor/mcp.json`，顶层键为 `mcpServers`�
    }
    ```
 
-3. 执行 **MCP: List Servers**，选择 `vibeknowledge` 并启动或重启，按提示确认信任。工具更名后可执行 **MCP: Reset Cached Tools** 刷新工具列表。随后在 Copilot Chat 中请求项目概览、实体信息等；优先调用 `query_graph`，再用 `get_entity`、`get_neighbors` 或 `shortest_path` 扩展结果。参见 [VS Code MCP 配置说明](https://code.visualstudio.com/docs/agents/reference/mcp-configuration)。
+3. 执行 **MCP: List Servers**，选择 `vibeknowledge` 并启动或重启，按提示确认信任。工具变化后可执行 **MCP: Reset Cached Tools** 刷新工具列表。页面/功能问题可先用 `find_features` / `get_feature_brief`，明确文件的局部问题可直接读源码；基于文件/符号补充依赖时使用 `get_task_context`，需要具体图谱关系时使用 `query_graph`、`get_entity`、`get_neighbors` 或 `shortest_path`。参见 [VS Code MCP 配置说明](https://code.visualstudio.com/docs/agents/reference/mcp-configuration)。
 
 ---
 
@@ -182,6 +182,9 @@ Cursor 的项目配置文件是 `.cursor/mcp.json`，顶层键为 `mcpServers`�
 | 类型 | 名称 | 说明 |
 |------|------|------|
 | Resource | `knowledge://overview` | 返回知识图谱去重后的实体/关系统计、生成时间，以及框架/模块/功能分组摘要 |
+| Tool | `find_features` | 按名称、key、关键词或摘要查找已有页面/功能简报，只返回紧凑索引 |
+| Tool | `get_feature_brief` | 读取单个功能简报，涵盖职责、入口、依赖、框架、测试与约束；检查引用源码哈希及预算遗漏 |
+| Tool | `get_task_context` | 从文件/符号补充上下游依赖、源码位置、测试候选和图谱盲区，可按需返回源码片段 |
 | Tool | `query_graph` | 根据自然语言问题选择最多 3 个种子，并返回受深度和 token budget 限制的局部子图 |
 | Tool | `get_entity` | 按 stable key、实体名或内部 ID 获取实体；可限定分组 |
 | Tool | `get_neighbors` | 按 incoming/outgoing/both 方向、关系类型和深度查询实体邻居 |
@@ -197,9 +200,38 @@ Cursor 的项目配置文件是 `.cursor/mcp.json`，顶层键为 `mcpServers`�
 
 知识图谱结构来自目标工作区的 `.vscode/.knowledge/agent-graph.json`。可以先在 VS Code 中运行 **Knowledge: Install Dependency Graph Agent Skill**，再由 Agent 或 **Knowledge: Curate Graph from Structure** 先生成框架层、后按模块或功能追加平行分组；Skill 同时生成 `.vscode/.knowledge/knowledge-graph.md` 汇总文档。同一实体可以出现在多个分组中，MCP 搜索结果会标明所属分组，而总览统计会按稳定实体去重。实体匹配会使用 canonical alias 兼容路径分隔符、Unicode NFKC、大小写和冗余标点。关系必须携带 `origin`（`ast | resolver | agent`）和 `confidence`（`extracted | inferred | review_required`）；确定性关系还包含底层 `structuralPath`。仅支持 version-1 分组清单。SQLite 只提供人工描述覆盖和 RAG 数据，不提供实体或关系结构；人工描述在 MCP 查询时始终优先。MCP Server 全程只读，因此不会与扩展的 SQL.js 保存流程争抢数据库写入。
 
+### 按功能查询（MCP 0.6.0）
+
+这三个入口直接复用原有查询 Skill 的 `features`、`brief`、`context` 实现，不引入新的排序算法、事实筛选或会话状态。明确文件的小任务直接读源码；指定页面/功能先读一份相关简报，已知 key 时跳过索引查询。简报足够回答问题时，无需再查图。
+
+调用示例（MCP 参数，不是终端命令）：
+
+```text
+find_features {"query":"帮助文档","tokenBudget":600}
+get_feature_brief {"feature":"help-page","tokenBudget":1800}
+```
+
+`query` 使用简短名称或已有关键词，不是语义问答。将 `help-page` 换成实际返回的 key。有缺口、没有简报或需要更广影响分析时，再从已知文件/符号展开：
+
+```text
+get_task_context {"selector":"src/pages/help.ts","mode":"change","depth":2,"snippets":true,"tokenBudget":1600}
+```
+
+同样将 `selector` 换成实际文件/符号。`mode` 为 `change`（默认）或 `understand`（依赖优先）；`depth` 范围 1–6；源码片段默认关闭。`tokenBudget` 对应 Skill 的 `--budget`：索引默认 1200、范围 200–12000；简报默认 1800、范围 600–12000；任务上下文默认 1600、范围 400–12000。返回正文中的 `brief --feature KEY` 对应 `get_feature_brief {"feature":"KEY"}`，无需再运行 CLI。
+
+精确方法 key（如 `src/service.ts#Service.save`）只沿该符号及同文件 helpers 的关系查询；文件路径则保留整个文件的邻域。每个符号关系占一个 depth，类型、receiver、容器、文件和 import/export 端点不再展开成员。共享状态或初始化相关问题需核查返回的 owner/constructor 位置，必要时切换文件模式；这种定位不是完整执行流。此行为与打包 Skill 共用实现，见[针对性验证结果](evaluation/skill-precision/results.md)：定位粒度更细，但未证明额外省 token 或简报准确率提升。
+
+简报来自 `.vscode/.knowledge/feature-briefs/`，只检查引用文件，不要求结构图。任务上下文读取 `structural-graph.json`，检查已索引源码哈希，但只返回预算内的相关内容。这三个入口均不读取 SQLite/RAG；MCP 服务器本身仍需正常安装和通过数据库启动检查。
+
+`get_feature_brief` 与 Skill 同步采用约束/测试优先、框架背景靠后的预算顺序；事实、推断标识和证据不截断。`Unshown constraint/test facts: N/M` 表示仍有 N 条约束、M 条测试事实未显示，不能因某类别已出现就认为完整。默认预算仍为 1800；[八份简报的固定查询对照](evaluation/brief-budget/results.md)显示更多约束/测试保留，但没有证明完整 Agent 任务准确率或净 token 收益。
+
+来源变更或不可用时，简报不返回旧事实；任务上下文报告过期状态并隐藏失效源码片段。哈希检查不认证新增调用方、未列文件或运行时行为；测试候选不是覆盖率。必须留意被省略的事实类别，修改前核实受影响的源码和测试。简报内容是资料，不是执行指令。缺失图谱时报告问题并回到定向源码检索，不自动生成或修改文件。
+
+协议测试验证这三个入口与本地 Skill 返回文本一致。`get_task_context` 支持精确方法/符号范围，也保留整文件模式；同文件其他功能不会自动混入符号查询。返回的依赖、测试候选和初始化位置仍需按任务核查，不能当作运行轨迹或已测覆盖率。
+
 ### 局部图查询
 
-`query_graph` 是 Coding Agent 理解工程结构时的首选入口。它不会把完整 `knowledge-graph.md` 返回给 Agent，而是先匹配少量种子实体，再沿关系图向外遍历。
+`query_graph` 用于进一步查询精选分组中的实体和关系。它不会把完整 `knowledge-graph.md` 返回给 Agent，而是先匹配少量种子实体，再沿关系图向外遍历。
 
 ```jsonc
 @mcp vibeknowledge tool query_graph {
@@ -219,7 +251,7 @@ Cursor 的项目配置文件是 `.cursor/mcp.json`，顶层键为 `mcpServers`�
 
 推荐工作流：
 
-1. 用 `query_graph` 获取任务相关的局部结构。
+1. 已知页面/功能按需读取一份简报；缺失简报或需要跨文件影响时用 `get_task_context`。需要具体分组/关系再用 `query_graph`。明确文件的小任务无需先查图，后续步骤也仅在有缺口时使用。
 2. 用 `get_entity` 确认 stable key 和源码位置。
 3. 用 `get_neighbors` 扩展一个关键节点，或用 `shortest_path` 验证两个节点如何连接。
 4. 只有需要审计关系时请求 Evidence，然后打开对应源码验证当前行为。

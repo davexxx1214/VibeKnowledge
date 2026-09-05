@@ -1,0 +1,44 @@
+{
+  "version": 2,
+  "createdAt": "2026-09-05T02:17:05.898Z",
+  "pair": 1,
+  "originalMetricsSha256": "06a7bfe2629a2b39a916a718d1f0d1df1f52adb82198643c42ce0cc73ca1211c",
+  "reason": "v1 expected plaintext user task messages and one-level exec JSON. Current collaboration encrypts task bodies in agent_message and parallel tools wrap exec results under result.value. Numeric/token counts and gates are unchanged; original v1 retained.",
+  "arms": {
+    "A": {
+      "sessionId": "01a06f50-df5f-7400-a5e1-68480803321f",
+      "agentPath": "/root/method_pair1_a",
+      "prompt": {
+        "exactPublicDispatchMatched": false,
+        "dispatchCallId": "call_JsbzsqqDGGosy9DLhREeuTlI",
+        "sha256": "d9b86c4b5d3721978ccebb3b263599a05d0a01f3f1ba24020531149c8f1a951b",
+        "freshIncoming": true,
+        "bodyStoredEncrypted": true
+      },
+      "delivery": {
+        "observations": 20,
+        "unmatchedObservationIndexes": [],
+        "passed": true
+      },
+      "passed": false
+    },
+    "B": {
+      "sessionId": "01a06f51-4ef9-7523-97f3-63bb64845986",
+      "agentPath": "/root/method_pair1_b",
+      "prompt": {
+        "exactPublicDispatchMatched": false,
+        "dispatchCallId": "call_AA8njPaJDDZJZ6GwOKI0oCRg",
+        "sha256": "e7ab44dd92cb35c724576595d32a621b6ef247d0aa98f2eeb8dc7296380556f8",
+        "freshIncoming": true,
+        "bodyStoredEncrypted": true
+      },
+      "delivery": {
+        "observations": 22,
+        "unmatchedObservationIndexes": [],
+        "passed": true
+      },
+      "passed": false
+    }
+  },
+  "passed": false
+}

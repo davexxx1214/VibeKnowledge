@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "createdAt": "2026-09-04T17:06:03.336Z",
+  "arms": {
+    "A": {
+      "sessionId": "01a06d5c-f3ef-79d2-ac45-80669aa23b83",
+      "agentPath": "/root/mcp_feature_pair3_a",
+      "observations": 45,
+      "matchedPublicToolOutput": 45,
+      "unmatchedObservationIndexes": [],
+      "toolOutputTruncationMarkers": 0
+    },
+    "B": {
+      "sessionId": "01a06d5d-52a5-70a2-8a06-fa360b2afb42",
+      "agentPath": "/root/mcp_feature_pair3_b",
+      "observations": 37,
+      "matchedPublicToolOutput": 37,
+      "unmatchedObservationIndexes": [],
+      "toolOutputTruncationMarkers": 0
+    }
+  },
+  "passed": true,
+  "note": "Multiplicity-aware public-tool substring matching, not call-identity proof. Supports function/custom tool outputs. Numerical model usage separately includes actual model input/output."
+}

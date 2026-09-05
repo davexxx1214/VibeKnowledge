@@ -1,0 +1,269 @@
+{
+  "generatedAt": "2026-09-04T15:56:55.018Z",
+  "run": "D:\\workspace\\VibeKnowledge\\.vscode-test\\feature-routing-dLeIF4\\pair-3",
+  "graphPreparation": {
+    "status": "not supplied",
+    "reason": "Frontend brief evaluation; no Vue AST coverage claim"
+  },
+  "tokenizer": {
+    "encoding": "o200k_base",
+    "version": "0.12.0"
+  },
+  "bundleSha256": "564bf4c4c42262e2a4fd2e529a26df9c05cd364799bfafaa83a425a4d03b2395",
+  "arms": {
+    "A": {
+      "sessionId": "01a06d1e-bfd2-7581-b42b-3446251bc619",
+      "agentPath": "/root/routing_r3_a",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "responses": 28,
+      "elapsedMs": 241170,
+      "usage": {
+        "input_tokens": 1089196,
+        "cached_input_tokens": 1044224,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 7103,
+        "reasoning_output_tokens": 1266,
+        "total_tokens": 1096299,
+        "uncachedInput": 44972,
+        "uncachedInputPlusOutput": 52075
+      },
+      "sourceHashMismatches": [],
+      "artifactHashMismatches": [],
+      "queries": 0,
+      "phases": {
+        "discovery": {
+          "observations": 12,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "web/src/views/CLIAuthAuthorizeView.vue",
+              "start": 1,
+              "end": 186
+            },
+            {
+              "file": "web/src/router/index.js",
+              "start": 1,
+              "end": 55
+            },
+            {
+              "file": "web/src/router/index.js",
+              "start": 157,
+              "end": 227
+            },
+            {
+              "file": "web/src/apis/auth_api.js",
+              "start": 1,
+              "end": 101
+            },
+            {
+              "file": "web/src/apis/base.js",
+              "start": 1,
+              "end": 188
+            },
+            {
+              "file": "web/src/stores/user.js",
+              "start": 1,
+              "end": 92
+            },
+            {
+              "file": "web/src/stores/user.js",
+              "start": 140,
+              "end": 150
+            },
+            {
+              "file": "web/src/stores/user.js",
+              "start": 309,
+              "end": 338
+            }
+          ],
+          "observedTextTokens": 9320,
+          "tokensByKind": {
+            "task": 230,
+            "rg": 2501,
+            "source": 6589
+          }
+        },
+        "followup": {
+          "observations": 9,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "web/src/views/LoginView.vue",
+              "start": 426,
+              "end": 468
+            },
+            {
+              "file": "web/src/views/LoginView.vue",
+              "start": 503,
+              "end": 550
+            },
+            {
+              "file": "web/src/views/OIDCCallbackView.vue",
+              "start": 25,
+              "end": 130
+            },
+            {
+              "file": "web/src/apis/auth_api.js",
+              "start": 31,
+              "end": 81
+            },
+            {
+              "file": "web/src/views/LoginView.vue",
+              "start": 219,
+              "end": 244
+            }
+          ],
+          "observedTextTokens": 4579,
+          "tokensByKind": {
+            "task": 319,
+            "rg": 1764,
+            "source": 2496
+          }
+        },
+        "control": {
+          "observations": 3,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "web/src/views/ExtensionsView.vue",
+              "start": 51,
+              "end": 76
+            }
+          ],
+          "observedTextTokens": 1210,
+          "tokensByKind": {
+            "task": 242,
+            "rg": 687,
+            "source": 281
+          }
+        }
+      },
+      "observedTextTokens": 15109,
+      "reportTokens": 3342
+    },
+    "B": {
+      "sessionId": "01a06d1f-a854-7941-9997-56b62237f847",
+      "agentPath": "/root/routing_r3_b",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "responses": 22,
+      "elapsedMs": 179909,
+      "usage": {
+        "input_tokens": 849175,
+        "cached_input_tokens": 819712,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 5289,
+        "reasoning_output_tokens": 804,
+        "total_tokens": 854464,
+        "uncachedInput": 29463,
+        "uncachedInputPlusOutput": 34752
+      },
+      "sourceHashMismatches": [],
+      "artifactHashMismatches": [],
+      "queries": 2,
+      "phases": {
+        "discovery": {
+          "observations": 9,
+          "queries": 2,
+          "reads": [
+            {
+              "file": ".agents/skills/vibeknowledge-query/SKILL.md",
+              "start": 1,
+              "end": 32
+            },
+            {
+              "file": "web/src/views/CLIAuthAuthorizeView.vue",
+              "start": 1,
+              "end": 186
+            },
+            {
+              "file": "web/src/apis/base.js",
+              "start": 1,
+              "end": 240
+            },
+            {
+              "file": "web/src/router/index.js",
+              "start": 1,
+              "end": 220
+            },
+            {
+              "file": "web/src/stores/user.js",
+              "start": 1,
+              "end": 155
+            },
+            {
+              "file": "web/src/apis/auth_api.js",
+              "start": 65,
+              "end": 100
+            }
+          ],
+          "observedTextTokens": 10272,
+          "tokensByKind": {
+            "task": 230,
+            "skill": 944,
+            "query": 1618,
+            "source": 7480
+          }
+        },
+        "followup": {
+          "observations": 6,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "web/src/views/LoginView.vue",
+              "start": 425,
+              "end": 535
+            },
+            {
+              "file": "web/src/views/OIDCCallbackView.vue",
+              "start": 1,
+              "end": 150
+            },
+            {
+              "file": "web/src/apis/auth_api.js",
+              "start": 1,
+              "end": 82
+            },
+            {
+              "file": "web/src/utils/oidcAutoStart.js",
+              "start": 1,
+              "end": 40
+            }
+          ],
+          "observedTextTokens": 4057,
+          "tokensByKind": {
+            "task": 319,
+            "source": 3572,
+            "rg": 166
+          }
+        },
+        "control": {
+          "observations": 3,
+          "queries": 0,
+          "reads": [
+            {
+              "file": "web/src/views/ExtensionsView.vue",
+              "start": 40,
+              "end": 82
+            }
+          ],
+          "observedTextTokens": 823,
+          "tokensByKind": {
+            "task": 242,
+            "rg": 149,
+            "source": 432
+          }
+        }
+      },
+      "observedTextTokens": 15152,
+      "reportTokens": 2517
+    }
+  },
+  "limitations": [
+    "Usage alone is not a final gate; pair it with independent source-backed grading and the frozen protocol.",
+    "Total input includes cache/replay; usage is not a monetary invoice.",
+    "Generation/update cost separate; these are warm artifact queries.",
+    "Raw private reasoning/system instructions are not exported."
+  ]
+}

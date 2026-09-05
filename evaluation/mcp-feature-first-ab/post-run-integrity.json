@@ -1,0 +1,65 @@
+{
+  "at": "2026-09-04T17:06:05.380Z",
+  "passed": true,
+  "runtime": [],
+  "runtimeSource": [],
+  "dependencies": [],
+  "dependencyInventoryMatches": true,
+  "harness": [],
+  "helpers": [],
+  "node": true,
+  "rg": true,
+  "tokenizer": true,
+  "dispatches": true,
+  "arms": [
+    {
+      "pair": 1,
+      "arm": "A",
+      "changed": [],
+      "files": 228,
+      "inventoryMatches": true,
+      "configMatches": true
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "changed": [],
+      "files": 235,
+      "inventoryMatches": true,
+      "configMatches": true
+    },
+    {
+      "pair": 2,
+      "arm": "A",
+      "changed": [],
+      "files": 228,
+      "inventoryMatches": true,
+      "configMatches": true
+    },
+    {
+      "pair": 2,
+      "arm": "B",
+      "changed": [],
+      "files": 235,
+      "inventoryMatches": true,
+      "configMatches": true
+    },
+    {
+      "pair": 3,
+      "arm": "A",
+      "changed": [],
+      "files": 228,
+      "inventoryMatches": true,
+      "configMatches": true
+    },
+    {
+      "pair": 3,
+      "arm": "B",
+      "changed": [],
+      "files": 235,
+      "inventoryMatches": true,
+      "configMatches": true
+    }
+  ],
+  "limitation": "Before/after identity and observed calls cannot exclude transient reverted modifications; this is not a security sandbox."
+}

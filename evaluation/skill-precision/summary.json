@@ -1,0 +1,38 @@
+{
+  "at": "2026-09-05T00:28:23.306Z",
+  "authors": {
+    "original": {
+      "arm": "B",
+      "label": "X",
+      "score": 8,
+      "max": 8,
+      "major_false_claim_count": 0,
+      "minorCorrections": 1,
+      "textTokens": {
+        "guidance": 868,
+        "draft": 1944
+      }
+    },
+    "revised": {
+      "arm": "A",
+      "label": "Y",
+      "score": 8,
+      "max": 8,
+      "major_false_claim_count": 0,
+      "minorCorrections": 1,
+      "textTokens": {
+        "guidance": 1244,
+        "draft": 1943
+      }
+    }
+  },
+  "methods": {
+    "count": 3,
+    "beforeTextTokens": 2809,
+    "afterTextTokens": 2909,
+    "changePercent": 3.5599857600569607
+  },
+  "fileControlIdentical": true,
+  "packagedSkillParity": true,
+  "note": "Targeted single-pair pilot with designed failure classes. Grader tie; no demonstrated authoring-quality gain. Fixed output text is not end-to-end agent usage. Guidance and draft tokens are standalone artifact sizes, not author model usage or billing."
+}

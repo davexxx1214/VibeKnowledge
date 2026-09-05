@@ -1,0 +1,136 @@
+{
+  "version": 2,
+  "status": "scoped_individual_observations",
+  "scope": "Non-RAG coding tasks only",
+  "originalMeasurementsCreatedAt": "2026-09-05T02:27:56.578Z",
+  "scopeCorrectedAt": "2026-09-05T02:43:35.090Z",
+  "model": "gpt-6-astra",
+  "effort": "xhigh",
+  "comparison": {
+    "A": "Previous whole-file context for method selectors",
+    "B": "Current exact-symbol context"
+  },
+  "observations": [
+    {
+      "pair": 1,
+      "taskId": "export_subset",
+      "title": "Export a selected portion of the knowledge graph",
+      "savings": {
+        "publicToolOutputTokens": 0.1712164073550212,
+        "observedTextTokens": 0.19357860671095217,
+        "uncachedInputPlusOutput": 0.14150524409825427,
+        "elapsedMs": -0.04290156755727614
+      },
+      "arms": {
+        "A": {
+          "publicToolOutputTokens": 14140,
+          "observedTextTokens": 11742,
+          "usage": {
+            "input_tokens": 502679,
+            "cached_input_tokens": 478464,
+            "output_tokens": 5056,
+            "total_tokens": 507735,
+            "uncachedInput": 24215,
+            "uncachedInputPlusOutput": 29271,
+            "responses": 12
+          },
+          "elapsedMs": 220598,
+          "queries": 1,
+          "critical": 4,
+          "criticalMax": 4,
+          "majorErrors": 0,
+          "acceptancePassed": true,
+          "typecheckPassed": true,
+          "regressionPassed": true
+        },
+        "B": {
+          "publicToolOutputTokens": 11719,
+          "observedTextTokens": 9469,
+          "usage": {
+            "input_tokens": 478226,
+            "cached_input_tokens": 458368,
+            "output_tokens": 5271,
+            "total_tokens": 483497,
+            "uncachedInput": 19858,
+            "uncachedInputPlusOutput": 25129,
+            "responses": 12
+          },
+          "elapsedMs": 230062,
+          "queries": 1,
+          "critical": 4,
+          "criticalMax": 4,
+          "majorErrors": 0,
+          "acceptancePassed": true,
+          "typecheckPassed": true,
+          "regressionPassed": true
+        }
+      }
+    },
+    {
+      "pair": 4,
+      "taskId": "codelens_unicode",
+      "title": "Keep emoji intact when shortening CodeLens descriptions",
+      "savings": {
+        "publicToolOutputTokens": 0.09799043062200952,
+        "observedTextTokens": 0.09702486678507993,
+        "uncachedInputPlusOutput": -0.6545314627360446,
+        "elapsedMs": 0.3142280129311319
+      },
+      "arms": {
+        "A": {
+          "publicToolOutputTokens": 5225,
+          "observedTextTokens": 4504,
+          "usage": {
+            "input_tokens": 277062,
+            "cached_input_tokens": 263296,
+            "output_tokens": 3127,
+            "total_tokens": 280189,
+            "uncachedInput": 13766,
+            "uncachedInputPlusOutput": 16893,
+            "responses": 8
+          },
+          "elapsedMs": 132703,
+          "queries": 1,
+          "critical": 3,
+          "criticalMax": 3,
+          "majorErrors": 0,
+          "acceptancePassed": true,
+          "typecheckPassed": true,
+          "regressionPassed": true
+        },
+        "B": {
+          "publicToolOutputTokens": 4713,
+          "observedTextTokens": 4067,
+          "usage": {
+            "input_tokens": 269638,
+            "cached_input_tokens": 243456,
+            "output_tokens": 1768,
+            "total_tokens": 271406,
+            "uncachedInput": 26182,
+            "uncachedInputPlusOutput": 27950,
+            "responses": 8
+          },
+          "elapsedMs": 91004,
+          "queries": 1,
+          "critical": 3,
+          "criticalMax": 3,
+          "majorErrors": 0,
+          "acceptancePassed": true,
+          "typecheckPassed": true,
+          "regressionPassed": true
+        }
+      }
+    }
+  ],
+  "aggregate": null,
+  "gateVerdict": null,
+  "qualityImprovementDemonstrated": false,
+  "conclusion": "One local-change observation shows lower reading and uncached I/O; the small-file control does not improve both. No general efficiency or accuracy improvement is established.",
+  "limitations": [
+    "Retained individual cases after scope correction, not a new preregistered two-task trial. No post-hoc aggregate or gate recalculation.",
+    "One independent pair per task; caching and reasoning variation remain uncontrolled.",
+    "Both arms use context; this does not compare Skill adoption with no Skill.",
+    "Persisted prompt bodies are encrypted, so exact plaintext dispatch equality cannot be independently verified.",
+    "Generation, installation, design, grading and cleanup costs are outside task-level usage."
+  ]
+}

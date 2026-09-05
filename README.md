@@ -24,43 +24,30 @@ flowchart LR
     Overrides --> MCP
 ```
 
-## Measured context savings
+## Current approach (0.6.0)
 
-### 0.5.0: feature-first Skill results
+- **Generate by page or feature.** Keep the framework graph as a system-boundary view. For a requested feature, the generation Skill reviews its entry points, capabilities, dependency roles, relevant frameworks, tests and constraints, then publishes one reusable brief. It does not generate briefs for every page by default.
+- **Query selectively.** Small known-file tasks can read source directly. For a named feature, locate and read one brief; a known key skips discovery. Only expand missing dependencies with `context`: an exact method key retains same-file helpers and related callers/tests, while a file selector retains the whole-file neighborhood. Type/container/file hints do not expand all members; shared initialization may require inspecting the reported owner/constructor.
+- **Keep access bounded and source-backed.** The local query Skill needs no MCP server; MCP reuses its `features`, `brief` and `context` logic through `find_features`, `get_feature_brief` and `get_task_context`. The full audit report is never a default context input. Check omissions and stale-source warnings, and verify affected source/tests before editing. Graph paths are not execution traces, and test candidates are not coverage.
 
-The current result is a three-pair independent A/B on two VibeKnowledge feature-analysis tasks: **24.4% less actual tool text**, **21.9% less uncached input plus output**, and **17/17 critical items for both arms in every pair**. It passes the predefined warm-reuse efficiency gate, not an accuracy-improvement gate. Creating the two briefs costs an additional **90,480 tokens** on the uncached-input-plus-output measure; first use did not save net tokens. See the [evaluation index](./evaluation/query-skill/README.md) and [full report](./evaluation/query-skill/context/r3/results.md) for raw counts, earlier failures, source scope and limits.
+Brief generation/refresh and later reuse have separate costs. This method aims to reduce repeated discovery without skipping necessary verification; it does not guarantee savings on each task. See the [query usage](#query-dependencies-without-mcp) and [brief authoring rules](resources/skills/vibeknowledge-dependency-graph/references/feature-briefs.md).
 
-### Historical fixed-retrieval benchmark (not end-to-end agent usage)
+## Validation results and limits
 
-The Phase 7 benchmark runs five fixed coding tasks against `nestjs-realworld-example-app`: locating behavior, adding a test, changing an API path, assessing impact, and tracing a dependency cycle.
+The current knowledge-graph Skills target code dependencies and page/feature understanding, not RAG. Their evaluations cover non-RAG coding tasks only; the extension's separate RAG capabilities are outside this scope.
 
-At the recommended 600-token MCP query budget:
+### Latest: exact-symbol task context (2026-09-05)
 
-| Retrieval mode | Average input tokens | Evidence-coverage proxy | Files read | Tool calls |
-| --- | ---: | ---: | ---: | ---: |
-| Source search without a graph | 2,783 | 85.6% | 5.0 | 6.0 |
-| Compact Markdown group | 2,426 | 72.6% | 4.8 | 6.8 |
-| MCP on-demand graph query | 1,710 | 90.3% | 3.6 | 4.6 |
+This compares **previous whole-file context (A)** with **exact-symbol context (B)**, not Skill versus no Skill. After correcting the evaluation scope, two non-RAG tasks remain, with one independent Agent pair per task:
 
-MCP used **1,073 fewer estimated input tokens per task**, a **38.6% reduction** from source-only retrieval, while the evidence-coverage proxy improved by 4.8 percentage points. It used 29.5% fewer tokens than loading a compact Markdown group. Its average 411-token retrieval payload was 96.2% smaller than injecting the complete 10,679-token audit report.
+| Task | Actual tool-text tokens, A → B | Uncached input + output, A → B | Blind critical score, A → B |
+| --- | ---: | ---: | ---: |
+| Export selected graph entities to JSON | 14,140 → 11,719 (**−17.1%**) | 29,271 → 25,129 (**−14.2%**) | 4/4 → 4/4 |
+| Preserve Unicode code points in CodeLens truncation | 5,225 → 4,713 (**−9.8%**) | 16,893 → 27,950 (**+65.5%**) | 3/3 → 3/3 |
 
-These are reproducible conservative token estimates, not provider billing telemetry. Evidence coverage measures retrieval quality, not final model-answer quality. See the [full methodology and per-task results](./evaluation/phase7/results.md).
+Both arms passed the retained task acceptance checks and typechecks, with zero major errors. The export task shows a local benefit; the small-file control does not improve both token measures. **This does not establish a general efficiency or accuracy improvement.** Cache variability affects uncached usage; each task has only one pair. Persisted prompts are encrypted, preventing full plaintext dispatch verification, so these remain descriptive observations.
 
-### Query Skill versus MCP
-
-The standalone **vibeknowledge-query** Skill reuses the MCP graph algorithms without running a server. Nine paired queries on the initial version returned **byte-identical results**: switching transport saves **0% of result tokens**. Counting that version's instructions/definitions once plus questions, results and call arguments, the Skill used **5,265** tokens versus **6,101** for MCP with all ten tool definitions loaded (**13.7% less**), or **5,962** for dependency-only definitions (**11.7% less**). With no instruction/schema reload, the Skill used 4,083 versus MCP's 3,907 (**4.5% more**) because shell arguments are longer. These are historical counts, not a remeasurement of later Skill wording changes.
-
-These are `o200k_base` text-token counts, not billed usage or a complete agent coding benchmark. Client discovery, caching and source reads can change the outcome. See [methodology, raw metrics and limitations](./evaluation/query-skill/results.md) and the [independent Skill trial](./evaluation/query-skill/agent-trial.md). The main benefit is portable, on-demand dependency queries without MCP installation; it is not a universal token-saving multiplier.
-
-### Query Skill versus no Skill: independent agent A/B
-
-Two fresh agents with the same model/effort completed identical tag-sorting and ORM-analysis tasks; both passed six unit tests and six independent acceptance tests. The Skill arm consumed **8,766** observed text tokens versus **7,315** for source search (**19.8% more**), and **67.0% more** cumulative model tokens including cached context replay. Thus fixed-retrieval savings do not establish end-to-end agent savings. See the [independent A/B report](./evaluation/query-skill/ab/results.md) for cache breakdowns, regression mutation checks and single-pair limitations.
-
-The current Skill routes selectively: known files and local changes may use source inspection directly; uncertain cross-file dependencies may warrant a graph query, without an automatic overview call. In a [fresh selective-routing A/B](./evaluation/query-skill/ab/selective-results.md), B made **zero graph calls** but still used **39.2% more** observed text than A (9,534 versus 6,847). No net saving was demonstrated. That trial loaded the routing instructions first; it did not test skipping the Skill body at discovery time.
-
-A later [task-context pilot](./evaluation/query-skill/context/pilot-r1/summary.md) reduced observed text by **10.8%** but increased uncached input plus output by **3.1%**. Three [feature-first held-out pairs](./evaluation/query-skill/context/heldout-results.md) reduced median actual tool text by **14.3%** and uncached input plus output by **8.2%**, with one small coverage improvement and no loss under the frozen rubric. Neither predefined gate passed. The earlier feature-first pilot lost coverage; generating four briefs additionally cost **110,080** uncached-input-plus-output tokens. These negative results remain part of the evidence.
-
-The latest [feature-first revision passed the efficiency gate](./evaluation/query-skill/context/r3/results.md) on three fresh pairs analyzing visualization controls and Copilot-instruction generation in a VibeKnowledge source snapshot: median actual tool text fell **24.4%** (74,789 → 56,572), and uncached input plus output fell **21.9%** (104,756 → 81,771). Both arms scored **17/17 critical items** with zero major false claims in every pair. This demonstrates scoped warm-reuse savings, not better accuracy. Authoring the two briefs additionally cost **90,480** uncached-input-plus-output tokens, so first use did not save net tokens. B used feature briefs, not graph path analysis; equivalent curated documents and other repositories were not tested. Full cache, generation, per-task reading and rubric limitations are in the report.
+Actual tool text is counted with `o200k_base`; uncached input plus output is input minus cached input plus output, not billing. No aggregate or success gate is calculated for this scope-corrected sample. See the [latest report and evidence](./evaluation/method-context-ab/README.md) for accounting and audit limits.
 
 ## Graph model
 
@@ -157,11 +144,11 @@ This installs a self-contained Skill under `.agents/skills/vibeknowledge-query`.
 
 For small known-file tasks, the Agent can inspect source directly. For a named page or feature, `features --query <name>` finds a compact brief; `brief --feature <key>` returns its capabilities, entry points, dependency roles, relevant frameworks, tests and source-backed constraints. Briefs are generated during a requested feature review, not for every page by default. Only the selected brief enters context; only its cited files are fingerprint-checked. Changed/unavailable sources withhold stale facts. New callers, unlisted files and runtime behavior are not certified, and source verification is required before editing relevant behavior.
 
-When a brief is missing or wider impact matters, `context --selector <file-or-symbol>` combines dependency paths, source locations, graph-linked test candidates, indexed-file hash checks and relevant extraction diagnostics. It does not automatically run overview or load the entire graph. File-level paths are not execution traces; candidate tests do not establish coverage. See [brief generation and refresh](resources/skills/vibeknowledge-dependency-graph/references/feature-briefs.md).
+When a brief is missing or wider impact matters, `context --selector <file-or-symbol>` combines dependency paths, source locations, graph-linked test candidates, indexed-file hash checks and relevant extraction diagnostics. An exact method key such as `src/service.ts#Service.save` follows that symbol and same-file helpers; a file path retains the whole-file neighborhood. Type, receiver, container and file endpoints are terminal hints, not automatic member expansion. Inspect the reported owner/constructor or use file scope when shared wiring matters. It does not automatically run overview or load the entire graph. Dependency paths are not execution traces; candidate tests do not establish coverage. See [brief generation and refresh](resources/skills/vibeknowledge-dependency-graph/references/feature-briefs.md).
 
-For example, ask the generation Skill to create a separate help-page feature group and brief with its actual entries, capabilities, direct dependencies/consumers, frameworks, tests and source-backed limits. Later ask the query Skill to analyze that page using its brief first, expanding source only for gaps or required verification. Keep page detail out of the system boundary overview. Brief budgets prioritize distinct fact kinds; an explicit unshown-kind notice must not be mistaken for missing tests in the project.
+For example, ask the generation Skill to create a separate help-page feature group and brief with its actual entries, capabilities, direct dependencies/consumers, frameworks, tests and source-backed limits. Later ask the query Skill to analyze that page using its brief first, expanding source only for gaps or required verification. Keep page detail out of the system boundary overview. Brief budgets preserve distinct fact kinds before repeated detail, keeping each fact and its evidence whole. Check omitted blocks and unshown kinds; expand the budget or inspect source when relevant information is missing.
 
-Developers build the distributable Skill with `node scripts/build-query-skill.cjs` (also run by `npm run compile`); the complete portable folder is `dist/skills/vibeknowledge-query`, not the source instruction-only folder in `resources`. The [latest independent evaluation](./evaluation/query-skill/context/r3/results.md) passed the [predefined](./evaluation/query-skill/context/protocol.md) warm-reuse efficiency gate on two feature-analysis tasks, not an accuracy-improvement gate. Brief generation/update cost is measured separately from reuse; small known-file tasks can still be cheaper without Skill loading.
+Developers build the distributable Skill with `node scripts/build-query-skill.cjs` (also run by `npm run compile`); the complete portable folder is `dist/skills/vibeknowledge-query`, not the source instruction-only folder in `resources`. Brief generation/update cost is measured separately from reuse; small known-file tasks can still be cheaper without Skill loading.
 
 ### Explore and edit descriptions
 

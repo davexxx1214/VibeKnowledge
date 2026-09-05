@@ -1,0 +1,402 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-04T15:43:21.241Z",
+  "key": "workspace-view",
+  "name": "工作区与文件预览",
+  "summary": "工作区统一浏览个人文件和可访问知识库文件：个人目录支持新建、上传、下载、删除及有限格式编辑，知识库以只读方式浏览、分页和预览。页面组合侧栏、文件表和自适应预览，并管理选择状态及预览资源生命周期。",
+  "keywords": [
+    "工作区",
+    "个人工作区",
+    "快速访问",
+    "我的知识库",
+    "共享知识库",
+    "Saved Artifacts",
+    "Agents",
+    "新建文件夹",
+    "上传文件",
+    "文件预览",
+    "Workspace",
+    "WorkspaceView",
+    "WorkspaceComp",
+    "/workspace",
+    "/saved_artifacts",
+    "/agents/"
+  ],
+  "entries": [
+    {
+      "filePath": "web/src/router/index.js",
+      "startLine": 61,
+      "endLine": 73
+    },
+    {
+      "filePath": "web/src/views/WorkspaceView.vue",
+      "startLine": 1,
+      "endLine": 25
+    },
+    {
+      "filePath": "web/src/layouts/AppLayout.vue",
+      "startLine": 137,
+      "endLine": 142
+    }
+  ],
+  "limitations": [
+    "只检查提供的前端文字源码，未运行应用或测试；文件权限、路径隔离、磁盘持久化、知识库格式转换和真实上传限额仍需后端资料，不能由前端 UI 保证。",
+    "本卡片覆盖页面协调、三个直接工作区组件、预览可编辑条件、响应规范化和 API 接口；不完整覆盖所有预览渲染器、共享表格或知识库管理流程。",
+    "已枚举快照中的测试文件，并检索 web/src 的 *.test.js、*.spec.js 内 WorkspaceView、workspace_api、file_preview、工作区组件、AgentFilePreview、router 等引用，未找到直接相关测试；未执行测试，不对未提供测试或间接覆盖作结论。",
+    "页面级请求防陈旧事实限定于预览请求；未推断目录加载、保存或其他异步操作具有相同保护。无既有 .vscode 图谱、依赖包及图片可验证。"
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "初始来源为 personal、路径为 /。侧栏提供个人工作区、Saved Artifacts（/saved_artifacts）、Agents（/agents/）以及我的/共享知识库；知识库按 created_by 与当前用户 uid 是否相等分组。这些目录路径是工作区 API 路径，不是新增的 Vue 页面路由。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 222,
+          "endLine": 225
+        },
+        {
+          "filePath": "web/src/components/workspace/WorkspaceSidebar.vue",
+          "startLine": 1,
+          "endLine": 67
+        },
+        {
+          "filePath": "web/src/components/workspace/WorkspaceSidebar.vue",
+          "startLine": 82,
+          "endLine": 111
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "WorkspaceSidebar 发出来源/路径选择；WorkspaceFileList 包装共享 FileBrowserTable，负责面包屑、选择、下载/删除事件和分页 UI；WorkspacePreviewPane 与窄布局弹窗都复用 AgentFilePreview。页面处理 API 调用和跨组件状态，PageHeader 汇总目录或预览加载状态。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 3,
+          "endLine": 3
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 45,
+          "endLine": 111
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 169,
+          "endLine": 192
+        },
+        {
+          "filePath": "web/src/components/workspace/WorkspaceFileList.vue",
+          "startLine": 1,
+          "endLine": 18
+        },
+        {
+          "filePath": "web/src/components/workspace/WorkspacePreviewPane.vue",
+          "startLine": 1,
+          "endLine": 18
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "个人工作区提供新建文件夹、多文件上传、文件下载、单项/批量删除及保存；上传前限制每次最多 50 个文件，新建名先 trim 并拒绝空值，删除确认明确包含目录全部内容且不可恢复。删除请求 Promise.all 并发执行；成功或异常后都会重新加载当前目录。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 13,
+          "endLine": 33
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 253,
+          "endLine": 253
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 682,
+          "endLine": 779
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 802,
+          "endLine": 821
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "知识库来源的列表 readonly，隐藏多选删除和删除菜单，顶栏新建/上传禁用；保存函数也拒绝 source:'knowledge'。个人预览并非任意文本都可编辑：AgentFilePreview 默认仅允许 .md/.markdown/.mdx/.txt，且内容必须为字符串、supported 不为 false、previewType 为 text 或 markdown。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 13,
+          "endLine": 20
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 73,
+          "endLine": 108
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 641,
+          "endLine": 665
+        },
+        {
+          "filePath": "web/src/components/workspace/WorkspaceFileList.vue",
+          "startLine": 21,
+          "endLine": 83
+        },
+        {
+          "filePath": "web/src/components/AgentFilePreview.vue",
+          "startLine": 292,
+          "endLine": 292
+        },
+        {
+          "filePath": "web/src/components/AgentFilePreview.vue",
+          "startLine": 380,
+          "endLine": 388
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "databaseApi.getAccessibleDatabases 调用 /api/knowledge/databases/accessible，页面过滤 supports_documents === false 的知识库。workspace_api 分开提供个人 tree/file/directory/upload/download 和知识库 knowledge/tree/file/download；预览和下载请求使用 blob 响应模式，base.js 在该模式返回原始 Response 而非已经读取的 Blob。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 506,
+          "endLine": 518
+        },
+        {
+          "filePath": "web/src/apis/knowledge_api.js",
+          "startLine": 82,
+          "endLine": 88
+        },
+        {
+          "filePath": "web/src/apis/workspace_api.js",
+          "startLine": 13,
+          "endLine": 71
+        },
+        {
+          "filePath": "web/src/apis/base.js",
+          "startLine": 122,
+          "endLine": 135
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "知识库目录使用 parent_id 与 path_prefix，分页默认 100，可选 100/300/500。进入虚拟文件夹沿用当前 parentId 并使用 entry.path_prefix；真实文件夹使用 entry.file_id 且清空 pathPrefix。翻页和面包屑导航保留当前知识库层级，同时关闭预览并清空选择。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 255,
+          "endLine": 262
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 293,
+          "endLine": 299
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 454,
+          "endLine": 492
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 542,
+          "endLine": 553
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 572,
+          "endLine": 605
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "预览请求有递增 requestId，并以个人 path 或知识库 file_id 核对当前条目；旧响应不能覆盖新选择。关闭预览会递增编号使在途请求失效；被放弃的新预览 URL、被替换的 URL、关闭或卸载时保留的 URL 都有 revokeObjectURL 清理。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 306,
+          "endLine": 310
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 340,
+          "endLine": 415
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 632,
+          "endLine": 639
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 874,
+          "endLine": 879
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "normalizePreviewResponse 将 JSON 预览载荷与二进制响应统一成 previewFile：JSON 优先 preview_type/previewType/kind，二进制优先 x-yuxi-preview-type 再按 Content-Type 判断，并创建 object URL；不支持的类型显示下载后查看提示。知识库预览对 AgentFilePreview 使用文件名，个人预览使用完整工作区路径。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/utils/file_preview.js",
+          "startLine": 147,
+          "endLine": 186
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 279,
+          "endLine": 283
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 312,
+          "endLine": 314
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "主区宽度达到 960 才使用内联预览，宽度由挂载后的 ResizeObserver 更新；内联预览比例可拖动，限制 30%–70%。已有预览从宽布局缩到窄布局时会关闭，而不是直接搬到弹窗；窄布局重新选文件时打开预览弹窗。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 250,
+          "endLine": 265
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 340,
+          "endLine": 347
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 839,
+          "endLine": 895
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "仅个人来源且位于 /agents 或其子目录时显示“使用说明”；说明弹窗告诉用户 AGENTS.md 用于每次会话的 Agent Prompt，并给长期偏好、业务背景和协作要求的填写提示。此处是前端帮助文案，不能据此验证后端实际注入行为。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 5,
+          "endLine": 12
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 138,
+          "endLine": 164
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 266,
+          "endLine": 278
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "路由 /workspace 是 AppLayout 下的需登录页面，keepAlive:true；布局实际使用 keep-alive。页面用 Vue script setup/ref/reactive/computed/watch，初次挂载并行加载根目录和知识库，卸载清理 ResizeObserver、拖动监听与预览 URL；该组件没有 onActivated 刷新逻辑。项目声明 Vue ^3.5.34、Vue Router ^5.0.6，未验证安装版本。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/router/index.js",
+          "startLine": 61,
+          "endLine": 73
+        },
+        {
+          "filePath": "web/src/layouts/AppLayout.vue",
+          "startLine": 415,
+          "endLine": 420
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 197,
+          "endLine": 220
+        },
+        {
+          "filePath": "web/src/views/WorkspaceView.vue",
+          "startLine": 858,
+          "endLine": 895
+        },
+        {
+          "filePath": "web/package.json",
+          "startLine": 42,
+          "endLine": 43
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "filePath": "web/package.json",
+      "contentHash": "a0e482f4f607d25869b9eee1f99484461057b98d450771b52671ae5e5fa661dd"
+    },
+    {
+      "filePath": "web/src/apis/base.js",
+      "contentHash": "a3f093338bc437dd0676aa3348d5e5f40a8856e4e055e52f90344e013ec45858"
+    },
+    {
+      "filePath": "web/src/apis/knowledge_api.js",
+      "contentHash": "6ff2de503c8ff4c24fa3a5cc6e620fe415b8c5571aae55e86f93e8d7b8662363"
+    },
+    {
+      "filePath": "web/src/apis/workspace_api.js",
+      "contentHash": "40b70e5397ffc1f1269282fe3dad82b4c7cc8acf46ee5a63cfb248ee63b1b863"
+    },
+    {
+      "filePath": "web/src/components/AgentFilePreview.vue",
+      "contentHash": "0b8de9062346de251684421d76686fedac4f3849e0e438dc5789d8fc12165058"
+    },
+    {
+      "filePath": "web/src/components/workspace/WorkspaceFileList.vue",
+      "contentHash": "ad04905363279391fc349a0356ccb01e6bb9634b6f3e42e984ca803871910f10"
+    },
+    {
+      "filePath": "web/src/components/workspace/WorkspacePreviewPane.vue",
+      "contentHash": "5bbaa98115d24a5270e6c020526ca19fc7c3b95e350c0b9b5a9c74a9189f1657"
+    },
+    {
+      "filePath": "web/src/components/workspace/WorkspaceSidebar.vue",
+      "contentHash": "743e706b6c6033cc1e04ae4e77b0e5ae1c545c91f769aba124c68425a801a88b"
+    },
+    {
+      "filePath": "web/src/layouts/AppLayout.vue",
+      "contentHash": "6a18c8fdc9a26251f598d9a2b1705240c907ae9dea1f280e6b3cb080f18aba9e"
+    },
+    {
+      "filePath": "web/src/router/index.js",
+      "contentHash": "878c0ce0a8de7cc0552bddd0373bb902b330119954388b0b0f107fa044f1b2b8"
+    },
+    {
+      "filePath": "web/src/utils/file_preview.js",
+      "contentHash": "6dd3a230d1893f6b5773ac2a46e54c738e5bcca22e8d1329d7383adc462acee0"
+    },
+    {
+      "filePath": "web/src/views/WorkspaceView.vue",
+      "contentHash": "239a49e2124ddce2278793e60c65e4cf9ffafb1a85496acb02d46262dcbd404d"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "at": "2026-09-04T16:46:25.992Z",
+  "beforeAnyCandidate": true,
+  "run": "D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-first-ab-fMamLc",
+  "candidateSha256": "a5f2e2730c22d694acce43aa3a1573a4e16e533e1ee45ec6f08526fe3582f768",
+  "note": "Final pre-run harness/helper fingerprints. Supersedes matching harness entries in earlier preflight freezes; no candidate had started.",
+  "harnessHashes": {
+    "accounting.test.cjs": "facca39a1751135f9f809059292156b1cc0858ea79000a892d21c053bdb3751c",
+    "audit.cjs": "d900f0d4598c9c83a3825793b40aacd8160971b49e424e1681d44f0fad058717",
+    "blind.mjs": "c311a8e285dfeae8f1c1fec46071298bae4ed15d4e94af3eff4162c2b4cbd98d",
+    "collect.cjs": "9477aa3c0e53f9961166cbcdcf6551d045899833d46f3d62c7eadbf7a0af268e",
+    "finalize-freeze.mjs": "a8fea5fb8e2f74c669811d54fa1785537cf8a0ef4fea615c3df14747aa4ca8bf",
+    "harness-review.md": "f09d3143f63a91370d54506e5b50423b8baf2e1869aaece08f388eeb38073a98",
+    "mcp-client.mjs": "b8551ed12e1d248d1b158135e6387adcbd5db4e81dd67b0a2347e7048529d057",
+    "observe.cjs": "41a86c1c86ee4e2d490fea524bcade7d0f78cf746f01a3bde2f85ff09324a604",
+    "preflight.mjs": "2836a8c3e7b775f6904e97fc92fc3c203fb3e7f18605511c4212e448dfd8572a",
+    "prepare.mjs": "18a9e11a5a36d6ec7cdc7606059dbc89074e205634b4e8e02585a7f54b0fc98f",
+    "protocol.md": "e5c16d78a70ee5af007890ee5348495b06c41662b786d1007484fd8eccd81375",
+    "rubric.md": "55a245f7789dcb115d253139b68f8dd1d0ad7b286681aec1e6300a9266d0a652",
+    "summarize.cjs": "c6fbb05df42b0ac18b2d63aa804557e0e31c5ed2da5e8c191c171b1e120c76da",
+    "summary.test.cjs": "0e698806b8178baabe27ea823d356df21d45ed8b848ab5a436d27852f7dca2b7",
+    "tasks.md": "ee59a95c0f94fa074df2dc09f8ae1709a140aef0d25de33c610037e22b832628"
+  },
+  "helperHashes": {
+    "evaluation/query-skill/context/session-accounting.cjs": "40e0126cb6c5c632f2d82f6252ea7639e1b95e137b7f253d734add59c869dc5e",
+    "evaluation/query-skill/context/measure-public-outputs.cjs": "011ea8759ba1b41481e66bf14f58bcaff5fec62bda648cbb901b8f153e9e347c",
+    "evaluation/query-skill/context/audit-observation-delivery.cjs": "6c1d2439c66ca0f4662b25480c99af577563cc829098301182be1d960dc8263c"
+  },
+  "tokenizer": {
+    "python": "3.13.12 | packaged by Anaconda, Inc. | (main, Feb 24 2026, 16:05:56) [MSC v.1942 64 bit (AMD64)]",
+    "executable": "D:\\miniconda3\\python.exe",
+    "tiktoken": "0.12.0",
+    "module": "D:\\miniconda3\\Lib\\site-packages\\tiktoken\\__init__.py",
+    "executableSha256": "f77193cf0405ab440c39324bdb2f8864596321c1df888adbbe357f3d760f4716",
+    "moduleSha256": "3dacec77e6aeaa90f21846603c853ff298ff77e42d60ab3afc8350faf765181d"
+  },
+  "sourceInventoryVerified": true,
+  "artifactInventoryVerified": true,
+  "tools": [
+    "search_entities",
+    "search_observations",
+    "list_relations",
+    "find_features",
+    "get_feature_brief",
+    "get_task_context",
+    "query_graph",
+    "get_entity",
+    "get_neighbors",
+    "shortest_path",
+    "analyze_structure",
+    "analyze_impact",
+    "find_structural_path"
+  ],
+  "discoveryChars": 10508,
+  "briefs": [
+    {
+      "key": "copilot-instructions",
+      "chars": 5048,
+      "outputSha256": "3c67413b11b7766463528bb9929ea44143b890441699acf5f4fbf9e306c0ec1c"
+    },
+    {
+      "key": "graph-visualization",
+      "chars": 5328,
+      "outputSha256": "bfeec7dbceaa8896a2a7e3d0c73211c8b40ffb4cc9062497fae89f0bdeb4731f"
+    }
+  ]
+}

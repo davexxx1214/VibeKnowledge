@@ -1,0 +1,47 @@
+{
+  "dispatchAttestation": "All six collaboration.spawn_agent calls explicitly specified fork_turns: none. Each pair was started A then B approximately eight seconds apart, with no model or effort overrides.",
+  "sessions": [
+    {
+      "pair": 1,
+      "arm": "A",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\04\\rollout-2026-09-04T22-39-13-01a06cdc-0281-7113-b7c1-27fbf50ea988.jsonl",
+      "agentPath": "/root/mcp_pair1_a",
+      "forkTurns": "none"
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\04\\rollout-2026-09-04T22-39-21-01a06cdc-2260-7ba0-a8f4-f79fbe0b77b0.jsonl",
+      "agentPath": "/root/mcp_pair1_b",
+      "forkTurns": "none"
+    },
+    {
+      "pair": 2,
+      "arm": "A",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\04\\rollout-2026-09-04T22-46-47-01a06ce2-efde-7733-8f2e-555634a2afd0.jsonl",
+      "agentPath": "/root/mcp_pair2_a",
+      "forkTurns": "none"
+    },
+    {
+      "pair": 2,
+      "arm": "B",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\04\\rollout-2026-09-04T22-46-55-01a06ce3-11db-78f1-a579-78ac42bbfb25.jsonl",
+      "agentPath": "/root/mcp_pair2_b",
+      "forkTurns": "none"
+    },
+    {
+      "pair": 3,
+      "arm": "A",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\04\\rollout-2026-09-04T22-53-34-01a06ce9-2499-7263-839b-6a2bce75875e.jsonl",
+      "agentPath": "/root/mcp_pair3_a",
+      "forkTurns": "none"
+    },
+    {
+      "pair": 3,
+      "arm": "B",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\04\\rollout-2026-09-04T22-53-42-01a06ce9-460c-7d20-903c-648b1db3f5f9.jsonl",
+      "agentPath": "/root/mcp_pair3_b",
+      "forkTurns": "none"
+    }
+  ]
+}

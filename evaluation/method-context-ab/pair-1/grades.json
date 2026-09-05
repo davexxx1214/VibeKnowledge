@@ -1,0 +1,70 @@
+{
+  "candidates": {
+    "X": {
+      "items": [
+        {
+          "id": "EX1",
+          "score": 1,
+          "evidence": "X/src/services/exportService.ts:273-283 accepts the optional readonly selection, builds a Set, and filters the existing entity array in order without assignments to inputs. X/src/services/exportService.test.ts:112-145 covers frozen duplicate/unknown IDs, source ordering, and empty/unknown-only selections. X/checks.json records both EX1 EX2 acceptance checks passed and typecheck exitCode 0.",
+          "reason": "Existing selected entities are retained exactly in graph order; duplicates and unknown IDs cannot add entities, empty selections stay empty, and the code does not mutate the input array or graph objects."
+        },
+        {
+          "id": "EX2",
+          "score": 1,
+          "evidence": "X/src/services/exportService.ts:283-303 filters relations by both exported endpoint IDs, collects observations only while iterating exported entities, and computes all counts from exported collections. X/src/services/exportService.test.ts:118-145 checks ordered internal/self relations, an empty observation array, scoped observations, and zero-count exports. X/checks.json records both EX1 EX2 acceptance checks passed.",
+          "reason": "The ordered induced relation set includes self-relations, excludes dangling and boundary-crossing relations, retains every exported observation key including empty arrays, and has accurate statistics."
+        },
+        {
+          "id": "EX3",
+          "score": 1,
+          "evidence": "X/src/services/exportService.ts:280,284,294 uses the existing helper methods; X/src/services/exportService.ts:698-719 preserves aggregate-first selection for entities, relations, and observations with the original manual-service fallback. X/src/services/exportService.test.ts:59-74,89 exercises both construction modes. X/checks.json records the EX3 aggregate-source acceptance check passed.",
+          "reason": "All exported categories continue to come from the aggregate when supplied, and fallback construction keeps its existing services."
+        },
+        {
+          "id": "EX4",
+          "score": 1,
+          "evidence": "X/src/services/exportService.ts:275-288 treats missing entityIds as full export; X/src/services/exportService.ts:297-311 retains the original fields, ISO timestamp, version 1.0, serialization, path, and encoding. X/src/services/exportService.test.ts:78-82,90-108 checks the write and all three no-selection forms. X/checks.json records the EX4 full-envelope acceptance check passed.",
+          "reason": "Omitted options, {}, and entityIds: undefined preserve the complete graph and existing JSON envelope, including a parseable timestamp and writing to the requested path."
+        }
+      ],
+      "majorErrors": [],
+      "limitations": [
+        "No new tests were run during grading. Independent execution evidence is limited to the supplied checks.json: four applicable export acceptance checks passed, two baseline regression checks passed, and typecheck exited 0; six unrelated acceptance checks were skipped.",
+        "The 14 candidate tests are reported as passed in X/REPORT.md and were inspected as source; their execution is not separately recorded in checks.json. They use service stubs and a mocked filesystem write. No full-suite or extension-host integration result is supplied."
+      ]
+    },
+    "Y": {
+      "items": [
+        {
+          "id": "EX1",
+          "score": 1,
+          "evidence": "Y/src/services/exportService.ts:273-284 accepts the optional readonly selection, builds a Set, and filters allEntities in existing order without modifying inputs. Y/src/services/exportService.test.ts:110-143 covers frozen duplicate/unknown IDs, source ordering, and empty/unknown-only selections. Y/checks.json records both EX1 EX2 acceptance checks passed and typecheck exitCode 0.",
+          "reason": "Existing selected entities are retained exactly in graph order. An empty Set is truthy and therefore filters to an empty export; repeated and unknown IDs are harmless, and the implementation does not mutate arrays or graph objects."
+        },
+        {
+          "id": "EX2",
+          "score": 1,
+          "evidence": "Y/src/services/exportService.ts:284-305 filters relations by both exported endpoint IDs, builds observation keys only for exported entities, and derives every statistic from exported collections. Y/src/services/exportService.test.ts:116-143 checks ordered internal/self relations, empty observation arrays, scoped observations, and zero-count exports. Y/checks.json records both EX1 EX2 acceptance checks passed.",
+          "reason": "All internal relations survive in their original order, including self-relations; absent endpoints and selected-boundary crossings are excluded. Observation keys and all three counts describe only exported data."
+        },
+        {
+          "id": "EX3",
+          "score": 1,
+          "evidence": "Y/src/services/exportService.ts:277,285,296 calls the existing helpers; Y/src/services/exportService.ts:700-721 preserves aggregate-first entity, relation, and observation access and the original fallback. Y/src/services/exportService.test.ts:49-76,91 supplies both construction modes. Y/checks.json records the EX3 aggregate-source acceptance check passed.",
+          "reason": "The source-selection contract remains intact for every category: aggregate data is used when present and manual services provide the fallback."
+        },
+        {
+          "id": "EX4",
+          "score": 1,
+          "evidence": "Y/src/services/exportService.ts:275-291 retains allEntities and allRelations when entityIds is undefined; Y/src/services/exportService.ts:299-313 preserves the original envelope, ISO timestamp, version 1.0, counts, serialization, output path, and encoding. Y/src/services/exportService.test.ts:79-84,92-108 covers writes and no-selection forms. Y/checks.json records the EX4 full-envelope acceptance check passed.",
+          "reason": "All specified no-selection forms preserve the complete graph and existing writable JSON export, with the expected fields and parseable exportTime."
+        }
+      ],
+      "majorErrors": [],
+      "limitations": [
+        "No new tests were run during grading. Independent execution evidence is limited to the supplied checks.json: four applicable export acceptance checks passed, two baseline regression checks passed, and typecheck exited 0; six unrelated acceptance checks were skipped.",
+        "The 12 candidate tests are reported as passed in Y/REPORT.md and were inspected as source; their execution is not separately recorded in checks.json. They use service stubs and a mocked filesystem write. No full-suite or extension-host integration result is supplied."
+      ]
+    }
+  }
+}

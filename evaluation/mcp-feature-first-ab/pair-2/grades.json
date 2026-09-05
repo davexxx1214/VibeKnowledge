@@ -1,0 +1,1178 @@
+{
+  "source_root": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-ab-fMamLc/snapshot",
+  "report_root": "D:/workspace/VibeKnowledge/.vscode-test/mcp-feature-first-blind-arXVgy",
+  "scoring_standard": "原有 0/0.5/1 非穷尽因果 rubric；critical 17、supplemental 3 独立求和；未运行源码、测试或构建。",
+  "rubric_concerns": [
+    "按 notes 使用本快照 package.json:5 的 0.4.0；未把 rubric 中历史路径当作读取许可。",
+    "按 notes 区分同标题 panel reveal 与 disposal/new document；有限几何检查只针对节点 x/y，不要求 transform 也有非有限校验。",
+    "按 notes，返回路径的是服务 writer；UI command 返回 Promise<void>，两报告未在此混淆。",
+    "I.C7 的 locale-aware 括注按 notes 不作为额外必要条件；共享依赖和顺序写入足够得分。独立声称实际输出按当前 locale 选中英文，仍须对照 getLocale 实现记录事实错误。",
+    "I.C1 的扣分针对一个未描述的不同可达命令分支；没有因未列全部级别、常数、负面例子或测试而扣分。"
+  ],
+  "candidates": {
+    "X": {
+      "items": [
+        {
+          "id": "V.C1",
+          "title": "命令、依赖与页面生命周期",
+          "score": 1,
+          "rationale": "完整连接公开命令、两服务注入、单例/隐藏保留、同标题 reveal 只发数据以及 ready 双消息到页面渲染，未把重开命令等同新文档。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "5",
+              "quote": "An existing panel is revealed and sent graph data; its HTML is replaced only when the translated title differs."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "package.json",
+              "lines": "57-59",
+              "detail": "公开命令"
+            },
+            {
+              "path": "src/extension.ts",
+              "lines": "242-243,643-646",
+              "detail": "注入两个服务并调用 createOrShow"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "157-210,1205-1208",
+              "detail": "同标题 reveal 复用文档；新 panel 保留隐藏上下文；ready 发设置和数据"
+            }
+          ]
+        },
+        {
+          "id": "V.C2",
+          "title": "独立分组与选择状态",
+          "score": 1,
+          "rationale": "说明 getGroups 独立模型、排序及记忆键/首组回退、只渲染选中组和空列表清理；全报告区分 webview 选择键、全局性能偏好及文档内几何缓存。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "7,31-32",
+              "quote": "Ordinary views come from `KnowledgeGraphService.getGroups()` with entity observations, not its deduplicated aggregate snapshot."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "456-470,1138-1150",
+              "detail": "独立组收集及读取 selectedGroupKey"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1372-1398,1449-1459",
+              "detail": "排序、空态、回退选择、setState 和选组渲染"
+            }
+          ]
+        },
+        {
+          "id": "V.C3",
+          "title": "高级结构视图的临时性",
+          "score": 1,
+          "rationale": "连接显式工具栏请求、读取并聚合现有结构数据、返回/选中新合成组、替换旧结构组与普通数据刷新丢失临时视图；错误状态/警告已解释，不要求列全所有级别名称。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "9,30,40",
+              "quote": "This is a temporary additional view, not a replacement written to curated groups."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "223-225,324-338,446-454",
+              "detail": "overview 只 read/aggregate/post；异常发 structuralError 和 warning"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1101-1106,1287-1298,1372-1375,1401-1413,2091-2095",
+              "detail": "所选级别请求；普通列表整体替换；结构组临时 upsert；错误显示"
+            }
+          ]
+        },
+        {
+          "id": "V.C4",
+          "title": "性能偏好的作用域与权威",
+          "score": 1,
+          "rationale": "正确给出 low 默认、low/high、machine scope、Global 写入，并说明初始化、回执及 Settings 改动均来自主机实际配置；与图谱数据及几何持久化分开。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "19,31",
+              "quote": "The performance setting defaults to `low`, accepts `low`/`high`, and has machine scope"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "package.json",
+              "lines": "325-338",
+              "detail": "low/high、默认 low、machine"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "150-154,300-320,1091,1140",
+              "detail": "主机读取设置、全局保存、finally 回实际模式和初始注入"
+            }
+          ]
+        },
+        {
+          "id": "V.C5",
+          "title": "乐观更新与失败协调",
+          "score": 1,
+          "rationale": "完整解释页面立即应用并禁用选择器、请求全局保存、finally 回实际值、失败回滚及重新启用；模式/外部设置消息只重渲染当前组，不替换整个 HTML。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "19",
+              "quote": "A failed save reports an error and the reply restores the actual mode/re-enables the selector"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "309-321,1283-1285",
+              "detail": "校验、保存失败通知、finally 回执及启用"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "2077-2084,2176-2182",
+              "detail": "乐观应用、禁用、发消息及当前组重渲染"
+            },
+            {
+              "path": "src/ui/webview/graphView.test.ts",
+              "lines": "96-109",
+              "detail": "Settings、失败后回 high、非法输入断言"
+            }
+          ]
+        },
+        {
+          "id": "V.C6",
+          "title": "工作量变化不改变图义",
+          "score": 1,
+          "rationale": "将同一组数据的视觉模式切换与语义内容分开；说明 low 有有限预算、可让出的布局和直接拖拽，high 可重启物理/动画但已稳定缓存不会无条件重热；未声称硬性墙钟 SLA。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "19,21,23",
+              "quote": "Low-mode drag stops settling, moves just the selected node and redraws its affected geometry without restarting physics."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphPerformanceScript.ts",
+              "lines": "48-88,91-118",
+              "detail": "低模式分批有限布局；低直接移动、高 restart 拖拽"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1552-1578,1594,1617-1619,1933-1959",
+              "detail": "同一节点关系、缓存稳定态、动画差异及接入"
+            }
+          ]
+        },
+        {
+          "id": "V.C7",
+          "title": "隐藏、替换与卸载的工作清理",
+          "score": 1,
+          "rationale": "把换组停止旧布局/物理/粒子并保存、隐藏暂停并清理 transitions/定时器、显示按状态恢复及卸载取消连接到避免残留工作；没有把 retained context 误写成后台持续运转。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "27,29,34,38",
+              "quote": "Before removing old geometry, rendering stops old work and saves its layout."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1234-1278",
+              "detail": "粒子单回调、隐藏暂停/显示恢复及 unload 停止"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1479-1493",
+              "detail": "换组先停止/保存旧几何再移除内容"
+            },
+            {
+              "path": "src/ui/webview/graphPerformanceScript.ts",
+              "lines": "77-87",
+              "detail": "不重复调度；pause 与永久 stop 区分"
+            }
+          ]
+        },
+        {
+          "id": "V.C8",
+          "title": "几何缓存的拓扑与文档边界",
+          "score": 1,
+          "rationale": "说明按组键和节点/端点/verb 拓扑校验，文字更新与相同拓扑可复用坐标/相机，变化则失效；缓存不存证据对象，且新文档重建，与设置/选择键不同。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "27-31",
+              "quote": "validity depends on sorted node IDs and source/target/verb edge topology, not prose"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphPerformanceScript.ts",
+              "lines": "7-43",
+              "detail": "拓扑签名、几何条目、命中/失效"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1141,1454,1552-1579",
+              "detail": "新文档新 cache、只持久选择键、恢复坐标/zoom 或重置"
+            },
+            {
+              "path": "src/ui/webview/graphPerformanceScript.test.ts",
+              "lines": "105-117",
+              "detail": "prose/顺序复用、verb/节点变化失效"
+            }
+          ]
+        },
+        {
+          "id": "V.C9",
+          "title": "回归测试与真实覆盖界限",
+          "score": 1,
+          "rationale": "映射主机设置、布局调度/生命周期/拖拽、缓存拓扑/重访三个风险族到对应断言；正确限定为 helper VM、mock host 和语法检查，未夸大为真实浏览器或 VS Code 端到端。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "44-49",
+              "quote": "These directly protect helper invariants, but not the surrounding D3/DOM lifecycle wiring."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphView.test.ts",
+              "lines": "18-47,58-109",
+              "detail": "mock host、语法编译、全局保存/reopen/失败同步"
+            },
+            {
+              "path": "src/ui/webview/graphPerformanceScript.test.ts",
+              "lines": "5-38,49-103,105-140,142-165",
+              "detail": "VM/fake 时钟与调度、缓存、拖拽断言"
+            }
+          ]
+        },
+        {
+          "id": "I.C1",
+          "title": "命令至首工作区写入和返回路径",
+          "score": 0.5,
+          "rationale": "正常路径、首工作区、服务返回路径供 open/reveal 及方法自身无工作区 guard 均正确；但遗漏无工作区激活会提前注册 warning 占位命令并返回，因而该场景不会进入所描述的正常 EntityCommands 路径。这是不同可达分支的实质缺口，不是缺少行号或例子；不计为重大错误。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "55,57,59",
+              "quote": "It targets `workspaceFolders[0]`, reports a localized no-workspace error and returns if absent."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "package.json",
+              "lines": "86-89",
+              "detail": "公开命令"
+            },
+            {
+              "path": "src/extension.ts",
+              "lines": "48-54,680-688,960-995",
+              "detail": "无工作区提前注册占位命令；正常时注册 EntityCommands handler"
+            },
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "23-39,1255-1285",
+              "detail": "方法 guard、首根、服务返回路径与可选显示；方法返回 void"
+            },
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "71-82",
+              "detail": "服务返回文件路径"
+            }
+          ]
+        },
+        {
+          "id": "I.C2",
+          "title": "被忽略内容参数的上游依赖",
+          "score": 1,
+          "rationale": "区分 UI 真实收集统一 snapshot/逐实体 observations 的成本与失败依赖，以及 writer/builder 不消费这些数据，故当前内容不个性化；未推导成完全不读图。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "63,68",
+              "quote": "snapshot/observation errors can still prevent UI generation, and gathering may cost work"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "43-63,1262-1267",
+              "detail": "先收集实体观察信息，再传 GraphData"
+            },
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "71-82,404-447",
+              "detail": "_graphData 未读取，固定 builder 无图数据入参"
+            }
+          ]
+        },
+        {
+          "id": "I.C3",
+          "title": "输出与覆盖/失败契约",
+          "score": 1,
+          "rationale": "正确给出 .github 递归创建、UTF-8 同步直接覆盖、返回路径、无 merge/确认/备份/原子回滚；联系 I/O 错误与可能已发生副作用、UI catch。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "57,59",
+              "quote": "there is no existence check for the target file, merge, confirmation, backup, temporary-file swap or rollback"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "71-82",
+              "detail": "目录创建后 writeFileSync 覆盖并返回"
+            },
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "1262-1284",
+              "detail": "收集、写入与后续 UI 的统一 catch"
+            }
+          ]
+        },
+        {
+          "id": "I.C4",
+          "title": "固定英文精简路由器",
+          "score": 1,
+          "rationale": "追踪 Copilot wrapper 固定 en 到共享字面量 router，并明确它不受 UI locale、GraphData、技术栈或场景模板影响；旧 rich/template 方法存在但不在活动调用链。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "63,67-71",
+              "quote": "`buildCopilotInstructionsContent()` supplies a fixed English locale and title to `buildAgentKnowledgeRouterContent()`"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "71-81,404-447",
+              "detail": "Copilot 活动 builder 固定英文路由文本"
+            },
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "101-119,259-278,691-711",
+              "detail": "活动 Cursor dispatcher 与未调用的 rich/template helper 对照"
+            }
+          ]
+        },
+        {
+          "id": "I.C5",
+          "title": "聚焦查询与有界回退",
+          "score": 1,
+          "rationale": "解释适用任务、focused MCP/local expansion/selective evidence、不可用/无效时 index 加一个组、避免全量审计报告、小任务可跳过及源码验证，连接到精简而非图谱/模板导出的目的。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "74,78",
+              "quote": "If MCP is unavailable/unhelpful, use `.vscode/.knowledge/agent-context/index.md` and one best-matching group."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "435-442",
+              "detail": "条件查询、局部扩展、有界文件回退、跳过条件和源码校验"
+            },
+            {
+              "path": "src/services/aiIntegrationService.test.ts",
+              "lines": "83-97",
+              "detail": "查询/回退指引及禁止 dump 的断言"
+            }
+          ]
+        },
+        {
+          "id": "I.C6",
+          "title": "生成文本并非执行推荐",
+          "score": 1,
+          "rationale": "明确写文本和后续助手执行的边界：不查询 MCP/LLM、不刷新图或产生/校验指向的上下文产物、不保证外部助手加载遵从；承认 UI 上游收图与可选打开。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "57,72,74",
+              "quote": "The generator itself does not query MCP, install/configure it, generate or verify the index/groups, analyze the project, edit a database, invoke an AI model, or activate Copilot."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "71-82,404-447",
+              "detail": "活动生成路径只有目录、固定内容、写入；MCP/路径只是字符串"
+            },
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "1255-1285",
+              "detail": "真实额外工作为收图及可选展示"
+            }
+          ]
+        },
+        {
+          "id": "I.C7",
+          "title": "共享 builder 与批量非事务",
+          "score": 1,
+          "rationale": "按 notes 只以共享 builder 的两工具影响面、Copilot wrapper 可独立变更及两条批量路径顺序/部分成功契约评分；这些因果关系完整。语言表述另行核实，不把 locale 歧义加入此条的新要求。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "78,80",
+              "quote": "Both are sequential and nontransactional: Cursor failure prevents Copilot; Copilot failure leaves the earlier Cursor write"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "58-63,89-109,404-447",
+              "detail": "Cursor/Copilot 共用 router；服务 Cursor 后 Copilot"
+            },
+            {
+              "path": "src/extension.ts",
+              "lines": "692-699",
+              "detail": "公开批量 handler"
+            },
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "1290-1334",
+              "detail": "UI 独立顺序调用同一组 writers；失败无回滚"
+            }
+          ]
+        },
+        {
+          "id": "I.C8",
+          "title": "内容测试及其限制",
+          "score": 1,
+          "rationale": "把 Copilot 正向导航/有界回退与反向模板/图谱标题断言、Cursor 第二消费者测试映射到内容契约；明确无 GraphData fixture 不能证明任意 populated input 不变，并限制为服务临时文件测试而非 UI、覆盖保护、回滚或真实 Copilot。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "86-90",
+              "quote": "It asserts MCP/group-index guidance, neighbor/path/evidence guidance and audit-report avoidance, and rejects the template marker, Tech Stack, Dependency Details and Total Entities."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.test.ts",
+              "lines": "16-47,68-119",
+              "detail": "空服务与临时目录测试；无 graph 参数；Copilot/Cursor 正负断言"
+            },
+            {
+              "path": "src/services/aiIntegrationService.test.ts",
+              "lines": "50-58,121-162",
+              "detail": "runtime 测试直接调用私有 helper，不是生成内容证明"
+            }
+          ]
+        },
+        {
+          "id": "V.S1",
+          "title": "未完成布局的恢复",
+          "score": 1,
+          "rationale": "已说明缓存还保存 settled/alpha/autoFit、重访需延续未完成布局，以及用户相机/拖拽取消自动 fit；按全报告连贯证据评分，不要求复述完整快速换组场景。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "27,34,38,45",
+              "quote": "user zoom/pan and drag disable automatic fitting, while unfinished layout stores its remaining auto-fit intent"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphPerformanceScript.ts",
+              "lines": "24-33",
+              "detail": "缓存保存 settled、alpha、autoFit"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1360-1367,1564-1578,1933-1957",
+              "detail": "恢复状态决定继续布局，用户交互关闭 fit"
+            },
+            {
+              "path": "src/ui/webview/graphPerformanceScript.test.ts",
+              "lines": "133-140",
+              "detail": "未完成状态存储测试"
+            }
+          ]
+        },
+        {
+          "id": "V.S2",
+          "title": "缓存准入与有界淘汰",
+          "score": 1,
+          "rationale": "说明 oversized/非有限位置拒绝、组数/节点总数预算及 LRU 淘汰后重访未必恢复，不把缓存上限当源图容量上限；非有限几何按 notes 理解为节点 x/y。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "28",
+              "quote": "Default limits are eight groups and 2,000 total nodes; oversized/nonfinite layouts are rejected and least-recently-used entries evicted."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphPerformanceScript.ts",
+              "lines": "8-39",
+              "detail": "8 组/2000 节点默认，节点/边数量与 x/y 准入、LRU"
+            },
+            {
+              "path": "src/ui/webview/graphPerformanceScript.test.ts",
+              "lines": "119-130",
+              "detail": "组数/节点总数和 LRU/clear 断言"
+            }
+          ]
+        },
+        {
+          "id": "I.S1",
+          "title": "写后展示失败",
+          "score": 1,
+          "rationale": "明确写入已完成后 optional open/reveal 仍在同一 catch，可能显示生成失败但文件已存在；通知被关闭不撤销写入。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "59",
+              "quote": "a document-open/reveal failure can report “Failed to generate” after the file has already been written, without deleting it"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "1264-1284",
+              "detail": "先写文件，后通知/open/reveal，末尾统一 catch"
+            }
+          ]
+        }
+      ],
+      "major_false_claims": [
+        {
+          "id": "X.MF1",
+          "related_items": [
+            "I.C7"
+          ],
+          "claim": "将当前 Cursor 输出描述为按当前 locale 选择中英文，而真实 getLocale() 返回值永远不等于 writer 所比较的 'zh'。",
+          "report_evidence": [
+            {
+              "path": "X.md",
+              "lines": "70",
+              "quote": "The related Cursor builder does consult `getLocale()` and selects Chinese or English plus a Cursor-specific title"
+            },
+            {
+              "path": "X.md",
+              "lines": "82",
+              "quote": "accepting that prompt rewrites the same compact routers for the current locale"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/i18n/i18nService.ts",
+              "lines": "126-127,148-149",
+              "detail": "getLocale 委托 getLocaleCode，只返回 zh-CN 或 en-US。"
+            },
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "101-108",
+              "detail": "语言和标题均比较 locale === 'zh'；真实返回值均不匹配，走英文。"
+            }
+          ],
+          "rationale": "X 在实际输入/效果表与再生成后果中肯定当前 locale 的中英文选择效果，而非仅列出条件表达式。这个内容依赖断言会误导当前 Cursor 生成物的语言契约；按 notes 独立记一项重大事实错误，不否定其正确解释的共享 builder 和顺序写入，也不再扣 I.C7。X 对 Copilot 固定英文的说明正确，不把它另记为 Copilot 语言错误。"
+        }
+      ],
+      "totals": {
+        "critical": 16.5,
+        "critical_max": 17,
+        "supplemental": 3,
+        "supplemental_max": 3,
+        "major_false_claim_count": 1
+      },
+      "task_totals": {
+        "visualization": {
+          "critical": 9,
+          "critical_max": 9,
+          "supplemental": 2,
+          "supplemental_max": 2
+        },
+        "instructions": {
+          "critical": 7.5,
+          "critical_max": 8,
+          "supplemental": 1,
+          "supplemental_max": 1
+        }
+      },
+      "main_omissions": {
+        "visualization": "未发现达到实质缺漏程度的 rubric 覆盖问题；所需状态、工作量、缓存和测试边界均有连贯证据。",
+        "instructions": "缺少无工作区激活提前注册 warning 占位命令的可达性分支，只描述了正常注册路径及方法级 guard。另有独立 Cursor locale 事实错误，已与遗漏分开记录。"
+      }
+    },
+    "Y": {
+      "items": [
+        {
+          "id": "V.C1",
+          "title": "命令、依赖与页面生命周期",
+          "score": 1,
+          "rationale": "完整连接公开命令、两服务注入、单例/隐藏保留、同标题 reveal 只发数据以及 ready 双消息到页面渲染，未把重开命令等同新文档。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "5,7",
+              "quote": "an unchanged translated title causes a data message, not an HTML replacement"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "package.json",
+              "lines": "57-59",
+              "detail": "公开命令"
+            },
+            {
+              "path": "src/extension.ts",
+              "lines": "242-243,643-646",
+              "detail": "注入两个服务并调用 createOrShow"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "157-210,1205-1208",
+              "detail": "同标题 reveal 复用文档；新 panel 保留隐藏上下文；ready 发设置和数据"
+            }
+          ]
+        },
+        {
+          "id": "V.C2",
+          "title": "独立分组与选择状态",
+          "score": 1,
+          "rationale": "说明 getGroups 独立模型、排序及记忆键/首组回退、只渲染选中组和空列表清理；全报告区分 webview 选择键、全局性能偏好及文档内几何缓存。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "11,35-36",
+              "quote": "selects the saved key if still present or the first group otherwise, and renders only that group"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "456-470,1138-1150",
+              "detail": "独立组收集及读取 selectedGroupKey"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1372-1398,1449-1459",
+              "detail": "排序、空态、回退选择、setState 和选组渲染"
+            }
+          ]
+        },
+        {
+          "id": "V.C3",
+          "title": "高级结构视图的临时性",
+          "score": 1,
+          "rationale": "连接显式工具栏请求、读取并聚合现有结构数据、返回/选中新合成组、替换旧结构组与普通数据刷新丢失临时视图；错误状态/警告已解释，不要求列全所有级别名称。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "13,43",
+              "quote": "Ordinary `graphData` replaces the entire list"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "223-225,324-338,446-454",
+              "detail": "overview 只 read/aggregate/post；异常发 structuralError 和 warning"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1101-1106,1287-1298,1372-1375,1401-1413,2091-2095",
+              "detail": "所选级别请求；普通列表整体替换；结构组临时 upsert；错误显示"
+            }
+          ]
+        },
+        {
+          "id": "V.C4",
+          "title": "性能偏好的作用域与权威",
+          "score": 1,
+          "rationale": "正确给出 low 默认、low/high、machine scope、Global 写入，并说明初始化、回执及 Settings 改动均来自主机实际配置；与图谱数据及几何持久化分开。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "7,23,36",
+              "quote": "The setting is `knowledgeGraph.visualization.performanceMode`, machine-scoped, default `low`, with `low`/`high` choices"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "package.json",
+              "lines": "325-338",
+              "detail": "low/high、默认 low、machine"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "150-154,300-320,1091,1140",
+              "detail": "主机读取设置、全局保存、finally 回实际模式和初始注入"
+            }
+          ]
+        },
+        {
+          "id": "V.C5",
+          "title": "乐观更新与失败协调",
+          "score": 1,
+          "rationale": "完整解释页面立即应用并禁用选择器、请求全局保存、finally 回实际值、失败回滚及重新启用；模式/外部设置消息只重渲染当前组，不替换整个 HTML。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "23",
+              "quote": "A failed write shows an error and that reply rolls the optimistic UI back; a Settings change also sends the effective value."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "309-321,1283-1285",
+              "detail": "校验、保存失败通知、finally 回执及启用"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "2077-2084,2176-2182",
+              "detail": "乐观应用、禁用、发消息及当前组重渲染"
+            },
+            {
+              "path": "src/ui/webview/graphView.test.ts",
+              "lines": "96-109",
+              "detail": "Settings、失败后回 high、非法输入断言"
+            }
+          ]
+        },
+        {
+          "id": "V.C6",
+          "title": "工作量变化不改变图义",
+          "score": 1,
+          "rationale": "将同一组数据的视觉模式切换与语义内容分开；说明 low 有有限预算、可让出的布局和直接拖拽，high 可重启物理/动画但已稳定缓存不会无条件重热；未声称硬性墙钟 SLA。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "23,25,27",
+              "quote": "A cached settled graph does not automatically reheat merely because high mode was chosen."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphPerformanceScript.ts",
+              "lines": "48-88,91-118",
+              "detail": "低模式分批有限布局；低直接移动、高 restart 拖拽"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1552-1578,1594,1617-1619,1933-1959",
+              "detail": "同一节点关系、缓存稳定态、动画差异及接入"
+            }
+          ]
+        },
+        {
+          "id": "V.C7",
+          "title": "隐藏、替换与卸载的工作清理",
+          "score": 1,
+          "rationale": "把换组停止旧布局/物理/粒子并保存、隐藏暂停并清理 transitions/定时器、显示按状态恢复及卸载取消连接到避免残留工作；没有把 retained context 误写成后台持续运转。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "33,37,43",
+              "quote": "Hiding pauses particles without losing their resume callback, pauses static layout, stops physics, interrupts transitions, clears fit/resize timers, and saves geometry."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1234-1278",
+              "detail": "粒子单回调、隐藏暂停/显示恢复及 unload 停止"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1479-1493",
+              "detail": "换组先停止/保存旧几何再移除内容"
+            },
+            {
+              "path": "src/ui/webview/graphPerformanceScript.ts",
+              "lines": "77-87",
+              "detail": "不重复调度；pause 与永久 stop 区分"
+            }
+          ]
+        },
+        {
+          "id": "V.C8",
+          "title": "几何缓存的拓扑与文档边界",
+          "score": 1,
+          "rationale": "说明按组键和节点/端点/verb 拓扑校验，文字更新与相同拓扑可复用坐标/相机，变化则失效；缓存不存证据对象，且新文档重建，与设置/选择键不同。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "33-36",
+              "quote": "Group key plus sorted node IDs and endpoint/verb topology determine reuse. Prose/evidence changes do not invalidate geometry; topology changes do."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphPerformanceScript.ts",
+              "lines": "7-43",
+              "detail": "拓扑签名、几何条目、命中/失效"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1141,1454,1552-1579",
+              "detail": "新文档新 cache、只持久选择键、恢复坐标/zoom 或重置"
+            },
+            {
+              "path": "src/ui/webview/graphPerformanceScript.test.ts",
+              "lines": "105-117",
+              "detail": "prose/顺序复用、verb/节点变化失效"
+            }
+          ]
+        },
+        {
+          "id": "V.C9",
+          "title": "回归测试与真实覆盖界限",
+          "score": 1,
+          "rationale": "映射主机设置、布局调度/生命周期/拖拽、缓存拓扑/重访三个风险族到对应断言；正确限定为 helper VM、mock host 和语法检查，未夸大为真实浏览器或 VS Code 端到端。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "47-53",
+              "quote": "These protect helper scheduling, not actual browser visibility wiring or D3 cost."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphView.test.ts",
+              "lines": "18-47,58-109",
+              "detail": "mock host、语法编译、全局保存/reopen/失败同步"
+            },
+            {
+              "path": "src/ui/webview/graphPerformanceScript.test.ts",
+              "lines": "5-38,49-103,105-140,142-165",
+              "detail": "VM/fake 时钟与调度、缓存、拖拽断言"
+            }
+          ]
+        },
+        {
+          "id": "I.C1",
+          "title": "命令至首工作区写入和返回路径",
+          "score": 0.5,
+          "rationale": "正常路径、首工作区、服务返回路径供 open/reveal 及方法自身无工作区 guard 均正确；但遗漏无工作区激活会提前注册 warning 占位命令并返回，因而该场景不会进入所描述的正常 EntityCommands 路径。这是不同可达分支的实质缺口，不是缺少行号或例子；不计为重大错误。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "59,61,63,65",
+              "quote": "The command chooses `workspaceFolders[0]`, not the active editor's folder and not a user-selected output root."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "package.json",
+              "lines": "86-89",
+              "detail": "公开命令"
+            },
+            {
+              "path": "src/extension.ts",
+              "lines": "48-54,680-688,960-995",
+              "detail": "无工作区提前注册占位命令；正常时注册 EntityCommands handler"
+            },
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "23-39,1255-1285",
+              "detail": "方法 guard、首根、服务返回路径与可选显示；方法返回 void"
+            },
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "71-82",
+              "detail": "服务返回文件路径"
+            }
+          ]
+        },
+        {
+          "id": "I.C2",
+          "title": "被忽略内容参数的上游依赖",
+          "score": 1,
+          "rationale": "区分 UI 真实收集统一 snapshot/逐实体 observations 的成本与失败依赖，以及 writer/builder 不消费这些数据，故当前内容不个性化；未推导成完全不读图。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "61,65,71,74",
+              "quote": "The knowledge graph remains an **operational** dependency of the UI command because it is collected before the ignored argument is passed."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "43-63,1262-1267",
+              "detail": "先收集实体观察信息，再传 GraphData"
+            },
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "71-82,404-447",
+              "detail": "_graphData 未读取，固定 builder 无图数据入参"
+            }
+          ]
+        },
+        {
+          "id": "I.C3",
+          "title": "输出与覆盖/失败契约",
+          "score": 1,
+          "rationale": "正确给出 .github 递归创建、UTF-8 同步直接覆盖、返回路径、无 merge/确认/备份/原子回滚；联系 I/O 错误与可能已发生副作用、UI catch。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "63,65",
+              "quote": "no merge with custom instructions, prompt, backup, atomic temporary-file swap, or rollback"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "71-82",
+              "detail": "目录创建后 writeFileSync 覆盖并返回"
+            },
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "1262-1284",
+              "detail": "收集、写入与后续 UI 的统一 catch"
+            }
+          ]
+        },
+        {
+          "id": "I.C4",
+          "title": "固定英文精简路由器",
+          "score": 1,
+          "rationale": "追踪 Copilot wrapper 固定 en 到共享字面量 router，并明确它不受 UI locale、GraphData、技术栈或场景模板影响；旧 rich/template 方法存在但不在活动调用链。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "71,73,75",
+              "quote": "calls `buildAgentKnowledgeRouterContent('en', '# VibeKnowledge Agent Instructions')`"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "71-81,404-447",
+              "detail": "Copilot 活动 builder 固定英文路由文本"
+            },
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "101-119,259-278,691-711",
+              "detail": "活动 Cursor dispatcher 与未调用的 rich/template helper 对照"
+            }
+          ]
+        },
+        {
+          "id": "I.C5",
+          "title": "聚焦查询与有界回退",
+          "score": 1,
+          "rationale": "解释适用任务、focused MCP/local expansion/selective evidence、不可用/无效时 index 加一个组、避免全量审计报告、小任务可跳过及源码验证，连接到精简而非图谱/模板导出的目的。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "79,93",
+              "quote": "skip graph navigation for small known-file tasks; verify behavior in current source"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "435-442",
+              "detail": "条件查询、局部扩展、有界文件回退、跳过条件和源码校验"
+            },
+            {
+              "path": "src/services/aiIntegrationService.test.ts",
+              "lines": "83-97",
+              "detail": "查询/回退指引及禁止 dump 的断言"
+            }
+          ]
+        },
+        {
+          "id": "I.C6",
+          "title": "生成文本并非执行推荐",
+          "score": 1,
+          "rationale": "明确写文本和后续助手执行的边界：不查询 MCP/LLM、不刷新图或产生/校验指向的上下文产物、不保证外部助手加载遵从；承认 UI 上游收图与可选打开。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "81",
+              "quote": "Those are **instructions written into a file**, not actions executed by the generator."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "71-82,404-447",
+              "detail": "活动生成路径只有目录、固定内容、写入；MCP/路径只是字符串"
+            },
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "1255-1285",
+              "detail": "真实额外工作为收图及可选展示"
+            }
+          ]
+        },
+        {
+          "id": "I.C7",
+          "title": "共享 builder 与批量非事务",
+          "score": 1,
+          "rationale": "按 notes 只以共享 builder 的两工具影响面、Copilot wrapper 可独立变更及两条批量路径顺序/部分成功契约评分；这些因果关系完整。语言表述另行核实，不把 locale 歧义加入此条的新要求。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "83,85",
+              "quote": "A change in the shared router therefore affects Cursor as well as Copilot; a Copilot-only change at its dispatcher need not do so."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.ts",
+              "lines": "58-63,89-109,404-447",
+              "detail": "Cursor/Copilot 共用 router；服务 Cursor 后 Copilot"
+            },
+            {
+              "path": "src/extension.ts",
+              "lines": "692-699",
+              "detail": "公开批量 handler"
+            },
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "1290-1334",
+              "detail": "UI 独立顺序调用同一组 writers；失败无回滚"
+            }
+          ]
+        },
+        {
+          "id": "I.C8",
+          "title": "内容测试及其限制",
+          "score": 1,
+          "rationale": "把 Copilot 正向导航/有界回退与反向模板/图谱标题断言、Cursor 第二消费者测试映射到内容契约；明确无 GraphData fixture 不能证明任意 populated input 不变，并限制为服务临时文件测试而非 UI、覆盖保护、回滚或真实 Copilot。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "89-93",
+              "quote": "It supplies no graph argument"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/services/aiIntegrationService.test.ts",
+              "lines": "16-47,68-119",
+              "detail": "空服务与临时目录测试；无 graph 参数；Copilot/Cursor 正负断言"
+            },
+            {
+              "path": "src/services/aiIntegrationService.test.ts",
+              "lines": "50-58,121-162",
+              "detail": "runtime 测试直接调用私有 helper，不是生成内容证明"
+            }
+          ]
+        },
+        {
+          "id": "V.S1",
+          "title": "未完成布局的恢复",
+          "score": 1,
+          "rationale": "已说明缓存还保存 settled/alpha/autoFit、重访需延续未完成布局，以及用户相机/拖拽取消自动 fit；按全报告连贯证据评分，不要求复述完整快速换组场景。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "33,39,43,48",
+              "quote": "The unfinished-state test checks storage, not an end-to-end rapid group-switch sequence."
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphPerformanceScript.ts",
+              "lines": "24-33",
+              "detail": "缓存保存 settled、alpha、autoFit"
+            },
+            {
+              "path": "src/ui/webview/graphView.ts",
+              "lines": "1360-1367,1564-1578,1933-1957",
+              "detail": "恢复状态决定继续布局，用户交互关闭 fit"
+            },
+            {
+              "path": "src/ui/webview/graphPerformanceScript.test.ts",
+              "lines": "133-140",
+              "detail": "未完成状态存储测试"
+            }
+          ]
+        },
+        {
+          "id": "V.S2",
+          "title": "缓存准入与有界淘汰",
+          "score": 1,
+          "rationale": "说明 oversized/非有限位置拒绝、组数/节点总数预算及 LRU 淘汰后重访未必恢复，不把缓存上限当源图容量上限；非有限几何按 notes 理解为节点 x/y。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "34",
+              "quote": "The LRU cache defaults to 8 groups/2,000 total nodes, rejects oversized edge/node sets and nonfinite positions, and can evict a previously visited view"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/webview/graphPerformanceScript.ts",
+              "lines": "8-39",
+              "detail": "8 组/2000 节点默认，节点/边数量与 x/y 准入、LRU"
+            },
+            {
+              "path": "src/ui/webview/graphPerformanceScript.test.ts",
+              "lines": "119-130",
+              "detail": "组数/节点总数和 LRU/clear 断言"
+            }
+          ]
+        },
+        {
+          "id": "I.S1",
+          "title": "写后展示失败",
+          "score": 1,
+          "rationale": "明确写入已完成后 optional open/reveal 仍在同一 catch，可能显示生成失败但文件已存在；通知被关闭不撤销写入。",
+          "report_evidence": [
+            {
+              "path": "Y.md",
+              "lines": "65",
+              "quote": "an open/reveal failure can produce an error **after** the file was already generated"
+            }
+          ],
+          "source_evidence": [
+            {
+              "path": "src/ui/commands/entityCommands.ts",
+              "lines": "1264-1284",
+              "detail": "先写文件，后通知/open/reveal，末尾统一 catch"
+            }
+          ]
+        }
+      ],
+      "major_false_claims": [],
+      "totals": {
+        "critical": 16.5,
+        "critical_max": 17,
+        "supplemental": 3,
+        "supplemental_max": 3,
+        "major_false_claim_count": 0
+      },
+      "task_totals": {
+        "visualization": {
+          "critical": 9,
+          "critical_max": 9,
+          "supplemental": 2,
+          "supplemental_max": 2
+        },
+        "instructions": {
+          "critical": 7.5,
+          "critical_max": 8,
+          "supplemental": 1,
+          "supplemental_max": 1
+        }
+      },
+      "main_omissions": {
+        "visualization": "未发现达到实质缺漏程度的 rubric 覆盖问题；所需状态、工作量、缓存和测试边界均有连贯证据。",
+        "instructions": "缺少无工作区激活提前注册 warning 占位命令的可达性分支，只描述了正常注册路径及方法级 guard。未发现重大错误。"
+      }
+    }
+  }
+}
+

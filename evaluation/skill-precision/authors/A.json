@@ -1,0 +1,112 @@
+{
+  "key": "shelf-export",
+  "name": "Shelf 导出与预览",
+  "summary": "通过 shelf.export 将 Shelf 条目写入工作区路径并登记索引，可按偏好打开结果；shelf.preview 共享渲染逻辑。当前 plain 与 structured 均实际输出按换行连接的文本。",
+  "keywords": ["Shelf", "shelf.export", "shelf.preview", "导出", "预览", "structured", "autoOpen"],
+  "entries": [
+    { "filePath": "src/activate.ts", "startLine": 5, "endLine": 12 }
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "激活时 workspace 为空：仅注册提示 Open a project and reload 的 shelf.export 回调并返回，不创建导出器、不注册预览。该回调不重新读取 workspace；之后设置 workspace 也不会使这次注册自动转为正常导出。",
+      "certainty": "observed",
+      "evidence": [{ "filePath": "src/activate.ts", "startLine": 5, "endLine": 12 }]
+    },
+    {
+      "kind": "capability",
+      "text": "激活时有 workspace 才将 shelf.export 绑定到 ShelfCommands.export。此处理器每次读取当前 workspace；若已变空，提示 Choose a workspace 并直接返回，否则使用当前 state.items 和 state.preferences 保存。",
+      "certainty": "observed",
+      "evidence": [
+        { "filePath": "src/activate.ts", "startLine": 5, "endLine": 11 },
+        { "filePath": "src/commands.ts", "startLine": 5, "endLine": 14 }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "Preferences.format 声明 plain / structured；formatTag 分别返回 text/plain / application/json，但 render 仅将标签 json 视为 JSON。因此这两个声明格式都走 items.join('\n')，当前 structured 不会产生 JSON.stringify({ items }) 的结果。",
+      "certainty": "observed",
+      "evidence": [
+        { "filePath": "src/preferences.ts", "startLine": 1, "endLine": 4 },
+        { "filePath": "src/exporter.ts", "startLine": 7, "endLine": 10 }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "shelf.preview 是 render 的另一公开消费者：在有工作区的激活分支注册，读取同一 state 并将渲染文本传给 notify，不写入存储；调用时没有再次检查 workspace。格式渲染的变化同时影响预览和保存内容。",
+      "certainty": "observed",
+      "evidence": [
+        { "filePath": "src/activate.ts", "startLine": 5, "endLine": 12 },
+        { "filePath": "src/commands.ts", "startLine": 22, "endLine": 24 },
+        { "filePath": "src/exporter.ts", "startLine": 7, "endLine": 15 }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "save 固定构造 ${root}/shelf-export.txt，与格式偏好无关；先等待 Store.write(path, 渲染内容)，再等待 Store.appendIndex(path)，两者都成功后才返回路径。",
+      "certainty": "observed",
+      "evidence": [{ "filePath": "src/exporter.ts", "startLine": 12, "endLine": 17 }]
+    },
+    {
+      "kind": "constraint",
+      "text": "write 拒绝时不调用 appendIndex；appendIndex 拒绝时 write 已成功返回。save 不捕获错误，也没有回滚或重试，正常命令入口会提示 Export failed；这些层不能保证内容和索引原子一致，底层失败是否已产生部分效果取决于 Store 实现。",
+      "certainty": "observed",
+      "evidence": [
+        { "filePath": "src/exporter.ts", "startLine": 12, "endLine": 17 },
+        { "filePath": "src/commands.ts", "startLine": 13, "endLine": 19 },
+        { "filePath": "src/host.ts", "startLine": 7, "endLine": 10 }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "命令等待保存及索引完成后先通知 Export complete，再读取 state.preferences.autoOpen 决定是否等待 reveal(path)。reveal 与保存位于同一 try 中，打开失败会追加 Export failed 提示，此时写入和索引已完成，处理器没有撤销动作。",
+      "certainty": "observed",
+      "evidence": [
+        { "filePath": "src/commands.ts", "startLine": 13, "endLine": 19 },
+        { "filePath": "src/exporter.ts", "startLine": 12, "endLine": 17 },
+        { "filePath": "src/host.ts", "startLine": 3, "endLine": 5 }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "activate 由调用方注入 Host、Store 和 ShelfState，再构造 ShelfCommands 与 ShelfExporter。Host 提供工作区、命令注册、通知和异步打开接口；Store 提供异步写入与索引接口，导出器本身不直接访问文件系统。",
+      "certainty": "observed",
+      "evidence": [
+        { "filePath": "src/activate.ts", "startLine": 1, "endLine": 12 },
+        { "filePath": "src/commands.ts", "startLine": 5, "endLine": 8 },
+        { "filePath": "src/host.ts", "startLine": 1, "endLine": 10 },
+        { "filePath": "src/exporter.ts", "startLine": 12, "endLine": 17 }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "已有 RemoteStore 适配器将 write 原样转发为 Transport.put(path, content)，将 appendIndex 转发为 Transport.append(path)，等待结果且不提供补偿或重试。activate 只接收 Store 参数；已读源码未显示谁实例化 RemoteStore 并将其绑定到该入口。",
+      "certainty": "observed",
+      "evidence": [
+        { "filePath": "src/remoteStore.ts", "startLine": 1, "endLine": 13 },
+        { "filePath": "src/activate.ts", "startLine": 1, "endLine": 12 }
+      ]
+    },
+    {
+      "kind": "test",
+      "text": "tests/exporter.test.ts 使用 node:test 与 node:assert。plain 用例注入只记录事件的模拟 Store，断言 save 返回 /project/shelf-export.txt，且事件依次为写入 one\ntwo、登记同一路径；该断言覆盖导出器正常调用顺序及内容，不验证真实存储效果或命令注册。未执行测试。",
+      "certainty": "observed",
+      "evidence": [{ "filePath": "tests/exporter.test.ts", "startLine": 1, "endLine": 13 }]
+    },
+    {
+      "kind": "test",
+      "text": "structured 用例用空实现 Store 直接调用 render，仅断言单条 one 的输出长度大于零，没有解析 JSON 或比较格式内容；当前纯文本输出也满足该断言。",
+      "certainty": "observed",
+      "evidence": [
+        { "filePath": "tests/exporter.test.ts", "startLine": 15, "endLine": 18 },
+        { "filePath": "src/preferences.ts", "startLine": 1, "endLine": 4 },
+        { "filePath": "src/exporter.ts", "startLine": 7, "endLine": 10 }
+      ]
+    }
+  ],
+  "limitations": [
+    "范围为 src/ 下全部 6 个源码文件及 tests/exporter.test.ts；未查看其他目录、外部配置、包版本或图谱，也未执行代码或测试。",
+    "未发现 activate 的调用方、Host 或 Transport 的具体实现，不能确认实际 UI 暴露方式、持久化介质、覆盖写语义或底层失败恢复行为。",
+    "已读 tests/ 只有两个导出器用例；未覆盖无工作区的替代注册与运行时守卫、预览、write/appendIndex 拒绝、自动打开及 reveal 拒绝、RemoteStore 集成。"
+  ]
+}

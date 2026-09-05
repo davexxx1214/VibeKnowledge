@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "status": "scope-filtered-provenance",
+  "originalFreezeSha256": "4216913724c5dbc91546ac86a5daa85fb11eae8ffeb87ab79aaa21a2e260bef4",
+  "originalSummarySha256": "ddec6a0e56ba5ce3e55c9a31724d6305e66e54769cacaa27cdc045c275b0e9aa",
+  "node": {
+    "version": "v26.8.1",
+    "executable": "D:\\nodejs\\node.exe",
+    "sha256": "5cba0ea928508c65ddadefc0681d2fb6d95f1f3beea4428f04397631140ee8e5"
+  },
+  "dependencies": {
+    "esbuild": "0.28.2",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  },
+  "graph": {
+    "sha256": "6eadfd00a0d7c3e19b1f7178a41127c241b7cbb06a301e2fd8e730eb7d8b8fa6",
+    "files": 111,
+    "entities": 765,
+    "relations": 6484,
+    "diagnostics": 39
+  },
+  "engines": {
+    "A": {
+      "file": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\engine-A.cjs",
+      "sourceSha256": "a79fb8ee9c92264208d2d06151c9151d8af537e23b99bddcdda069fc34f1fa12",
+      "bundleSha256": "6e4d2275e01a270fd047ff12987d89dd6f83f5a4f2cf88dd1c25a7f096087834"
+    },
+    "B": {
+      "file": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\engine-B.cjs",
+      "sourceSha256": "78467e4dd94a5fc6449d8b0b25b3a67b7e7e7f7431503b65c50ab067f444b2bf",
+      "bundleSha256": "39830e601eba89c4f7d53e8b2bc0d14aee71cb0b8959ae8aaf9eede81a0bd99f"
+    }
+  },
+  "candidates": [
+    {
+      "pair": 1,
+      "arm": "A",
+      "taskId": "export_subset",
+      "selector": "src/services/exportService.ts#ExportService.exportToJSON",
+      "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-1\\A",
+      "promptFile": "D:\\workspace\\VibeKnowledge\\evaluation\\method-context-ab\\dispatch\\pair-1-A.md",
+      "promptSha256": "538a61911cfc7312bd86634f0fb5243576d2588d77dae67c94ec5c9d7ed0451d",
+      "agentPath": "/root/method_pair1_a"
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "taskId": "export_subset",
+      "selector": "src/services/exportService.ts#ExportService.exportToJSON",
+      "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-1\\B",
+      "promptFile": "D:\\workspace\\VibeKnowledge\\evaluation\\method-context-ab\\dispatch\\pair-1-B.md",
+      "promptSha256": "b92304ff2d16de618666ec9f6a3b5b526a658bfe0f2c09fd5aa8a8ac053d790b",
+      "agentPath": "/root/method_pair1_b"
+    },
+    {
+      "pair": 4,
+      "arm": "B",
+      "taskId": "codelens_unicode",
+      "selector": "src/providers/knowledgeCodeLensModel.ts#compactDescription",
+      "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-4\\B",
+      "promptFile": "D:\\workspace\\VibeKnowledge\\evaluation\\method-context-ab\\dispatch\\pair-4-B.md",
+      "promptSha256": "7d308d3adb9898bd7fc0ae5aaae1f0213ca1911eeaeeb8153e2678674c015ab8",
+      "agentPath": "/root/method_pair4_b"
+    },
+    {
+      "pair": 4,
+      "arm": "A",
+      "taskId": "codelens_unicode",
+      "selector": "src/providers/knowledgeCodeLensModel.ts#compactDescription",
+      "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-4\\A",
+      "promptFile": "D:\\workspace\\VibeKnowledge\\evaluation\\method-context-ab\\dispatch\\pair-4-A.md",
+      "promptSha256": "a3745196f1b5faaffba9f208000077b9972b35c0421e51348e34c9e65f42cde7",
+      "agentPath": "/root/method_pair4_a"
+    }
+  ],
+  "originalDesignHashes": {
+    "tasks": "5dd79517fe800eb6f22c23f49a2bfa41e8731e1a16ae789ba2f1fb21ef71ea9b",
+    "rubric": "285cbb67e0296b6b9ad8b535e9e649bf858f57d2e029df8b7db53b426d2ea0c9",
+    "acceptance": "a8695a62aaa30ac229e1bc9a0909a09b579bbb5f07228958e21e2e2a19e9b374"
+  },
+  "retainedUnchangedFiles": {
+    "pair-1/grade-mapping.json": "1369b590aa8ec6190f7b3929103f4a69e7f52b1bdcf379825f9650f610d0f6d1",
+    "pair-1/grades.json": "4bc43b7fdbf11b19d08ae87c188d6e746ce8b4664177b5fe89199c49c65ef82a",
+    "pair-1/grades.md": "8a1c3be23aaf7087f13cfa9ea0d399ab7d1fa3acc7094271b7086cf727f22408",
+    "pair-1/metrics.json": "06a7bfe2629a2b39a916a718d1f0d1df1f52adb82198643c42ce0cc73ca1211c",
+    "pair-1/observations-A.json": "f217eb85f45dd1cdf60aaa81f9e3ffa978aaad6ec6b5e0c6c105cfb67ff9f65b",
+    "pair-1/observations-B.json": "6dc880f3cd5dd352ba119419a4aa9f9e09d51da2388f5279a4e808f644e50f6c",
+    "pair-1/patch-A.diff": "ea331f3e5c5ae6c972ceedb42660f316c46db86545a6130fd7cea9da6d501bc3",
+    "pair-1/patch-B.diff": "cfd4ef2d60caa98e5c478f71fb73f687de5a03f25bc4021c0a2612227d89e598",
+    "pair-1/record-audit-v2.json": "e523e50920ee1210dd1f6766ac60396bca3075d1f75101f1d8f52b4034bdad88",
+    "pair-1/report-A.md": "99fd2dc99419a27467f31e7beaebcc9ef18b8d5e853df54641ed89bd1cd24d58",
+    "pair-1/report-B.md": "f049e754d9affdae03e67ed932d26857ae60bbc2ca8a17ed946354c2681f01f0",
+    "pair-1/result-A.json": "6f3818b63cd8f11f5a1f3c64fd12911a5ad05fe22909bb8a9593ffa816eeb88a",
+    "pair-1/result-B.json": "30d296be2410bf6ba59bfa87bc0e62b74c9f21d817682013197cca335ce682c0",
+    "pair-4/grade-mapping.json": "f510046d8241df7347f61229cd274f2c3b71440418faf7901501801121db7df8",
+    "pair-4/grades.json": "563883a0c57d7b47bd6c47a406ea77a98d2d254b21c817cb9ed6c527f70a5767",
+    "pair-4/grades.md": "b5a57c5670fdc007579a53cb9621bd5a7636716bf4aff908764b51f51631adc7",
+    "pair-4/metrics.json": "f960a6c224ef93cb0acf363a1e35229f66433885a566350c1e5dcb4f335f56e2",
+    "pair-4/observations-A.json": "60f772d7113033fa87bf83b4ce77da4e888c75c008af443cbb7295e50753e034",
+    "pair-4/observations-B.json": "4578f260536a3ff2c6df271bb8d3adaa8c01ec1a6238bdf5ac6f5dcdfe43de42",
+    "pair-4/patch-A.diff": "71e8cadbbaee0c4f5b1c967f5ac593b3806b6385cb892e3df299152789450293",
+    "pair-4/patch-B.diff": "8e1e89e037fccad755f2e2afbec2d0b349958768e8547d87d946c66ee4b186df",
+    "pair-4/record-audit-v2.json": "b24b0810799510f3d35822113b0321dde9b14b1632e40aa30a20653fa65cd666",
+    "pair-4/report-A.md": "70972b015c076eb363eb529645dd12e5c9e3b9560a98cfd967126a2cc8d86ac5",
+    "pair-4/report-B.md": "7695769ca52163da961b77073163000fddb43580adb11cd52b0646607533dc65",
+    "pair-4/result-A.json": "6cfaba274191a692559ef972270654040b02be7d7f70d9f80588484ac08bc9a8",
+    "pair-4/result-B.json": "09f29de74e6bc803614562f752b1a46d159ea966f170e856593dd58aebdc1406"
+  },
+  "projectedCheckFiles": [
+    {
+      "file": "preflight.json",
+      "sourceSha256": "a818e9f770768578ec08bda030cd99e95801cf90064448b91fab3f82012230fa",
+      "publishedSha256": "9af2be698a73aebeab41edbbacf39563f089e7a2c6fee1cf8169983bfefd3567"
+    },
+    {
+      "file": "pair-1/checks-A.json",
+      "sourceSha256": "61dbc94971a448f4451aa2800d2168ccfb31ad99f11cdee1ff65aaec11dd97e2",
+      "publishedSha256": "1abfd3bef3f42a70547ed4eb0478c2671ff44672ff5818ae46a96008df0266dc"
+    },
+    {
+      "file": "pair-1/checks-B.json",
+      "sourceSha256": "c240fd1e95c43234d9554cb5568d4687846b706e7d34124159ecc51ec7fc4f72",
+      "publishedSha256": "3d0fa6696dd1dda49739ebef43310d2e4d9a6cf423bf3790139e91cea47881e8"
+    },
+    {
+      "file": "pair-4/checks-A.json",
+      "sourceSha256": "9888174a70ec34cbff65c8d202c9f5714f5cf332ef8b68dbc7f8a71d541df61a",
+      "publishedSha256": "813537b8e44a7416efee646e2711b32dfce9000645ceb06d11ad6679581a7ebc"
+    },
+    {
+      "file": "pair-4/checks-B.json",
+      "sourceSha256": "a8e474bea6a0e85d7f11cbc16f4cbf66ecb05160e4965875b545f90ee1778d6e",
+      "publishedSha256": "9f2035398bd4d50248530efdec2a2c865b426b940276c26749d63432a1bcf2af"
+    }
+  ],
+  "backup": {
+    "directory": "D:\\workspace\\VibeKnowledge\\.vscode-test\\scope-cleanup-f8c18bcd39724a229465ef992777b3bd\\method-context-ab",
+    "gitIgnored": true,
+    "reason": "Recoverable backup of removed out-of-scope cases and mixed harness; not part of published evaluation."
+  }
+}

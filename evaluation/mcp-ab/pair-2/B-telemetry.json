@@ -1,0 +1,244 @@
+{
+  "sessionId": "01a06ce3-11db-78f1-a579-78ac42bbfb25",
+  "responses": [
+    {
+      "responseId": "resp_07981986ba765739016a9ad9e45b9c87d08485ac17e3a62648",
+      "usage": {
+        "input_tokens": 25468,
+        "cached_input_tokens": 24960,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 171,
+        "reasoning_output_tokens": 50,
+        "total_tokens": 25639
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ad9eb562887d0ab02a8c9fe03bf22",
+      "usage": {
+        "input_tokens": 26550,
+        "cached_input_tokens": 25344,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 67,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 26617
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ad9f0b19487d09e1383d20c80c1a1",
+      "usage": {
+        "input_tokens": 29008,
+        "cached_input_tokens": 26368,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 96,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 29104
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ad9f6f4e087d092d98d3688ce2b58",
+      "usage": {
+        "input_tokens": 31134,
+        "cached_input_tokens": 28800,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 90,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 31224
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ad9fc6c7887d08953ec52c6a3dbe6",
+      "usage": {
+        "input_tokens": 32075,
+        "cached_input_tokens": 30976,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 161,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 32236
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ada054d0c87d08f93d3c8f4447114",
+      "usage": {
+        "input_tokens": 35616,
+        "cached_input_tokens": 31872,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 173,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 35789
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ada0e2cdc87d0bda5b7c5075328e6",
+      "usage": {
+        "input_tokens": 42020,
+        "cached_input_tokens": 35456,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 143,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 42163
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ada17c69887d09bf23379914c1be5",
+      "usage": {
+        "input_tokens": 47733,
+        "cached_input_tokens": 41856,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 306,
+        "reasoning_output_tokens": 17,
+        "total_tokens": 48039
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ada277d4487d0ac1e8c62adf2cac5",
+      "usage": {
+        "input_tokens": 55440,
+        "cached_input_tokens": 47616,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 143,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 55583
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ada31e05487d08465b03c122a68cf",
+      "usage": {
+        "input_tokens": 59927,
+        "cached_input_tokens": 55296,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 302,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 60229
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ada43aa9887d0a3ddbd4bf29a4bd9",
+      "usage": {
+        "input_tokens": 63231,
+        "cached_input_tokens": 59776,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 354,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 63585
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ada57dd0487d0868b7d1a9fe0f3f3",
+      "usage": {
+        "input_tokens": 65392,
+        "cached_input_tokens": 63104,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 420,
+        "reasoning_output_tokens": 68,
+        "total_tokens": 65812
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ada6d180087d0967d599e6611282b",
+      "usage": {
+        "input_tokens": 69740,
+        "cached_input_tokens": 65152,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 279,
+        "reasoning_output_tokens": 19,
+        "total_tokens": 70019
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ada786d8487d0a2ebf6e5250718fe",
+      "usage": {
+        "input_tokens": 72093,
+        "cached_input_tokens": 69504,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 298,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 72391
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ada88de9487d0875e0b0a8c129931",
+      "usage": {
+        "input_tokens": 78315,
+        "cached_input_tokens": 71936,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 350,
+        "reasoning_output_tokens": 24,
+        "total_tokens": 78665
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9ada9ae10c87d09485dfec43123c65",
+      "usage": {
+        "input_tokens": 82369,
+        "cached_input_tokens": 78080,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 319,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 82688
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9adaad275087d0aa69617fb8684013",
+      "usage": {
+        "input_tokens": 85982,
+        "cached_input_tokens": 82176,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 496,
+        "reasoning_output_tokens": 93,
+        "total_tokens": 86478
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9adac6562087d091975c38fcf0dc98",
+      "usage": {
+        "input_tokens": 89652,
+        "cached_input_tokens": 85760,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 454,
+        "reasoning_output_tokens": 38,
+        "total_tokens": 90106
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9adad9d62487d0866e10df661b24b7",
+      "usage": {
+        "input_tokens": 90963,
+        "cached_input_tokens": 89472,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 207,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 91170
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9adae64fe487d0ab1b5307860c9488",
+      "usage": {
+        "input_tokens": 91861,
+        "cached_input_tokens": 90752,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 7295,
+        "reasoning_output_tokens": 465,
+        "total_tokens": 99156
+      }
+    },
+    {
+      "responseId": "resp_07981986ba765739016a9adb63ae1087d09a0f80a6379b1e3b",
+      "usage": {
+        "input_tokens": 99180,
+        "cached_input_tokens": 91648,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 128,
+        "reasoning_output_tokens": 53,
+        "total_tokens": 99308
+      }
+    }
+  ],
+  "totals": {
+    "input_tokens": 1273749,
+    "cached_input_tokens": 1195904,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 12252,
+    "reasoning_output_tokens": 827,
+    "total_tokens": 1286001
+  }
+}

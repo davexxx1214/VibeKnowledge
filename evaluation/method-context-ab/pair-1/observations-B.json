@@ -1,0 +1,376 @@
+[
+  {
+    "at": "2026-09-05T02:06:49.111Z",
+    "elapsedMs": 96,
+    "operation": "context",
+    "args": [
+      "src/services/exportService.ts#ExportService.exportToJSON"
+    ],
+    "metadata": {
+      "options": {
+        "selector": "src/services/exportService.ts#ExportService.exportToJSON",
+        "mode": "change",
+        "depth": 2,
+        "budget": 1600,
+        "snippets": false
+      }
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "Task context | change | symbol src/services/exportService.ts#ExportService.exportToJSON | depth 2\nSnapshot 2026-09-05T02:04:59.673Z; indexed hashes: 111/111 match. New/unindexed files, configuration and runtime behavior NOT certified.\nSymbol relations, NOT execution/data flow. Tests are candidates, NOT measured coverage. Type/receiver/container/file hints are terminal; use file scope for wider wiring.\n! unresolved-import @ src/services/knowledgeGraphService.ts:13: Cannot resolve import '../../resources/skills/vibeknowledge-dependency-graph/scripts/canonicalize-entity-key.mjs'\nENTRY src/services/exportService.ts: exportToJSON:273-298\nOWNER src/services/exportService.ts#ExportService @ line 16; constructor 19-26. Shared initialization/state not expanded; inspect if relevant.\nEXTERNAL external:fs @ lines 1-1 (1 hop) [terminal hint]\n  exportToJSON --calls--> fs @ src/services/exportService.ts:297 [extracted]\nDEPENDENCY src/services/exportService.ts#ExportService @ lines 16-720 (1 hop) [terminal hint]\n  exportToJSON --references--> ExportService @ src/services/exportService.ts:274 [extracted] [receiver/owner]\nDEPENDENCY src/services/exportService.ts#ExportService.getAllRelations @ lines 690-694 (1 hop)\n  exportToJSON --calls--> getAllRelations @ src/services/exportService.ts:275 [extracted]\nDEPENDENCY src/services/exportService.ts#ExportService.getEntities @ lines 684-688 (1 hop)\n  exportToJSON --calls--> getEntities @ src/services/exportService.ts:274 [extracted]\nDEPENDENCY src/services/exportService.ts#ExportService.getObservations @ lines 702-706 (1 hop)\n  exportToJSON --calls--> getObservations @ src/services/exportService.ts:280 [extracted]\nUPSTREAM src/ui/commands/entityCommands.ts#EntityCommands.exportGraph @ lines 1128-1215 (1 hop)\n  exportGraph --calls--> exportToJSON @ src/ui/commands/entityCommands.ts:1192 [extracted]\nDEPENDENCY src/utils/types.ts#Observation @ lines 68-74 (1 hop) [terminal hint]\n  exportToJSON --references/type-only--> Observation @ src/services/exportService.ts:278 [extracted]\nUPSTREAM src/extension.ts#activate @ lines 36-943 (2 hops via src/ui/commands/entityCommands.ts#EntityCommands.exportGraph)\n  activate --calls--> exportGraph @ src/extension.ts:658 [extracted]\nDEPENDENCY src/services/entityService.ts#EntityService.listEntities @ lines 149-183 (2 hops via src/services/exportService.ts#ExportService.getEntities)\n  getEntities --calls--> listEntities @ src/services/exportService.ts:687 [extracted]\nDEPENDENCY src/services/knowledgeGraphService.ts#KnowledgeGraphService.getObservations @ lines 256-259 (2 hops via src/services/exportService.ts#ExportService.getObservations)\n  getObservations --calls--> getObservations @ src/services/exportService.ts:704 [extracted]\nDEPENDENCY src/services/knowledgeGraphService.ts#KnowledgeGraphService.listEntities @ lines 121-141 (2 hops via src/services/exportService.ts#ExportService.getEntities)\n  getEntities --calls--> listEntities @ src/services/exportService.ts:686 [extracted]\nDEPENDENCY src/services/knowledgeGraphService.ts#KnowledgeGraphService.listRelations @ lines 208-231 (2 hops via src/services/exportService.ts#ExportService.getAllRelations)\n  getAllRelations --calls--> listRelations @ src/services/exportService.ts:692 [extracted]\nDEPENDENCY src/services/observationService.ts#ObservationService.getObservations @ lines 114-130 (2 hops via src/services/exportService.ts#ExportService.getObservations)\n  getObservations --calls--> getObservations @ src/services/exportService.ts:705 [extracted]\nDEPENDENCY src/services/relationService.ts#RelationService.getAllRelations @ lines 105-116 (2 hops via src/services/exportService.ts#ExportService.getAllRelations)\n  getAllRelations --calls--> getAllRelations @ src/services/exportService.ts:693 [extracted]\nDEPENDENCY src/utils/types.ts#Entity @ lines 27-38 (2 hops via src/services/exportService.ts#ExportService.getEntities) [terminal hint]\n  getEntities --references/type-only--> Entity @ src/services/exportService.ts:684 [extracted]\nDEPENDENCY src/utils/types.ts#Relation @ lines 56-63 (2 hops via src/services/exportService.ts#ExportService.getAllRelations) [terminal hint]\n  getAllRelations --references/type-only--> Relation @ src/services/exportService.ts:690 [extracted]\n! No graph-linked tests in this slice. Locate tests separately; no coverage conclusion.\nScope: 16 symbol paths in 8 source files; shown 16. 0 blocks omitted (0 warnings). Depth frontier: YES. INCOMPLETE; expand depth/budget for a needed gap.\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:05.010Z",
+    "elapsedMs": 2,
+    "operation": "read",
+    "args": [
+      "src/services/exportService.ts",
+      "1",
+      "45"
+    ],
+    "metadata": {
+      "file": "src/services/exportService.ts",
+      "start": 1,
+      "end": 45
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "1: import * as vscode from 'vscode';\n2: import * as path from 'path';\n3: import * as fs from 'fs';\n4: import { EntityService } from './entityService';\n5: import { RelationService } from './relationService';\n6: import { ObservationService } from './observationService';\n7: import { DependencyAnalyzer, CircularDependency } from './dependencyAnalyzer';\n8: import { Entity, Relation, Observation } from '../utils/types';\n9: import type { KnowledgeGraphService } from './knowledgeGraphService';\n10: import { t, getLocale } from '../i18n/i18nService';\n11: \n12: /**\n13:  * 导出服务\n14:  * 负责将知识图谱导出为不同格式\n15:  */\n16: export class ExportService {\n17:   private dependencyAnalyzer: DependencyAnalyzer;\n18: \n19:   constructor(\n20:     private entityService: EntityService,\n21:     private relationService: RelationService,\n22:     private observationService: ObservationService,\n23:     private knowledgeGraphService?: KnowledgeGraphService\n24:   ) {\n25:     this.dependencyAnalyzer = new DependencyAnalyzer(entityService, relationService);\n26:   }\n27: \n28:   /**\n29:    * 导出为 Markdown 格式\n30:    */\n31:   public async exportToMarkdown(\n32:     outputPath: string,\n33:     options: { includeDependencyAnalysis?: boolean } = {}\n34:   ): Promise<void> {\n35:     const entities = this.getEntities();\n36:     const allRelations = this.getAllRelations();\n37: \n38:     let markdown = this.generateMarkdownHeader();\n39:     markdown += this.generateOverview(entities, allRelations);\n40:     markdown += this.generateEntitySections(entities);\n41:     markdown += this.generateRelationSection(allRelations, entities);\n42: \n43:     // 添加依赖链分析（如果需要）\n44:     if (options.includeDependencyAnalysis) {\n45:       markdown += this.generateDependencyAnalysisSection();\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:05.074Z",
+    "elapsedMs": 2,
+    "operation": "read",
+    "args": [
+      "src/services/exportService.ts",
+      "250",
+      "315"
+    ],
+    "metadata": {
+      "file": "src/services/exportService.ts",
+      "start": 250,
+      "end": 315
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "250:   }\n251: \n252:   /**\n253:    * 获取实体类型对应的图标\n254:    */\n255:   private getTypeIcon(type: string): string {\n256:     const icons: Record<string, string> = {\n257:       function: '📁',\n258:       class: '🏛️',\n259:       interface: '📋',\n260:       variable: '📌',\n261:       component: '🧩',\n262:       service: '⚙️',\n263:       api: '🌐',\n264:       file: '📄',\n265:       external: '📦',\n266:     };\n267:     return icons[type] || '📄';\n268:   }\n269: \n270:   /**\n271:    * 导出为 JSON 格式\n272:    */\n273:   public async exportToJSON(outputPath: string): Promise<void> {\n274:     const entities = this.getEntities();\n275:     const relations = this.getAllRelations();\n276:     \n277:     // 收集所有观察记录\n278:     const observations: Record<string, Observation[]> = {};\n279:     for (const entity of entities) {\n280:       observations[entity.id] = this.getObservations(entity.id);\n281:     }\n282:     \n283:     const exportData = {\n284:       exportTime: new Date().toISOString(),\n285:       version: '1.0',\n286:       statistics: {\n287:         entityCount: entities.length,\n288:         relationCount: relations.length,\n289:         observationCount: Object.values(observations).flat().length,\n290:       },\n291:       entities,\n292:       relations,\n293:       observations,\n294:     };\n295:     \n296:     const json = JSON.stringify(exportData, null, 2);\n297:     fs.writeFileSync(outputPath, json, 'utf-8');\n298:   }\n299: \n300:   /**\n301:    * 生成依赖链分析部分\n302:    */\n303:   private generateDependencyAnalysisSection(): string {\n304:     let section = `## 📊 依赖链分析\\n\\n`;\n305: \n306:     // 全局统计\n307:     const stats = this.dependencyAnalyzer.getGlobalDependencyStats();\n308:     section += `### 全局统计\\n\\n`;\n309:     section += `- **总实体数**：${stats.totalEntities}\\n`;\n310:     section += `- **有依赖的实体**：${stats.entitiesWithDependencies}\\n`;\n311:     section += `- **平均依赖数**：${stats.averageDependencies}\\n`;\n312:     section += `- **最大依赖深度**：${stats.maxDependencyDepth}\\n`;\n313:     section += `- **循环依赖数**：${stats.circularDependencyCount}\\n\\n`;\n314: \n315:     // 依赖最多的实体\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:05.345Z",
+    "elapsedMs": 1,
+    "operation": "read",
+    "args": [
+      "src/services/exportService.ts",
+      "675",
+      "720"
+    ],
+    "metadata": {
+      "file": "src/services/exportService.ts",
+      "start": 675,
+      "end": 720
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "675:     summary += `\\n`;\n676:     summary += `> 💡 **使用提示**：此摘要包含了项目的关键信息，您可以：\\n`;\n677:     summary += `> - 将其作为 AI 对话的上下文，帮助 AI 更好地理解项目结构\\n`;\n678:     summary += `> - 用于快速了解项目的核心组件和重要注意事项\\n`;\n679:     summary += `> - 分享给团队成员作为项目概览\\n`;\n680: \n681:     return summary;\n682:   }\n683: \n684:   private getEntities(): Entity[] {\n685:     return this.knowledgeGraphService\n686:       ? this.knowledgeGraphService.listEntities()\n687:       : this.entityService.listEntities({});\n688:   }\n689: \n690:   private getAllRelations(): Relation[] {\n691:     return this.knowledgeGraphService\n692:       ? this.knowledgeGraphService.listRelations()\n693:       : this.relationService.getAllRelations();\n694:   }\n695: \n696:   private getEntity(entityId: string): Entity | null {\n697:     return this.knowledgeGraphService\n698:       ? this.knowledgeGraphService.getEntity(entityId)\n699:       : this.entityService.getEntity(entityId);\n700:   }\n701: \n702:   private getObservations(entityId: string): Observation[] {\n703:     return this.knowledgeGraphService\n704:       ? this.knowledgeGraphService.getObservations(entityId)\n705:       : this.observationService.getObservations(entityId);\n706:   }\n707: \n708:   private getRelationsByEntity(entityId: string): Relation[] {\n709:     if (this.knowledgeGraphService) {\n710:       return this.knowledgeGraphService\n711:         .listRelations()\n712:         .filter(\n713:           (relation) =>\n714:             relation.sourceEntityId === entityId ||\n715:             relation.targetEntityId === entityId\n716:         );\n717:     }\n718:     return this.relationService.getRelationsByEntity(entityId);\n719:   }\n720: }\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:05.613Z",
+    "elapsedMs": 56,
+    "operation": "search",
+    "args": [
+      "exportToJSON|ExportService",
+      "tests",
+      "src"
+    ],
+    "metadata": {
+      "locations": [
+        "tests",
+        "src"
+      ]
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "src\\ui\\commands\\entityCommands.ts:7:import { ExportService } from '../../services/exportService';\nsrc\\ui\\commands\\entityCommands.ts:20:  private exportService: ExportService;\nsrc\\ui\\commands\\entityCommands.ts:29:    this.exportService = new ExportService(\nsrc\\ui\\commands\\entityCommands.ts:1192:            await this.exportService.exportToJSON(saveUri.fsPath);\r\nsrc\\services\\exportService.ts:16:export class ExportService {\r\nsrc\\services\\exportService.ts:273:  public async exportToJSON(outputPath: string): Promise<void> {\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:05.768Z",
+    "elapsedMs": 2,
+    "operation": "read",
+    "args": [
+      "src/utils/types.ts",
+      "20",
+      "80"
+    ],
+    "metadata": {
+      "file": "src/utils/types.ts",
+      "start": 20,
+      "end": 80
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "20:   | 'service'\n21:   | 'component'\n22:   | 'external'; // 外部模块、运行时基础设施或外部系统\n23: \n24: /**\n25:  * 实体\n26:  */\n27: export interface Entity {\n28:   id: string;\n29:   name: string;\n30:   type: EntityType;\n31:   filePath: string;\n32:   startLine: number;\n33:   endLine: number;\n34:   description?: string;\n35:   createdAt: number;\n36:   updatedAt: number;\n37:   metadata?: Record<string, any>;\n38: }\n39: \n40: /**\n41:  * 关系动词类型\n42:  */\n43: export type RelationVerb = \n44:   | 'calls'\n45:   | 'extends'\n46:   | 'implements'\n47:   | 'depends_on'\n48:   | 'contains'\n49:   | 'references'\n50:   | 'imports'\n51:   | 'exports';\n52: \n53: /**\n54:  * 关系\n55:  */\n56: export interface Relation {\n57:   id: string;\n58:   sourceEntityId: string;\n59:   targetEntityId: string;\n60:   verb: RelationVerb;\n61:   createdAt: number;\n62:   metadata?: Record<string, any>;\n63: }\n64: \n65: /**\n66:  * 观察记录\n67:  */\n68: export interface Observation {\n69:   id: string;\n70:   entityId: string;\n71:   content: string;\n72:   createdAt: number;\n73:   updatedAt: number;\n74: }\n75: \n76: /**\n77:  * 实体过滤器\n78:  */\n79: export interface EntityFilters {\n80:   type?: EntityType;\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:18.715Z",
+    "elapsedMs": 49,
+    "operation": "files",
+    "args": [
+      "tests"
+    ],
+    "metadata": {
+      "locations": [
+        "tests"
+      ]
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "tests\\setup.ts\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:18.943Z",
+    "elapsedMs": 1,
+    "operation": "read",
+    "args": [
+      "src/services/knowledgeGraphService.ts",
+      "115",
+      "145"
+    ],
+    "metadata": {
+      "file": "src/services/knowledgeGraphService.ts",
+      "start": 115,
+      "end": 145
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "115:       relations.push(knowledgeRelation);\n116:     }\n117: \n118:     return { entities, relations };\n119:   }\n120: \n121:   public listEntities(filters?: EntityFilters): KnowledgeEntity[] {\n122:     return this.getSnapshot().entities.filter((entity) => {\n123:       if (filters?.type && entity.type !== filters.type) {\n124:         return false;\n125:       }\n126:       if (\n127:         filters?.filePath &&\n128:         normalizeKnowledgeFilePath(entity.filePath) !==\n129:           normalizeKnowledgeFilePath(filters.filePath)\n130:       ) {\n131:         return false;\n132:       }\n133:       if (\n134:         filters?.name &&\n135:         !entity.name.toLocaleLowerCase().includes(filters.name.toLocaleLowerCase())\n136:       ) {\n137:         return false;\n138:       }\n139:       return true;\n140:     });\n141:   }\n142: \n143:   public getEntitiesByFile(filePath: string): KnowledgeEntity[] {\n144:     return this.listEntities({ filePath });\n145:   }\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:19.129Z",
+    "elapsedMs": 3,
+    "operation": "read",
+    "args": [
+      "src/services/knowledgeGraphService.ts",
+      "200",
+      "265"
+    ],
+    "metadata": {
+      "file": "src/services/knowledgeGraphService.ts",
+      "start": 200,
+      "end": 265
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "200:       const entity = group.entities.find((candidate) => candidate.id === entityId);\n201:       if (entity) {\n202:         return entity;\n203:       }\n204:     }\n205:     return null;\n206:   }\n207: \n208:   public listRelations(filters?: {\n209:     verb?: RelationVerb;\n210:     sourceEntityId?: string;\n211:     targetEntityId?: string;\n212:   }): KnowledgeRelation[] {\n213:     return this.getSnapshot().relations.filter((relation) => {\n214:       if (filters?.verb && relation.verb !== filters.verb) {\n215:         return false;\n216:       }\n217:       if (\n218:         filters?.sourceEntityId &&\n219:         relation.sourceEntityId !== filters.sourceEntityId\n220:       ) {\n221:         return false;\n222:       }\n223:       if (\n224:         filters?.targetEntityId &&\n225:         relation.targetEntityId !== filters.targetEntityId\n226:       ) {\n227:         return false;\n228:       }\n229:       return true;\n230:     });\n231:   }\n232: \n233:   public getRelatedEntities(entityId: string): KnowledgeRelatedEntity[] {\n234:     const snapshot = this.getSnapshot();\n235:     const entitiesById = new Map(\n236:       snapshot.entities.map((entity) => [entity.id, entity])\n237:     );\n238: \n239:     return snapshot.relations.flatMap<KnowledgeRelatedEntity>((relation) => {\n240:       if (relation.sourceEntityId === entityId) {\n241:         const entity = entitiesById.get(relation.targetEntityId);\n242:         return entity\n243:           ? [{ entity, relation, direction: 'outgoing' as const }]\n244:           : [];\n245:       }\n246:       if (relation.targetEntityId === entityId) {\n247:         const entity = entitiesById.get(relation.sourceEntityId);\n248:         return entity\n249:           ? [{ entity, relation, direction: 'incoming' as const }]\n250:           : [];\n251:       }\n252:       return [];\n253:     });\n254:   }\n255: \n256:   public getObservations(entityId: string): Observation[] {\n257:     void entityId;\n258:     return [];\n259:   }\n260: \n261:   public updateDescription(\n262:     entityId: string,\n263:     description: string\n264:   ): KnowledgeEntity | null {\n265:     const entity = this.getEntity(entityId);\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:19.332Z",
+    "elapsedMs": 2,
+    "operation": "read",
+    "args": [
+      "src/services/observationService.ts",
+      "110",
+      "135"
+    ],
+    "metadata": {
+      "file": "src/services/observationService.ts",
+      "start": 110,
+      "end": 135
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "110: \n111:   /**\n112:    * 获取实体的所有观察记录\n113:    */\n114:   public getObservations(entityId: string): Observation[] {\n115:     const db = this.dbService.getDatabase();\n116:     const stmt = db.prepare(`\n117:       SELECT * FROM observations \n118:       WHERE entity_id = ? \n119:       ORDER BY created_at DESC\n120:     `);\n121:     stmt.bind([entityId]);\n122: \n123:     const rows: any[] = [];\n124:     while (stmt.step()) {\n125:       rows.push(stmt.getAsObject());\n126:     }\n127:     stmt.free();\n128: \n129:     return rows.map(row => this.rowToObservation(row));\n130:   }\n131: \n132:   /**\n133:    * 获取观察记录数量\n134:    */\n135:   public getObservationCount(entityId: string): number {\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:35.237Z",
+    "elapsedMs": 1,
+    "operation": "read",
+    "args": [
+      "vitest.config.ts"
+    ],
+    "metadata": {},
+    "exitCode": 1,
+    "truncated": false,
+    "displayed": "Error: Only task source, tests and project configuration may be inspected\n    at safe (D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-1\\B\\observe.cjs:14:136)\n    at Object.<anonymous> (D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-1\\B\\observe.cjs:30:67)\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n[exit 1]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:35.312Z",
+    "elapsedMs": 1,
+    "operation": "read",
+    "args": [
+      "tests/setup.ts"
+    ],
+    "metadata": {
+      "file": "tests/setup.ts",
+      "start": 1,
+      "end": 3
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "1: // Shared Vitest setup. Keep this file lightweight so pure modules can be tested\n2: // without loading the VS Code extension host.\n3:\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:35.523Z",
+    "elapsedMs": 66,
+    "operation": "search",
+    "args": [
+      "describe\\(|vi.mock\\('fs'|vi.mock\\('vscode'",
+      "src"
+    ],
+    "metadata": {
+      "locations": [
+        "src"
+      ]
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "src\\services\\agentSkillService.test.ts:41:describe('AgentSkillService', () => {\nsrc\\providers\\knowledgeCodeLensModel.test.ts:8:describe('buildKnowledgeCodeLensModels', () => {\nsrc\\services\\agentGraph\\agentEntityOverrideService.test.ts:7:describe('AgentEntityOverrideService portable path identities', () => {\nsrc\\services\\agentGraph\\agentGraphService.test.ts:113:describe('parseAgentGraphDocument', () => {\nsrc\\services\\agentGraph\\agentGraphService.test.ts:267:describe('AgentGraphService', () => {\nsrc\\services\\aiIntegrationService.test.ts:16:vi.mock('vscode', () => ({\nsrc\\services\\aiIntegrationService.test.ts:67:describe('AIIntegrationService', () => {\nsrc\\services\\agentGraph\\canonicalEntityKey.test.ts:6:describe('canonicalizeEntityKey', () => {\nsrc\\ui\\webview\\graphPerformanceScript.test.ts:41:describe('graph performance helpers', () => {\nsrc\\services\\agentGraph\\skillValidator.test.ts:95:describe('dependency graph skill validator', () => {\nsrc\\services\\knowledgeGraphService.test.ts:10:describe('KnowledgeGraphService', () => {\nsrc\\ui\\webview\\graphWebviewClientScript.test.ts:5:describe('graph Webview client script', () => {\nsrc\\ui\\webview\\graphView.test.ts:18:vi.mock('vscode', () => ({\nsrc\\ui\\webview\\graphView.test.ts:57:describe('graph display mode integration', () => {\nsrc\\ui\\webview\\strudelWebviewHtml.test.ts:4:describe('buildStrudelWebviewHtml', () => {\nsrc\\services\\musicGenerator\\musicGeneratorService.test.ts:4:describe('MusicGeneratorService', () => {\nsrc\\services\\structuralGraph\\debouncedStructuralGraphUpdater.test.ts:8:describe('DebouncedStructuralGraphUpdater', () => {\nsrc\\services\\structuralGraph\\frontendGraph.test.ts:24:describe('React/Vite structural boundaries', () => {\nsrc\\services\\structuralGraph\\structuralAnalysis.test.ts:14:describe('structural graph analysis', () => {\nsrc\\services\\structuralGraph\\structuralCondenser.test.ts:53:describe('structural condenser', () => {\nsrc\\services\\structuralGraph\\structuralCondenser.test.ts:262:describe('structural curation command line tool', () => {\nsrc\\services\\structuralGraph\\structuralCondenser.test.ts:306:describe('CuratedGraphService', () => {\nsrc\\services\\structuralGraph\\structuralGraphCli.test.ts:47:describe('structural graph command line tools', () => {\nsrc\\services\\structuralGraph\\structuralGraphIncremental.test.ts:39:describe('incremental structural graph cache', () => {\nsrc\\services\\structuralGraph\\structuralGraphSchema.test.ts:4:describe('structural graph schema', () => {\nsrc\\services\\structuralGraph\\structuralGraphService.test.ts:29:describe('TypeScript structural extractor', () => {\nsrc\\services\\structuralGraph\\structuralGraphService.test.ts:149:describe('StructuralGraphService', () => {\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:35.699Z",
+    "elapsedMs": 2,
+    "operation": "read",
+    "args": [
+      "src/services/dependencyAnalyzer.ts",
+      "1",
+      "70"
+    ],
+    "metadata": {
+      "file": "src/services/dependencyAnalyzer.ts",
+      "start": 1,
+      "end": 70
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "1: import { Entity, Relation } from '../utils/types';\n2: import { EntityService } from './entityService';\n3: import { RelationService } from './relationService';\n4: \n5: /**\n6:  * 依赖节点\n7:  */\n8: export interface DependencyNode {\n9:   entity: Entity;\n10:   depth: number;\n11:   children: DependencyNode[];\n12:   relation?: Relation; // 与父节点的关系\n13: }\n14: \n15: /**\n16:  * 依赖链\n17:  */\n18: export interface DependencyChain {\n19:   root: Entity;\n20:   nodes: DependencyNode[];\n21:   maxDepth: number;\n22:   totalDependencies: number;\n23:   circularDependencies: CircularDependency[];\n24: }\n25: \n26: /**\n27:  * 循环依赖\n28:  */\n29: export interface CircularDependency {\n30:   chain: Entity[];\n31:   relations: Relation[];\n32: }\n33: \n34: /**\n35:  * 依赖统计\n36:  */\n37: export interface DependencyStats {\n38:   totalEntities: number;\n39:   entitiesWithDependencies: number;\n40:   averageDependencies: number;\n41:   maxDependencyDepth: number;\n42:   circularDependencyCount: number;\n43:   topDependencies: Array<{ entity: Entity; dependencyCount: number }>;\n44: }\n45: \n46: /**\n47:  * 依赖链分析器\n48:  */\n49: export class DependencyAnalyzer {\n50:   constructor(\n51:     private entityService: EntityService,\n52:     private relationService: RelationService\n53:   ) {}\n54: \n55:   /**\n56:    * 构建实体的依赖树\n57:    */\n58:   public buildDependencyTree(\n59:     entityId: string,\n60:     maxDepth: number = 10\n61:   ): DependencyNode | null {\n62:     const entity = this.entityService.getEntity(entityId);\n63:     if (!entity) {\n64:       return null;\n65:     }\n66: \n67:     const visited = new Set<string>();\n68:     return this.buildTreeRecursive(entity, 0, maxDepth, visited, undefined);\n69:   }\n70:\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:50.877Z",
+    "elapsedMs": 2,
+    "operation": "read",
+    "args": [
+      "src/services/aiIntegrationService.test.ts",
+      "1",
+      "105"
+    ],
+    "metadata": {
+      "file": "src/services/aiIntegrationService.test.ts",
+      "start": 1,
+      "end": 105
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "1: import { afterEach, describe, expect, it, vi } from 'vitest';\n2: import {\n3:   mkdirSync,\n4:   mkdtempSync,\n5:   readFileSync,\n6:   rmSync,\n7:   writeFileSync,\n8: } from 'fs';\n9: import { tmpdir } from 'os';\n10: import { join } from 'path';\n11: import { AIIntegrationService } from './aiIntegrationService';\n12: import type { EntityService } from './entityService';\n13: import type { ObservationService } from './observationService';\n14: import type { RelationService } from './relationService';\n15: \n16: vi.mock('vscode', () => ({\n17:   workspace: {\n18:     workspaceFolders: undefined,\n19:     getConfiguration: () => ({\n20:       get: (_key: string, defaultValue: unknown) => defaultValue,\n21:     }),\n22:     onDidChangeConfiguration: () => ({ dispose() {} }),\n23:   },\n24:   window: {\n25:     showInformationMessage: vi.fn(),\n26:   },\n27:   // eslint-disable-next-line @typescript-eslint/naming-convention\n28:   EventEmitter: class {\n29:     public event = vi.fn();\n30:     public fire = vi.fn();\n31:   },\n32: }));\n33: \n34: const tempDirs: string[] = [];\n35: \n36: function createWorkspace(): string {\n37:   const workspace = mkdtempSync(join(tmpdir(), 'vibeknowledge-ai-integration-'));\n38:   tempDirs.push(workspace);\n39:   return workspace;\n40: }\n41: \n42: function createService(): AIIntegrationService {\n43:   return new AIIntegrationService(\n44:     {} as EntityService,\n45:     {} as RelationService,\n46:     {} as ObservationService\n47:   );\n48: }\n49: \n50: function extractJavaScriptTechStack(\n51:   service: AIIntegrationService,\n52:   packageJsonPath: string\n53: ): { runtime?: string } | null {\n54:   return (\n55:     service as unknown as {\n56:       extractJavaScriptTechStack(path: string): { runtime?: string } | null;\n57:     }\n58:   ).extractJavaScriptTechStack(packageJsonPath);\n59: }\n60: \n61: afterEach(() => {\n62:   while (tempDirs.length > 0) {\n63:     rmSync(tempDirs.pop()!, { recursive: true, force: true });\n64:   }\n65: });\n66: \n67: describe('AIIntegrationService', () => {\n68:   it('generates a compact Copilot router without template or graph dumps', async () => {\n69:     const workspace = createWorkspace();\n70:     const knowledgeDirectory = join(workspace, '.vscode', '.knowledge');\n71:     mkdirSync(knowledgeDirectory, { recursive: true });\n72:     writeFileSync(\n73:       join(knowledgeDirectory, 'ai-template.md'),\n74:       'TEMPLATE_ONLY_MARKER',\n75:       'utf8'\n76:     );\n77: \n78:     const outputPath = await createService().generateCopilotInstructions(\n79:       workspace\n80:     );\n81:     const content = readFileSync(outputPath, 'utf8');\n82: \n83:     expect(content).toContain(\n84:       '.vscode/.knowledge/agent-context/index.md'\n85:     );\n86:     expect(content).toContain('`query_graph`');\n87:     expect(content).toContain('`get_neighbors`');\n88:     expect(content).toContain('`shortest_path`');\n89:     expect(content).toContain('`includeEvidence=true`');\n90:     expect(content).toContain(\n91:       'Do not load `.vscode/.knowledge/knowledge-graph.md` by default'\n92:     );\n93:     expect(content).toContain('load only the single best-matching group view');\n94:     expect(content).not.toContain('TEMPLATE_ONLY_MARKER');\n95:     expect(content).not.toContain('Tech Stack');\n96:     expect(content).not.toContain('Dependency Details');\n97:     expect(content).not.toContain('Total Entities');\n98:   });\n99: \n100:   it('generates compact query-first Cursor instructions without graph dumps', async () => {\n101:     const workspace = createWorkspace();\n102:     const knowledgeDirectory = join(workspace, '.vscode', '.knowledge');\n103:     mkdirSync(knowledgeDirectory, { recursive: true });\n104:     writeFileSync(\n105:       join(knowledgeDirectory, 'ai-template.md'),\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:51.297Z",
+    "elapsedMs": 1,
+    "operation": "read",
+    "args": [
+      "src/i18n/i18nService.ts",
+      "1",
+      "70"
+    ],
+    "metadata": {
+      "file": "src/i18n/i18nService.ts",
+      "start": 1,
+      "end": 70
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "1: import * as vscode from 'vscode';\n2: import { LanguagePack, Language } from './types';\n3: import { en } from './en';\n4: import { zh } from './zh';\n5: \n6: /**\n7:  * 国际化服务\n8:  * 提供多语言支持和动态语言切换\n9:  */\n10: export class I18nService {\n11:   private static instance: I18nService;\n12:   private currentLanguage: Language = 'zh';\n13:   private languagePacks: Record<Language, LanguagePack>;\n14:   private onDidChangeLanguageEmitter = new vscode.EventEmitter<Language>();\n15:   public readonly onDidChangeLanguage = this.onDidChangeLanguageEmitter.event;\n16: \n17:   /**\n18:    * 私有构造函数（单例模式）\n19:    */\n20:   private constructor() {\n21:     this.languagePacks = {\n22:       en,\n23:       zh,\n24:     };\n25: \n26:     // 初始化当前语言\n27:     this.initializeLanguage();\n28: \n29:     // 监听配置变化\n30:     this.setupConfigurationListener();\n31:   }\n32: \n33:   /**\n34:    * 获取单例实例\n35:    */\n36:   public static getInstance(): I18nService {\n37:     if (!I18nService.instance) {\n38:       I18nService.instance = new I18nService();\n39:     }\n40:     return I18nService.instance;\n41:   }\n42: \n43:   /**\n44:    * 初始化语言设置\n45:    */\n46:   private initializeLanguage(): void {\n47:     const config = vscode.workspace.getConfiguration('knowledgeGraph');\n48:     const language = config.get<string>('language', 'zh') as Language;\n49: \n50:     if (this.isValidLanguage(language)) {\n51:       this.currentLanguage = language;\n52:     } else {\n53:       this.currentLanguage = 'zh'; // 默认中文\n54:     }\n55:   }\n56: \n57:   /**\n58:    * 设置配置监听器\n59:    */\n60:   private setupConfigurationListener(): void {\n61:     vscode.workspace.onDidChangeConfiguration((e) => {\n62:       if (e.affectsConfiguration('knowledgeGraph.language')) {\n63:         const config = vscode.workspace.getConfiguration('knowledgeGraph');\n64:         const newLanguage = config.get<string>('language', 'zh') as Language;\n65: \n66:         if (this.isValidLanguage(newLanguage) && newLanguage !== this.currentLanguage) {\n67:           this.currentLanguage = newLanguage;\n68:           this.onDidChangeLanguageEmitter.fire(newLanguage);\n69: \n70:           vscode.window.showInformationMessage(\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:07:51.588Z",
+    "elapsedMs": 1,
+    "operation": "read",
+    "args": [
+      "package.json",
+      "1",
+      "100"
+    ],
+    "metadata": {
+      "file": "package.json",
+      "start": 1,
+      "end": 100
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "1: {\n2:   \"name\": \"vibe-knowledge\",\n3:   \"displayName\": \"Vibe Knowledge\",\n4:   \"description\": \"Turn a VS Code workspace into a searchable knowledge graph with RAG and MCP access.\",\n5:   \"version\": \"0.5.0\",\n6:   \"publisher\": \"davexxx1214\",\n7:   \"icon\": \"resources/icon.png\",\n8:   \"author\": \"davexxx\",\n9:   \"license\": \"MIT\",\n10:   \"homepage\": \"https://github.com/davexxx1214/VibeKnowledge#readme\",\n11:   \"repository\": {\n12:     \"type\": \"git\",\n13:     \"url\": \"https://github.com/davexxx1214/VibeKnowledge.git\"\n14:   },\n15:   \"bugs\": {\n16:     \"url\": \"https://github.com/davexxx1214/VibeKnowledge/issues\"\n17:   },\n18:   \"keywords\": [\n19:     \"knowledge-graph\",\n20:     \"rag\",\n21:     \"mcp\",\n22:     \"ai\",\n23:     \"codebase\",\n24:     \"developer-tools\"\n25:   ],\n26:   \"engines\": {\n27:     \"node\": \">=26.1.0 <27\",\n28:     \"vscode\": \"^1.80.0\"\n29:   },\n30:   \"categories\": [\n31:     \"Visualization\",\n32:     \"Other\"\n33:   ],\n34:   \"activationEvents\": [\n35:     \"onStartupFinished\"\n36:   ],\n37:   \"main\": \"./dist/extension.js\",\n38:   \"contributes\": {\n39:     \"commands\": [\n40:       {\n41:         \"command\": \"knowledge.editEntityDescription\",\n42:         \"title\": \"Knowledge: Edit Entity Description\"\n43:       },\n44:       {\n45:         \"command\": \"knowledge.resetEntityDescription\",\n46:         \"title\": \"Knowledge: Restore Agent Description\"\n47:       },\n48:       {\n49:         \"command\": \"knowledge.viewEntityDetails\",\n50:         \"title\": \"Knowledge: View Entity Details\"\n51:       },\n52:       {\n53:         \"command\": \"knowledge.searchGraph\",\n54:         \"title\": \"Knowledge: Search Graph\"\n55:       },\n56:       {\n57:         \"command\": \"knowledge.visualizeGraph\",\n58:         \"title\": \"Knowledge: Visualize Graph\",\n59:         \"icon\": \"$(graph)\"\n60:       },\n61:       {\n62:         \"command\": \"knowledge.exportGraph\",\n63:         \"title\": \"Knowledge: Export Graph\",\n64:         \"icon\": \"$(save-as)\"\n65:       },\n66:       {\n67:         \"command\": \"knowledge.settings\",\n68:         \"title\": \"Knowledge: Settings\"\n69:       },\n70:       {\n71:         \"command\": \"knowledge.setupMcp\",\n72:         \"title\": \"Knowledge: Install / Configure MCP\",\n73:         \"icon\": \"$(plug)\"\n74:       },\n75:       {\n76:         \"command\": \"knowledge.refresh\",\n77:         \"title\": \"Knowledge: Refresh\",\n78:         \"icon\": \"$(refresh)\"\n79:       },\n80:       {\n81:         \"command\": \"knowledge.generateCursorRules\",\n82:         \"title\": \"Knowledge: Generate Cursor Rules\",\n83:         \"icon\": \"$(file-code)\"\n84:       },\n85:       {\n86:         \"command\": \"knowledge.generateCopilotInstructions\",\n87:         \"title\": \"Knowledge: Generate Copilot Instructions\",\n88:         \"icon\": \"$(file-code)\"\n89:       },\n90:       {\n91:         \"command\": \"knowledge.generateAllAIConfigs\",\n92:         \"title\": \"Knowledge: Generate All AI Configs\",\n93:         \"icon\": \"$(sparkle)\"\n94:       },\n95:       {\n96:         \"command\": \"knowledge.switchAIScenario\",\n97:         \"title\": \"Knowledge: Switch AI Scenario\",\n98:         \"icon\": \"$(notebook-template)\"\n99:       },\n100:       {\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:08:01.006Z",
+    "elapsedMs": 1,
+    "operation": "read",
+    "args": [
+      "src/i18n/i18nService.ts",
+      "160",
+      "235"
+    ],
+    "metadata": {
+      "file": "src/i18n/i18nService.ts",
+      "start": 160,
+      "end": 151
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:09:43.072Z",
+    "elapsedMs": 697,
+    "operation": "test",
+    "args": [
+      "src/services/exportService.test.ts"
+    ],
+    "metadata": {},
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "\n RUN  v4.1.10 D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B\n\n\n Test Files  1 passed (1)\n      Tests  14 passed (14)\n   Start at  10:09:42\n   Duration  334ms (transform 74ms, setup 22ms, import 146ms, tests 8ms, environment 0ms)\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:09:43.323Z",
+    "elapsedMs": 948,
+    "operation": "typecheck",
+    "args": [],
+    "metadata": {},
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:09:56.343Z",
+    "elapsedMs": 1,
+    "operation": "read",
+    "args": [
+      "src/services/exportService.ts",
+      "270",
+      "315"
+    ],
+    "metadata": {
+      "file": "src/services/exportService.ts",
+      "start": 270,
+      "end": 315
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "270:   /**\n271:    * 导出为 JSON 格式\n272:    */\n273:   public async exportToJSON(\n274:     outputPath: string,\n275:     options: { entityIds?: readonly string[] } = {}\n276:   ): Promise<void> {\n277:     const selectedIds = options.entityIds === undefined\n278:       ? undefined\n279:       : new Set(options.entityIds);\n280:     const entities = this.getEntities().filter(\n281:       (entity) => selectedIds === undefined || selectedIds.has(entity.id)\n282:     );\n283:     const exportedIds = new Set(entities.map((entity) => entity.id));\n284:     const relations = this.getAllRelations().filter(\n285:       (relation) => selectedIds === undefined || (\n286:         exportedIds.has(relation.sourceEntityId) &&\n287:         exportedIds.has(relation.targetEntityId)\n288:       )\n289:     );\n290:     \n291:     // 收集所有观察记录\n292:     const observations: Record<string, Observation[]> = {};\n293:     for (const entity of entities) {\n294:       observations[entity.id] = this.getObservations(entity.id);\n295:     }\n296:     \n297:     const exportData = {\n298:       exportTime: new Date().toISOString(),\n299:       version: '1.0',\n300:       statistics: {\n301:         entityCount: entities.length,\n302:         relationCount: relations.length,\n303:         observationCount: Object.values(observations).flat().length,\n304:       },\n305:       entities,\n306:       relations,\n307:       observations,\n308:     };\n309:     \n310:     const json = JSON.stringify(exportData, null, 2);\n311:     fs.writeFileSync(outputPath, json, 'utf-8');\n312:   }\n313: \n314:   /**\n315:    * 生成依赖链分析部分\n[exit 0]\n"
+  },
+  {
+    "at": "2026-09-05T02:09:56.675Z",
+    "elapsedMs": 2,
+    "operation": "read",
+    "args": [
+      "src/services/exportService.test.ts",
+      "85",
+      "175"
+    ],
+    "metadata": {
+      "file": "src/services/exportService.test.ts",
+      "start": 85,
+      "end": 163
+    },
+    "exitCode": 0,
+    "truncated": false,
+    "displayed": "85: afterEach(() => {\n86:   vi.clearAllMocks();\n87: });\n88: \n89: describe.each(['legacy', 'knowledgeGraph'] as const)('JSON export from %s', (source) => {\n90:   it.each([undefined, {}, { entityIds: undefined }])(\n91:     'preserves the full export when selection is omitted (%j)',\n92:     async (options) => {\n93:       const { service, getObservations } = createService(source);\n94:       if (options === undefined) {\n95:         await service.exportToJSON('export.json');\n96:       } else {\n97:         await service.exportToJSON('export.json', options);\n98:       }\n99: \n100:       expect(readExport()).toEqual({\n101:         exportTime: expect.any(String),\n102:         version: '1.0',\n103:         statistics: { entityCount: 3, relationCount: 8, observationCount: 3 },\n104:         entities,\n105:         relations,\n106:         observations,\n107:       });\n108:       expect(getObservations.mock.calls).toEqual([['a'], ['b'], ['c']]);\n109:     }\n110:   );\n111: \n112:   it('exports selected existing entities in source order with their internal relations and observations', async () => {\n113:     const { service, getObservations } = createService(source);\n114:     const entityIds: readonly string[] = Object.freeze(['c', 'a', 'unknown', 'a']);\n115: \n116:     await service.exportToJSON('export.json', { entityIds });\n117: \n118:     expect(readExport()).toEqual({\n119:       exportTime: expect.any(String),\n120:       version: '1.0',\n121:       statistics: { entityCount: 2, relationCount: 3, observationCount: 2 },\n122:       entities: [entities[0], entities[2]],\n123:       relations: [relations[0], relations[1], relations[4]],\n124:       observations: { a: observations.a, c: [] },\n125:     });\n126:     expect(getObservations.mock.calls).toEqual([['a'], ['c']]);\n127:     expect(entityIds).toEqual(['c', 'a', 'unknown', 'a']);\n128:     expect(entities.map((entity) => entity.id)).toEqual(['a', 'b', 'c']);\n129:     expect(relations).toHaveLength(8);\n130:   });\n131: \n132:   it.each([{ entityIds: [] }, { entityIds: ['unknown', 'unknown'] }])('exports an empty graph for selection %j', async (options) => {\n133:     const { service, getObservations } = createService(source);\n134: \n135:     await service.exportToJSON('export.json', options);\n136: \n137:     expect(readExport()).toEqual({\n138:       exportTime: expect.any(String),\n139:       version: '1.0',\n140:       statistics: { entityCount: 0, relationCount: 0, observationCount: 0 },\n141:       entities: [],\n142:       relations: [],\n143:       observations: {},\n144:     });\n145:     expect(getObservations).not.toHaveBeenCalled();\n146:   });\n147: \n148:   it('keeps a selected entity and its observations when no relations are internal', async () => {\n149:     const { service } = createService(source);\n150: \n151:     await service.exportToJSON('export.json', { entityIds: ['b'] });\n152: \n153:     expect(readExport()).toEqual({\n154:       exportTime: expect.any(String),\n155:       version: '1.0',\n156:       statistics: { entityCount: 1, relationCount: 0, observationCount: 1 },\n157:       entities: [entities[1]],\n158:       relations: [],\n159:       observations: { b: observations.b },\n160:     });\n161:   });\n162: });\n163:\n[exit 0]\n"
+  }
+]

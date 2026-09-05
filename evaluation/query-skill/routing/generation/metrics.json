@@ -1,0 +1,29 @@
+{
+  "createdAt": "2026-09-04T15:44:28.449Z",
+  "sessionId": "01a06d0f-451d-73a2-a998-0e1e752449eb",
+  "agentPath": "/root/routing_brief_author",
+  "model": "gpt-5.6-sol",
+  "effort": "xhigh",
+  "elapsedMs": 525254,
+  "responses": 20,
+  "sourceFiles": 230,
+  "tokenized": {
+    "observer": 65362,
+    "publicTool": 73929
+  },
+  "usage": {
+    "input_tokens": 1519401,
+    "cached_input_tokens": 1421440,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 19917,
+    "reasoning_output_tokens": 1825,
+    "total_tokens": 1539318,
+    "uncachedInput": 97961,
+    "uncachedInputPlusOutput": 117878
+  },
+  "notes": [
+    "Five reusable frontend briefs authored without task wording/rubric. Preparation cost is separate from warm task-query cost.",
+    "Excludes coordinator, task designer, graders, source fetch and future regeneration costs. Numeric token counts are not a bill.",
+    "Only public observations, final report and numeric telemetry are exported; no private reasoning/system messages."
+  ]
+}

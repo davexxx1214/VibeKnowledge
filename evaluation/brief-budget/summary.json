@@ -1,0 +1,301 @@
+{
+  "at": "2026-09-05T00:49:50.432Z",
+  "cases": 48,
+  "cards": 8,
+  "availableFacts": {
+    "constraint": 22,
+    "test": 6,
+    "capability": 24,
+    "dependency": 23,
+    "framework": 7
+  },
+  "budgets": [
+    {
+      "budget": 600,
+      "before": {
+        "constraint": 0,
+        "test": 2,
+        "capability": 8,
+        "dependency": 7,
+        "framework": 0
+      },
+      "after": {
+        "constraint": 8,
+        "test": 3,
+        "capability": 5,
+        "dependency": 0,
+        "framework": 0
+      },
+      "textTokens": {
+        "before": 3433,
+        "after": 3433,
+        "changePercent": 0
+      },
+      "priorityCountImproved": 8,
+      "priorityCountRegressed": 0,
+      "gained": {
+        "constraint": 8,
+        "test": 1,
+        "capability": 0,
+        "dependency": 0,
+        "framework": 0
+      },
+      "lost": {
+        "constraint": 0,
+        "test": 0,
+        "capability": 3,
+        "dependency": 7,
+        "framework": 0
+      }
+    },
+    {
+      "budget": 900,
+      "before": {
+        "constraint": 5,
+        "test": 3,
+        "capability": 9,
+        "dependency": 8,
+        "framework": 7
+      },
+      "after": {
+        "constraint": 8,
+        "test": 4,
+        "capability": 8,
+        "dependency": 7,
+        "framework": 0
+      },
+      "textTokens": {
+        "before": 5393,
+        "after": 5139,
+        "changePercent": -4.709809011681809
+      },
+      "priorityCountImproved": 4,
+      "priorityCountRegressed": 0,
+      "gained": {
+        "constraint": 3,
+        "test": 1,
+        "capability": 0,
+        "dependency": 0,
+        "framework": 0
+      },
+      "lost": {
+        "constraint": 0,
+        "test": 0,
+        "capability": 1,
+        "dependency": 1,
+        "framework": 7
+      }
+    },
+    {
+      "budget": 1200,
+      "before": {
+        "constraint": 9,
+        "test": 4,
+        "capability": 13,
+        "dependency": 9,
+        "framework": 7
+      },
+      "after": {
+        "constraint": 16,
+        "test": 4,
+        "capability": 12,
+        "dependency": 9,
+        "framework": 0
+      },
+      "textTokens": {
+        "before": 7007,
+        "after": 6808,
+        "changePercent": -2.840017125731409
+      },
+      "priorityCountImproved": 7,
+      "priorityCountRegressed": 0,
+      "gained": {
+        "constraint": 7,
+        "test": 0,
+        "capability": 0,
+        "dependency": 1,
+        "framework": 0
+      },
+      "lost": {
+        "constraint": 0,
+        "test": 0,
+        "capability": 1,
+        "dependency": 1,
+        "framework": 7
+      }
+    },
+    {
+      "budget": 1800,
+      "before": {
+        "constraint": 18,
+        "test": 5,
+        "capability": 18,
+        "dependency": 19,
+        "framework": 7
+      },
+      "after": {
+        "constraint": 21,
+        "test": 5,
+        "capability": 20,
+        "dependency": 20,
+        "framework": 2
+      },
+      "textTokens": {
+        "before": 9874,
+        "after": 9815,
+        "changePercent": -0.597528863682395
+      },
+      "priorityCountImproved": 3,
+      "priorityCountRegressed": 0,
+      "gained": {
+        "constraint": 3,
+        "test": 0,
+        "capability": 2,
+        "dependency": 1,
+        "framework": 0
+      },
+      "lost": {
+        "constraint": 0,
+        "test": 0,
+        "capability": 0,
+        "dependency": 0,
+        "framework": 5
+      }
+    },
+    {
+      "budget": 2400,
+      "before": {
+        "constraint": 20,
+        "test": 6,
+        "capability": 23,
+        "dependency": 23,
+        "framework": 7
+      },
+      "after": {
+        "constraint": 21,
+        "test": 6,
+        "capability": 23,
+        "dependency": 23,
+        "framework": 6
+      },
+      "textTokens": {
+        "before": 11261,
+        "after": 11253,
+        "changePercent": -0.07104164816623681
+      },
+      "priorityCountImproved": 1,
+      "priorityCountRegressed": 0,
+      "gained": {
+        "constraint": 1,
+        "test": 0,
+        "capability": 0,
+        "dependency": 0,
+        "framework": 0
+      },
+      "lost": {
+        "constraint": 0,
+        "test": 0,
+        "capability": 0,
+        "dependency": 0,
+        "framework": 1
+      }
+    },
+    {
+      "budget": 12000,
+      "before": {
+        "constraint": 22,
+        "test": 6,
+        "capability": 24,
+        "dependency": 23,
+        "framework": 7
+      },
+      "after": {
+        "constraint": 22,
+        "test": 6,
+        "capability": 24,
+        "dependency": 23,
+        "framework": 7
+      },
+      "textTokens": {
+        "before": 11633,
+        "after": 11633,
+        "changePercent": 0
+      },
+      "priorityCountImproved": 0,
+      "priorityCountRegressed": 0,
+      "gained": {
+        "constraint": 0,
+        "test": 0,
+        "capability": 0,
+        "dependency": 0,
+        "framework": 0
+      },
+      "lost": {
+        "constraint": 0,
+        "test": 0,
+        "capability": 0,
+        "dependency": 0,
+        "framework": 0
+      }
+    }
+  ],
+  "completePriorityBudget": [
+    {
+      "sample": "vibeknowledge",
+      "key": "copilot-instructions",
+      "priorityFacts": 3,
+      "before": 1800,
+      "after": 1800
+    },
+    {
+      "sample": "vibeknowledge",
+      "key": "graph-visualization",
+      "priorityFacts": 7,
+      "before": 12000,
+      "after": 12000
+    },
+    {
+      "sample": "yuxi",
+      "key": "cli-auth-authorize-view",
+      "priorityFacts": 2,
+      "before": 1800,
+      "after": 1200
+    },
+    {
+      "sample": "yuxi",
+      "key": "extensions-view",
+      "priorityFacts": 2,
+      "before": 1800,
+      "after": 1200
+    },
+    {
+      "sample": "yuxi",
+      "key": "login-view",
+      "priorityFacts": 4,
+      "before": 2400,
+      "after": 1800
+    },
+    {
+      "sample": "yuxi",
+      "key": "oidc-callback-view",
+      "priorityFacts": 2,
+      "before": 1800,
+      "after": 1200
+    },
+    {
+      "sample": "yuxi",
+      "key": "workspace-view",
+      "priorityFacts": 3,
+      "before": 2400,
+      "after": 1800
+    },
+    {
+      "sample": "shelf",
+      "key": "shelf-export",
+      "priorityFacts": 5,
+      "before": 1800,
+      "after": 1200
+    }
+  ],
+  "bounds": "Counts describe unchanged fact/evidence blocks in reused development inputs, not semantic accuracy, end-to-end model usage or billing. No new authoring or downstream-task benefit was measured. Per-kind prioritization can displace important facts labeled capability/dependency."
+}

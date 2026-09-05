@@ -1,0 +1,227 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-04T15:42:53.063Z",
+  "key": "oidc-callback-view",
+  "name": "OIDC 登录回调",
+  "summary": "公开 OIDC 回调页消费 URL 中的一次性登录 code，交换并保存用户登录态、清理回调查询参数和自动登录标记，再返回预定页面；提供处理中、成功待跳转与失败返回登录页三种展示。",
+  "keywords": [
+    "OIDC 登录回调",
+    "正在处理登录",
+    "登录成功",
+    "登录失败",
+    "参数错误",
+    "返回登录页",
+    "OIDCCallbackView",
+    "OIDCCallback",
+    "OIDC callback",
+    "exchange code",
+    "/auth/oidc/callback",
+    "code",
+    "oidc_redirect",
+    "oidc_auto_start_attempted"
+  ],
+  "entries": [
+    {
+      "filePath": "web/src/router/index.js",
+      "startLine": 30,
+      "endLine": 35
+    },
+    {
+      "filePath": "web/src/views/OIDCCallbackView.vue",
+      "startLine": 1,
+      "endLine": 26
+    },
+    {
+      "filePath": "web/src/views/OIDCCallbackView.vue",
+      "startLine": 119,
+      "endLine": 128
+    }
+  ],
+  "limitations": [
+    "来源仅为前端快照；未验证 provider 回调协议、后端一次性 code 的过期/重放保护或 token 真实性，不能将前端提示视为服务端安全保证。",
+    "未运行登录流程、应用或测试；没有后端、依赖安装结果、运行配置和图片。",
+    "已枚举快照测试，并检索 web/src 的 *.test.js、*.spec.js 中 OIDCCallback、auth_api、oidcAutoStart、/auth/oidc、stores/user 和 router 等引用，未找到直接相关测试；不对未提供或间接测试作结论。",
+    "本卡片只描述回调页与紧邻的登录发起/状态保存链，未覆盖外部身份服务、账户管理和服务器重定向实现。"
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "界面先显示“正在处理登录...”加载态，异常时用 a-result 展示标题/错误消息和“返回登录页”按钮；成功时展示“登录成功 / 正在跳转...”。返回按钮只导航 /login。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 1,
+          "endLine": 26
+        },
+        {
+          "filePath": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 43,
+          "endLine": 51
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "onMounted 只处理一次：如果 userStore.isLoggedIn 已为真直接去 /，不交换 code。否则要求 query.code 是非空字符串，数组或缺失值显示“参数错误”；这里检查的不是 code 的服务端有效性。isLoggedIn 的 store 定义仅检查 token 非空。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 53,
+          "endLine": 65
+        },
+        {
+          "filePath": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 119,
+          "endLine": 128
+        },
+        {
+          "filePath": "web/src/stores/user.js",
+          "startLine": 7,
+          "endLine": 20
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "authApi.exchangeOIDCCode 用公开 fetch POST /api/auth/oidc/exchange-code，JSON body 为 {code}，成功解析 JSON；失败按 Content-Type 读取 JSON.detail 或文本，并抛给页面显示。该交换不经过需要 Bearer token 的通用 apiRequest。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/apis/auth_api.js",
+          "startLine": 7,
+          "endLine": 17
+        },
+        {
+          "filePath": "web/src/apis/auth_api.js",
+          "startLine": 66,
+          "endLine": 81
+        },
+        {
+          "filePath": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 110,
+          "endLine": 116
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "成功交换后先 await router.replace({path:route.path,query:{}})，清掉全部回调 query，之后才写登录状态。页面直接设置 token、username、uid、手机号、头像、角色和部门，其中 userId 也赋为 tokenData.uid；角色缺省 user，localStorage 只保存 user_token。这里没有复用 userStore.login 的字段映射。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 67,
+          "endLine": 83
+        },
+        {
+          "filePath": "web/src/stores/user.js",
+          "startLine": 49,
+          "endLine": 63
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "成功后读取 sessionStorage.oidc_redirect（缺省 /），删除该键并清除 oidc_auto_start_attempted；loading 置 false，500ms 后跳转。目标为 / 时调用 agentStore.initialize 并去 /agent，即便初始化抛错仍去 /agent；其他目标直接 router.push。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 85,
+          "endLine": 109
+        },
+        {
+          "filePath": "web/src/utils/oidcAutoStart.js",
+          "startLine": 1,
+          "endLine": 1
+        },
+        {
+          "filePath": "web/src/utils/oidcAutoStart.js",
+          "startLine": 31,
+          "endLine": 34
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "oidc_redirect 由登录发起端写入：自动 OIDC 会 sanitizeRedirect(URL 的 redirect)，手动 OIDC 则依次采用 sessionStorage.redirect、query.redirect、/。回调页直接消费保存值，没有再次调用 sanitizeRedirect；回调失败/参数错误分支不执行成功分支的 redirect 与自动尝试标记清理。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/utils/oidcAutoStart.js",
+          "startLine": 74,
+          "endLine": 81
+        },
+        {
+          "filePath": "web/src/views/LoginView.vue",
+          "startLine": 513,
+          "endLine": 522
+        },
+        {
+          "filePath": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 53,
+          "endLine": 116
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "/auth/oidc/callback 是懒加载顶层路由，meta.public:true，未设置 requiresAuth；全局守卫实际按匹配路由的 requiresAuth 检查，因此无 token 也可进入，但若已有 token 且缺 userId，守卫仍尝试 getCurrentUser。页面采用 Vue script setup/ref/onMounted、Vue Router 和 Pinia，Ant Design Vue 由 main.js 全局注册。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/router/index.js",
+          "startLine": 30,
+          "endLine": 35
+        },
+        {
+          "filePath": "web/src/router/index.js",
+          "startLine": 156,
+          "endLine": 185
+        },
+        {
+          "filePath": "web/src/views/OIDCCallbackView.vue",
+          "startLine": 28,
+          "endLine": 40
+        },
+        {
+          "filePath": "web/src/main.js",
+          "startLine": 12,
+          "endLine": 18
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "filePath": "web/src/apis/auth_api.js",
+      "contentHash": "b725c5562d6620a3b7af4c68bf1d27a7a4dda6bc9fdcd39bf0662ee456fb638e"
+    },
+    {
+      "filePath": "web/src/main.js",
+      "contentHash": "d0c0c0c13bb275f45b0a34915f683c1d0836cd1c4a438157be7bc21ce95a34c1"
+    },
+    {
+      "filePath": "web/src/router/index.js",
+      "contentHash": "878c0ce0a8de7cc0552bddd0373bb902b330119954388b0b0f107fa044f1b2b8"
+    },
+    {
+      "filePath": "web/src/stores/user.js",
+      "contentHash": "bbd2d7197caefb891bbfb3aaeda6e4e8b0f8848c062eb54ae8c0e2472da42939"
+    },
+    {
+      "filePath": "web/src/utils/oidcAutoStart.js",
+      "contentHash": "07f5ac4582f9d171bee7cf4ef1e432062140388ccb74c169fa66de32f9ff806d"
+    },
+    {
+      "filePath": "web/src/views/LoginView.vue",
+      "contentHash": "83307ca52ec1c60c257726701d46935b0ec76b8797c3fec9d38041832e9ad25c"
+    },
+    {
+      "filePath": "web/src/views/OIDCCallbackView.vue",
+      "contentHash": "cf695320b94ca6a438b0ce3207edf60dc03b0c51be8c18cf115e40b1bc3f7852"
+    }
+  ]
+}

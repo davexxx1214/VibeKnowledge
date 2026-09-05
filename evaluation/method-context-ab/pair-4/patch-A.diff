@@ -1,0 +1,110 @@
+diff --git "a/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\snapshot\\src/providers/knowledgeCodeLensModel.test.ts" "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-4\\A\\src/providers/knowledgeCodeLensModel.test.ts"
+index ce65be2..c200226 100644
+--- "a/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\snapshot\\src/providers/knowledgeCodeLensModel.test.ts"
++++ "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-4\\A\\src/providers/knowledgeCodeLensModel.test.ts"
+@@ -55,25 +55,76 @@ describe('buildKnowledgeCodeLensModels', () => {
+     ]);
+   });
+ 
+-  it('falls back to the entity name and skips out-of-range locations', () => {
+-    const visible = entity({ description: '', origin: 'agent' });
+-    const outside = entity({
+-      id: 'outside',
+-      description: 'Outside',
+-      origin: 'agent',
+-      startLine: 101,
+-    });
++  it.each([
++    {
++      label: '96 ASCII characters',
++      description: 'a'.repeat(96),
++      expected: 'a'.repeat(96),
++    },
++    {
++      label: '97 ASCII characters',
++      description: 'a'.repeat(97),
++      expected: `${'a'.repeat(95)}…`,
++    },
++    {
++      label: '95 emoji',
++      description: '😀'.repeat(95),
++      expected: '😀'.repeat(95),
++    },
++    {
++      label: '96 emoji',
++      description: '😀'.repeat(96),
++      expected: '😀'.repeat(96),
++    },
++    {
++      label: '97 emoji',
++      description: '😀'.repeat(97),
++      expected: `${'😀'.repeat(95)}…`,
++    },
++    {
++      label: 'an emoji at the truncation boundary',
++      description: `${'a'.repeat(94)}😀bc`,
++      expected: `${'a'.repeat(94)}😀…`,
++    },
++    {
++      label: 'whitespace compacted before counting',
++      description: ` \t${'😀'.repeat(94)}\n\t b  `,
++      expected: `${'😀'.repeat(94)} b`,
++    },
++  ])('limits descriptions by code points: $label', ({ description, expected }) => {
++    const visible = entity({ description, origin: 'agent' });
+ 
+-    expect(
+-      buildKnowledgeCodeLensModels([visible, outside], [], 100, () => 0)
+-    ).toEqual([
++    expect(buildKnowledgeCodeLensModels([visible], [], 100, () => 0)).toEqual([
+       {
+         entityId: visible.id,
+         line: 9,
+-        title: '🧠 KG: Service · 📝 0 · 🔗 0',
++        title: `🧠 KG: ${expected} · 📝 0 · 🔗 0`,
+       },
+     ]);
+   });
++
++  it.each(['', ' \n\t ', undefined])(
++    'falls back for description %j and skips out-of-range locations',
++    (description) => {
++      const visible = entity({ description, origin: 'agent' });
++      const outside = entity({
++        id: 'outside',
++        description: 'Outside',
++        origin: 'agent',
++        startLine: 101,
++      });
++
++      expect(
++        buildKnowledgeCodeLensModels([visible, outside], [], 100, () => 0)
++      ).toEqual([
++        {
++          entityId: visible.id,
++          line: 9,
++          title: '🧠 KG: Service · 📝 0 · 🔗 0',
++        },
++      ]);
++    }
++  );
+ });
+ 
+ function entity(
+diff --git "a/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\snapshot\\src/providers/knowledgeCodeLensModel.ts" "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-4\\A\\src/providers/knowledgeCodeLensModel.ts"
+index a3cf0e6..d2a4653 100644
+--- "a/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\snapshot\\src/providers/knowledgeCodeLensModel.ts"
++++ "b/D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\pair-4\\A\\src/providers/knowledgeCodeLensModel.ts"
+@@ -49,8 +49,9 @@ export function buildKnowledgeCodeLensModels(
+ 
+ function compactDescription(description?: string): string {
+   const compact = description?.replace(/\s+/g, ' ').trim() || '';
+-  if (compact.length <= MAX_DESCRIPTION_LENGTH) {
++  const codePoints = Array.from(compact);
++  if (codePoints.length <= MAX_DESCRIPTION_LENGTH) {
+     return compact;
+   }
+-  return `${compact.slice(0, MAX_DESCRIPTION_LENGTH - 1)}…`;
++  return `${codePoints.slice(0, MAX_DESCRIPTION_LENGTH - 1).join('')}…`;
+ }
+

@@ -1,0 +1,308 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-04T15:42:45.379Z",
+  "key": "extensions-view",
+  "name": "智能体扩展",
+  "summary": "已登录用户的智能体资源入口：按角色展示知识库、工具、MCP 和 Skills，并承载知识库、MCP、Skill 的嵌套详情页。页面负责标签、权限可见性、URL 查询同步和当前子页加载状态，具体资源操作由各子组件负责。",
+  "keywords": [
+    "智能体扩展",
+    "扩展",
+    "知识库",
+    "工具",
+    "MCP",
+    "Skills",
+    "技能",
+    "Agent Extensions",
+    "ExtensionsView",
+    "ExtensionsComp",
+    "/extensions",
+    "/extensions?tab=knowledge",
+    "/extensions?tab=tools",
+    "/extensions?tab=mcp",
+    "/extensions?tab=skills",
+    "/extensions/knowledgebase/:kbId",
+    "/extensions/mcp/:slug",
+    "/extensions/skill/:slug"
+  ],
+  "entries": [
+    {
+      "filePath": "web/src/router/index.js",
+      "startLine": 100,
+      "endLine": 146
+    },
+    {
+      "filePath": "web/src/views/ExtensionsView.vue",
+      "startLine": 1,
+      "endLine": 30
+    },
+    {
+      "filePath": "web/src/layouts/AppLayout.vue",
+      "startLine": 144,
+      "endLine": 150
+    }
+  ],
+  "limitations": [
+    "来源仅为提供的前端文字源码快照；未运行应用或测试，未验证后端授权、资源响应、安装执行和真实数据。",
+    "本卡片聚焦扩展主页、直接子组件职责及其入口；未完整审计知识库/MCP/Skill 详情、资源编辑器或远程安装协议。",
+    "已枚举快照文件，并在 web/src 的 *.test.js、*.spec.js 中检索页面名、路由、四个资源子页及共享 PageHeader/auth/user 符号，未找到直接相关测试引用；不代表其他仓库、未提供文件或间接行为没有测试。",
+    "快照中未提供既有 .vscode 图谱，按实际 import、路由和消费者源码建立范围；依赖包、图片及后端均未包含。"
+  ],
+  "facts": [
+    {
+      "kind": "capability",
+      "text": "管理员和超级管理员看到知识库、工具、MCP、Skills，默认知识库；其他已登录用户仅看到 Skills，默认 Skills。角色判断来自 userStore.isAdmin，而不是页面自行维护的权限表。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/ExtensionsView.vue",
+          "startLine": 14,
+          "endLine": 25
+        },
+        {
+          "filePath": "web/src/views/ExtensionsView.vue",
+          "startLine": 51,
+          "endLine": 65
+        },
+        {
+          "filePath": "web/src/stores/user.js",
+          "startLine": 17,
+          "endLine": 20
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "activeTab 与 query.tab 双向同步；角色变化或非法 tab 会回落到当前角色默认项。写 URL 使用 router.replace 并保留其他 query，默认项删除 tab。标签内容用 v-if 挂载，切换离开的资源子组件不会在这个容器内被保留。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/ExtensionsView.vue",
+          "startLine": 13,
+          "endLine": 25
+        },
+        {
+          "filePath": "web/src/views/ExtensionsView.vue",
+          "startLine": 62,
+          "endLine": 75
+        },
+        {
+          "filePath": "web/src/views/ExtensionsView.vue",
+          "startLine": 96,
+          "endLine": 115
+        }
+      ]
+    },
+    {
+      "kind": "capability",
+      "text": "路径以 /extensions/knowledgebase/、/extensions/mcp/ 或 /extensions/skill/ 开头时，扩展标题和标签面板隐藏，改由嵌套 router-view 展示详情。详情路由分别接收 kbId、slug、slug；知识库和 MCP 详情额外要求管理员，Skill 详情只要求登录。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/ExtensionsView.vue",
+          "startLine": 1,
+          "endLine": 28
+        },
+        {
+          "filePath": "web/src/views/ExtensionsView.vue",
+          "startLine": 77,
+          "endLine": 83
+        },
+        {
+          "filePath": "web/src/router/index.js",
+          "startLine": 113,
+          "endLine": 143
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "PageHeader 提供标签的 update:activeKey 事件和顶部加载条；ExtensionsView 通过各子组件暴露的 loading 读取当前标签加载状态。知识库使用 DataBaseView 的 embedded 模式，隐藏其自己的标题栏，但保留搜索、类型过滤和新建知识库入口。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/components/shared/PageHeader.vue",
+          "startLine": 1,
+          "endLine": 29
+        },
+        {
+          "filePath": "web/src/components/shared/PageHeader.vue",
+          "startLine": 50,
+          "endLine": 55
+        },
+        {
+          "filePath": "web/src/views/ExtensionsView.vue",
+          "startLine": 85,
+          "endLine": 94
+        },
+        {
+          "filePath": "web/src/views/DataBaseView.vue",
+          "startLine": 1,
+          "endLine": 37
+        },
+        {
+          "filePath": "web/src/views/DataBaseView.vue",
+          "startLine": 528,
+          "endLine": 535
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "ToolsCardList 从 toolApi.getTools 读取工具，提供名称/标识/描述/配置说明搜索及分类筛选；点击卡片打开本地详情弹窗，展示说明、标签和参数，并不进入独立工具详情路由。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/components/extensions/ToolsCardList.vue",
+          "startLine": 44,
+          "endLine": 109
+        },
+        {
+          "filePath": "web/src/components/extensions/ToolsCardList.vue",
+          "startLine": 157,
+          "endLine": 194
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "McpCardList 负责 MCP 列表、添加表单、启停和删除；启用的卡片进入编码 slug 的详情路径，未启用卡片先显示基本信息弹窗。移除 system 创建的 MCP 是禁用，自定义 MCP 则走确认删除和 deleteMcpServer。列表刷新经 mcpApi.getMcpServers。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/components/extensions/McpCardList.vue",
+          "startLine": 200,
+          "endLine": 230
+        },
+        {
+          "filePath": "web/src/components/extensions/McpCardList.vue",
+          "startLine": 233,
+          "endLine": 303
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "SkillCardList 承担技能搜索、推荐/内置/上传分组、远程安装、上传和批量管理，数据来自 skillApi.listSkills；详情通过编码 slug 导航。可管理性按 can_manage !== false 判断，内置技能排除在可删除集合外；这些是子组件规则，不是扩展主页的管理员标签规则。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/components/extensions/SkillCardList.vue",
+          "startLine": 1,
+          "endLine": 55
+        },
+        {
+          "filePath": "web/src/components/extensions/SkillCardList.vue",
+          "startLine": 744,
+          "endLine": 773
+        },
+        {
+          "filePath": "web/src/components/extensions/SkillCardList.vue",
+          "startLine": 854,
+          "endLine": 864
+        },
+        {
+          "filePath": "web/src/components/extensions/SkillCardList.vue",
+          "startLine": 1041,
+          "endLine": 1051
+        }
+      ]
+    },
+    {
+      "kind": "dependency",
+      "text": "除应用侧栏外，AgentRuntimeConfigForm 的配置入口也是扩展页消费者：关闭选择弹窗后延迟 100ms，按 knowledges/tools/mcps/skills 映射到 /extensions 的 knowledge/tools/mcp/skills 查询标签；只读配置会阻止此导航。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/components/AgentRuntimeConfigForm.vue",
+          "startLine": 497,
+          "endLine": 521
+        }
+      ]
+    },
+    {
+      "kind": "framework",
+      "text": "这是 Vue script setup 页面，使用 computed/watch 和 Vue Router 嵌套路由；/extensions 在 AppLayout 下，路由显式 keepAlive:false，因此布局使用非缓存 component 分支。项目声明 Vue ^3.5.34、Vue Router ^5.0.6、Pinia ^3.0.4；这些是 manifest 范围，不代表已安装版本。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/views/ExtensionsView.vue",
+          "startLine": 32,
+          "endLine": 44
+        },
+        {
+          "filePath": "web/src/router/index.js",
+          "startLine": 100,
+          "endLine": 112
+        },
+        {
+          "filePath": "web/src/layouts/AppLayout.vue",
+          "startLine": 415,
+          "endLine": 420
+        },
+        {
+          "filePath": "web/package.json",
+          "startLine": 38,
+          "endLine": 43
+        }
+      ]
+    },
+    {
+      "kind": "constraint",
+      "text": "路由守卫会先按 token 补取用户信息，再检查登录与管理员要求；未登录保存 to.fullPath 到 sessionStorage.redirect 并去 /login，已登录但不满足详情管理员要求则去 /agent。页面标签隐藏不能代替后端资源权限验证。",
+      "certainty": "observed",
+      "evidence": [
+        {
+          "filePath": "web/src/router/index.js",
+          "startLine": 156,
+          "endLine": 201
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "filePath": "web/package.json",
+      "contentHash": "a0e482f4f607d25869b9eee1f99484461057b98d450771b52671ae5e5fa661dd"
+    },
+    {
+      "filePath": "web/src/components/AgentRuntimeConfigForm.vue",
+      "contentHash": "f667e2d1416ac43133d50ac2cfa2a5bbcdc3d0c827e5b79f6c3d46b0d798cef8"
+    },
+    {
+      "filePath": "web/src/components/extensions/McpCardList.vue",
+      "contentHash": "e15020be0583e63d3c8b950dad5a9168e130653d1ddc15ef9e81bc0cf7f08fda"
+    },
+    {
+      "filePath": "web/src/components/extensions/SkillCardList.vue",
+      "contentHash": "551bf4369d98cfef0b375ee86eeb59da7a4087a691b32b86789e5d4fcd627c38"
+    },
+    {
+      "filePath": "web/src/components/extensions/ToolsCardList.vue",
+      "contentHash": "5ec7e237ba4aac4975335caa00df788135ead33889bf2d35a04478c9fc16d263"
+    },
+    {
+      "filePath": "web/src/components/shared/PageHeader.vue",
+      "contentHash": "1f77a85ba00de64e99aba94a81fc1818f082659c6ba8639b40a625773eabed2a"
+    },
+    {
+      "filePath": "web/src/layouts/AppLayout.vue",
+      "contentHash": "6a18c8fdc9a26251f598d9a2b1705240c907ae9dea1f280e6b3cb080f18aba9e"
+    },
+    {
+      "filePath": "web/src/router/index.js",
+      "contentHash": "878c0ce0a8de7cc0552bddd0373bb902b330119954388b0b0f107fa044f1b2b8"
+    },
+    {
+      "filePath": "web/src/stores/user.js",
+      "contentHash": "bbd2d7197caefb891bbfb3aaeda6e4e8b0f8848c062eb54ae8c0e2472da42939"
+    },
+    {
+      "filePath": "web/src/views/DataBaseView.vue",
+      "contentHash": "bbf9caf01b54df24dd0001a4e7b0cbc7b0df6e694b4afdf51465c90d50e15b89"
+    },
+    {
+      "filePath": "web/src/views/ExtensionsView.vue",
+      "contentHash": "645a2d0facb0af98f60c9787927f22c88beeb0f588115115169ac5e76d9a0c8a"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "candidates": {
+    "X": {
+      "items": [
+        {
+          "id": "CU1",
+          "score": 1,
+          "evidence": "Static: X/src/providers/knowledgeCodeLensModel.ts:6,50-54 compacts whitespace, enumerates code points with Array.from, and returns compact unchanged when codePoints.length <= 96. X/src/providers/knowledgeCodeLensModel.test.ts:58-65 covers 95/96 emoji, 96 ASCII characters, and whitespace before counting. Executed: X/checks.json:4-6 records CU1 passed; :10-12 records all 11 focused tests passed.",
+          "reason": "In-limit descriptions, including the exact 96-code-point astral-emoji boundary, remain complete. The implementation counts code points rather than UTF-16 code units or grapheme clusters."
+        },
+        {
+          "id": "CU2",
+          "score": 1,
+          "evidence": "Static: X/src/providers/knowledgeCodeLensModel.ts:52-56 slices the code-point array at 95, joins the complete elements, and appends the existing single ellipsis only above 96 points. X/src/providers/knowledgeCodeLensModel.test.ts:61-64 covers 97 emoji, a boundary emoji, and 97 ASCII characters. Executed: X/checks.json:4-6 records CU2 passed; :10-12 records the corresponding focused cases passed.",
+          "reason": "Over-limit descriptions contain exactly the first 95 complete code points plus the existing ellipsis, without splitting a surrogate pair; ASCII behavior is preserved."
+        },
+        {
+          "id": "CU3",
+          "score": 1,
+          "evidence": "Static: X/src/providers/knowledgeCodeLensModel.ts:20-46 preserves relation counts, range filtering, entity-name fallback, observation counts, entityId, zero-based line conversion, and title fields; :51 preserves whitespace collapse and trim before counting. These surrounding lines match baseline. X/src/providers/knowledgeCodeLensModel.test.ts:9-55,65,77-94 covers statistics, compaction, empty/whitespace/undefined fallback, and filtering. Executed: X/checks.json:4-6 records CU3 passed; :10-12 records all 11 focused tests passed.",
+          "reason": "All specified surrounding model behavior is preserved, including valid entity output and nonblank name fallback."
+        }
+      ],
+      "majorErrors": [],
+      "limitations": [
+        "No new tests were run during grading; executed results are taken from the supplied independent X/checks.json. It records three CU acceptance checks and 11 focused tests passing, plus typecheck exit 0 at lines 16-19; seven unrelated acceptance cases were skipped.",
+        "X/REPORT.md:13 says the full test suite and live VS Code session were not run. Multi-code-point grapheme preservation is outside the requested code-point semantics and is not a defect."
+      ]
+    },
+    "Y": {
+      "items": [
+        {
+          "id": "CU1",
+          "score": 1,
+          "evidence": "Static: Y/src/providers/knowledgeCodeLensModel.ts:6,50-54 compacts whitespace, enumerates code points with Array.from, and returns compact unchanged when codePoints.length <= 96. Y/src/providers/knowledgeCodeLensModel.test.ts:58-77,89-103 covers 95/96 emoji, 96 ASCII characters, and whitespace before counting. Executed: Y/checks.json:4-6 records CU1 passed; :10-12 records all 11 focused tests passed.",
+          "reason": "In-limit descriptions, including the exact 96-code-point astral-emoji boundary, remain complete. The implementation counts code points rather than UTF-16 code units or grapheme clusters."
+        },
+        {
+          "id": "CU2",
+          "score": 1,
+          "evidence": "Static: Y/src/providers/knowledgeCodeLensModel.ts:52-56 slices the code-point array at 95, joins the complete elements, and appends the existing single ellipsis only above 96 points. Y/src/providers/knowledgeCodeLensModel.test.ts:64-68,79-88 covers 97 ASCII characters, 97 emoji, and a boundary emoji. Executed: Y/checks.json:4-6 records CU2 passed; :10-12 records the corresponding focused cases passed.",
+          "reason": "Over-limit descriptions contain exactly the first 95 complete code points plus the existing ellipsis, without splitting a surrogate pair; ASCII behavior is preserved."
+        },
+        {
+          "id": "CU3",
+          "score": 1,
+          "evidence": "Static: Y/src/providers/knowledgeCodeLensModel.ts:20-46 preserves relation counts, range filtering, entity-name fallback, observation counts, entityId, zero-based line conversion, and title fields; :51 preserves whitespace collapse and trim before counting. These surrounding lines match baseline. Y/src/providers/knowledgeCodeLensModel.test.ts:9-55,89-103,106-127 covers statistics, compaction, empty/whitespace/undefined fallback, and filtering. Executed: Y/checks.json:4-6 records CU3 passed; :10-12 records all 11 focused tests passed.",
+          "reason": "All specified surrounding model behavior is preserved, including valid entity output and nonblank name fallback."
+        }
+      ],
+      "majorErrors": [],
+      "limitations": [
+        "No new tests were run during grading; executed results are taken from the supplied independent Y/checks.json. It records three CU acceptance checks and 11 focused tests passing, plus typecheck exit 0 at lines 16-19; seven unrelated acceptance cases were skipped.",
+        "Y/REPORT.md:13 says the full test suite and live VS Code UI were not exercised. Multi-code-point grapheme preservation is outside the requested code-point semantics and is not a defect."
+      ]
+    }
+  }
+}

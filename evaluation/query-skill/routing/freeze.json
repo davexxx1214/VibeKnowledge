@@ -1,0 +1,32 @@
+{
+  "createdAt": "2026-09-04T15:44:25.328Z",
+  "run": "D:\\workspace\\VibeKnowledge\\.vscode-test\\feature-routing-dLeIF4",
+  "environment": {
+    "node": "v26.8.1",
+    "nodeBinarySha256": "5cba0ea928508c65ddadefc0681d2fb6d95f1f3beea4428f04397631140ee8e5",
+    "rg": "ripgrep 15.2.0 (rev e89fff89ac)\n\nfeatures:+pcre2\nsimd(compile):+SSE2,-SSSE3,-AVX2\nsimd(runtime):+SSE2,+SSSE3,+AVX2\n\nPCRE2 10.45 is available (JIT is available)",
+    "tokenizer": "0.12.0"
+  },
+  "scope": "Frontend text sources/config only; binary assets, node_modules and backend omitted equally. No Vue structural-graph completeness claim.",
+  "sourceRevision": "2c8ff10dc6bca1da07c0d64f451ee7c1cf177476",
+  "sourceFiles": 230,
+  "implementation": {
+    "LICENSE": "5227547db71a812086402f99d1446866523d7e12191df17b2cdbfa56b64125e9",
+    "references/queries.md": "1d87fcd0ee17777ea6837b131ed880c362f4d6b4dbaca7fd95dcaf761f19e1b9",
+    "scripts/query.cjs": "564bf4c4c42262e2a4fd2e529a26df9c05cd364799bfafaa83a425a4d03b2395",
+    "SKILL.md": "78aba9c53ca8aca849f0252a6dba00659f8995902ab3de91079143e94a428a64",
+    "ZOD-LICENSE": "3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8"
+  },
+  "tasks": "499c2ac786b43baf1d79c63452f26b6173e3312c617ae3773c81111c9975f92b",
+  "rubric": "7cbef92d024c6bac9ed97c1cc052cebb4d2ddc740cf165fe464c7848d7fc5d81",
+  "observer": "cc41c7e67a044070f27d298369e51e23d09b890971625df85c7e62bf98d9f9ec",
+  "briefs": {
+    "cli-auth-authorize-view.json": "7bf2e27b1af785cb9ae29d54905703760eb7a5e1eda470fcab0d91c31fac5f17",
+    "extensions-view.json": "a7afccb2aca87e1e20d18ca89a877a4679e977b90a3f010be9d86a91f62cc82e",
+    "index.json": "59cd0b954d7f0fa50ed68d6339e82bd4adb7726f6beb550bd33ac61c77f6148b",
+    "login-view.json": "b4f17b1c085033d9f57e370e94bc89021ba3a8888538976ad9b659f08607a964",
+    "oidc-callback-view.json": "214ef05872d724b3846d3d4f886ca305f0c6723e02c374cb91b58be75f0b79c0",
+    "workspace-view.json": "a528aead5358a1cb075ae36c4d98adb09ace917a5c1ef465e5166f549be31121"
+  },
+  "protocol": "aab1055c672338aacaff7142a8f6d97ba34cab7d5a70ca48fa4110595ea59b43"
+}

@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-04T15:56:27.390Z",
+  "blind": "D:\\workspace\\VibeKnowledge\\.vscode-test\\routing-blind-83fS54",
+  "records": [
+    {
+      "arm": "A",
+      "file": "Y.md",
+      "rawSha256": "35eceb40172584231245f887ea0521a57628a1927ee89d1237caec3d097ee8ee",
+      "blindSha256": "35eceb40172584231245f887ea0521a57628a1927ee89d1237caec3d097ee8ee",
+      "changed": false
+    },
+    {
+      "arm": "B",
+      "file": "X.md",
+      "rawSha256": "896885d1d3010ce7e2b7f45b9e8950fae0594ee2489c8d6f824b6560bb734a02",
+      "blindSha256": "896885d1d3010ce7e2b7f45b9e8950fae0594ee2489c8d6f824b6560bb734a02",
+      "changed": false
+    }
+  ],
+  "redaction": "Absolute trial workspace prefixes and literal Arm A/B labels only; no answer prose removed."
+}

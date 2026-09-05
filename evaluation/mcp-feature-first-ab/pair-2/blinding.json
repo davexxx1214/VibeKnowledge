@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-04T16:59:42.913Z",
+  "blind": "D:\\workspace\\VibeKnowledge\\.vscode-test\\mcp-feature-first-blind-arXVgy",
+  "records": [
+    {
+      "arm": "A",
+      "file": "Y.md",
+      "rawSha256": "83c4b1ec586ae988fe684f45268f93ff3364b808c4e4258257d4da9447cc7c3d",
+      "blindSha256": "83c4b1ec586ae988fe684f45268f93ff3364b808c4e4258257d4da9447cc7c3d",
+      "changed": false
+    },
+    {
+      "arm": "B",
+      "file": "X.md",
+      "rawSha256": "90624003144383ac695b7b27c732fa1b7b00fedc4f5f9b580cddf7061e8e5330",
+      "blindSha256": "90624003144383ac695b7b27c732fa1b7b00fedc4f5f9b580cddf7061e8e5330",
+      "changed": false
+    }
+  ],
+  "redaction": "Only absolute trial workspace prefixes and explicit Arm A/B labels. No prologue or substantive prose is removed; all implementation content remains. Any residual method clues are a blinding limitation, not permission to discard an answer."
+}

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "status": "not_validated",
+  "summaryGenerated": false,
+  "command": "node evaluation/mcp-feature-first-ab/summarize.cjs",
+  "exitCode": 1,
+  "error": "A completed independent public-command scope audit is required",
+  "reason": "The independent audit completed with passed=false: all six prepared dispatches included both arm method sections, contrary to the preregistered own-arm information restriction. Operational scope and delivery passed, but this does not override the method-conformance failure.",
+  "preservedScopeAudit": "scope-audit.json",
+  "descriptiveReport": "results.md",
+  "qualityCaveat": "Pair 2's independent grader recorded an extra major false claim for B. Pair 3's grader treated related locale wording as a local correction instead; the original scores and this severity disagreement are retained, not retrospectively reconciled to obtain a pass.",
+  "protocolOrSummarizerModifiedAfterRuns": false,
+  "candidateReruns": 0,
+  "note": "This is a refusal record, not a replacement passing summary. Per-pair metrics and grades remain available for explicitly qualified descriptive reporting."
+}

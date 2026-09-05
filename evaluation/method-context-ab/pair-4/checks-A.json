@@ -1,0 +1,223 @@
+{
+  "createdAt": "2026-09-05T02:22:58.531Z",
+  "mode": "candidate",
+  "pair": 4,
+  "arm": "A",
+  "taskId": "codelens_unicode",
+  "workspace": "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\checks-pair-4-A-m2MQoe",
+  "acceptanceSha256": "a8695a62aaa30ac229e1bc9a0909a09b579bbb5f07228958e21e2e2a19e9b374",
+  "records": [
+    {
+      "kind": "hidden-acceptance",
+      "exitCode": 0,
+      "elapsedMs": 784,
+      "stderr": "",
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "codelens_unicode"
+          ],
+          "fullName": "codelens_unicode CU1: does not truncate descriptions that fit in 96 Unicode code points",
+          "status": "passed",
+          "title": "CU1: does not truncate descriptions that fit in 96 Unicode code points",
+          "duration": 1.074199999999962,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "codelens_unicode"
+          ],
+          "fullName": "codelens_unicode CU2: keeps 95 whole code points before an ellipsis for over-limit descriptions",
+          "status": "passed",
+          "title": "CU2: keeps 95 whole code points before an ellipsis for over-limit descriptions",
+          "duration": 0.178100000000029,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "codelens_unicode"
+          ],
+          "fullName": "codelens_unicode CU3: preserves whitespace compaction, fallback, and surrounding model fields",
+          "status": "passed",
+          "title": "CU3: preserves whitespace compaction, fallback, and surrounding model fields",
+          "duration": 0.43619999999998527,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        }
+      ],
+      "selectedCounts": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    {
+      "kind": "baseline-regression",
+      "exitCode": 0,
+      "elapsedMs": 503,
+      "stderr": "",
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels shows Agent descriptions and unified graph statistics",
+          "status": "passed",
+          "title": "shows Agent descriptions and unified graph statistics",
+          "duration": 1.3703000000000003,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels limits descriptions by code points: '96 ASCII characters'",
+          "status": "passed",
+          "title": "limits descriptions by code points: '96 ASCII characters'",
+          "duration": 0.1478000000000037,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels limits descriptions by code points: '97 ASCII characters'",
+          "status": "passed",
+          "title": "limits descriptions by code points: '97 ASCII characters'",
+          "duration": 0.1039999999999992,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels limits descriptions by code points: '95 emoji'",
+          "status": "passed",
+          "title": "limits descriptions by code points: '95 emoji'",
+          "duration": 0.12600000000000477,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels limits descriptions by code points: '96 emoji'",
+          "status": "passed",
+          "title": "limits descriptions by code points: '96 emoji'",
+          "duration": 0.08790000000000475,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels limits descriptions by code points: '97 emoji'",
+          "status": "passed",
+          "title": "limits descriptions by code points: '97 emoji'",
+          "duration": 0.06759999999999877,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels limits descriptions by code points: 'an emoji at the truncation boundary'",
+          "status": "passed",
+          "title": "limits descriptions by code points: 'an emoji at the truncation boundary'",
+          "duration": 0.06740000000000634,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels limits descriptions by code points: 'whitespace compacted before counting'",
+          "status": "passed",
+          "title": "limits descriptions by code points: 'whitespace compacted before counting'",
+          "duration": 0.0724999999999909,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels falls back for description \"\" and skips out-of-range locations",
+          "status": "passed",
+          "title": "falls back for description \"\" and skips out-of-range locations",
+          "duration": 0.11560000000000059,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels falls back for description \" \\n\\t \" and skips out-of-range locations",
+          "status": "passed",
+          "title": "falls back for description \" \\n\\t \" and skips out-of-range locations",
+          "duration": 0.10349999999999682,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        },
+        {
+          "ancestorTitles": [
+            "buildKnowledgeCodeLensModels"
+          ],
+          "fullName": "buildKnowledgeCodeLensModels falls back for description undefined and skips out-of-range locations",
+          "status": "passed",
+          "title": "falls back for description undefined and skips out-of-range locations",
+          "duration": 0.06269999999999243,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        }
+      ],
+      "selectedCounts": {
+        "total": 11,
+        "passed": 11,
+        "failed": 0
+      }
+    },
+    {
+      "kind": "typecheck",
+      "args": [
+        "D:\\workspace\\VibeKnowledge\\.vscode-test\\method-context-ab-nltDXZ\\checks-pair-4-A-m2MQoe\\node_modules\\typescript\\bin\\tsc",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "elapsedMs": 1256,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "projection": {
+    "kind": "selected_task_assertions",
+    "sourceSha256": "9888174a70ec34cbff65c8d202c9f5714f5cf332ef8b68dbc7f8a71d541df61a",
+    "taskIds": [
+      "codelens_unicode"
+    ]
+  }
+}

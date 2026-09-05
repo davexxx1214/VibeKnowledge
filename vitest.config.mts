@@ -9,7 +9,8 @@ export default defineConfig({
       'tests/**/*.test.ts',
       'evaluation/**/*.test.ts'
     ],
-    exclude: ['node_modules', 'dist', 'out', 'packages/**'],
+    // This node:test source is a frozen authoring artifact, not a Vitest suite.
+    exclude: ['node_modules', 'dist', 'out', 'packages/**', 'evaluation/skill-precision/fixture/**'],
     setupFiles: ['./tests/setup.ts'],
     coverage: {
       provider: 'v8',

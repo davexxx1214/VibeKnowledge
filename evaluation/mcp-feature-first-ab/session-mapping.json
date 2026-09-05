@@ -1,0 +1,53 @@
+{
+  "dispatchAttestation": "See prewritten dispatches.json and actual public spawn records; all candidates explicitly use fork_turns none.",
+  "sessions": [
+    {
+      "pair": 1,
+      "arm": "A",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\05\\rollout-2026-09-05T00-46-48-01a06d50-d2d0-7b63-92e7-135415317935.jsonl",
+      "sessionId": "01a06d50-d2d0-7b63-92e7-135415317935",
+      "agentPath": "/root/mcp_feature_pair1_a",
+      "forkTurns": "none"
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\05\\rollout-2026-09-05T00-47-10-01a06d51-27f8-7fb3-b442-4d288cd6c18b.jsonl",
+      "sessionId": "01a06d51-27f8-7fb3-b442-4d288cd6c18b",
+      "agentPath": "/root/mcp_feature_pair1_b",
+      "forkTurns": "none"
+    },
+    {
+      "pair": 2,
+      "arm": "A",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\05\\rollout-2026-09-05T00-54-02-01a06d57-71ee-7af2-b76d-67165452e64e.jsonl",
+      "sessionId": "01a06d57-71ee-7af2-b76d-67165452e64e",
+      "agentPath": "/root/mcp_feature_pair2_a",
+      "forkTurns": "none"
+    },
+    {
+      "pair": 2,
+      "arm": "B",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\05\\rollout-2026-09-05T00-53-41-01a06d57-1e77-7691-98f3-3bda76d1b5a4.jsonl",
+      "sessionId": "01a06d57-1e77-7691-98f3-3bda76d1b5a4",
+      "agentPath": "/root/mcp_feature_pair2_b",
+      "forkTurns": "none"
+    },
+    {
+      "pair": 3,
+      "arm": "A",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\05\\rollout-2026-09-05T01-00-03-01a06d5c-f3ef-79d2-ac45-80669aa23b83.jsonl",
+      "sessionId": "01a06d5c-f3ef-79d2-ac45-80669aa23b83",
+      "agentPath": "/root/mcp_feature_pair3_a",
+      "forkTurns": "none"
+    },
+    {
+      "pair": 3,
+      "arm": "B",
+      "session": "C:\\Users\\davex\\.codex\\sessions\\2026\\09\\05\\rollout-2026-09-05T01-00-27-01a06d5d-52a5-70a2-8a06-fa360b2afb42.jsonl",
+      "sessionId": "01a06d5d-52a5-70a2-8a06-fa360b2afb42",
+      "agentPath": "/root/mcp_feature_pair3_b",
+      "forkTurns": "none"
+    }
+  ]
+}

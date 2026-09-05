@@ -1,2 +1,7 @@
 # Preserve archived experiment bytes and their recorded content fingerprints.
 evaluation/query-skill/** -text
+evaluation/mcp-ab/** -text
+evaluation/mcp-feature-first-ab/** -text
+evaluation/skill-precision/** -text
+evaluation/brief-budget/** -text
+evaluation/method-context-ab/** -text

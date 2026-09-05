@@ -1,0 +1,649 @@
+{
+  "version": 1,
+  "createdAt": "2026-09-05T02:11:47.485Z",
+  "pair": 1,
+  "tokenizer": "o200k_base",
+  "matched": true,
+  "passed": false,
+  "arms": {
+    "A": {
+      "sessionId": "01a06f50-df5f-7400-a5e1-68480803321f",
+      "agentPath": "/root/method_pair1_a",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "elapsedMs": 220598,
+      "usage": {
+        "input_tokens": 502679,
+        "cached_input_tokens": 478464,
+        "output_tokens": 5056,
+        "total_tokens": 507735,
+        "uncachedInput": 24215,
+        "uncachedInputPlusOutput": 29271,
+        "responses": 12
+      },
+      "publicToolOutputTokens": 14140,
+      "observedTextTokens": 11742,
+      "publicOutputItems": 34,
+      "publicTruncations": 0,
+      "queries": 1,
+      "observations": 20,
+      "toolCalls": 23,
+      "observerFailures": 1,
+      "sourceReads": [
+        {
+          "file": "src/services/exportService.ts",
+          "start": 1,
+          "end": 330
+        },
+        {
+          "file": "src/services/exportService.ts",
+          "start": 675,
+          "end": 722
+        },
+        {
+          "file": "src/utils/types.ts",
+          "start": 1,
+          "end": 103
+        },
+        {
+          "file": "tests/setup.ts",
+          "start": 1,
+          "end": 3
+        },
+        {
+          "file": "src/services/observationService.ts",
+          "start": 105,
+          "end": 140
+        },
+        {
+          "file": "src/services/knowledgeGraphService.ts",
+          "start": 115,
+          "end": 180
+        },
+        {
+          "file": "src/services/aiIntegrationService.test.ts",
+          "start": 1,
+          "end": 110
+        },
+        {
+          "file": "src/services/dependencyAnalyzer.ts",
+          "start": 1,
+          "end": 50
+        },
+        {},
+        {
+          "file": "src/services/knowledgeGraphService.ts",
+          "start": 208,
+          "end": 281
+        },
+        {
+          "file": "src/i18n/i18nService.ts",
+          "start": 1,
+          "end": 75
+        },
+        {
+          "file": "src/services/dependencyAnalyzer.ts",
+          "start": 49,
+          "end": 70
+        },
+        {
+          "file": "src/services/exportService.ts",
+          "start": 270,
+          "end": 317
+        }
+      ],
+      "uniqueFilesRead": [
+        "src/services/exportService.ts",
+        "src/utils/types.ts",
+        "tests/setup.ts",
+        "src/services/observationService.ts",
+        "src/services/knowledgeGraphService.ts",
+        "src/services/aiIntegrationService.test.ts",
+        "src/services/dependencyAnalyzer.ts",
+        null,
+        "src/i18n/i18nService.ts"
+      ],
+      "uniqueLinesRead": 915,
+      "tests": [
+        {
+          "operation": "test",
+          "args": [
+            "src/services/exportService.test.ts"
+          ],
+          "exitCode": 0
+        },
+        {
+          "operation": "typecheck",
+          "args": [],
+          "exitCode": 0
+        }
+      ],
+      "tokensByOperation": {
+        "context": 1036,
+        "read": 8758,
+        "search": 180,
+        "files": 1663,
+        "test": 99,
+        "typecheck": 6
+      },
+      "sourceChanges": [
+        "src/services/exportService.ts"
+      ],
+      "unauthorizedChanges": [],
+      "protectedChecks": {
+        "observer": true,
+        "engine": true,
+        "graph": true
+      },
+      "promptMatched": false,
+      "initialQueryMatched": true,
+      "delivery": {
+        "unmatchedObservationIndexes": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          19
+        ],
+        "passed": false
+      },
+      "scope": {
+        "issues": [],
+        "audited": [
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs context 'src/services/exportService.ts#ExportService.exportToJSON'",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/exportService.ts 1 330",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs search 'exportToJSON|ExportService' src tests",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/exportService.ts 675 735",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/utils/types.ts 1 115",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs files tests",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read tests/setup.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs files src",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/observationService.ts 105 140",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/knowledgeGraphService.ts 115 180",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/aiIntegrationService.test.ts 1 110",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs search 'getObservations|listRelations' src/services/knowledgeGraphService.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/dependencyAnalyzer.ts 1 50",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read vitest.config.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/knowledgeGraphService.ts 208 281",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/i18n/i18nService.ts 1 75",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/dependencyAnalyzer.ts 49 70",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A/src/services/exportService.ts",
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A/src/services/exportService.test.ts"
+            ],
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A/src/services/exportService.test.ts"
+            ],
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs test src/services/exportService.test.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs typecheck",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/exportService.ts 270 317",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A",
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/A/REPORT.md"
+            ],
+            "passed": true
+          }
+        ],
+        "unknown": []
+      },
+      "passed": false
+    },
+    "B": {
+      "sessionId": "01a06f51-4ef9-7523-97f3-63bb64845986",
+      "agentPath": "/root/method_pair1_b",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "elapsedMs": 230062,
+      "usage": {
+        "input_tokens": 478226,
+        "cached_input_tokens": 458368,
+        "output_tokens": 5271,
+        "total_tokens": 483497,
+        "uncachedInput": 19858,
+        "uncachedInputPlusOutput": 25129,
+        "responses": 12
+      },
+      "publicToolOutputTokens": 11719,
+      "observedTextTokens": 9469,
+      "publicOutputItems": 36,
+      "publicTruncations": 0,
+      "queries": 1,
+      "observations": 22,
+      "toolCalls": 25,
+      "observerFailures": 1,
+      "sourceReads": [
+        {
+          "file": "src/services/exportService.ts",
+          "start": 1,
+          "end": 45
+        },
+        {
+          "file": "src/services/exportService.ts",
+          "start": 250,
+          "end": 315
+        },
+        {
+          "file": "src/services/exportService.ts",
+          "start": 675,
+          "end": 720
+        },
+        {
+          "file": "src/utils/types.ts",
+          "start": 20,
+          "end": 80
+        },
+        {
+          "file": "src/services/knowledgeGraphService.ts",
+          "start": 115,
+          "end": 145
+        },
+        {
+          "file": "src/services/knowledgeGraphService.ts",
+          "start": 200,
+          "end": 265
+        },
+        {
+          "file": "src/services/observationService.ts",
+          "start": 110,
+          "end": 135
+        },
+        {},
+        {
+          "file": "tests/setup.ts",
+          "start": 1,
+          "end": 3
+        },
+        {
+          "file": "src/services/dependencyAnalyzer.ts",
+          "start": 1,
+          "end": 70
+        },
+        {
+          "file": "src/services/aiIntegrationService.test.ts",
+          "start": 1,
+          "end": 105
+        },
+        {
+          "file": "src/i18n/i18nService.ts",
+          "start": 1,
+          "end": 70
+        },
+        {
+          "file": "package.json",
+          "start": 1,
+          "end": 100
+        },
+        {
+          "file": "src/i18n/i18nService.ts",
+          "start": 160,
+          "end": 151
+        },
+        {
+          "file": "src/services/exportService.ts",
+          "start": 270,
+          "end": 315
+        },
+        {
+          "file": "src/services/exportService.test.ts",
+          "start": 85,
+          "end": 163
+        }
+      ],
+      "uniqueFilesRead": [
+        "src/services/exportService.ts",
+        "src/utils/types.ts",
+        "src/services/knowledgeGraphService.ts",
+        "src/services/observationService.ts",
+        null,
+        "tests/setup.ts",
+        "src/services/dependencyAnalyzer.ts",
+        "src/services/aiIntegrationService.test.ts",
+        "src/i18n/i18nService.ts",
+        "package.json",
+        "src/services/exportService.test.ts"
+      ],
+      "uniqueLinesRead": 768,
+      "tests": [
+        {
+          "operation": "test",
+          "args": [
+            "src/services/exportService.test.ts"
+          ],
+          "exitCode": 0
+        },
+        {
+          "operation": "typecheck",
+          "args": [],
+          "exitCode": 0
+        }
+      ],
+      "tokensByOperation": {
+        "context": 1061,
+        "read": 7466,
+        "search": 827,
+        "files": 10,
+        "test": 99,
+        "typecheck": 6
+      },
+      "sourceChanges": [
+        "src/services/exportService.ts"
+      ],
+      "unauthorizedChanges": [],
+      "protectedChecks": {
+        "observer": true,
+        "engine": true,
+        "graph": true
+      },
+      "promptMatched": false,
+      "initialQueryMatched": true,
+      "delivery": {
+        "unmatchedObservationIndexes": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          18,
+          19,
+          20,
+          21
+        ],
+        "passed": false
+      },
+      "scope": {
+        "issues": [],
+        "audited": [
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs context 'src/services/exportService.ts#ExportService.exportToJSON'",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/exportService.ts 1 45",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/exportService.ts 250 315",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/exportService.ts 675 720",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs search 'exportToJSON|ExportService' tests src",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/utils/types.ts 20 80",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs files tests",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/knowledgeGraphService.ts 115 145",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/knowledgeGraphService.ts 200 265",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/observationService.ts 110 135",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read tests/setup.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read vitest.config.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs search \"describe\\(|vi.mock\\('fs'|vi.mock\\('vscode'\" src",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/dependencyAnalyzer.ts 1 70",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/aiIntegrationService.test.ts 1 105",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read package.json 1 100",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/i18n/i18nService.ts 1 70",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/i18n/i18nService.ts 160 235",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B/src/services/exportService.ts",
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B/src/services/exportService.test.ts"
+            ],
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B/src/services/exportService.test.ts"
+            ],
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs test src/services/exportService.test.ts",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs typecheck",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/exportService.ts 270 315",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "exec_command",
+            "command": "node observe.cjs read src/services/exportService.test.ts 85 175",
+            "workdir": "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B",
+            "passed": true
+          },
+          {
+            "name": "apply_patch",
+            "targets": [
+              "D:/workspace/VibeKnowledge/.vscode-test/method-context-ab-nltDXZ/pair-1/B/REPORT.md"
+            ],
+            "passed": true
+          }
+        ],
+        "unknown": []
+      },
+      "passed": false
+    }
+  }
+}

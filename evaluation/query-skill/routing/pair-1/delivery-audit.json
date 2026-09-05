@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "createdAt": "2026-09-04T15:49:25.420Z",
+  "arms": {
+    "A": {
+      "sessionId": "01a06d17-f8aa-7cf2-8a28-4dafb323428a",
+      "agentPath": "/root/routing_r1_a",
+      "observations": 22,
+      "matchedPublicToolOutput": 22,
+      "unmatchedObservationIndexes": [],
+      "toolOutputTruncationMarkers": 0
+    },
+    "B": {
+      "sessionId": "01a06d18-321f-7d51-84b9-faa7aeabf666",
+      "agentPath": "/root/routing_r1_b",
+      "observations": 20,
+      "matchedPublicToolOutput": 20,
+      "unmatchedObservationIndexes": [],
+      "toolOutputTruncationMarkers": 0
+    }
+  },
+  "passed": true,
+  "note": "Multiplicity-aware public-tool substring matching, not call-identity proof. Supports function/custom tool outputs. Numerical model usage separately includes actual model input/output."
+}
