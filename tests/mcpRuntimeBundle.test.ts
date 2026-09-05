@@ -26,6 +26,12 @@ describe('packaged MCP runtime', () => {
       expect(await readFile(path.join(directory, 'audit-dependencies.cjs'), 'utf8')).toBe(await readFile('scripts/audit-dependencies.cjs', 'utf8'));
       expect(await readFile(path.join(directory, 'dist', 'config.js'), 'utf8')).toContain('import packageJson from "../package.json"');
       expect(await readFile(path.join(directory, 'dist', 'structural-analysis.mjs'), 'utf8')).not.toContain('../../../resources');
+      expect(await readFile(path.join(directory, 'dist', 'feature-brief.mjs'), 'utf8')).not.toContain('../../../resources');
+      const featureTools = await readFile(path.join(directory, 'dist', 'tools', 'registerFeatureBriefTools.js'), 'utf8');
+      for (const tool of ['find_features', 'get_feature_brief', 'get_task_context']) {
+        expect(featureTools).toContain(tool);
+        expect(await readFile(path.join(directory, 'health-check.mjs'), 'utf8')).toContain(tool);
+      }
       expect(await readFile(path.join(directory, 'dist', 'server.js'), 'utf8')).toContain('@modelcontextprotocol/sdk/server/mcp.js');
     } finally { await rm(directory, { recursive: true, force: true }); }
   });

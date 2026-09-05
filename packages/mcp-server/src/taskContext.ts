@@ -16,7 +16,7 @@ export interface TaskContextOptions {
   snippets?: boolean;
 }
 
-// File-level navigation, not a call/data-flow analysis.
+// Dependency navigation at the selected granularity, not execution/data-flow analysis.
 const DEPENDENCIES = new Set(['imports', 'exports', 'calls', 'references', 'extends', 'implements']);
 const TEST_FILE = /(?:^|\/)(?:__tests__|tests?|spec)(?:\/|$)|\.(?:test|spec)\.[cm]?[jt]sx?$/i;
 const MAX_SOURCE_BYTES = 2 * 1024 * 1024;
@@ -144,6 +144,120 @@ function excerpt(texts: Map<string, string>, file: string, start: number, end: n
   return lines.slice(start - 1, last).map((line, i) => `${start + i}: ${line}`).join('\n') + (last < end ? `\n[excerpt ends; declaration continues to ${end}]` : '');
 }
 
+type SymbolVisit = { entity: Entity; depth: number; path: Link[]; terminal: boolean };
+
+function symbolLinks(graph: StructuralGraphDocument) {
+  const entities = new Map(graph.entities.map(e => [e.key, e]));
+  const grouped = new Map<string, Link>();
+  for (const r of graph.relations) {
+    if (!DEPENDENCIES.has(r.verb) || r.source === r.target) continue;
+    const id = `${r.source}\0${r.target}`;
+    const link = grouped.get(id) ?? { from: r.source, to: r.target, relations: [] };
+    link.relations.push(r); grouped.set(id, link);
+  }
+  const incoming = new Map<string, Link[]>(), outgoing = new Map<string, Link[]>();
+  for (const link of grouped.values()) {
+    // A runtime use and a type/import reference can share endpoints. Keep the
+    // runtime evidence when available, without relabeling a reference as a call.
+    const runtime = link.relations.filter(r => (r.verb === 'calls' || r.verb === 'references') && !r.metadata?.typeOnly && !r.metadata?.receiver);
+    const strongest = bestRelation({ ...link, relations: runtime.length ? runtime : link.relations });
+    const selected = { ...link, relations: [strongest] };
+    incoming.set(link.to, [...(incoming.get(link.to) ?? []), selected]);
+    outgoing.set(link.from, [...(outgoing.get(link.from) ?? []), selected]);
+  }
+  for (const links of [...incoming.values(), ...outgoing.values()]) links.sort((a, b) => a.from.localeCompare(b.from) || a.to.localeCompare(b.to));
+  return { entities, incoming, outgoing };
+}
+
+function walkSymbols(seed: Entity, direction: 'upstream' | 'downstream', adjacency: Map<string, Link[]>, entities: Map<string, Entity>, depth: number) {
+  const queue: SymbolVisit[] = [{ entity: seed, depth: 0, path: [], terminal: false }];
+  const seen = new Set([`${seed.key}\0false`, `${seed.key}\0true`]);
+  let frontier = false;
+  for (let index = 0; index < queue.length; index++) {
+    const current = queue[index];
+    if (current.terminal || (current.depth && TEST_FILE.test(current.entity.filePath))) continue;
+    for (const link of adjacency.get(current.entity.key) ?? []) {
+      const entity = entities.get(direction === 'upstream' ? link.from : link.to)!;
+      const r = link.relations[0];
+      const terminal = !['function', 'method', 'variable'].includes(entity.kind)
+        || !['calls', 'references'].includes(r.verb) || r.metadata?.typeOnly === true || r.metadata?.receiver === true;
+      // A type-only short path must not prevent a later runtime path from
+      // reaching the same symbol and continuing through its actual dependencies.
+      const state = `${entity.key}\0${terminal}`;
+      if (seen.has(state)) continue;
+      if (current.depth >= depth) { frontier = true; continue; }
+      seen.add(state); queue.push({ entity, depth: current.depth + 1, path: [...current.path, link], terminal });
+    }
+  }
+  return { visits: queue.slice(1), frontier };
+}
+
+function buildSymbolContext(root: string, graph: StructuralGraphDocument, seed: Entity, options: TaskContextOptions): string {
+  const depth = options.depth ?? 2, budget = options.budget ?? 1600, mode = options.mode ?? 'change';
+  const { entities, incoming, outgoing } = symbolLinks(graph);
+  const up = walkSymbols(seed, 'upstream', incoming, entities, depth);
+  const down = walkSymbols(seed, 'downstream', outgoing, entities, depth);
+  const visits = [
+    ...up.visits.filter(v => mode !== 'understand' || v.depth === 1).map(v => ({ ...v, upstream: true })),
+    ...down.visits.map(v => ({ ...v, upstream: false })),
+  ].sort((a, b) => (mode === 'understand' ? Number(a.upstream) - Number(b.upstream) : 0)
+    || a.depth - b.depth || Number(TEST_FILE.test(a.entity.filePath)) - Number(TEST_FILE.test(b.entity.filePath))
+    || a.entity.key.localeCompare(b.entity.key) || Number(a.terminal) - Number(b.terminal));
+  const sources = inspectSources(root, graph);
+  const files = new Set([seed.filePath, ...visits.filter(v => v.entity.kind !== 'external').map(v => v.entity.filePath)]);
+  const blocks: { kind: 'warning' | 'source' | 'symbol' | 'snippet'; text: string }[] = [];
+  const warn = (text: string) => blocks.push({ kind: 'warning', text: `! ${text}` });
+  if (sources.changed.length) warn(`STALE: ${sources.changed.length} indexed files changed (${sources.changed.slice(0, 5).join(', ')}). Dependencies may be missing; changed-file excerpts withheld.`);
+  if (sources.unavailable.length) warn(`UNVERIFIED: ${sources.unavailable.length} indexed files unreadable/unsafe/over size limit (${sources.unavailable.slice(0, 5).join(', ')}).`);
+  for (const d of graph.diagnostics.filter(d => !d.filePath || files.has(d.filePath))) warn(`${d.code} @ ${d.filePath ?? 'configuration'}${d.startLine ? ':' + d.startLine : ''}: ${d.message}`);
+  if (up.visits.some(u => !u.terminal && !TEST_FILE.test(u.entity.filePath) && down.visits.some(d => !d.terminal && d.entity.key === u.entity.key))) warn('A symbol dependency cycle reaches this slice; this is not proof of a runtime recursion.');
+  const uncertain = new Set(visits.flatMap(v => v.path.flatMap(l => l.relations)).filter(r => r.confidence !== 'extracted'));
+  if (uncertain.size) warn(`REVIEW: ${uncertain.size} inferred/review_required relations; verify evidence before treating them as calls.`);
+  blocks.push({ kind: 'source', text: `ENTRY ${seed.filePath}: ${seed.name}:${seed.startLine}-${seed.endLine}` });
+  if (seed.containerKey) {
+    const owner = entities.get(seed.containerKey);
+    if (owner) {
+      const constructor = graph.entities.find(e => e.containerKey === owner.key && e.name === 'constructor');
+      blocks.push({ kind: 'source', text: `OWNER ${owner.key} @ line ${owner.startLine}${constructor ? `; constructor ${constructor.startLine}-${constructor.endLine}` : ''}. Shared initialization/state not expanded; inspect if relevant.` });
+    }
+  }
+  for (const visit of visits) {
+    const link = visit.path[visit.path.length - 1], r = link.relations[0], e = visit.entity;
+    const prefix = e.kind === 'external' ? 'EXTERNAL' : TEST_FILE.test(e.filePath) ? 'TEST candidate' : visit.upstream ? 'UPSTREAM' : 'DEPENDENCY';
+    const via = visit.path.length > 1 ? ` via ${visit.path.slice(0, -1).map(l => visit.upstream ? l.from : l.to).join(' -> ')}` : '';
+    // The exact key already contains the file path. Print it once, retaining a
+    // copyable selector and the declaration range instead of duplicating both.
+    blocks.push({ kind: 'symbol', text: `${prefix} ${e.key} @ lines ${e.startLine}-${e.endLine} (${visit.depth} hop${visit.depth === 1 ? '' : 's'}${via})${visit.terminal ? ' [terminal hint]' : ''}\n  ${relationReason(link, entities)}${r.metadata?.receiver ? ' [receiver/owner]' : ''}` });
+    if (options.snippets && visit.upstream && visit.depth === 1) {
+      const start = Math.max(1, r.location.startLine - 3);
+      const text = excerpt(sources.texts, r.location.filePath, start, r.location.endLine + 4, 12);
+      if (text) blocks.push({ kind: 'snippet', text: `SOURCE use site ${r.location.filePath}:${start}\n${text}` });
+    }
+  }
+  if (!visits.some(v => TEST_FILE.test(v.entity.filePath))) warn('No graph-linked tests in this slice. Locate tests separately; no coverage conclusion.');
+  if (options.snippets) {
+    const text = excerpt(sources.texts, seed.filePath, seed.startLine, seed.endLine);
+    if (text) blocks.push({ kind: 'snippet', text: `SOURCE ${seed.filePath}:${seed.startLine}\n${text}` });
+  }
+  const header = [
+    `Task context | ${mode} | symbol ${shortLabel(seed.key, 160)} | depth ${depth}`,
+    `Snapshot ${shortLabel(graph.generatedAt, 40)}; indexed hashes: ${sources.texts.size}/${graph.files.length} match. New/unindexed files, configuration and runtime behavior NOT certified.`,
+    'Symbol relations, NOT execution/data flow. Tests are candidates, NOT measured coverage. Type/receiver/container/file hints are terminal; use file scope for wider wiring.',
+  ];
+  const included: typeof blocks = [];
+  const frontier = down.frontier || (mode !== 'understand' && up.frontier);
+  const footer = () => {
+    const omitted = blocks.length - included.length, warnings = blocks.filter(b => b.kind === 'warning' && !included.includes(b)).length;
+    return `Scope: ${visits.length} symbol paths in ${files.size} source files; shown ${included.filter(b => b.kind === 'symbol').length}. ${omitted} blocks omitted (${warnings} warnings). Depth frontier: ${frontier ? 'YES' : 'no known frontier'}. ${omitted || frontier ? 'INCOMPLETE; expand depth/budget for a needed gap.' : 'Snapshot slice only; not proof of complete impact.'}`;
+  };
+  const output = () => [...header, ...included.map(b => b.text), footer()].join('\n');
+  for (const block of blocks) {
+    included.push(block);
+    if (estimateTokenCount(output()) > budget) included.pop();
+  }
+  return output();
+}
+
 /** One bounded, source-backed navigation packet. No source/graph/database writes. */
 export function buildTaskContext(workspace: string, graph: StructuralGraphDocument, options: TaskContextOptions): string {
   validateTopology(graph);
@@ -152,6 +266,11 @@ export function buildTaskContext(workspace: string, graph: StructuralGraphDocume
   const seedFiles = [...new Set(seeds.map(e => e.filePath))];
   if (!seeds.length) throw new Error(`No exact graph file/symbol '${options.selector}'. Locate its source path with rg; graph absence is not independence.`);
   if (seedFiles.length !== 1) throw new Error(`Ambiguous selector '${options.selector}': ${seedFiles.slice(0, 12).join(', ')}. Use an exact file path or entity key.`);
+  const normalized = options.selector.replaceAll('\\', '/').replace(/^\.\//, '');
+  if (!graph.files.some(f => f.filePath === normalized)) {
+    if (seeds.length !== 1) throw new Error(`Ambiguous selector '${options.selector}': ${seeds.slice(0, 12).map(e => e.key).join(', ')}. Use an exact entity key.`);
+    return buildSymbolContext(root, graph, seeds[0], options);
+  }
   const seedFile = seedFiles[0];
   const mode = options.mode ?? 'change', depth = options.depth ?? 2, budget = options.budget ?? 1600;
   const { entities, incoming, outgoing } = fileLinks(graph);

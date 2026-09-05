@@ -45,7 +45,7 @@ export function registerGraphQueryTools(
     {
       title: 'Query Knowledge Graph',
       description:
-        '针对代码或架构问题返回受 token budget 限制的局部子图。进行跨文件理解、依赖或影响分析时优先使用。',
+        '返回受 token budget 限制的局部知识子图。页面/功能先按需使用 find_features/get_feature_brief；基于文件或符号补充依赖可用 get_task_context。本工具用于需要分组、实体或具体关系的缺口。明确文件的小任务可直接读源码。',
       inputSchema: z.object({
         query: z
           .string()

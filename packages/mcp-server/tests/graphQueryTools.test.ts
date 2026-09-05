@@ -33,7 +33,7 @@ describe('graph query MCP tools', () => {
 
     server = new McpServer({ name: 'test-server', version: '1.0.0' });
     const db = createDbStub();
-    registerTools(server, db, null, createLogger(), graph, new StructuralGraphStore(workspaceRoot));
+    registerTools(server, db, null, createLogger(), graph, new StructuralGraphStore(workspaceRoot), workspaceRoot);
     registerBaseResources(server, db, graph);
     client = new Client({ name: 'test-client', version: '1.0.0' });
     const [clientTransport, serverTransport] =
@@ -56,6 +56,9 @@ describe('graph query MCP tools', () => {
       'search_entities',
       'search_observations',
       'list_relations',
+      'find_features',
+      'get_feature_brief',
+      'get_task_context',
       'query_graph',
       'get_entity',
       'get_neighbors',
@@ -93,7 +96,7 @@ describe('graph query MCP tools', () => {
     const result = await client.callTool({ name: 'list_relations', arguments: {} });
     expect(result.isError).toBe(true);
     expect(getText(result.content)).toContain('list_relations 执行失败');
-    expect((await client.listTools()).tools.length).toBe(10);
+    expect((await client.listTools()).tools.length).toBe(13);
   });
 
   it('queries a compact subgraph without Evidence by default', async () => {

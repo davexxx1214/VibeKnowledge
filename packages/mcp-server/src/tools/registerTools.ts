@@ -18,6 +18,7 @@ import {
 import { registerGraphQueryTools } from './registerGraphQueryTools.js';
 import type { StructuralGraphStore } from '../structuralGraphStore.js';
 import { registerStructuralAnalysisTools } from './registerStructuralAnalysisTools.js';
+import { registerFeatureBriefTools } from './registerFeatureBriefTools.js';
 
 const DEFAULT_LIMIT = 20;
 
@@ -27,11 +28,14 @@ export function registerTools(
   ragEngine: RagEngine | null,
   logger: Logger,
   agentGraph?: AgentGraphStore,
-  structuralGraph?: StructuralGraphStore
+  structuralGraph?: StructuralGraphStore,
+  workspaceRoot?: string
 ): void {
   registerSearchEntitiesTool(server, db, logger, agentGraph);
   registerSearchObservationsTool(server, db, logger);
   registerRelationsTool(server, db, logger, agentGraph);
+
+  if (workspaceRoot) registerFeatureBriefTools(server, workspaceRoot, logger);
 
   if (agentGraph) {
     registerGraphQueryTools(server, db, agentGraph, logger);

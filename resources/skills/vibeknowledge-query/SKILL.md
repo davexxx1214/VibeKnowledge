@@ -9,7 +9,7 @@ Choose the evidence route before querying:
 
 - For an identifiable file/symbol, local edit, or small known set of declarations, inspect source and relevant tests directly. Skip graph queries, overview, and reference loading when they would only repeat that inspection.
 - For a named page/feature, use `features --query "name"` to find its brief, then `brief --feature returned-key`. The index is small; a brief contains reviewed capabilities, dependency roles, relevant frameworks, tests and constraints with source locations. It checks only cited files, not the whole repository. A known key needs no index query. Prefer one relevant brief, not every feature.
-- If no brief matches, or broader impact/unknown callers matter, start from a known file/symbol with `context`. It combines upstream/downstream files, evidence locations, test candidates and graph blind spots. Query to resolve an actual gap, not to repeat a sufficient brief. Do not scan the repository merely because a card does not promise exhaustive coverage.
+- If no brief matches, or broader impact/unknown callers matter, use `context` with an exact method/symbol key for its relationships, or a file path for the whole file's neighborhood. Symbol queries retain same-file helpers and distinguish terminal container/type/file references from calls; inspect the reported owner/constructor or use file scope when shared state/wiring matters. Query to resolve an actual gap, not to repeat a sufficient brief. Do not scan the repository merely because a card does not promise exhaustive coverage.
 
 An unfamiliar repository or the word "dependency" alone does not require a graph call. Do not restrict necessary source verification to meet a token target.
 

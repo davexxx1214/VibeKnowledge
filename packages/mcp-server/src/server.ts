@@ -36,7 +36,7 @@ export async function startMcpServer(
     db,
     logger
   );
-  registerTools(server, db, ragEngine, logger, agentGraph, structuralGraph);
+  registerTools(server, db, ragEngine, logger, agentGraph, structuralGraph, config.workspaceRoot);
   registerPrompts(server);
 
   const transport = new StdioServerTransport();

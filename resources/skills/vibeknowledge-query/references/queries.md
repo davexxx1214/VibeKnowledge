@@ -6,7 +6,7 @@ Prefix each command with `node <skill>/scripts/query.cjs`; pass `--workspace <pr
 | --- | --- | --- |
 | features | [--query PAGE_OR_FEATURE] | Small feature-card index only |
 | brief | --feature KEY [--budget 600..12000] | One semantic brief; cited source hashes only; default budget 1800 |
-| context | --selector FILE_OR_SYMBOL [--mode change\|understand] [--depth 1..6] [--snippets] | File-level task navigation, hashes, diagnostics, test candidates |
+| context | --selector FILE_OR_SYMBOL [--mode change\|understand] [--depth 1..6] [--snippets] | Exact-symbol or whole-file navigation, hashes, diagnostics, test candidates |
 | overview | none | Group keys and snapshot date |
 | query | --query TEXT [--group KEY] [--file PATH] [--depth 0..5] | Curated subgraph |
 | entity | --selector KEY [--group KEY] | Curated occurrences |
@@ -20,7 +20,7 @@ Prefix each command with `node <skill>/scripts/query.cjs`; pass `--workspace <pr
 
 Unless noted below, commands support `--budget 200..12000` (default 1200) and optional `--json` (`{text}` envelope). Brief uses 600..12000 (default 1800). Budgets are approximate text-token limits, not model billing guarantees. Default plain text avoids unnecessary JSON tokens. Errors use stderr and nonzero exit status. Diff needs structural-graph.previous.json; its absence is reported, not an empty diff.
 
-Context uses `--budget 400..12000`, default 1600. It accepts an exact indexed file, symbol name or key (ambiguous names fail rather than silently selecting). It projects structural edges to files; even a symbol seed includes its file's neighborhood. `--mode understand` includes dependencies plus direct consumers; `change` includes both directions, default depth 2. Small source excerpts are available with `--snippets`. A hash match checks indexed contents only: new/unindexed files, compiler configuration and runtime wiring remain uncertified. Changed/unsafe/unavailable sources never supply excerpts. Depth and budget omissions are explicitly counted; expand only for a task-relevant gap.
+Context uses `--budget 400..12000`, default 1600. It accepts an exact indexed file, symbol name or key (ambiguous names, including same-file collisions, fail rather than silently selecting). File selectors project edges to files. Symbol selectors follow that symbol's calls/references, including same-file helpers; each symbol edge consumes one depth hop. Container, type-only, receiver, import/export and file endpoints are terminal navigation hints, not permission to expand all their members. Owner/constructor locations identify shared initialization/state to inspect separately; dynamic bindings and wider module effects may still require file scope or source review. `--mode understand` includes dependencies plus direct consumers; `change` includes both directions, default depth 2. Small source excerpts are available with `--snippets`. A hash match checks indexed contents only: new/unindexed files, compiler configuration and runtime wiring remain uncertified. Changed/unsafe/unavailable sources never supply excerpts. Depth and budget omissions are explicitly counted; expand only for a task-relevant gap.
 
 For query/neighbors/path/relations, add `--evidence` only when precise relationship evidence is needed. Traversal commands support `--verbs imports,calls,...`. Curated verbs: calls, extends, implements, depends_on, contains, references, imports, exports. Raw diagnostics/traversals accept imports, extends, implements, calls, references.
 

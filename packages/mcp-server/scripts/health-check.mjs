@@ -22,7 +22,7 @@ transport.stderr?.on('data', chunk => process.stderr.write(chunk));
 try {
   await client.connect(transport, { timeout: 15000 });
   const { tools } = await client.listTools();
-  for (const name of ['query_graph', 'get_entity', 'list_relations']) {
+  for (const name of ['query_graph', 'get_entity', 'list_relations', 'find_features', 'get_feature_brief', 'get_task_context']) {
     if (!tools.some(tool => tool.name === name)) throw new Error(`Missing MCP tool: ${name}`);
   }
   const overview = await client.readResource({ uri: 'knowledge://overview' });
