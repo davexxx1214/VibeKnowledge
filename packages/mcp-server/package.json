@@ -1,6 +1,6 @@
 {
   "name": "@vibeknowledge/mcp-server",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Standalone MCP server for the unified VibeKnowledge graph and RAG data.",
   "license": "MIT",
   "author": "davexxx",

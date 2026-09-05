@@ -4,6 +4,23 @@ All notable changes to VibeKnowledge are documented in this file. The format fol
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-05
+
+### Added
+
+- Feature-first MCP tools `find_features`, `get_feature_brief` and `get_task_context`, reusing the local query Skill's validation, source-freshness checks, bounded output and read-only behavior. The packaged runtime and installation health check include all three tools.
+
+### Changed
+
+- Exact method/symbol task-context queries follow relevant symbol relationships, including same-file helpers, callers and test candidates, while file selectors retain whole-file navigation. Container, type-only, receiver and import/file endpoints are terminal hints; owner/constructor locations identify shared initialization that needs separate source inspection.
+- Kept the existing feature-brief authoring guidance and facet-balanced budget policy; the experimental evidence-chain checklist and constraint-first ordering are not included.
+- Simplified the READMEs to the current method and latest non-RAG coding-task observations, with explicit scope, accounting and audit limits rather than historical benchmark comparisons.
+
+### Evaluation
+
+- Selected JSON export: actual tool text decreased 17.1% and uncached input plus output decreased 14.2%, with both arms scoring 4/4. The Unicode truncation control read 9.8% less tool text but used 65.5% more uncached input plus output, with both arms scoring 3/3.
+- These are one-pair-per-task observations of old versus exact-symbol context, not Skill versus no Skill. They do not establish a general efficiency or accuracy improvement; encrypted persisted prompts prevent full plaintext dispatch verification. RAG cases and the mixed aggregate are excluded from the published evaluation.
+
 ## [0.5.0] - 2026-09-04
 
 ### Added
